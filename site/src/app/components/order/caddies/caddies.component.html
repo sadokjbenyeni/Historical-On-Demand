@@ -1,0 +1,299 @@
+<app-menu></app-menu>
+<div class="container">
+  <div class="row page-header">
+    <div class="col-lg-12">
+        <h2 class="">Shopping cart</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-12">
+      <ul class="bread-crumbs">
+        <li [class]="bdc.active" *ngFor="let bdc of breadcrumbs" >
+          <a [routerLink]="bdc.link" *ngIf="bdc.active === 'active'"><i [class]="bdc.icon"> {{bdc.name}}</i></a>
+          <i [class]="bdc.icon" *ngIf="bdc.active !== 'active'"> {{bdc.name}}</i>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-12 col-md-12">
+      <div class="panel panel-primary">
+        <div class="panel-body">
+          <div class="table-responsive text-center" *ngIf="page === 'licensing'">
+            <p>Prior to finalizing your order, we have a few questions about data usage so we can customize your license agreement.</p>
+            <p><input type="checkbox"  #terms (change)="termsCheckbox(terms)" [(ngModel)]="term"> I have read, understood and accept the <a class="clickable" (click)="termsOpen()">Terms and Conditions</a></p>
+            <p [hidden]="viewterms">
+              <button class="btn btn-success" (click)="previousPage()">Previous</button>
+              <button class="btn btn-danger" (click)="termsClose()">Close</button>
+              <button class="btn btn-success" (click)="nextPage()">Next</button>
+            </p>
+            <pdf-viewer
+            [src]="termspdf"
+            [rotation]="rotation"
+            [original-size]="originalSize"
+            [fit-to-page]="fitToPage"
+            [zoom]="0.5"
+            [(page)]="pages"
+            [show-all]="showAll"
+            [stick-to-page]="stickToPage"
+            [render-text]="renderText"
+            [external-link-target]="'blank'"
+            [autoresize]="autoresize"
+            [hidden]="viewterms"
+            ></pdf-viewer>
+          </div>
+          <div class="table-responsive" *ngIf="page === 'licensing' && term">
+            <app-survey (surveyChange)="updtSurvey($event);" [survey]="survey" ></app-survey>
+          </div>
+          <div class="table-responsive" *ngIf="( page === 'caddies' || page === 'review' || page === 'orderconfirm')">
+            <table class="table tacle-hover">
+              <thead>
+                <tr>
+                  <th>Item #</th>
+                  <th>Data Set</th>
+                  <th>Instrument ID</th>
+                  <th>Product ID</th>
+                  <th>Symbol</th>
+                  <th>Description</th>
+                  <th>Asset Class</th>
+                  <th>Exchange</th>
+                  <th>MICs</th>
+                  <th>Purchase Type</th>
+                  <th>Date From</th>
+                  <th>Date To</th>
+                  <th>Pricing Tier</th>
+                  <th>Price</th>
+                  <th *ngIf="page === 'caddies'">Remove</th>
+                </tr>
+              </thead>
+              <tbody *ngIf="cart.length === 0">
+                <tr><td colspan="12"> No Product Selection ! </td></tr>
+              </tbody>
+              <tbody *ngIf="cart.length > 0">
+                <!-- <tr *ngFor="let c of cart; let idx = index"> -->
+                <tr *ngFor="let c of cart">
+                  <td *ngIf="!c.print">{{c.id}}</td>
+                  <td *ngIf="!c.print">{{ dataset[c.quotation_level] }}</td>
+                  <td *ngIf="!c.print">{{ c.qhid }}</td>
+                  <td *ngIf="!c.print">{{ c.eid }}</td>
+                  <td *ngIf="!c.print">{{ c.symbol }}</td>
+                  <td *ngIf="!c.print">{{ c.description }}</td>
+                  <td *ngIf="!c.print">{{ c.assetClass }}</td>
+                  <td *ngIf="!c.print">{{ c.exchange }}</td>
+                  <td *ngIf="!c.print">{{ c.mics }}</td>
+                  <td *ngIf="!c.print && c.onetime === 1">One-Off</td>
+                  <td *ngIf="!c.print && c.subscription === 1">Subscription</td>
+
+                  <td class="datemodal" *ngIf="!c.print && page === 'caddies' && c.subscription !== 1 ">
+                    <input class="border-color" placeholder="yyyy-mm-dd" name="df" [(ngModel)]="c.bds" ngbDatepicker [minDate]="c.bdref" [maxDate]="c.edref" #db="ngbDatepicker" (ngModelChange)="updateCaddies(c.idCmd, c.idElem, c.bds, c.eds, c.begin_date, c.end_date, c.price)" ngModel>
+                    <span (click)="db.toggle();"><i class="fa fa-calendar"></i></span>
+                  </td>
+                  <td *ngIf="!c.print && c.subscription === 1"></td>
+                  <td *ngIf="!c.print && (page === 'review' || page === 'orderconfirm') && c.subscription !== 1">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
+
+                  <td class="datemodal" *ngIf="!c.print && page === 'caddies' && c.subscription !== 1 ">
+                    <input class="border-color" placeholder="yyyy-mm-dd" name="dd" [(ngModel)]="c.eds" ngbDatepicker [minDate]="c.bdref" [maxDate]="c.edref" #da="ngbDatepicker" (ngModelChange)="updateCaddies(c.idCmd, c.idElem, c.bds, c.eds, c.begin_date, c.end_date, c.price)" ngModel>
+                    <span (click)="da.toggle();"><i class="fa fa-calendar"></i></span>
+                  </td>
+                  <td *ngIf="!c.print && c.subscription === 1"></td>
+                  <td *ngIf="!c.print && (page === 'review' || page === 'orderconfirm') && c.subscription !== 1">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
+
+                  <td *ngIf="!c.print">{{ c.pricingTier }}</td>
+                  <td *ngIf="!c.print">{{ (c.ht ) | number:'1.2-2' }}</td>
+                  <td *ngIf="!c.print && page === 'caddies'"><span class="btn btn-danger fa fa-trash" (click)="delCaddies(c.idCmd, c.idElem, c.ht, c.backfill_fee, c.ongoing_fee)"></span></td>
+                  <td class="bg-grey" colspan="12" *ngIf="page === 'orderconfirm' && c.print"></td>
+                  <td *ngIf="(c.backfill_fee || c.ongoing_fee) && page === 'orderconfirm' && c.print"><b>Exchange Fees</b></td>
+                  <td *ngIf="(c.backfill_fee || c.ongoing_fee) && page === 'orderconfirm' && c.print">{{ (c.backfill_fee ? c.backfill_fee : c.ongoing_fee) | number:'1.2-2' }}</td>
+                </tr>
+                <tr *ngIf="cart?.length === 0">
+                  <td colspan="14" class="no-data-available">Empty !</td>
+                </tr>
+              </tbody>
+              <tfoot class="pagine" *ngIf="page === 'orderconfirm'">
+                <tr>
+                  <td colspan="12"></td>
+                  <td class="bb">Exchange Fees</td>
+                  <td class="bb">{{ totalFees | number:'1.2-2' }} {{ symbol }}</td>
+                  <td *ngIf="page === 'caddies'"></td>
+                </tr>
+                <tr>
+                  <td colspan="12"></td>
+                  <td class="bb">Before Taxes</td>
+                  <td class="bb">{{ totalAmount | number:'1.2-2' }} {{ symbol }}</td>
+                  <td *ngIf="page === 'caddies'"></td>
+                </tr>
+                <tr *ngIf="discount != 0">
+                  <td colspan="12"></td>
+                  <td class="bb">Discount (%)</td>
+                  <td class="bb">{{ discount }}</td>
+                  <td *ngIf="page === 'caddies'"></td>
+                </tr>
+                <tr *ngIf="applyVAT">
+                    <td colspan="12"></td>
+                    <td class="bb">Taxes (VAT - {{(vat * 100) | ceil }} %)</td>
+                    <td class="bb">{{ totalVat | number:'1.2-2' }} {{ symbol }}</td>
+                    <td *ngIf="page === 'caddies'"></td>
+                </tr>
+                <tr>
+                    <td colspan="12"></td>
+                    <td class="bb">TOTAL (including taxes)</td>
+                    <td class="bb">{{ totalTTC | number:'1.2-2' }} {{ symbol }}</td>
+                    <td *ngIf="page === 'caddies'"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div class="table-responsive" *ngIf="page === 'billing'">
+            <div class="col-lg-12">
+                <div class="col-lg-6 panel panel-primary">
+                    <h4>Billing Information</h4>
+                  <div class="form-group input-group">
+                    <span class="input-group-addon">VAT Number
+                      <b class="valid" *ngIf="checkv && user.vat !==''">✓</b>
+                      <b class="unvalid" *ngIf="!checkv && user.vat !==''">X</b>
+                    </span>
+                    <input type="text" name="newvat" [class]="loadvat" placeholder="VAT Number" (change)="checkVat()" [(ngModel)]="user.vat" #newvat="ngModel" ngModel>
+                    <div class="alert alert-danger" *ngIf="!checkv && user.vat && loadvat === 'form-control' "><span>You have entered an invalid VAT Number</span></div>
+                  </div>
+                  <div class="form-group input-group">
+                    <span class="input-group-addon">Address*</span>
+                    <input type="text" name="addressBilling" class="form-control" placeholder="Billing Address" [(ngModel)]="user.addressBilling" ngModel #newaddress="ngModel" required>
+                    <show-errors [control]="newaddress"></show-errors>
+                  </div>
+                  <div class="form-group input-group">
+                    <span class="input-group-addon">City*</span>
+                    <input type="text" name="cityBilling" class="form-control" placeholder="Billing City" [(ngModel)]="user.cityBilling" ngModel #newcity="ngModel" required>
+                    <show-errors [control]="newcity"></show-errors>
+                  </div>
+                  <div class="form-group input-group">
+                    <span class="input-group-addon">Postal Code*</span>
+                    <input type="text" name="postalCodeBilling" class="form-control" placeholder="Billing Postal Code" [(ngModel)]="user.postalCodeBilling"  ngModel #newcp="ngModel" required>
+                    <show-errors [control]="newcp"></show-errors>
+                  </div>
+                  <div class="form-group input-group">
+                    <span class="input-group-addon">Country*</span>
+                    <select name="countryBilling" class="form-control" [(ngModel)]="user.countryBilling" ngModel #newcountry="ngModel" required>
+                      <option value="">Select country</option>
+                      <option *ngFor='let c of country' [value]="c.id">{{c.name}}</option>
+                    </select>
+                    <show-errors [control]="newcountry"></show-errors>
+                  </div>
+                  <label class="checkbox text-color">
+                    <input type="checkbox" name="sameaddress" (change)="sameAddress()"  [(ngModel)]="user.sameAddress"> Use contact address as billing address ?
+                  </label>
+                </div>
+                <div class="col-lg-6">
+                  <div class="form-group input-group">
+                    <div class="col-lg-6 panel panel-primary">
+                      <h4>Please select your payment method</h4>
+                      <label class="radio" *ngFor="let payment of payments">
+                        <input type="radio" name="payment" [value]="payment.id" [(ngModel)]="user.payment" [disabled]="this.minRib && payment.id === 'banktransfer'"> {{ payment.name }} 
+                        <small class="text-color" *ngIf="this.minRib && payment.id === 'banktransfer'">(Amount < {{currencyObj['maxrib']}} {{currencyObj['symbol']}})</small>
+                      </label>
+                      <label class="checkbox text-color" *ngIf="user.payment != payment">
+                        <input type="checkbox" name="paymentchange" [(ngModel)]="paymentchange"> Select as default payment method ?
+                      </label>
+                    </div>
+                    <div class="col-lg-6 panel panel-primary">
+                      <h4>Please select your billing currency</h4>
+                      <label class="radio" *ngFor="let currency of currencies">
+                        <input type="radio" name="currency" [value]="currency.id" [(ngModel)]="user.currency" [title]="currency.name" (change)="changeCurrency($event, currency.id)"> {{ currency.device }}
+                      </label>
+                      <label class="checkbox text-color" *ngIf="user.currency != currency">
+                        <input type="checkbox" name="currencychange" [(ngModel)]="currencychange"> Select as default billing currency ?
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </div>
+        <div class="table-responsive text-center" *ngIf="page === 'payment'">
+          <div *ngIf="payment === 'banktransfer'">
+            <fieldset>
+              <legend>Payment</legend>
+              <table class="rib">
+                <thead>
+                  <th>Code Banque</th>
+                  <th>Code Guichet</th>
+                  <th>Numéro de compte</th>
+                  <th>Clé RIB</th>
+                  <th>Domiciliation</th>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span>{{ rib.rib.cb }}</span></td>
+                    <td><span>{{ rib.rib.cg }}</span></td>
+                    <td><span>{{ rib.rib.nc }}</span></td>
+                    <td><span>{{ rib.rib.cr }}</span></td>
+                    <td><span>{{ rib.rib.domiciliation }}</span></td>
+                  </tr>
+                </tbody>
+              </table>
+              <h4>IBAN</h4>
+              <table class="rib">
+                <tr>
+                  <td>{{ rib.iban.ib1 }}</td>
+                  <td>{{ rib.iban.ib2 }}</td>
+                  <td>{{ rib.iban.ib3 }}</td>
+                  <td>{{ rib.iban.ib4 }}</td>
+                  <td>{{ rib.iban.ib5 }}</td>
+                  <td>{{ rib.iban.ib6 }}</td>
+                  <td>{{ rib.iban.ib7 }}</td>
+                </tr>
+              </table>
+              <h4>BIC</h4>
+              <table class="rib"><tr><td>{{ rib.bic }}</td></tr></table>
+              <br><br>
+            </fieldset>
+          </div>
+          <div *ngIf="payment === 'creditcard'">
+            <fieldset>
+              <legend>Payment</legend>
+              <div id="paymentcard"></div>
+            </fieldset>
+            <br><br>
+          </div>
+        </div>
+      </div>
+      <br><br>
+      <div class="panel-footer text-center">
+        <!-- Shopping Cart -->
+        <button class="btn btn-primary" routerLink="/home" *ngIf="page === 'caddies'">Continue shopping</button>  
+        <button class="color btn btn-default" routerLink="/order/review" *ngIf="page === 'caddies' && cart?.length > 0">Next</button>
+        <!-- Order Review -->
+        <button class="color btn btn-default" routerLink="/order/caddies" *ngIf="page === 'review'">Previous</button>
+        <button class="color btn btn-default" (click)="saveOrderView()" routerLink="/order/licensing" *ngIf="page === 'review'">Next</button>
+        <!-- Licensing -->
+        <button class="color btn btn-default" (click)="saveSurvey()" routerLink="/order/review" *ngIf="page === 'licensing' && survey === 0">Previous</button>
+          <!-- Begin Survey -->
+        <button class="color btn btn-default" (click)="previous()" *ngIf="page === 'licensing' && survey > 0">Previous</button>
+        <button class="color btn btn-default" (click)="next()" *ngIf="page === 'licensing' && term && survey === 0" [disabled]="surveyForm.dd ===''" >Next</button>
+        <button class="color btn btn-default" (click)="next()" *ngIf="page === 'licensing' && term && survey === 1" [disabled]="surveyForm.dt ===''">Next</button>
+          <!-- End Survey -->
+        <button class="color btn btn-default" (click)="saveSurvey()" routerLink="/order/billing" *ngIf="page === 'licensing' && survey === 2" [disabled]="surveyForm.du.cb.length === 0">Next</button>
+        <!-- Billing -->
+        <button class="color btn btn-default" routerLink="/order/licensing" *ngIf="page === 'billing'">Previous</button>
+        <button 
+          class="color btn btn-default" 
+          (click)="saveBilling()" 
+          routerLink="/order/orderconfirm" 
+          *ngIf="page === 'billing'" 
+          [disabled]="
+            !user.countryBilling || 
+            !user.addressBilling || 
+            !user.postalCodeBilling || 
+            !user.cityBilling || 
+            !user.payment || 
+            !user.currency">Next
+          </button>
+        <!-- Order Confirmation -->
+        <button class="color btn btn-default" routerLink="/order/billing" *ngIf="page === 'orderconfirm'">Previous</button>
+        <button class="color btn btn-default" (click)="saveAmount()" routerLink="/order/payment" *ngIf="page === 'orderconfirm'">Next</button>
+        <!-- Payment -->
+        <button class="color btn btn-default" routerLink="/order/orderconfirm" *ngIf="page === 'payment'">Previous</button>
+        <button class="btn btn-primary" *ngIf="page === 'payment' && payment === 'banktransfer'" (click)="submitRib()" >Submit</button>
+      </div>
+    </div>
+  </div>
+</div>

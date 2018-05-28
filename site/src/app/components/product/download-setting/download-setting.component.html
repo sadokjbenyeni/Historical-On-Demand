@@ -1,0 +1,32 @@
+<br>
+<h4>Download Setting</h4>
+<br>
+<div class="panel panel-primary" *ngIf="message">
+  <div class="panel-heading">
+    <h4 class="text-center">{{message}}</h4>
+  </div>
+</div>
+<fieldset class="form-group">
+  <legend>One-Off</legend>
+  <div class="form-group input-group" style="width: 300px; text-align: center; margin: auto">
+    <span class="input-group-addon">MAX data download period (days)</span>
+    <input class="form-control ng-untouched ng-pristine ng-valid" name="periodOneOff" placeholder="xx" type="text" [(ngModel)]="periodOneOff">
+  </div>
+  <div class="form-group input-group" style="width: 300px; text-align: center; margin: auto">
+    <span class="input-group-addon">MAX number of allowed downloads</span>
+    <input class="form-control ng-untouched ng-pristine ng-valid" name="downloadOneOff" placeholder="xx" type="text" [(ngModel)]="downloadOneOff">
+  </div>
+  <span class="btn btn-default color clickable" (click)="saveOneOff()">Save</span>
+</fieldset>
+<fieldset class="form-group">
+    <legend>Subscription</legend>
+    <div class="form-group input-group" style="width: 300px; text-align: center; margin: auto">
+    <span class="input-group-addon">MAX data download period (days)</span>
+    <input class="form-control ng-untouched ng-pristine ng-valid" name="periodSubscription" placeholder="xx" type="text" [(ngModel)]="periodSubscription">
+  </div>
+  <div class="form-group input-group" style="width: 300px; text-align: center; margin: auto">
+    <span class="input-group-addon">MAX number of allowed downloads</span>
+    <input class="form-control ng-untouched ng-pristine ng-valid" name="downloadSubscription" placeholder="xx" type="text" [(ngModel)]="downloadSubscription">
+  </div>
+  <span class="btn btn-default color clickable" (click)="saveSubscription()">Save</span>
+</fieldset>

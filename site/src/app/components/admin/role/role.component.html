@@ -1,0 +1,27 @@
+<app-menu></app-menu>
+<div class="container">
+  <div class="row">
+      <!--  page header -->
+      <div class="col-lg-12">
+          <h1 class="page-header">Configuration roles</h1>
+      </div>
+      <!-- end  page header -->
+  </div>
+  <div class="row">
+    <app-configuration></app-configuration>
+    <div class="col-md-10">
+      <table class="table">
+          <thead>
+              <th>Pages</th>
+              <th *ngFor="let role of roles">{{ role.name }}</th>
+          </thead>
+          <tbody>
+              <tr *ngFor="let page of pages">
+                  <td>{{ page }}</td>
+                  <td *ngFor="let r of roles"> <input type="checkbox" name="" id="" [checked]="r.pages.indexOf(page) !== -1" ></td>
+              </tr>
+          </tbody>
+      </table>
+    </div>
+  </div>
+</div>
