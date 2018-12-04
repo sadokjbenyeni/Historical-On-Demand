@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const request = require('request');
 
 const User = mongoose.model('User');
+const Order = mongoose.model('Order');
 const Role = mongoose.model('Role');
 
 const config = require('../config/config.js');
@@ -14,6 +15,7 @@ const URLS = config.config();
 const admin = config.admin();
 const domain = config.domain();
 const PHRASE = config.phrase();
+const DNLFILE = config.dnwfile();
 const algorithm = 'aes256';
 var idd = "";
 
@@ -49,6 +51,46 @@ router.get('/count/', (req, res) => {
     else{
         return res.sendStatus(404);
     }
+});
+
+router.get('/test/:token/:id/:file', (req, res) => {
+    let valid = false;
+    // http://10.1.0.5:3000/loadfile/3-qh-20180522-1/2017-1-10_1027_L1.csv.gz
+    User.findOne({token: req.params.token}, {_id:true})
+    .then((u)=>{
+        if(u) {
+            let idUser = JSON.parse(JSON.stringify(u._id));
+            // Order.findOne({idUser: idUser, 'products.id_undercmd': req.params.id}, {'products.$.id_undercmd':true, _id:false})
+            Order.findOne({idUser: idUser, 'products.id_undercmd': req.params.id.split('|')[0]})
+            .select({'products.$.id_undercmd':1, '_id': false})
+            .then(o=>{
+                if(o){
+                    o.products[0].links.forEach(lk=>{
+                        if (lk.status === 'active') {
+                            lk.links.forEach(link=>{
+                                let rgx = RegExp(req.params.file);
+                                valid += rgx.test(link.link);
+                            })
+                        }
+                    })
+                } else {
+                    res.status(404).end();        
+                }
+            })
+            .then(()=>{
+                if(valid) {
+                    res.download('/mapr/client_exports/' + req.params.id + '/' + req.params.file);
+                } else {
+                    res.status(404).end();
+                }
+            });
+        } else {
+            res.status(404).end();
+        }
+    })
+    .catch(err=>{
+        res.status(500).end();
+    });
 });
 
 router.get('/cpt/', (req,res)=>{
@@ -121,7 +163,14 @@ router.post('/', (req, res) => {
         user.firstname = req.body.firstname;
         user.job = req.body.job;
         user.companyName = req.body.companyName;
-        user.country = req.body.country;
+        user.companyType = req.body.companyType?req.body.companyType:'';
+        user.country = req.body.country?req.body.country:'';
+        user.address = req.body.address?req.body.address:'';
+        user.postalCode = req.body.postalCode?req.body.postalCode:'';
+        user.city = req.body.city?req.body.city:'';
+        user.region = req.body.region?req.body.region:'';
+        user.phone = req.body.phone?req.body.phone:'';
+        user.website = req.body.website?req.body.website:'';
         
         user.save((err, u)=>{
             if (err) return console.error(err);

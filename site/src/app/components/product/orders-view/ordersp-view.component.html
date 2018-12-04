@@ -61,10 +61,10 @@
                 <td *ngIf="!c.print">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
                 <td *ngIf="!c.print">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
                 <td *ngIf="!c.print">{{ c.pricingTier }}</td>
-                <td *ngIf="!c.print">{{ getHt(c.ht) | number:'1.2-2' }}</td>
+                <td *ngIf="!c.print">{{ getHt(c.ht) | number:'1.2-2' }} {{ symbols[currency] }}</td>
                 <td class="bg-grey" colspan="8" *ngIf="c.print"></td>
                 <td *ngIf="(c.backfill_fee || c.ongoing_fee)"><b>Exchange Fees</b></td>
-                <td *ngIf="(c.backfill_fee || c.ongoing_fee)">{{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }}</td>
+                <td *ngIf="(c.backfill_fee || c.ongoing_fee)">{{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }} {{ symbols[currency] }}</td>
               </tr>
               <tr *ngIf="cart?.length === 0">
                 <td colspan="11" class="no-data-available">Empty !</td>
@@ -107,7 +107,7 @@
                 <span class="btn btn-info fa fa-save" *ngIf="verifState()" (click)="openModal(content); actions('Confirm Discount Application')"> Apply Discount</span>
                 <span class="btn btn-success fa fa-handshake-o" *ngIf="verifStatePVP()" (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
                 <span class="btn btn-danger fa fa-power-off" [routerLink]='["/product/orders"]'> Close</span>
-                <span class="btn btn-danger fa fa-times" *ngIf="verifStatePVP()" (click)="openModal(content); actions('Confirm Client Order Rejection')"> Rejected</span>
+                <span class="btn btn-danger fa fa-times" *ngIf="verifStatePVP()" (click)="openModal(content); actions('Confirm Client Order Rejection')"> Reject</span>
                 <span class="btn btn-warning fa fa-trash" *ngIf="verifState()" (click)="openModal(content); actions('Confirm Client Order Cancelation')"> Cancel Order</span>
               </div>
             </div>
@@ -125,6 +125,10 @@
     </button>
   </div>
   <div class="modal-body text-right">
+      <div class="text-left" *ngIf="(action === 'Confirm Client Order Rejection' || action === 'Confirm Client Order Cancelation' ) && verifStatePVP()">
+        <p>Reason :</p>
+        <p><textarea rows="8" cols="40" class="form-control"></textarea></p>
+      </div>
       <button type="button" class="btn btn-danger" (click)="confirm(); c('')">Confirm</button>
       <button type="button" class="btn btn-light" (click)="c('')">Close</button>
   </div>

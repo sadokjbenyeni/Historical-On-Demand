@@ -28,14 +28,14 @@
               <td>{{ a.pricingTier }}</td>
               <td *ngIf="a.index === 'non-derivatives'">
                 <div (click)="cell = a.index + a.pricingTier + 'inf'" width="298px" class="clickable">
-                  <span *ngIf="cell === '' || cell !== a.index + a.pricingTier + 'inf'">{{a.inf?a.inf:0}}</span>
+                  <span *ngIf="cell === '' || cell !== a.index + a.pricingTier + 'inf'">{{a.inf?a.inf:'-'}}</span>
                 </div>
                 <input [(ngModel)]="a.inf" type="number" min="0" *ngIf="cell === a.index + a.pricingTier + 'inf'">
                 <button class="btn btn-success" (click)="cell=''" *ngIf="cell === a.index + a.pricingTier + 'inf'">Valid</button>
               </td>
               <td *ngIf="a.index === 'non-derivatives'">
                 <div (click)="cell = a.index + a.pricingTier + 'sup'" width="298px" class="clickable">
-                  <span *ngIf="cell === '' || cell !== a.index + a.pricingTier + 'sup'">{{a.sup?a.sup:0}}</span>
+                  <span *ngIf="cell === '' || cell !== a.index + a.pricingTier + 'sup'">{{a.sup?a.sup:'-'}}</span>
                 </div>
                 <input [(ngModel)]="a.sup" type="number" min="0" *ngIf="cell === a.index + a.pricingTier + 'sup'">
                 <button class="btn btn-success" (click)="cell=''" *ngIf="cell === a.index + a.pricingTier + 'sup'">Valid</button>
@@ -44,14 +44,14 @@
               <td *ngIf="a.index === 'derivatives'" colspan="2" class="bg-grey"></td>
               <td *ngIf="a.index === 'derivatives'">
                 <div (click)="cell = a.index + a.pricingTier + 'inf'" width="298px" class="clickable">
-                  <span *ngIf="cell === '' || cell !== a.index + a.pricingTier + 'inf'">{{a.inf?a.inf:0}}</span>
+                  <span *ngIf="cell === '' || cell !== a.index + a.pricingTier + 'inf'">{{a.inf?a.inf:'-'}}</span>
                 </div>
                 <input [(ngModel)]="a.inf" type="number" min="0" *ngIf="cell === a.index + a.pricingTier + 'inf'">
                 <button class="btn btn-success" (click)="cell=''" *ngIf="cell === a.index + a.pricingTier + 'inf'">Valid</button>
               </td>
               <td *ngIf="a.index === 'derivatives'">
                 <div (click)="cell = a.index + a.pricingTier + 'sup'" width="298px" class="clickable">
-                  <span *ngIf="cell === '' || cell !== a.index + a.pricingTier + 'sup'">{{a.sup?a.sup:0}}</span>
+                  <span *ngIf="cell === '' || cell !== a.index + a.pricingTier + 'sup'">{{a.sup?a.sup:'-'}}</span>
                 </div>
                 <input [(ngModel)]="a.sup" type="number" min="0" *ngIf="cell === a.index + a.pricingTier + 'sup'">
                 <button class="btn btn-success" (click)="cell=''" *ngIf="cell === a.index + a.pricingTier + 'sup'">Valid</button>

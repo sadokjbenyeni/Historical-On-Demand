@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 import { OrderService } from '../../services/order.service';
 import { UploadService } from '../../services/upload.service';
@@ -29,6 +30,7 @@ export class OrderHistoryComponent implements OnInit {
   totalTTC: any;
   totalExchangeFees: any;
   totalHT: any;
+  discount: any;
   totalVat: number;
   title: string;
   states: object;
@@ -61,7 +63,7 @@ export class OrderHistoryComponent implements OnInit {
       CART: 'Pending Licensing Information',
       PLI: 'Pending Licensing Information',
       PBI: 'Pending Billing Information',
-      PSC: 'Pending Subscription by Client',
+      PSC: 'Pending Submission by Client',
       PVP: 'Pending Validation by Product',
       PVC: 'Pending Validation by Compliance',
       PVF: 'Pending Validation by Finance',
@@ -88,7 +90,27 @@ export class OrderHistoryComponent implements OnInit {
     this.viewdetail = false;
   }
 
+  filterUser(link) {
+    // console.log(this.today, this.limitDownLoad(link.createLinkDate));
+    let dif = { sec: 0, min: 0, hour:0, day: 0 };  // Initialisation du retour
+    let date1 = new Date().getTime();
+    let expired = new Date(link.createLinkDate);
+    expired.setDate(expired.getDate() + 14);
+    let tmp = expired.getTime() - date1;
+    tmp = Math.floor(tmp/1000);                    // Nombre de secondes entre les 2 dates
+    dif.sec = tmp % 60;                            // Extraction du nombre de secondes
+    tmp = Math.floor((tmp-dif.sec)/60);            // Nombre de minutes (partie entière)
+    dif.min = tmp % 60;                            // Extraction du nombre de minutes
+    tmp = Math.floor((tmp-dif.min)/60);            // Nombre d'heures (entières)
+    dif.hour = tmp % 24;                           // Extraction du nombre d'heures
+    tmp = Math.floor((tmp-dif.hour)/24);           // Nombre de jours restants
+    dif.day = tmp;
+
+    return link.status === 'active' && dif.day > 0;
+  }
+
   view(c){
+    this.details = [];
     this.list = false;
     this.viewdetail = true;
     this.title = 'Order : ' + c.id;
@@ -106,11 +128,18 @@ export class OrderHistoryComponent implements OnInit {
     } else {
       this.textcolor = 'text-color';
     }
-    this.submissionDate = c.updatedAt;
+    this.submissionDate = c.submissionDate;
     let index = 0;
     if(c.products.length > 0){
       c.products.forEach(p => {
         index++;
+        let l = [];
+        if(!p.links){ p['links'] = []; }
+        p.links.forEach(pl => {
+          pl.onetime = p.onetime;
+          pl.subscription = p.subscription;  
+          l.push(pl);
+        });
         let prod = {
           id: index,
           print: false, 
@@ -122,7 +151,7 @@ export class OrderHistoryComponent implements OnInit {
           assetClass: p.assetClass,
           eid: p.eid,
           qhid: p.qhid,
-          links: p.links,
+          links: l,
           description: p.description,
           onetime: p.onetime,
           subscription: p.subscription,
@@ -149,14 +178,22 @@ export class OrderHistoryComponent implements OnInit {
     this.vat = c.vatValue;
     if (c.currency !== 'usd') {
       this.totalExchangeFees = (c.totalExchangeFees / c.currencyTxUsd) * c.currencyTx;
+      this.discount = c.discount;
       this.totalHT = ( (c.totalHT + c.totalExchangeFees) / c.currencyTxUsd) * c.currencyTx;
+      if(this.discount>0){
+        this.totalHT = this.totalHT - ( this.totalHT * (this.discount / 100) );
+      }
       this.totalVat = this.totalHT * this.vat;
-      this.totalTTC = this.precisionRound(((c.total / c.currencyTxUsd) * c.currencyTx), 2);
+      this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
     } else{
       this.totalExchangeFees = c.totalExchangeFees;
+      this.discount = c.discount;
       this.totalHT = c.totalHT + c.totalExchangeFees;
+      if(this.discount>0){
+        this.totalHT = this.totalHT - ( this.totalHT * (this.discount / 100) );
+      }
       this.totalVat = this.totalHT * this.vat;
-      this.totalTTC = this.precisionRound(c.total, 2);
+      this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
     }
   }
 
@@ -211,6 +248,23 @@ export class OrderHistoryComponent implements OnInit {
     }
   }
 
+  getTTC(val){
+    let ttc = 0;
+    if (val.currency !== 'usd') {
+      ttc = ((val.totalHT / val.currencyTxUsd) * val.currencyTx);
+      console.log(ttc);
+      if(val.discount>0){
+        ttc = ttc - ( ttc * (val.discount / 100) );
+      }
+    } else{
+      ttc = val.totalHT;
+      if(val.discount>0){
+        ttc = ttc - ( ttc * (val.discount / 100) );
+      }
+    }
+    return this.precisionRound((ttc * (1 + val.vatValue)), 2);
+  }
+
   getHtAll(val, txUsd, tx){
     if (this.currency !== 'usd') {
       return ((val / txUsd) * tx);
@@ -243,4 +297,30 @@ export class OrderHistoryComponent implements OnInit {
     return Math.round(number * factor) / factor;
   }
   
+  setting = {
+    element: {
+      dynamicDownload: null as HTMLElement
+    }
+  }
+
+  dyanmicDownloadByHtmlTag(fileName: string, text: Array<any>, path: string) {
+    if (!this.setting.element.dynamicDownload) {
+      this.setting.element.dynamicDownload = document.createElement('a');
+    }
+    let liens = [];
+    text.forEach(ll => {
+      ll.link.split('|').forEach(lien => {
+        liens.push({link: environment.api + '/user/test/'+this.token+'/'+ path +'/'+ lien });
+      });
+    });
+    const element = this.setting.element.dynamicDownload;
+    const fileType = 'text/json';
+    element.setAttribute('href', `data:${fileType};charset=utf-8,${encodeURIComponent(JSON.stringify(liens))}`);
+    element.setAttribute('download', fileName);
+
+    var event = new MouseEvent("click");
+    element.dispatchEvent(event);
+  }
+
 }
+

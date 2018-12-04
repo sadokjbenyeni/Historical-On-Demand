@@ -5,7 +5,7 @@ const User = mongoose.model('User');
 exports.rtconfig = () => { const urls = [ "192.168.10.10" ]; }
 
 // Domain of site
-exports.domain = () => { return "http://10.1.0.5:3000"; }
+exports.domain = () => { return "http://hod-lab.quanthouse.com"; }
 
 // IPs ElastcSearch
 exports.hostsES = () => { return ['10.0.10.218:9200', '10.0.10.190:9200', '10.0.10.234:9200']; }
@@ -24,6 +24,9 @@ exports.phrase = () => { return '14cb4a9235d7360d2911d6444aa69f02'; }
 
 // Domaine QuantFlow
 exports.apiqf = () => { return "http://10.1.0.6"; }
+
+// Download file HoD
+exports.dnwfile = () => { return "http://gateway0X.hod.quanthouse.com"; }
 
 // Link API Currency
 exports.currency = () => { return "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"; }

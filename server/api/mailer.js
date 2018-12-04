@@ -160,12 +160,12 @@ router.post('/newOrder', (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
-    subject: 'Order # ' + req.body.idCmd + ' summary',
+    subject: 'Order # ' + req.body.idCmd + ' confirmation',
     text: `Hello,
 
 
-    Thank you for choosing the QH Histo On-Demand product.<br>
-    You Order # `+ req.body.idCmd +` has been received on ` + req.body.paymentdate + ` CET and is currently pending validation by the QH ` + req.body.service + ` department.
+    Thank you for choosing the QH's Historical Data On-Demand product.<br>
+    You Order # `+ req.body.idCmd +` has been received on ` + req.body.paymentdate.substring(0, 10) + " " + req.body.paymentdate.substring(11, 19) + ` CET and is currently pending validation by the QH ` + req.body.service + ` department.
     For any further information about your order, please use the following link: `+ domain + `/order/history
 
     
@@ -173,8 +173,8 @@ router.post('/newOrder', (req, res, next) => {
     Quanthouse`,
 
     html: `Hello,<br><br>
-    Thank you for choosing the QH Histo On-Demand product.<br>
-    You Order <b># `+ req.body.idCmd +`</b> has been received on ` + req.body.paymentdate + ` CET and is currently pending validation by the <b>QH ` + req.body.service + ` department</b>.<br>
+    Thank you for choosing the QH's Historical Data On-Demand product.<br>
+    You Order <b># `+ req.body.idCmd +`</b> has been received on ` + req.body.paymentdate.substring(0, 10) + " " + req.body.paymentdate.substring(11, 19) + ` CET and is currently pending validation by the <b>QH ` + req.body.service + ` department</b>.<br>
     For any further information about your order, please use the following link: <a href="`+ domain + `/order/history"> Click here</a>
     <br><br>
     <b>Thank you,<br>Quanthouse</b>`

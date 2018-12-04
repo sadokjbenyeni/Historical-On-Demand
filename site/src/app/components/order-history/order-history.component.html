@@ -23,9 +23,9 @@
             <tbody>
               <tr *ngFor="let c of cmd; let idx = index">
                 <td *ngIf="c.products.length > 0">{{c.id}}</td>
-                <td *ngIf="c.products.length > 0">{{ c.updatedAt | date:'medium' }}</td>
+                <td *ngIf="c.products.length > 0">{{ c.submissionDate | date:'medium' }}</td>
                 <td *ngIf="c.products.length > 0"><span>{{states[c.state]}}</span></td>
-                <td *ngIf="c.products.length > 0">{{ getHtAll(c.total, c.currencyTxUsd, c.currencyTx) | number:'1.2-2' }}</td>
+                <td *ngIf="c.products.length > 0">{{ getTTC(c) | number:'1.2-2' }}</td>
                 <td *ngIf="c.products.length > 0"></td>
                 <td *ngIf="c.products.length > 0"><span class="btn btn-success fa fa-eye" (click)="view(c)"></span></td>
                 <td *ngIf="c.products.length === 0" colspan="6"><span>No Product Selection !</span></td>
@@ -59,14 +59,14 @@
                       <th>Description</th>
                       <th>Asset Class</th>
                       <th>Exchange</th>
-                      <th>MICs</th>
+                      <th>MIC</th>
                       <th>Purchase Type</th>
                       <th>Engagement Period<br>(month)</th>
                       <th width="85px">Date From</th>
                       <th width="85px">Date To</th>
                       <th>Pricing Tier</th>
                       <th>Price</th>
-                      <th>Expiration Date</th>
+                      <th style="width:100px">Expiration Date</th>
                       <th>Remaining Days</th>
                       <!-- <th>Download counter</th> -->
                       <th width="250px">Deliverables</th>
@@ -90,40 +90,44 @@
                       <td *ngIf="!detail.print">{{ detail.begin_date_select | date:'yyyy-MM-dd' }}</td>
                       <td *ngIf="!detail.print">{{ detail.end_date_select | date:'yyyy-MM-dd' }}</td>
                       <td *ngIf="!detail.print">{{ detail.pricingTier }}</td>
-                      <td *ngIf="!detail.print">{{ getHt(detail.ht) | number:'1.2-2' }}</td>
+                      <td *ngIf="!detail.print">{{ getHt(detail.ht) | number:'1.2-2' }} {{ symbols[currency] }}</td>
                       <td *ngIf="!detail.print">
-                        <span *ngFor="let lk of detail.links">
+                        <span *ngFor="let lk of detail.links | callback: filterUser" class="cap">
                           {{ limitDownLoad(lk.createLinkDate) | date:'yyyy-MM-dd' }}
                         </span>
                       </td>
                       <td *ngIf="!detail.print">
-                          <span *ngFor="let lk of detail.links">
-                            {{ dateDiff(today, limitDownLoad(lk.createLinkDate)).day }}
-                          </span>
-                        </td>
-                        <!-- <td *ngIf="!detail.print">0</td> -->
+                        <span *ngFor="let lk of detail.links | callback: filterUser" class="cap">
+                          <span>{{ dateDiff(today, limitDownLoad(lk.createLinkDate)).day>0?dateDiff(today, limitDownLoad(lk.createLinkDate)).day + 1:0 }}</span>
+                        </span>
+                      </td>
+                      <!-- <td *ngIf="!detail.print">0</td> -->
                       <td *ngIf="!detail.print">
                         <!-- <a (click)="bulkdownload()">test</a><br> -->
-                        <span *ngFor="let lk of detail.links">
-                          <span *ngFor="let links of lk.links">
-                            <div *ngFor="let link of links.link.split('|')">
-                              <a href="/api/user/test/{{token}}/{{ detail.idElem }}/{{ link }}" target="_blank" *ngIf="link && lk.status === 'active'">{{ link }}</a>
-                            </div>
-                          </span>
-                          <!-- <div *ngFor="let link of lk.link.link.split('|')">
-                          <a href="/loadfile/{{ detail.id_undercmd }}/{{ link }}" target="_blank" *ngIf="lk.link && lk.status === 'active'">{{link}}</a>
-                        </div> -->
-                          <!-- <span *ngIf="lk.link && lk.status === 'active'">
-                            <div *ngFor="let link of lk.links.link.split('|')">
-                              <a  href="/loadfile/{{ detail.id_undercmd }}/{{ link }}">{{ link }}</a>
-                            </div><br>
-                          </span> -->
-                        <!-- <a href="/loadfile/{{ detail.id_undercmd }}/{{ detail.id_undercmd }}_{{ lk.link }}.zip" target="_blank" *ngIf="detail.status === 'OK'">{{lk.links}}</a><br> -->
+                        <span *ngFor="let lk of detail.links | callback: filterUser" class="cap">
+                          <!-- <span *ngIf="dateDiff(today, limitDownLoad(lk.createLinkDate)).day > 0 && lk.status === 'active'"> -->
+                            <span *ngIf="lk.subscription === 1">
+                              <span *ngFor="let links of lk.links">
+                                <div *ngFor="let link of links.link.split('|')">
+                                  <!-- <span *ngIf="dateDiff(today, limitDownLoad(lk.createLinkDate)).day>0"> -->
+                                    <!-- <a href="/api/user/test/{{token}}/{{ detail.idElem }}/{{ link }}" target="_blank" *ngIf="link && lk.status === 'active'">{{ link }}</a> -->
+                                    <a href="/api/user/test/{{token}}/{{ lk.path }}/{{ link }}" target="_blank" *ngIf="dateDiff(today, limitDownLoad(lk.createLinkDate)).day>0 && link && lk.status === 'active'">{{ link }}</a>
+                                  <!-- </span> -->
+                                  <span *ngIf="dateDiff(today, limitDownLoad(lk.createLinkDate)).day<=0">
+                                    {{ link }}
+                                  </span>
+                                </div>
+                              </span>
+                            </span>
+                            <span *ngIf="lk.onetime === 1">
+                              <i class="fa fa-upload text-color fa-3x clickable" (click)="dyanmicDownloadByHtmlTag('one-off-'+detail.qhid+'-'+detail.eid+'.json', lk.links, lk.path)" ></i>
+                            </span>
+                          <!-- </span> -->
                         </span>
                       </td>
                       <td class="bg-grey" colspan="11" *ngIf="detail.print"></td>
                       <td  colspan="2" *ngIf="(detail.backfill_fee || detail.ongoing_fee)"><b>Exchange Fees</b></td>
-                      <td *ngIf="(detail.backfill_fee || detail.ongoing_fee)">{{ getHt((detail.backfill_fee ? detail.backfill_fee : detail.ongoing_fee)) | number:'1.2-2' }}</td>
+                      <td *ngIf="(detail.backfill_fee || detail.ongoing_fee)">{{ getHt((detail.backfill_fee ? detail.backfill_fee : detail.ongoing_fee)) | number:'1.2-2' }} {{ symbols[currency] }}</td>
                       <td class="bg-grey" colspan="4" *ngIf="detail.print"></td>
                     </tr>
                     <tr *ngIf="cart?.length === 0">
@@ -146,8 +150,12 @@
                       <td>Order Amount</td>
                       <td>{{totalHT | number:'1.2-2'}} {{ symbols[currency] }}</td>
                     </tr>
-                    <tr>
-                      <td>Taxes (VAT - {{ vat * 100}}% )</td>
+                    <tr *ngIf="discount > 0">
+                      <td>Discount (%)</td>
+                      <td>{{discount}}</td>
+                    </tr>
+                      <tr>
+                      <td>Taxes (VAT : {{ vat * 100}}% )</td>
                       <td>{{totalVat | number:'1.2-2'}} {{ symbols[currency] }}</td>
                     </tr>
                     <tr>

@@ -60,7 +60,7 @@ export class OrderscComponent implements OnInit {
     this.states = [
       {id:'PLI', name: 'Pending Licensing Information' },
       {id:'PBI', name: 'Pending Billing Information' },
-      {id:'PSC', name: 'Pending Subscription by Client' },
+      {id:'PSC', name: 'Pending Submission by Client' },
       {id:'PVP', name: 'Pending Validation by Product' },
       {id:'PVC', name: 'Pending Validation by Compliance' },
       {id:'PVF', name: 'Pending Validation by Finance' },

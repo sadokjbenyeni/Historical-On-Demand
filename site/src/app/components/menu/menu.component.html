@@ -12,7 +12,7 @@
       <ul class="navbar-nav mr-auto" *ngIf="role.length === 0 || !role ">
         <li class="nav-item"><a class="nav-link" routerLink = "/">Home</a></li>
         <li class="nav-item"><a class="nav-link" routerLink = "/about">About QH</a></li>
-        <!-- <li class="nav-item"><a class="nav-link" routerLink = "/help">Help</a></li> -->
+        <li class="nav-item"><a class="nav-link" routerLink = "/help">Help</a></li>
         <li class="nav-item"><a class="nav-link" routerLink = "/login">Login</a></li>
       </ul>
       <ul class="navbar-nav mr-auto" *ngIf="role.indexOf('Client') != -1 ">
@@ -20,7 +20,7 @@
           <li class="nav-item"><a class="nav-link" routerLink = "/account">My Profile</a></li>
           <li class="nav-item"><a class="nav-link" routerLink = "/order/history">Order History</a></li>
           <li class="nav-item"><a class="nav-link" routerLink = "/about">About QH</a></li>
-          <!-- <li class="nav-item"><a class="nav-link" routerLink = "/help">Help</a></li> -->
+          <li class="nav-item"><a class="nav-link" routerLink = "/help">Help</a></li>
           <li class="nav-item"><a class="nav-link" routerLink = "/order/caddies"><i class="fa fa-shopping-cart fa-2x"></i></a></li>
         </ul>
         <ul class="navbar-nav mr-auto" *ngIf="role.indexOf('Administrator') != -1 ">

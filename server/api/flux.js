@@ -27,19 +27,27 @@ router.post('/rate', (req, res) => {
 router.get('/eid/:dataset', (req, res) => {
   let t = [];
   let tabeid = [];
-  request(APIQF + '/apiHoDProduct.php/', { json: true }, (err, r, body) => {
+  //console.dir(APIQF + '/apiHoDProduct.php');
+  request(APIQF + '/apiHoDProduct.php', { json: true }, (err, r, body) => {
     if (err) { return console.log(err); }
-    objectToArray(body.eid_catalogue).forEach(c => {
-      if (objectToArray(c.dataset).indexOf(req.params.dataset) != -1 && c.is_active) {
-        tabeid.push(c.entitlement_id);
-        t.push(
-          {
-            eid: c.entitlement_id,
-            name: c.name,
-            description: c.comment,
-            desc: c.mnemo
-          }
-        );
+    objectToArray(body.hod_catalogue).forEach(c => {
+      // if (objectToArray(c.dataset).indexOf(req.params.dataset) != -1 && c.is_active) {
+      if (objectToArray(c.dataset).indexOf(req.params.dataset) != -1) {
+        console.dir("*************************");
+        console.dir(req.params.dataset);
+        console.dir(c);
+        console.dir("*************************");
+          objectToArray(c.EIDs).forEach((e)=>{
+          tabeid.push(e);
+          t.push(
+            {
+              eid: e,
+              name: c.name,
+              description: c.comment,
+              desc: c.mnemo
+            }
+          );
+        });
       }
     });
     res.status(200).json({ tabEid: tabeid, catalogue: t });
@@ -69,7 +77,7 @@ router.get('/pricingtier', (req, res) => {
 
 // Attendu eid => 1027, 1053, ...
 router.get('/infoProduit/:eid', (req, res) => {
-  request(APIQF + '/apiEID.php/' + req.params.eid, { json: true }, (err, r, body) => {
+  request(APIQF + '/apiEID.php?eid=' + req.params.eid, { json: true }, (err, r, body) => {
     if (err) { return console.log(err); }
     res.status(200).json(body.eid_catalogue[req.params.eid]);
   });

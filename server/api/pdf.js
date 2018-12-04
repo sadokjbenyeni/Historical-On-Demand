@@ -1,13 +1,12 @@
-import { Injectable } from '@angular/core';
+// import { Injectable } from '@angular/core';
 
-import { environment } from '../../environments/environment';
+// import { environment } from '../../environments/environment';
 
-import { UploadService } from './upload.service';
+// import { UploadService } from './upload.service';
 
-import * as pdfMake from 'pdfmake/build/pdfmake';
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+// import * as pdfMake from 'pdfmake/build/pdfmake';
+// import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 
-@Injectable()
 export class PdfService {
   cmd: any;
   totalTTC: number;
@@ -413,4 +412,3 @@ export class PdfService {
            ].join('-');
   };
 }
-

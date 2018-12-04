@@ -60,7 +60,7 @@ export class OrderspComponent implements OnInit {
     this.states = [
       {id:'PLI', name: 'Pending Licensing Information' },
       {id:'PBI', name: 'Pending Billing Information' },
-      {id:'PSC', name: 'Pending Subscription by Client' },
+      {id:'PSC', name: 'Pending Submission by Client' },
       {id:'PVP', name: 'Pending Validation by Product' },
       {id:'PVC', name: 'Pending Validation by Compliance' },
       {id:'PVF', name: 'Pending Validation by Finance' },
@@ -139,11 +139,15 @@ export class OrderspComponent implements OnInit {
     })
   }
 
-  getHt(val, currency, currencyTxUsd, currencyTx){
+  getHt(val, currency, currencyTxUsd, currencyTx, discount, vatValue){
+    let v = 0;
     if (currency !== 'usd') {
-      return ((val / currencyTxUsd) * currencyTx);
+      v = ((val / currencyTxUsd) * currencyTx);
+      v = v - (v * discount/100)
+      return v * (1 + vatValue);
     } else{
-      return val;
+      v = val - (val * discount/100);
+      return v * (1 + vatValue);
     }
   }
 

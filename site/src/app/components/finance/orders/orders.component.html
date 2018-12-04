@@ -87,7 +87,7 @@
             <th>Order Status</th>
             <th>Submission Date</th>
             <th>Total Amount</th>
-            <th>Discount</th>
+            <th>Discount (%)</th>
             <th>Redistribution</th>
             <th>Review</th>
           </tr>
@@ -99,7 +99,7 @@
             <!-- <td>{{ o.idUser }}</td> -->
             <td class="text-center">{{ o.state }}</td>
             <td>{{ o.updatedAt | date:'yyyy-MM-dd' }}</td>
-            <td>{{ precisionRound(getHt(o.total, o.currency, o.currencyTxUsd, o.currencyTx), 2)  | number:'1.2-2' }}</td>
+            <td>{{ precisionRound(getHt(o.totalHT, o.currency, o.currencyTxUsd, o.currencyTx, o.discount, o.vatValue), 2)  | number:'1.2-2' }}</td>
             <td>{{ o.discount }}</td>
             <td class="text-center">
               <span class="fa fa-check-circle text-success" *ngIf="o.survey[0] && o.survey[0]['dd'] === '1'"></span>

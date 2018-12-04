@@ -43,6 +43,7 @@ export class RegisterComponent implements OnInit {
   checkrobot: boolean;
   checkv: boolean; // check VAT Number
   term: boolean;
+  termspdf: string;
 
 
   public formModel: FormModel = {};
@@ -62,6 +63,7 @@ export class RegisterComponent implements OnInit {
   private utilisateurForm: NgForm;
 
   ngOnInit() {
+    this.termspdf = '/files/historical_data_tc.pdf';
     this.page = this.router.url;
     this.key = '6LcQ80cUAAAAANfU8xFYxntN36rEdS5X5H7bjv3_'; //key reCaptcha
     this.pnl = 'panel panel-primary';
@@ -70,9 +72,9 @@ export class RegisterComponent implements OnInit {
     this.message = '';
     this.exist = true;
     this.checkrobot = true;
-    this.term = false;
+    this.term = true;
     this.checkv = false;
-    this.loadvat = 'form-control';
+    this.loadvat = 'form-control ok';
     this.getPayments();
     this.user = <object> {
       id: <string>'',
@@ -151,11 +153,13 @@ export class RegisterComponent implements OnInit {
       this.loadvat = 'form-control loading';
       this.vatService.checkVat(c + '|' + v).subscribe(data=>{
         this.user['checkvat'] = data.valid;
-        this.loadvat = 'form-control';
+        this.loadvat = data.valid?'form-control ok':'form-control ko';
       },
       error=>{
         console.error(error);
       });
+    } else {
+      this.loadvat = 'form-control ok';
     }
   }
 
@@ -185,11 +189,11 @@ export class RegisterComponent implements OnInit {
   }
 
   cgv() {
-    this.term = true;
+    this.term = false;
   }
 
   cgvClose() {
-    this.term = false;
+    this.term = true;
   }
 
   sameAddress(){
@@ -220,6 +224,9 @@ export class RegisterComponent implements OnInit {
     this.userService.getCompte(id).subscribe(res => {
       this.user = res.user;
       this.user['id'] = id;
+      if (!this.user['vat']) {
+        this.user['vat'] = '';
+      }
       // if(!this.user['checkvat']){ this.checkVat() };
       this.oldAddressBilling = {
         addressBilling: this.user['addressBilling'],

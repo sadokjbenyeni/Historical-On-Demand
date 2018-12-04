@@ -73,7 +73,7 @@ export class OrdersViewComponent implements OnInit {
       CART: 'Pending Licensing Information',
       PLI: 'Pending Licensing Information',
       PBI: 'Pending Billing Information',
-      PSC: 'Pending Subscription by Client',
+      PSC: 'Pending Submission by Client',
       PVP: 'Pending Validation by Product',
       PVC: 'Pending Validation by Compliance',
       PVF: 'Pending Validation by Finance',
@@ -161,7 +161,7 @@ export class OrdersViewComponent implements OnInit {
 
   confirm(){
     if(this.action === 'Confirm Client Order Validation') {
-      this.orderService.state({idCmd: this.idCmd, status: 'validated', referer: 'Finance', product: this.cart, email: this.cmd['email']}).subscribe(()=>{
+      this.orderService.state({idCmd: this.idCmd, id: this.id, status: 'validated', referer: 'Finance', product: this.cart, email: this.cmd['email']}).subscribe(()=>{
         this.router.navigate(['/finance/orders']);
       });
     }

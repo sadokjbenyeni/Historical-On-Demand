@@ -43,6 +43,7 @@ export class OrderspViewComponent implements OnInit {
   total: number;
   fees: number;
   cart: Array<any>;
+  reason: any;
 
   constructor(
     private http: Http,
@@ -60,6 +61,7 @@ export class OrderspViewComponent implements OnInit {
     this.cart = [];
     this.symbols = [];
     this.message = '';
+    this.reason = '';
     this.action = '';
     this.symbol = '';
     this.ht = 0;
@@ -74,7 +76,7 @@ export class OrderspViewComponent implements OnInit {
       CART: 'Pending Licensing Information',
       PLI: 'Pending Licensing Information',
       PBI: 'Pending Billing Information',
-      PSC: 'Pending Subscription by Client',
+      PSC: 'Pending Submission by Client',
       PVP: 'Pending Validation by Product',
       PVC: 'Pending Validation by Compliance',
       PVF: 'Pending Validation by Finance',
@@ -90,14 +92,19 @@ export class OrderspViewComponent implements OnInit {
 
   setPeriod(p){
     this.ht = 0;
-    this.list['cmd'].products.forEach((prd) => {
+    this.list['cmd'].products.forEach((prd, i) => {
       if(prd.id_undercmd === p.idElem){
-        prd.price = p.period * 50;
-        p.price = p.period * 50;
+        p.ht = p.period * parseInt(p.price, 10);
+        prd.ht = p.ht;
       }
-      this.ht += prd.price;
+      this.ht += prd.ht;
     });
-  }
+    this.totalFees = this.getHt(this.list['cmd'].totalExchangeFees);
+    this.totalHT = (this.getHt(this.ht) - (this.getHt(this.ht) * this.discount / 100) ) + this.totalFees;
+    this.totalHTOld = this.getHt(this.ht) + this.totalFees;
+    this.totalVat = this.totalHT * this.vat;
+    this.totalTTC = this.totalHT + this.totalVat;
+}
 
   getCmd(){
     this.currencyService.getCurrencies().subscribe(r=>{
@@ -133,7 +140,7 @@ export class OrderspViewComponent implements OnInit {
             if (p.onetime === 1) {
               p.price = (diff.day + 1) * p.price;
             } else if(p.subscription === 1){
-              p.price = p.period * p.price;
+              p.ht = p.period * p.price;
             }
             index++;
             let prod = {
@@ -178,7 +185,9 @@ export class OrderspViewComponent implements OnInit {
 
   confirm(){
     if(this.action === 'Confirm Engagement Period Modification') {
-      console.dir('apply period');
+      this.orderService.updtCaddy({ idCmd: this.idCmd, cart : this.cart, ht: this.ht, action: "periodupdt" }).subscribe(res=>{
+        this.message = 'apply period';
+      });
     }
     if(this.action === 'Confirm Discount Application') {
       this.orderService.updtCaddy({ idCmd: this.idCmd, discount : this.discount }).subscribe(res=>{
@@ -193,17 +202,17 @@ export class OrderspViewComponent implements OnInit {
         // s = 'validated';
         s = 'PVF'; // cron pour l'auto-validation après délai des commandes n'excédant pas le montant max et payé par credit card ou paypal
       }
-      this.orderService.state({idCmd: this.idCmd, status: s, referer: 'Product', email: this.cmd['email']}).subscribe(()=>{
+      this.orderService.state({idCmd: this.idCmd, id: this.id, status: s, referer: 'Product', email: this.cmd['email']}).subscribe(()=>{
         this.router.navigate(['/product/orders']);
       });
     }
     if(this.action === 'Confirm Client Order Rejection') {
-      this.orderService.state({idCmd: this.idCmd, status: 'rejected', referer: 'Product'}).subscribe(()=>{
+      this.orderService.state({idCmd: this.idCmd, id: this.id, status: 'rejected', referer: 'Product', reason: this.reason}).subscribe(()=>{
         this.router.navigate(['/product/orders']);
       });
     }
     if(this.action === 'Confirm Client Order Cancelation') {
-      this.orderService.state({idCmd: this.idCmd, status: 'cancelled', referer: 'Product'}).subscribe(()=>{
+      this.orderService.state({idCmd: this.idCmd, id: this.id, status: 'cancelled', referer: 'Product'}).subscribe(()=>{
         this.router.navigate(['/product/orders']);
       });
     }

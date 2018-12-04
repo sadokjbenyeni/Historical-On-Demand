@@ -6,7 +6,7 @@
     <ngb-panel [title]="c.name" *ngFor="let c of currencies">
       <ng-template ngbPanelContent>
         <div class="form-group input-group rib">
-          <span class="input-group-addon">Minimum amount</span>
+          <span class="input-group-addon">Minimum amount to accept a payment via Bank Transfer</span>
           <input type="number" class="form-control" placeholder="2000 €" [(ngModel)]="c.maxrib">
         </div>
         <table class="rib">

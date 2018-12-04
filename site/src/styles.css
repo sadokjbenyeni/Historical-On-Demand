@@ -65,24 +65,47 @@
 }
 
 .closeUla {
-  position: fixed;
-  z-index: 100;
   margin-left: 50%;
-  margin-top: 10px;
 }
 .login {
-  background: url(/assets/img/dash.jpg) no-repeat center;
-  background-size: cover;
+  /* background: url(/assets/img/dash.jpg) no-repeat center;
+  background-size: cover; */
   width: 100%;
   bottom: 0;
   top: 0;
   position: absolute;
-  background-color: #cccccc;
+  /* background-color: #cccccc; */
+}
+.logo {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  max-height: 4rem;
+  height: auto;
+  width: auto;
 }
 img#logo {
   display: block;
   position: relative;
   max-height: 100%;
+}
+.upperbanner{
+  left: 0;
+  right: 0;
+}
+.upperbanner>img {
+  display: block;
+  margin: auto;
+  width: 100%;
+}
+.copyright {
+  background-color: #1D355B;
+  background-image: -webkit-linear-gradient(top,#1D355B,#0C2142);
+  color: #FFFFFF;
+  text-align: center;
+}
+.title {
+  font-size: 2.5rem;
+  color: rgb(226, 80, 46);
 }
 .banner {
   left: 0;
@@ -100,7 +123,7 @@ img#logo {
   min-height: 350px;
 }
 .datasetTitle {
-  background: #3F3D3F;
+  background: rgb(12, 25, 52);
   color: #FFF;
   font-size: 1.2em;
   font-weight: 100;
@@ -148,7 +171,7 @@ img#logo {
 
 /* Bootstrap */
 .navbar {
-  background-color: #fdf9f9;
+  background-color: #FFFFFF;
 }
 .navbar .navbar-brand {
   color: #ea663b;
@@ -442,4 +465,9 @@ tfoot.pagine>tr>td.bb {
 }
 td.bg-grey {
   background: #dcdcdc;
+}
+span.cap {
+  display: block;
+  height: 60px;
+  border-bottom: 1px solid #ddd;
 }

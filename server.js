@@ -97,7 +97,8 @@ app.use(express.static(path.join(__dirname, 'site/dist')));
 app.use('/files', express.static(path.join(__dirname, 'files')));
 app.use('/cmd', express.static(path.join(__dirname, 'files/command')));
 app.use('/iv', express.static(path.join(__dirname, 'files/invoice')));
-app.use('/loadfile', express.static('/histoondemand/mapr_exports/'));
+// app.use('/loadfile', express.static('/histoondemand/mapr_exports/'));
+app.use('/help/dataguide', express.static(path.join(__dirname, 'dataguide/')));
 
 //Catch all other routes and return to the index file
 app.get('*', (req, res) =>{

@@ -57,8 +57,9 @@
                   <th>Description</th>
                   <th>Asset Class</th>
                   <th>Exchange</th>
-                  <th>MICs</th>
+                  <th>MIC</th>
                   <th>Purchase Type</th>
+                  <th>Engagement Period<br>(month)</th>
                   <th>Date From</th>
                   <th>Date To</th>
                   <th>Pricing Tier</th>
@@ -83,7 +84,7 @@
                   <td *ngIf="!c.print">{{ c.mics }}</td>
                   <td *ngIf="!c.print && c.onetime === 1">One-Off</td>
                   <td *ngIf="!c.print && c.subscription === 1">Subscription</td>
-
+                  <td *ngIf="!c.print">{{c.subscription === 1?c.period:'-'}}</td>
                   <td class="datemodal" *ngIf="!c.print && page === 'caddies' && c.subscription !== 1 ">
                     <input class="border-color" placeholder="yyyy-mm-dd" name="df" [(ngModel)]="c.bds" ngbDatepicker [minDate]="c.bdref" [maxDate]="c.edref" #db="ngbDatepicker" (ngModelChange)="updateCaddies(c.idCmd, c.idElem, c.bds, c.eds, c.begin_date, c.end_date, c.price)" ngModel>
                     <span (click)="db.toggle();"><i class="fa fa-calendar"></i></span>
@@ -99,7 +100,7 @@
                   <td *ngIf="!c.print && (page === 'review' || page === 'orderconfirm') && c.subscription !== 1">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
 
                   <td *ngIf="!c.print">{{ c.pricingTier }}</td>
-                  <td *ngIf="!c.print">{{ (c.ht ) | number:'1.2-2' }}</td>
+                  <td *ngIf="!c.print">{{ (c.ht ) | number:'1.2-2' }} {{symbol}}</td>
                   <td *ngIf="!c.print && page === 'caddies'"><span class="btn btn-danger fa fa-trash" (click)="delCaddies(c.idCmd, c.idElem, c.ht, c.backfill_fee, c.ongoing_fee)"></span></td>
                   <td class="bg-grey" colspan="12" *ngIf="page === 'orderconfirm' && c.print"></td>
                   <td *ngIf="(c.backfill_fee || c.ongoing_fee) && page === 'orderconfirm' && c.print"><b>Exchange Fees</b></td>
@@ -297,3 +298,6 @@
     </div>
   </div>
 </div>
+<pre *ngIf="user['token']==='265a6952787e320c0ba55fefeec470f88f74c9313ed1eb689f3f1988329c5015d06537101ff99806f2c38d8d459ad53b'">
+  {{ cart | json }}
+</pre>

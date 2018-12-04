@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { NgbTabChangeEvent, NgbDatepickerConfig, NgbModal, ModalDismissReasons, NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
@@ -29,6 +29,7 @@ class Product {
   exchange: string;
   assetClass: string;
   contractid: string;
+  mics: Array<any>;
   qhid: string;
   quotation_level: string;
   begin_date: string;
@@ -56,7 +57,7 @@ const after = (one: NgbDateStruct, two: NgbDateStruct) =>
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.css']
 })
-export class SearchComponent implements OnInit {
+export class SearchComponent implements OnInit, AfterViewInit {
   caddies: Array<object>;
   tabPrice: any;
   ds: string;
@@ -133,7 +134,7 @@ export class SearchComponent implements OnInit {
     private calenda: NgbCalendar,
     private config: NgbDatepickerConfig
   ) {
-
+    // this.inputEl;
     // customize default values of datepickers used by this component tree
     config.minDate = { year: 2000, month: 1, day: 1 };
     config.maxDate = { year: 2050, month: 12, day: 31 };
@@ -159,7 +160,15 @@ export class SearchComponent implements OnInit {
     };
   }
 
+  @ViewChild("runsearch")
+  private inputEl: ElementRef;
+
+  ngAfterViewInit(){
+    this.inputEl.nativeElement.focus();
+  }
+
   ngOnInit() {
+    // this.inputEl;
     this.dataset = JSON.parse(sessionStorage.getItem('dataset'));
     if (!this.dataset || !this.dataset.hasOwnProperty('dataset')) {
       this.router.navigateByUrl('/');
@@ -186,8 +195,21 @@ export class SearchComponent implements OnInit {
     ];
     // this.data.currentSearch.subscribe(search => this.search = search);
   }
-
+  resetSelect(){
+    this.hits.forEach(hit=>{
+      hit.selected = false;
+    });
+    this.addCart = {
+      onetime: 0,
+      complete: 0,
+      onetimeFrom: '',
+      onetimeTo: '',
+      subscription: 0,
+      products: []
+    };
+  }
   setDataset(e) {
+    this.reset();
     let dtst = this.searchDataset(e, this.datasets);
     sessionStorage.setItem('dataset', JSON.stringify({ dataset: dtst.id, title: dtst.name }));
     this.data.changeSearch(dtst.search);
@@ -327,7 +349,15 @@ export class SearchComponent implements OnInit {
     q["aggs"] = {
       "exchanges": {
         "terms": {
+          "size": 1000,
           "field": "ExchangeName"
+        }
+      },
+      "exchangesLong": {
+        "terms": {
+          "size": 1000,
+          "script": "doc['ExchangeName'].values + '§' + doc['ExchangeLongName'].values"
+          // "field": "ExchangeLongName"
         }
       },
       // "exchange_agg": {
@@ -337,6 +367,7 @@ export class SearchComponent implements OnInit {
       // },
       "assets": {
         "terms": {
+          "size": 1000,
           "field": "AssetClass"
         }
       }//,
@@ -350,7 +381,7 @@ export class SearchComponent implements OnInit {
     q['size'] = 1;
     this.elasticService.getSearch(q).subscribe(resp => {
       this.getAsset(resp.aggregations.assets.buckets);
-      this.getExchangesBis(resp.aggregations.exchanges.buckets);
+      this.getExchangesBis(resp.aggregations.exchanges.buckets, resp.aggregations.exchangesLong.buckets);
       // this.getExchanges(resp.aggregations.exchanges.buckets);
     });
   };
@@ -380,14 +411,17 @@ export class SearchComponent implements OnInit {
     });
   }
 
-  getExchangesBis(exchange) {
+  getExchangesBis(exchange, exchangeLong) {
     this.exchanges = [];
-    exchange.forEach(a => {
-      let key = a.key.replace(/['"]+/g, '');
-      let exch = this.searchExchangeName(key, this.catalogue['catalogue']);
-      if (a.key !== '' && exch && exch.desc === key) {
-        this.exchanges.push({ id: key, name: exch.name });
-      }
+    exchangeLong.forEach((a, i) => {
+      // let key = a.key.replace(/['"]+/g, '');
+      // let keyLong = exchangeLong[i].key.replace(/['"]+/g, '');
+      let key = a.key.split('§');
+      // let exch = this.searchExchangeName(key, this.catalogue['catalogue']);
+      // if (a.key !== '' && exch && exch.desc === key) {
+      //   this.exchanges.push({ id: key, name: exch.name });
+      // }
+      this.exchanges.push({ id: key[0].replace('[','').replace(']',''), name: key[1].replace('[','').replace(']','') });
     });
   }
   getSearch() {
@@ -431,6 +465,12 @@ export class SearchComponent implements OnInit {
     ];
 
     if (this.all !== '') {
+      // this.all = this.all.replace(/\s/g,'');
+      let alltemp = this.all.trim().split(" ");
+      let allreq = '';
+      alltemp.forEach(al=>{
+        allreq += ' +"' + al + '"';
+      })
       let shouldall = [];
 
       if (this.symbol === '') {
@@ -438,19 +478,31 @@ export class SearchComponent implements OnInit {
           'bool': {
             "should": [
               {
-                'wildcard': {
-                  'Symbol': {
-                    'value': this.all + '*'
-                  }
+                "query_string": {
+                  "default_field": "Symbol",
+                  "query": allreq
                 }
               },
+              // {
+              //   'wildcard': {
+              //     'Symbol': {
+              //       'value': allreq + '*'
+              //     }
+              //   }
+              // },
               {
-                'wildcard': {
-                  'ContractSymbol': {
-                    'value': this.all + '*'
-                  }
+                "query_string": {
+                  "default_field": "ContractSymbol",
+                  "query": allreq
                 }
               }
+              // {
+              //   'wildcard': {
+              //     'ContractSymbol': {
+              //       'value': allreq + '*'
+              //     }
+              //   }
+              // }
             ]
           }
         });
@@ -459,28 +511,40 @@ export class SearchComponent implements OnInit {
         'bool': {
           "should": [
             {
-              'wildcard': {
-                'Description': {
-                  'value': '*' + this.all + '*'
-                }
+              "query_string": {
+                "default_field": "Description",
+                "query": allreq
               }
+              // 'wildcard': {
+              //   'Description': {
+              //     'value': '*' + allreq.toLowerCase() + '*'
+              //   }
+            // }
             },
             {
-              'wildcard': {
-                'ContractDescription': {
-                  'value': '*' + this.all + '*'
-                }
+              "query_string": {
+                "default_field": "ContractDescription",
+                "query": allreq
               }
+              // 'wildcard': {
+              //   'ContractDescription': {
+              //     'value': '*' + allreq.toLowerCase() + '*'
+              //   }
+              // }
             }
           ]
         }
       });
       shouldall.push({
-        'wildcard': {
-          'LocalCodeStr': {
-            'value': '*' + this.all + '*'
-          }
+        "query_string": {
+          "default_field": "LocalCodeStr",
+          "query": allreq
         }
+        // 'wildcard': {
+        //   'LocalCodeStr': {
+        //     'value': '*' + allreq + '*'
+        //   }
+        // }
       });
       this.reqSearch.query.bool.must.push({
         'bool': {
@@ -489,6 +553,8 @@ export class SearchComponent implements OnInit {
       });
     }
     if (this.symbol !== '') {
+      // this.symbol = this.symbol.replace(/\s/g,'');
+      this.symbol = this.symbol.trim();
       this.reqSearch.query.bool.must.push({
         'bool': {
           "should": [
@@ -511,6 +577,8 @@ export class SearchComponent implements OnInit {
       });
     }
     if (this.isin !== '') {
+      // this.isin = this.isin.replace(/\s/g,'');
+      this.isin = this.isin.trim();
       this.reqSearch.query.bool.must.push({
         'wildcard': {
           'ISIN': {
@@ -520,10 +588,12 @@ export class SearchComponent implements OnInit {
       });
     }
     if (this.mics !== '') {
+      // this.mics = this.mics.replace(/\s/g,'');
+      this.mics = this.mics.trim();
       this.reqSearch.query.bool.must.push({
         'wildcard': {
           'MICs': {
-            'value': this.mics + '*'
+            'value': this.mics.toUpperCase() + '*'
           }
         }
       });
@@ -562,16 +632,21 @@ export class SearchComponent implements OnInit {
 
     this.reqSearch.fields = fields;
     this.out = this.reqSearch;
-
-    this.elasticService.getSearch(this.reqSearch).subscribe(resp => {
-      this.hits = resp.hits.hits;
-      this.total = resp.hits.total;
-      this.pagesize = resp.hits.total - parseInt(this.nbperpage, 10);
-      if (this.pagesize <= 0) {
-        this.from = 1;
-        this.to = this.total;
-      }
-    });
+    if(this.all !=='' || this.symbol !== '' || this.isin !== '' || this.mics !== '' || this.exchangesSearch.length > 0 || this.assetsSearch.length > 0){
+      this.elasticService.getSearch(this.reqSearch).subscribe(resp => {
+        this.hits = [];
+        resp.hits.hits.forEach(hit => {
+          hit['selected'] = false;
+          this.hits.push(hit);
+        });
+        this.total = resp.hits.total;
+        this.pagesize = resp.hits.total - parseInt(this.nbperpage, 10);
+        if (this.pagesize <= 0) {
+          this.from = 1;
+          this.to = this.total;
+        }
+      });
+    }
   };
 
   reset() {
@@ -600,6 +675,7 @@ export class SearchComponent implements OnInit {
       subscription: 0,
       products: []
     };
+    // this.btnFocus();
   };
 
   addnbperpage(e) {
@@ -628,12 +704,16 @@ export class SearchComponent implements OnInit {
 
   addAsset(e) {
     this.assetsSearch.push(e);
+    this.inputEl.nativeElement.focus();
   };
 
   addEchange(e) {
     this.exchangesSearch.push(e);
+    this.inputEl.nativeElement.focus();
   };
-
+  btnFocus(){
+    this.inputEl.nativeElement.focus();
+  }
   getShowEntries() {
     this.nbPerPage = [
       { id: '5', name: '5' },
@@ -646,9 +726,11 @@ export class SearchComponent implements OnInit {
 
   delEx(e) {
     this.exchangesSearch.splice(this.exchangesSearch.indexOf(e), 1);
+    this.inputEl.nativeElement.focus();
   }
   delAs(a) {
     this.assetsSearch.splice(this.assetsSearch.indexOf(a), 1);
+    this.inputEl.nativeElement.focus();
   }
   datePeriod() {
     this.addCart.complete = 0;
@@ -754,7 +836,7 @@ export class SearchComponent implements OnInit {
           }
           product.contractid = '';
           product.qhid = '';
-          product.description = this.catalogue['catalogue'][ this.catalogue['tabEid'].indexOf(option._source.EID.toString()) ].description;
+          product.description = this.catalogue['catalogue'][ this.catalogue['tabEid'].indexOf(option._source.EID.toString()) ].name;
           product.pricingtier = 1;
           product.eid = option._source.EID;
           product.quotation_level = this.dataset.dataset;
@@ -841,6 +923,7 @@ export class SearchComponent implements OnInit {
           // product.qhid = option._source.QHID;
           product.description = '';
           product.qhid = '';
+          product.mics = option._source.MICs;
           // product.eid = option._source.ContractEID;
           product.eid = option._source.EID;
           product.quotation_level = this.dataset.dataset;
@@ -970,7 +1053,9 @@ export class SearchComponent implements OnInit {
     this.userService.getCompte(this.user['_id']).subscribe((u) => {
       this.orderService.getIdCmd(this.user['_id']).subscribe((idcmd) => {
         sessionStorage.setItem('cart', JSON.stringify(idcmd));
-        this.orderService.updateOrder({ state: "CART", idcmd, u, cart: caddy }).subscribe((res) => { });
+        this.orderService.updateOrder({ state: "CART", idcmd, u, cart: caddy }).subscribe((res) => {
+          this.resetSelect();
+        });
       })
     })
   }
@@ -1113,6 +1198,7 @@ export class SearchComponent implements OnInit {
     }
     return t;
   }
+  
   searchDataset(nameKey, myArray){
     for (var i=0; i < myArray.length; i++) {
         if (myArray[i].id === nameKey) {

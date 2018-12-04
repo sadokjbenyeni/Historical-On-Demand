@@ -13,10 +13,7 @@
       <div [class]="coll">
         <!-- Advanced Tables -->
         <div [class]="pnl">
-          <div class="panel-heading" *ngIf="message">
-            <h4 class="text-center">{{message}}</h4>
-          </div>
-          <div class="panel-body" [hidden]="term">
+          <div class="panel-body" *ngIf="term">
             <form #userForm="ngForm" role="form">
               <fieldset class="form-group">
                 <legend>Contact Information</legend>
@@ -117,24 +114,24 @@
                   <div class="form-group input-group">
                     <span class="input-group-addon">VAT Number<b class="valid" *ngIf="checkv && user.vat !==''">✓</b></span>
                     <input type="text" name="newvat" [class]="loadvat" placeholder="VAT Number" (change)="checkVat()" [(ngModel)]="user.vat" #newvat="ngModel" ngModel>
-                    <div class="alert alert-danger" *ngIf="(!user.vat && loadvat === 'form-control') || !user.checkvat "><span>You have entered an invalid VAT Number</span></div>
+                    <div class="alert alert-danger" *ngIf="user.vat !== '' && (loadvat === 'form-control ko' || !user.checkvat)"><span>You have entered an invalid VAT Number</span></div>
                   </div>
                   <input type="checkbox" name="sameaddress" (change)="sameAddress()"  [(ngModel)]="user.sameAddress"> Same as Contact Address
                   <div class="form-group input-group">
-                    <span class="input-group-addon">Address*</span>
+                    <span class="input-group-addon">Address</span>
                     <input type="text" name="addressBilling" class="form-control" placeholder="Billing Address" [(ngModel)]="user.addressBilling" ngModel>
                   </div>
                   <div class="form-group input-group">
-                    <span class="input-group-addon">City*</span>
+                    <span class="input-group-addon">City</span>
                     <input type="text" name="cityBilling" class="form-control" placeholder="Billing City" [(ngModel)]="user.cityBilling" ngModel>
                   </div>
                   <div class="form-group input-group">
-                    <span class="input-group-addon">Postal Code*</span>
+                    <span class="input-group-addon">Postal Code</span>
                     <input type="text" name="postalCodeBilling" class="form-control" placeholder="Billing Postal Code" [(ngModel)]="user.postalCodeBilling"  ngModel>
                   </div>
                   <div class="form-group input-group">
-                    <span class="input-group-addon">Country*</span>
-                    <select name="countryBilling" class="form-control" [(ngModel)]="user.countryBilling" ngModel #newcountry="ngModel" required>
+                    <span class="input-group-addon">Country</span>
+                    <select name="countryBilling" class="form-control" [(ngModel)]="user.countryBilling" ngModel #newcountry="ngModel">
                       <option value="">Select country</option>
                       <option *ngFor='let c of country' [value]="c.id">{{c.name}}</option>
                     </select>
@@ -185,16 +182,13 @@
               </div>
             </form>
           </div>
-          <div class="panel-body" [hidden]="!term">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean in lectus at nulla pellentesque suscipit in ac nisi. Suspendisse potenti. Pellentesque magna libero, sollicitudin et pharetra id, congue id neque. Aliquam sit amet varius arcu. Duis at feugiat sem, ac fermentum purus. Mauris posuere neque eget tempor porta. Pellentesque a dictum mi. Integer porta urna a nisi placerat ornare. Curabitur vitae nisi eget nunc aliquet laoreet ut ac risus. Pellentesque maximus sem eu lobortis finibus. Cras blandit et felis vel cursus. Phasellus eget pellentesque lectus.
-
-              Fusce eu est arcu. Curabitur et accumsan purus, vitae vestibulum eros. Vestibulum luctus enim a orci pulvinar, ac convallis est molestie. Donec lobortis et ante in placerat. Cras ultricies varius ante ac sagittis. Nam nibh nisl, bibendum ut dolor vitae, iaculis vulputate lorem. Aliquam vehicula nisi maximus libero pellentesque tristique. Quisque eu faucibus libero, non condimentum quam. Maecenas placerat lectus non nisi convallis, vitae bibendum neque suscipit. Nullam vitae magna vitae metus dignissim ultricies sed sed mi. Curabitur lacinia, mi eget gravida pretium, quam mi commodo neque, sed posuere turpis turpis tincidunt quam. Cras consequat hendrerit nulla eget malesuada. Praesent id magna quis tortor placerat rutrum. Nam eu facilisis nisi, at venenatis tellus. Mauris sem mauris, sollicitudin eu turpis et, euismod fringilla neque.
-              
-              Nam placerat interdum tellus, et congue dui placerat non. Ut non ex volutpat, cursus leo vel, hendrerit ante. In efficitur neque vitae libero convallis semper. Vestibulum condimentum blandit ligula, vel molestie erat molestie congue. Integer venenatis, nunc ut volutpat pulvinar, odio sapien auctor diam, ac pellentesque erat turpis vehicula nibh. Praesent laoreet mattis magna, non tincidunt diam eleifend a. Vivamus eget felis congue, condimentum lacus eu, mattis nulla. Sed feugiat nibh sed vulputate ultricies. Ut laoreet pharetra magna vitae dignissim. Quisque maximus leo sagittis, pharetra sem ut, dictum enim.
-              
-              Donec ac pellentesque est. Donec quis erat id est pulvinar blandit faucibus eget mauris. Nullam eu lectus pharetra, venenatis justo eget, pretium turpis. Quisque elementum condimentum rhoncus. Nulla venenatis arcu id mi vehicula, sed consequat turpis aliquam. Vivamus pellentesque imperdiet leo, et feugiat massa tempus eget. Nam quis eleifend dolor. Pellentesque ac aliquet felis. Donec laoreet at lorem vel pellentesque.
-              
-              Sed porta justo ut risus cursus molestie. In hac habitasse platea dictumst. Integer faucibus ex dui, sed ultricies tortor elementum id. Praesent pulvinar quam vitae massa porttitor, in malesuada turpis vestibulum. In ex lectus, volutpat ut sagittis id, interdum rhoncus orci. In quis semper justo. Aliquam auctor placerat magna, vitae facilisis nisi suscipit ut. Etiam eleifend vel eros vitae vehicula. Vivamus tempor sapien quis ante mollis, vitae maximus sapien consequat. Morbi luctus, lacus aliquam ultrices sagittis, justo dolor interdum nisl, a efficitur ante felis non lorem. Sed vulputate sem vitae velit accumsan suscipit. Cras sit amet dapibus ipsum, eget congue libero. Nulla facilisi. Sed sed lobortis ligula, a tristique magna. Vestibulum at ligula volutpat, scelerisque neque consequat, pretium lectus. Proin sit amet nulla vitae dolor mollis tincidunt eu ut risus.
+          <div class="panel-heading" *ngIf="message">
+            <h4 class="text-center">{{message}}</h4>
+          </div>
+          <div class="panel-body" *ngIf="!term">
+            <pdf-viewer [src]="termspdf" 
+            [render-text]="true"
+            style="display: block;"></pdf-viewer>
             <button (click)="cgvClose()">Close</button>      
           </div>
         </div>

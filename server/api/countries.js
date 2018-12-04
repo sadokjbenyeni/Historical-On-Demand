@@ -18,7 +18,6 @@ router.get('/', (req, res) => {
 });
 
 router.post('/isUE', (req, res) => {
-    console.log("test : ", req.body.id);
     Countries.findOne({id:req.body.id}, {ue:true, _id: false})
     .then((r) => {
         if (!r) { return res.sendStatus(404); }

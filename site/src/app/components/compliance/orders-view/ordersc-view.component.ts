@@ -67,7 +67,7 @@ export class OrderscViewComponent implements OnInit {
     this.states = {
       PLI: 'Pending Licensing Information',
       PBI: 'Pending Billing Information',
-      PSC: 'Pending Subscription by Client',
+      PSC: 'Pending Submission by Client',
       PVP: 'Pending Validation by Product',
       PVC: 'Pending Validation by Compliance',
       PVF: 'Pending Validation by Finance',

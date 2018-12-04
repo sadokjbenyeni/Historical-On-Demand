@@ -16,6 +16,7 @@ import { CurrencyService } from '../../../services/currency.service';
 import { UserService } from '../../../services/user.service';
 import { ConfigService } from '../../../services/config.service';
 import { PdfService } from '../../../services/pdf.service';
+import { UploadService } from '../../../services/upload.service';
 
 
 @Component({
@@ -111,6 +112,7 @@ export class CaddiesComponent implements OnInit {
     private configService: ConfigService,
     private userService: UserService,
     private orderService: OrderService,
+    private uploadService: UploadService,
     private pdfService: PdfService,
     private paymentService: PaymentService,
     private vatService: VatService,
@@ -363,6 +365,7 @@ export class CaddiesComponent implements OnInit {
                     description: p.description,
                     onetime: p.onetime,
                     subscription: p.subscription,
+                    period: p.period,
                     pricingTier: p.pricingTier,
                     price: p.price,
                     backfill_fee: backfill_fee,
@@ -664,30 +667,33 @@ export class CaddiesComponent implements OnInit {
   }
  
   submitRib() {
-    this.pdfService.setPdf(this.cmd, this.user['id'], this.rib);
+    // this.pdfService.setPdf(this.cmd, this.user['id'], this.rib);
     // this.pdfService.setHeader('', this.user['id'], this.numVat, '', '', this.id, this.currency);
     // this.pdfService.setBillinAddress(companyName, address, cp, city, country);
-    console.dir(this.rib);
-    console.dir(this.cmd);
-    this.pdfService.link('QH-ORDER-'+ this.id);
-
-    // this.orderService.rib({
-    //   idCmd: this.idCmd,
-    //   total: this.totalTTCUsd,
-    //   vatValue: this.vat,
-    //   currency: this.currency,
-    //   currencyTx: this.rate,
-    //   currencyTxUsd: this.currencyTxUsd,
-    //   email: this.user['email'],
+    // this.pdfService.link('QH-ORDER-'+ this.id);
+    // this.uploadService.pdfOrderFrom({
+    //   type: 'order',
+    //   id: this.id,
+    //   cmd: this.cmd,
     //   token: this.user['token']
-    // }).subscribe(resp=>{
-    //   sessionStorage.removeItem('tc');
-    //   sessionStorage.removeItem('surveyForm');
-    //   this.surveyForm = {dd: '', dt: '', du: { cb: [], other: ''} };
-    //   this.open();
-    //   this.pdfService.header('', this.user['id'], this.numVat, '', '', this.id, this.currency);
-    //   this.pdfService.link('QH-CMD-'+ this.id);
-    // });
+    // }).subscribe(()=>{});
+    this.orderService.rib({
+      idCmd: this.idCmd,
+      total: this.totalTTCUsd,
+      vatValue: this.vat,
+      currency: this.currency,
+      currencyTx: this.rate,
+      currencyTxUsd: this.currencyTxUsd,
+      email: this.user['email'],
+      token: this.user['token']
+    }).subscribe(resp=>{
+      sessionStorage.removeItem('tc');
+      sessionStorage.removeItem('surveyForm');
+      this.surveyForm = {dd: '', dt: '', du: { cb: [], other: ''} };
+      this.open();
+      // this.pdfService.header('', this.user['id'], this.numVat, '', '', this.id, this.currency);
+      // this.pdfService.link('QH-CMD-'+ this.id);
+    });
   }
 
   open() {

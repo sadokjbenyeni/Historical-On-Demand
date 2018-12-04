@@ -1,4 +1,4 @@
-const app = require('express')();
+// const app = require('express')();
 const router = require('express').Router();
 
 const config = require('../config/config.js');
@@ -11,9 +11,10 @@ const client = new elasticsearch.Client({
     log: 'trace'
 });
 
+
 client.ping({
     requestTimeout: 3000
-  }, function (error) {
+}, function (error) {
     if (error) { console.trace('elasticsearch cluster is down!'); }
     else { console.log('All is well'); }
   });
