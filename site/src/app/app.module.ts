@@ -28,6 +28,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { SearchComponent } from './components/search/search.component';
 import { OrderHistoryComponent } from './components/order-history/order-history.component';
 import { AboutComponent } from './components/about/about.component';
+import { HelpPageComponent } from './components/help-page/help-page.component';
 import { OrderComponent } from './components/order/order.component';
 import { SurveyComponent } from './components/survey/survey.component';
 import { StatementsComponent } from './components/statements/statements.component';
@@ -137,6 +138,7 @@ import { AdtvComponent } from './components/product/adtv/adtv.component';
     OrdersViewComponent,
     OrderHistoryComponent,
     AboutComponent,
+    HelpPageComponent,
     OrderComponent,
     SurveyComponent,
     StatementsComponent,
