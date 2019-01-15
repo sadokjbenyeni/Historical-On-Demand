@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>1   Quanthouse Historical Data Platform Data Guide documentation &mdash; Quanthouse Historical Data Platform Data Guide 1 documentation</title>
+  <title>1   QuantHouse Historical Data Platform Data Guide documentation &mdash; QuantHouse Historical Data Platform Data Guide 1 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="Quanthouse Historical Data Platform Data Guide 1 documentation" href="#"/> 
+    <link rel="top" title="QuantHouse Historical Data Platform Data Guide 1 documentation" href="#"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -54,7 +54,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> Quanthouse Historical Data Platform Data Guide
+            <a href="#" class="icon icon-home"> QuantHouse Historical Data Platform Data Guide
           
 
           
@@ -90,7 +90,7 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">1&nbsp;&nbsp;&nbsp;Quanthouse Historical Data Platform Data Guide documentation</a><ul>
+<li><a class="reference internal" href="#">1&nbsp;&nbsp;&nbsp;QuantHouse Historical Data Platform Data Guide documentation</a><ul>
 <li><a class="reference internal" href="#indices-and-tables">1.1&nbsp;&nbsp;&nbsp;Indices and tables</a></li>
 <li><a class="reference internal" href="#file-naming">1.2&nbsp;&nbsp;&nbsp;File naming</a></li>
 <li><a class="reference internal" href="#l1-events">1.3&nbsp;&nbsp;&nbsp;L1 Events</a><ul>
@@ -211,7 +211,7 @@
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">Quanthouse Historical Data Platform Data Guide</a>
+          <a href="#">QuantHouse Historical Data Platform Data Guide</a>
         
       </nav>
 
@@ -241,7 +241,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>1&nbsp;&nbsp;&nbsp;Quanthouse Historical Data Platform Data Guide documentation</li>
+      <li>1&nbsp;&nbsp;&nbsp;QuantHouse Historical Data Platform Data Guide documentation</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -261,7 +261,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="quanthouse-historical-data-platform-data-guide-documentation">
-<h1>1&nbsp;&nbsp;&nbsp;Quanthouse Historical Data Platform Data Guide documentation<a class="headerlink" href="#quanthouse-historical-data-platform-data-guide-documentation" title="Permalink to this headline">¶</a></h1>
+<h1>1&nbsp;&nbsp;&nbsp;QuantHouse Historical Data Platform Data Guide documentation<a class="headerlink" href="#quanthouse-historical-data-platform-data-guide-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
 <div class="section" id="indices-and-tables">
@@ -273,7 +273,7 @@
 <li><a class="reference internal" href="#referential-guide"><span class="std std-ref">1.4.5&nbsp;&nbsp;&nbsp;Referential</span></a></li>
 <li><span class="xref std std-ref">ticksizetables_guide</span></li>
 </ul>
-<p>The Quanthouse Historical Data service outputs daily GZipped, comma-separated text files.</p>
+<p>The QuantHouse Historical Data service outputs daily GZipped, comma-separated text files.</p>
 </div>
 <div class="section" id="file-naming">
 <span id="id1"></span><h2>1.2&nbsp;&nbsp;&nbsp;File naming<a class="headerlink" href="#file-naming" title="Permalink to this headline">¶</a></h2>
@@ -282,7 +282,7 @@
 <p>Where</p>
 <ul class="simple">
 <li>Date is the market extraction date</li>
-<li>EID is the Quanthouse Entitlement ID</li>
+<li>EID is the QuantHouse Entitlement ID</li>
 <li>DataType is one of L1-Full, L1-Trades, MBL or Referential<ul>
 <li>L1-Full files contain <a class="reference internal" href="#l1-guide"><span class="std std-ref">1.3&nbsp;&nbsp;&nbsp;L1 Events</span></a> data, including the whole set of columns</li>
 <li>L1-Trades files store <a class="reference internal" href="#l1-guide"><span class="std std-ref">1.3&nbsp;&nbsp;&nbsp;L1 Events</span></a> data, restricted to trade information</li>
@@ -293,9 +293,9 @@
 </ul>
 <p>Examples:</p>
 <ul class="simple">
-<li>2017-1-1_1053_L1.csv.gz</li>
-<li>2017-1-1_1053_Referential.csv.gz</li>
-<li>2017-1-1_1053_Referential.csv.gz</li>
+<li>2017-01-01_1053_L1.csv.gz</li>
+<li>2017-01-01_1053_Referential.csv.gz</li>
+<li>2017-01-01_1053_TickSizes.csv.gz</li>
 </ul>
 </div>
 <div class="section" id="l1-events">
@@ -316,7 +316,7 @@ Still, the two messages share columns <strong>Code</strong> and <strong>ServerTi
 <div class="section" id="columns">
 <h3>1.3.3&nbsp;&nbsp;&nbsp;Columns<a class="headerlink" href="#columns" title="Permalink to this headline">¶</a></h3>
 <ul>
-<li><p class="first">Code - the Quanthouse instrument identifier <a class="reference internal" href="#code-label"><span class="std std-ref">1.4.5.1&nbsp;&nbsp;&nbsp;Code</span></a></p>
+<li><p class="first">Code - the QuantHouse instrument identifier <a class="reference internal" href="#code-label"><span class="std std-ref">1.4.5.1&nbsp;&nbsp;&nbsp;Code</span></a></p>
 </li>
 <li><p class="first">ServerTimestamp - microseconds timestamp</p>
 </li>
@@ -402,10 +402,10 @@ to refresh the full book. This provides an initial snapshot to apply updates to.
 <p><code class="docutils literal"><span class="pre">MBLOverlapRefresh</span></code> updates a part or the entire Bid and/or Ask sides on a
 given layer.</p>
 <ul class="simple">
-<li>Code - the Quanthouse instrument identifier <a class="reference internal" href="#code-label"><span class="std std-ref">1.4.5.1&nbsp;&nbsp;&nbsp;Code</span></a>;</li>
+<li>Code - the QuantHouse instrument identifier <a class="reference internal" href="#code-label"><span class="std std-ref">1.4.5.1&nbsp;&nbsp;&nbsp;Code</span></a>;</li>
 <li>LayerId: the layer identifier <a class="reference internal" href="#layerid"><span class="std std-ref">1.4.1.1&nbsp;&nbsp;&nbsp;LayerID</span></a>;</li>
 <li>MarketTimestamp: the exchange official update timestamp;</li>
-<li>ServerTimestamp: the Quanthouse server reception timestamp;</li>
+<li>ServerTimestamp: the QuantHouse server reception timestamp;</li>
 <li>BidChangeIndicator: see <a class="reference internal" href="#change-indicator"><span class="std std-ref">1.4.1.3&nbsp;&nbsp;&nbsp;The Change Indicator</span></a>;</li>
 <li>AskChangeIndicator: see <a class="reference internal" href="#change-indicator"><span class="std std-ref">1.4.1.3&nbsp;&nbsp;&nbsp;The Change Indicator</span></a>;</li>
 <li>BidLimits: the modified <a class="reference internal" href="#limits"><span class="std std-ref">1.4.1.2&nbsp;&nbsp;&nbsp;Limits</span></a> on the bid side;</li>
@@ -463,10 +463,10 @@ existing value (if any). When <code class="docutils literal"><span class="pre">i
 update is indicated by the field named <code class="docutils literal"><span class="pre">Action</span></code>. The table below details the
 supported actions:</p>
 <ul class="simple">
-<li>Code - the Quanthouse instrument identifier <a class="reference internal" href="#code-label"><span class="std std-ref">1.4.5.1&nbsp;&nbsp;&nbsp;Code</span></a></li>
+<li>Code - the QuantHouse instrument identifier <a class="reference internal" href="#code-label"><span class="std std-ref">1.4.5.1&nbsp;&nbsp;&nbsp;Code</span></a></li>
 <li>LayerId: the layer identifier;</li>
 <li>MarketTimestamp: the exchange official update timestamp;</li>
-<li>ServerTimestamp: the Quanthouse server reception timestamp;</li>
+<li>ServerTimestamp: the QuantHouse server reception timestamp;</li>
 <li>DeltaAction: an enumerated value, as explained below;</li>
 <li>Level;</li>
 <li>Price. See <a class="reference internal" href="#magicprices"><span class="std std-ref">1.4.6.1&nbsp;&nbsp;&nbsp;Magic Prices</span></a>;</li>
@@ -1037,7 +1037,7 @@ crop any previous entries that go deeper than the latest entry being updated.</p
 <div class="section" id="referential">
 <span id="referential-guide"></span><h3>1.4.5&nbsp;&nbsp;&nbsp;Referential<a class="headerlink" href="#referential" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Code - the Quanthouse instrument identifier <a class="reference internal" href="#code-label"><span class="std std-ref">1.4.5.1&nbsp;&nbsp;&nbsp;Code</span></a></li>
+<li>Code - the QuantHouse instrument identifier <a class="reference internal" href="#code-label"><span class="std std-ref">1.4.5.1&nbsp;&nbsp;&nbsp;Code</span></a></li>
 </ul>
 <p>See <a class="reference internal" href="#referential-tags"><span class="std std-ref">1.4.7&nbsp;&nbsp;&nbsp;Referential Tags</span></a></p>
 <div class="section" id="code">
@@ -7957,7 +7957,7 @@ associated quantity (if relevant).</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Quanthouse.
+        &copy; Copyright 2018, QuantHouse.
 
     </p>
   </div>

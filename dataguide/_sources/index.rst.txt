@@ -1,4 +1,4 @@
-.. Quanthouse Historical Data Platform Data Guide documentation master file, created by
+.. QuantHouse Historical Data Platform Data Guide documentation master file, created by
    sphinx-quickstart on Fri Jun  8 17:17:19 2018.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -6,7 +6,7 @@
 
 
 ############################################################
-Quanthouse Historical Data Platform Data Guide documentation
+QuantHouse Historical Data Platform Data Guide documentation
 ############################################################
 
 .. toctree::
@@ -28,7 +28,7 @@ Indices and tables
 * :ref:`ticksizetables_guide`
 
 
-The Quanthouse Historical Data service outputs daily GZipped, comma-separated text files.
+The QuantHouse Historical Data service outputs daily GZipped, comma-separated text files.
 
 
 .. _file_naming:
@@ -43,7 +43,7 @@ File names follow the convention below:
 Where
 
 * Date is the market extraction date
-* EID is the Quanthouse Entitlement ID
+* EID is the QuantHouse Entitlement ID
 * DataType is one of L1-Full, L1-Trades, MBL or Referential
 
   * L1-Full files contain :ref:`l1_guide` data, including the whole set of columns
@@ -53,9 +53,9 @@ Where
 
 Examples:
 
-* 2017-1-1_1053_L1.csv.gz
-* 2017-1-1_1053_Referential.csv.gz
-* 2017-1-1_1053_Referential.csv.gz
+* 2017-01-01_1053_L1.csv.gz
+* 2017-01-01_1053_Referential.csv.gz
+* 2017-01-01_1053_TickSizes.csv.gz
 
 
 .. _l1_guide:
@@ -88,7 +88,7 @@ TCC carry Trade Cancel or Correction information, including the Original trade a
 Columns
 =======
 
-* Code - the Quanthouse instrument identifier :ref:`code_label`
+* Code - the QuantHouse instrument identifier :ref:`code_label`
 * ServerTimestamp - microseconds timestamp
 * TradeEvent
 
@@ -175,10 +175,10 @@ MBLOverlapRefresh
 ``MBLOverlapRefresh`` updates a part or the entire Bid and/or Ask sides on a
 given layer.
 
-* Code - the Quanthouse instrument identifier :ref:`code_label`;
+* Code - the QuantHouse instrument identifier :ref:`code_label`;
 * LayerId: the layer identifier :ref:`layerid`;
 * MarketTimestamp: the exchange official update timestamp;
-* ServerTimestamp: the Quanthouse server reception timestamp;
+* ServerTimestamp: the QuantHouse server reception timestamp;
 * BidChangeIndicator: see :ref:`change_indicator`;
 * AskChangeIndicator: see :ref:`change_indicator`;
 * BidLimits: the modified :ref:`limits` on the bid side;
@@ -246,10 +246,10 @@ MBLDeltaRefresh
 update is indicated by the field named ``Action``. The table below details the
 supported actions:
 
-* Code - the Quanthouse instrument identifier :ref:`code_label`
+* Code - the QuantHouse instrument identifier :ref:`code_label`
 * LayerId: the layer identifier;
 * MarketTimestamp: the exchange official update timestamp;
-* ServerTimestamp: the Quanthouse server reception timestamp;
+* ServerTimestamp: the QuantHouse server reception timestamp;
 * DeltaAction: an enumerated value, as explained below;
 * Level;
 * Price. See :ref:`MagicPrices`;
@@ -865,7 +865,7 @@ After
 Referential
 ===========
 
-* Code - the Quanthouse instrument identifier :ref:`code_label`
+* Code - the QuantHouse instrument identifier :ref:`code_label`
 
 See :ref:`referential_tags`
 
