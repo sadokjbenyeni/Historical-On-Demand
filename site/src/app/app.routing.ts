@@ -31,6 +31,7 @@ import { OrdersViewComponent } from './components/finance/orders-view/orders-vie
 // Site Clients
 import { HomeComponent } from './components/home/home.component';
 import { AboutComponent } from './components/about/about.component';
+import { HelpPageComponent } from './components/help-page/help-page.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { SearchComponent } from './components/search/search.component';
@@ -77,6 +78,7 @@ export const routes: Routes = [
   // ALL USERS
   { path: 'home', component : HomeComponent },
   { path: 'about', component : AboutComponent },
+  { path: 'help', component : HelpPageComponent },
   { path: 'register', component : RegisterComponent },
   { path: 'login', component : LoginComponent },
   { path: 'activation/:token', component : LoginComponent },

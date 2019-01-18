@@ -1,0 +1,1104 @@
+.. QuantHouse Historical Data Platform Data Guide documentation master file, created by
+   sphinx-quickstart on Fri Jun  8 17:17:19 2018.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+
+
+############################################################
+QuantHouse Historical Data Platform Data Guide documentation
+############################################################
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+
+
+.. sectnum::
+
+******************
+Indices and tables
+******************
+
+* :ref:`file_naming`
+* :ref:`l1_guide`
+* :ref:`mbl_guide`
+* :ref:`referential_guide`
+* :ref:`ticksizetables_guide`
+
+
+The QuantHouse Historical Data service outputs daily GZipped, comma-separated text files.
+
+
+.. _file_naming:
+
+***********
+File naming
+***********
+
+File names follow the convention below:
+<Date>_<EID>_<DataType>.csv.gz
+
+Where
+
+* Date is the market extraction date
+* EID is the QuantHouse Entitlement ID
+* DataType is one of L1-Full, L1-Trades, MBL or Referential
+
+  * L1-Full files contain :ref:`l1_guide` data, including the whole set of columns
+  * L1-Trades files store :ref:`l1_guide` data, restricted to trade information
+  * MBL files store :ref:`mbl_guide` events
+  * Referential files contain static information regarding each instrument in the L1 or MBL files
+
+Examples:
+
+* 2017-01-01_1053_L1.csv.gz
+* 2017-01-01_1053_Referential.csv.gz
+* 2017-01-01_1053_TickSizes.csv.gz
+
+
+.. _l1_guide:
+
+*********
+L1 Events
+*********
+
+L1 events are hierarchical structures mapped to CSV columns. Substructures are converted as underscore (*_*) -separated paths.
+For instance, the *MarketTimestamp* field in the *TradeEvent* structure is output as column *TradeEvent_MarketTimestamp*.
+
+L1 uses two different messages: :ref:`TradeEvent` and :ref:`TCC` (for 'Trade Cancel or Corrections'). The two messages are exclusive: when columns
+for **TradeEvent** are set, columns for **TCC** are empty.
+Still, the two messages share columns **Code** and **ServerTimestamp**. These two columns are always set.
+
+.. _TradeEvent:
+
+TradeEvent
+==========
+
+TradeEvents carry Best Bid, Best Ask and Trade information.
+
+.. _TCC:
+
+TCC
+====
+
+TCC carry Trade Cancel or Correction information, including the Original trade and the Corrected trade.
+
+Columns
+=======
+
+* Code - the QuantHouse instrument identifier :ref:`code_label`
+* ServerTimestamp - microseconds timestamp
+* TradeEvent
+
+  * MarketTimestamp - microseconds timestamp, as published by the exchange
+  * Flags
+
+    * Open - Signal an open event.
+    * Close - Signal a close event.
+    * High - Signal that the price is a high price.
+    * Low - Signal that the price is a low price.
+    * OCHL_IsDaily - Indicates that the signal is a daily event (as opposed to a session event).
+    * OffBookTrade - Indicates that the current trade is off-book.
+    * ChangeBusinessDay - Signals a business day transition. :ref:`l1qt_technical_open`
+    * OpeningNextCalendarDay - Indicates that the technical open signal (``ChangeBusinessDay``) or the functional open signal (``Open|OCHL_IsDaily``) refers to the next day; so that, if this signal arrives on 2010-02-03, the ``CurrentBusinessDay`` will be set to 2010-02-04.
+    * Session - Indicates that the current event refers to a session event.
+
+  * BestBid
+
+    * Price - BID price. See :ref:`MagicPrices`
+    * Quantity
+    * NbOrders - number of orders. See :ref:`NbOrders`
+
+  * BestAsk
+
+    * Price - ASK price. See :ref:`MagicPrices`
+    * Quantity
+    * NbOrders - number of orders. See :ref:`NbOrders`
+
+  * LastPrice
+  * LastTradeQuantity
+  * Context - a list  of OPTIONAL tags, which varies with markets and instruments. See the list of possible tags :ref:`quotation_context_tags_label`
+  * Values - a list of OPTIONAL tags, which varies with markets and instruments. See the list of possible tags :ref:`quotation_tags_label`
+
+* TCC
+
+    * Flags
+
+      * IsCorrection - If set, the content is a correction and the corrected trade field is valid; otherwise the content is a cancel, and corrected trade is undefined.
+      * IsFromVenue - If set, this trade cancel/correction is official coming from the exchange; otherwise this comes from an intermediate operator correcting some previous error.
+      * IsOffBookTrade - Indicates that this trade cancel/correction is relative to an off-book trade
+      * IsCurrentSession - If set, this cancel/correction is relative to a trade that occurred in the current session; otherwise it is relative to an event from a previous session.
+
+    * OriginalTrade
+
+      * Price - corrected trade initial price. See :ref:`MagicPrices`
+      * Quantity
+      * ImpactIndicator
+      * MarketTimestamp
+      * TradeId
+
+    * CorrectedTrade
+
+      * Price - corrected trade new price. See :ref:`MagicPrices`
+      * Quantity
+      * ImpactIndicator
+      * MarketTimestamp
+      * TradeId
+
+    * TradingSessionId
+
+    * CorrectedValues - a list of OPTIONAL tags, which varies with markets and instruments. See the list of possible tags :ref:`quotation_tags_label`
+
+
+
+.. _mbl_guide:
+
+***************
+Market By Level
+***************
+
+**Market-By-Level** (MBL) or **Order Book** refers to the top best prices in the market, with all the orders at the same
+price being aggregated.
+
+The MBL book is maintained by a stream of :ref:`MBLOverlapRefresh`, :ref:`MBLDeltaRefresh` or :ref:`MBLMaxVisibleDepth` events.
+
+.. _MBLOverlapRefresh:
+
+MBLOverlapRefresh
+=================
+
+.. note:: Active instruments have an MBLOverlapRefresh sent periodically (typically every 15 minutes)
+   to refresh the full book. This provides an initial snapshot to apply updates to.
+
+``MBLOverlapRefresh`` updates a part or the entire Bid and/or Ask sides on a
+given layer.
+
+* Code - the QuantHouse instrument identifier :ref:`code_label`;
+* LayerId: the layer identifier :ref:`layerid`;
+* MarketTimestamp: the exchange official update timestamp;
+* ServerTimestamp: the QuantHouse server reception timestamp;
+* BidChangeIndicator: see :ref:`change_indicator`;
+* AskChangeIndicator: see :ref:`change_indicator`;
+* BidLimits: the modified :ref:`limits` on the bid side;
+* AskLimits: the modified :ref:`limits` on the ask side;
+* List of quotation value updates.
+
+.. _layerid:
+
+LayerID
+-------
+
+* 0: outright orders aggregated by price;
+* 1: implied orders aggregated by price;
+* 2: retail orders aggregated by price;
+* 3: odd lot orders aggregated by price;
+* 4: term orders aggregated by price;
+* 5: firm quote orders aggregated by price.
+
+.. _limits:
+
+Limits
+------
+An MBL limit is split as three columns:
+
+* Price. See :ref:`MagicPrices`;
+* Quantity: Number of units (CumulatedUnits);
+* NbOrders: Number of orders included in this limit. See :ref:`NbOrders`
+
+The Ask and Bid limit lists can be empty. When not empty, prices are ordered from best to worst in the list.
+
+
+.. _change_indicator:
+
+The Change Indicator
+--------------------
+The change indicator encodes two separate fields:
+
+* ``start_level``: the location/depth target of the first order book entry to overwrite;
+* ``is_full``: a boolean value indicating if the order book entries following the update should be cleared, hence
+  reducing the book depth.
+
+At the ``start_level``, copy the provided order book entries, overwriting any
+existing value (if any). When ``is_full`` is true, discard all entries following the last updated line.
+
+To handle the indicator, use the following pseudo-code:
+
+.. code-block:: java
+
+   int start_level;
+   boolean is_full;
+   if (indicator < 0) {
+       is_full=true;
+       start_level=-indicator-1;
+   } else {
+       is_full=false;
+       start_level=indicator;
+   }
+
+.. _MBLDeltaRefresh:
+
+MBLDeltaRefresh
+===============
+
+``MBLDeltaRefresh`` performs a partial update on a given layer. The type of
+update is indicated by the field named ``Action``. The table below details the
+supported actions:
+
+* Code - the QuantHouse instrument identifier :ref:`code_label`
+* LayerId: the layer identifier;
+* MarketTimestamp: the exchange official update timestamp;
+* ServerTimestamp: the QuantHouse server reception timestamp;
+* DeltaAction: an enumerated value, as explained below;
+* Level;
+* Price. See :ref:`MagicPrices`;
+* CumulatedUnits;
+* NbOrders. See :ref:`NbOrders`;
+* Continuation flag;
+* OtherValues: List of quotation values update.
+
+Depending on the action, some fields might be meaningless. Here are the
+different possible actions:
+
+
+============================ ========================================================
+0 - ALLClearFromLevel        Deletes ALL entries, starting from Level (included)
+1 - BidClearFromLevel        Deletes bid entries, starting from Level (included)
+2 - AskClearFromLevel        Deletes ask entries, starting from Level (included)
+3 - BidInsertAtLevel         Inserts bid entry (Price, Quantity) at Level and shifts
+                             subsequent lines down
+4 - AskInsertAtLevel         Inserts ask entry (Price, Quantity) at Level and shifts
+                             subsequent lines down
+5 - BidRemoveLevel           Removes bid entry at Level and shifts subsequent lines
+                             up
+6 - AskRemoveLevel           Removes ask entry at Level and shifts subsequent lines
+                             up
+7 - BidChangeQtyAtLevel      Updates the bid quantity at the specified level
+8 - AskChangeQtyAtLevel      Updates the ask quantity at the specified level
+9 - BidRemoveLevelAndAppend  Removes the bid entry at the specified level and appends
+                             a new bid entry at the end of the order book
+10 - AskRemoveLevelAndAppend Removes the ask entry at the specified level and appends
+                             a new ask entry at the end of the order book
+============================ ========================================================
+
+
+.. _MBLMaxVisibleDepth:
+
+MBLMaxVisibleDepth
+==================
+
+``MBLMaxVisibleDepth`` updates the "visible" depth (how many top prices are
+visible to subscribers). ``-1`` indicates that the depth is not limited.
+
+
+* **Two Timestamps**: the official Market Timestamp (which can be null) and the
+  server Timestamp;
+* **Number of Orders** (when provided by the exchange): the new MBL is designed
+  to host order books that detail the price, the cumulated quantity and the
+  number of orders;
+* **Other Values**: the extended MBL is able to carry "other values" (currently
+  used only on consolidated feeds).
+
+
+Examples of Order Book Updates
+==============================
+The following sections contain examples of order
+book updates. The actions ``OrderBookDeltaAction``, ``AskXXX`` have the same
+behavior on the Ask side as the ``OrderBookDeltaAction`` ``BidXXX`` on the Bid
+side.
+
+The following convention applies:
+
+* The ``()`` denote a valuable list of the same type
+* The ``{}`` denote a structure made by several fields.
+
+The list of examples includes:
+
+* `MBLDeltaRefresh, action=BidChangeQtyAtLevel`_;
+* `MBLDeltaRefresh, action=BidRemoveLevel`_;
+* `MBLDeltaRefresh, action=BidInsertAtLevel`_;
+* `MBLDeltaRefresh, action=BidRemoveLevelAndAppend`_;
+* `MBLDeltaRefresh, action=BidClearFromLevel`_;
+* `MBLDeltaRefresh, action=ALLClearFromLevel`_;
+* `Continuation Flag`_;
+* `MBLOverlapRefresh`_;
+* `MBLMaxVisibleDepth`_.
+
+MBLDeltaRefresh, action=BidChangeQtyAtLevel
+-------------------------------------------
+
+Before
+^^^^^^
+::
+
+	0 BID 53.3200 x 1916 @ 6  ASK 53.3400 x 501  @ 3
+	1 BID 53.3100 x 2331 @ 10 ASK 53.3500 x 1936 @ 5
+	2 BID 53.3000 x 8109 @ 8  ASK 53.3600 x 2978 @ 7
+	3 BID 53.2900 x 2482 @ 12 ASK 53.3700 x 1988 @ 7
+	4 BID ******************* ASK *******************
+
+Received Notification
+^^^^^^^^^^^^^^^^^^^^^
+::
+
+	notification=MBLDeltaRefresh
+	- Code=<numeric instrument code>
+	- LayerID=0
+	- Timestamps={Server_utc_time=2010-11-08 16:22:40:519,
+	              Market_utc_time=2010-11-08 16:22:40:519}
+	- Action=BidChangeQtyAtLevel
+	- Level=0
+	- Price=<not relevant>
+	- Qty={cumulated=958, nb_orders=3}
+	- ContinuationFlag=false
+	- OtherValues=()
+
+After
+^^^^^
+::
+
+	0 BID 53.3200 x 958  @ 3  ASK 53.3400 x 501  @ 3
+	1 BID 53.3100 x 2331 @ 10 ASK 53.3500 x 1936 @ 5
+	2 BID 53.3000 x 8109 @ 8  ASK 53.3600 x 2978 @ 7
+	3 BID 53.2900 x 2482 @ 12 ASK 53.3700 x 1988 @ 7
+	4 BID ******************* ASK *******************
+
+MBLDeltaRefresh, action=BidRemoveLevel
+--------------------------------------
+
+Before
+^^^^^^
+::
+
+	0 BID 53.3200 x 1916 @ 6  ASK 53.3400 x 501  @ 3
+	1 BID 53.3100 x 2331 @ 10 ASK 53.3500 x 1936 @ 6
+	2 BID 53.3000 x 8109 @ 8  ASK 53.3600 x 2978 @ 7
+	3 BID 53.2900 x 2482 @ 12 ASK 53.3700 x 1988 @ 7
+	4 BID ******************* ASK *******************
+
+Received Notification
+^^^^^^^^^^^^^^^^^^^^^
+::
+
+	notification=MBLDeltaRefresh
+	- Code=<numeric instrument code>
+	- LayerID=0
+	- Timestamps={Server_utc_time=2010-11-08 16:22:40:887,
+	              Market_utc_time=2010-11-08 16:22:40:887}
+	- Action=BidRemoveLevel
+	- Level=1
+	- Price=<not relevant>
+	- Qty={cumulated=<not relevant>, nb_orders=<not relevant>}
+	- ContinuationFlag=false
+	- OtherValues=()
+
+After
+^^^^^
+::
+
+	0 BID 53.3200 x 1916 @ 6  ASK 53.3400 x 501  @ 3
+	1 BID 53.3000 x 8109 @ 8  ASK 53.3500 x 1936 @ 6
+	2 BID 53.2900 x 2482 @ 12 ASK 53.3600 x 2978 @ 7
+	3 BID ******************* ASK 53.3700 x 1988 @ 7
+	4 BID ******************* ASK *******************
+
+MBLDeltaRefresh, action=BidInsertAtLevel
+----------------------------------------
+
+Before
+^^^^^^
+::
+
+	0 BID 53.3000 x 8109 @ 8  ASK 53.3500 x 1936 @ 6
+	1 BID 53.2900 x 2482 @ 12 ASK 53.3600 x 2978 @ 7
+	2 BID 53.2800 x 3829 @ 8  ASK 53.3700 x 1988 @ 7
+	3 BID ******************* ASK 53.3800 x 814  @ 6
+	4 BID ******************* ASK *******************
+
+
+Received Notification
+^^^^^^^^^^^^^^^^^^^^^
+::
+
+	notification=MBLDeltaRefresh
+	- Code=<numeric instrument code>
+	- LayerID=0
+	- Timestamps={Server_utc_time=2010-11-08 16:22:41:807,
+	              Market_utc_time=2010-11-08 16:22:41:807}
+	- Action=BidInsertAtLevel
+	- Level=2
+	- Price=53.285
+	- Qty={cumulated=1914, nb_orders=4}
+	- ContinuationFlag=false
+	- OtherValues=()
+
+After
+^^^^^
+::
+
+	0 BID 53.3000 x 8109 @ 8  ASK 53.3500 x 1936 @ 6
+	1 BID 53.2900 x 2482 @ 12 ASK 53.3600 x 2978 @ 7
+	2 BID 53.2850 x 1914 @ 4  ASK 53.3700 x 1988 @ 7
+	3 BID 53.2800 x 3829 @ 8  ASK 53.3800 x 814  @ 6
+	4 BID ******************* ASK *******************
+
+MBLDeltaRefresh, action=BidRemoveLevelAndAppend
+-----------------------------------------------
+
+Before
+^^^^^^
+::
+
+	0 BID 53.3200 x 1916 @ 6  ASK 53.3400 x 501  @ 3
+	1 BID 53.3100 x 2331 @ 10 ASK 53.3500 x 1936 @ 6
+	2 BID 53.3000 x 8109 @ 8  ASK 53.3600 x 2978 @ 7
+	3 BID 53.2900 x 2482 @ 12 ASK 53.3700 x 1988 @ 7
+	4 BID ******************* ASK *******************
+
+Received Notification
+^^^^^^^^^^^^^^^^^^^^^
+::
+
+	notification=MBLDeltaRefresh
+	- Code=<numeric instrument code>
+	- LayerID=0
+	- Timestamps={Server_utc_time=2010-11-08 16:22:40:243,
+	              Market_utc_time=2010-11-08 16:22:40:243}
+	- Action=BidRemoveLevelAndAppend
+	- Level=1
+	- Price=53.28
+	- Qty={cumulated=2, nb_orders=2}
+	- ContinuationFlag=false
+	- OtherValues=()
+
+After
+^^^^^
+::
+
+	0 BID 53.3200 x 1916 @ 6  ASK 53.3400 x 501  @ 3
+	1 BID 53.3000 x 8109 @ 8  ASK 53.3500 x 1936 @ 6
+	2 BID 53.2900 x 2482 @ 12 ASK 53.3600 x 2978 @ 7
+	3 BID 53.2800 x 2    @ 2  ASK 53.3800 x 814  @ 6
+	4 BID ******************* ASK *******************
+
+
+MBLDeltaRefresh, action=BidClearFromLevel
+-----------------------------------------
+
+Before
+^^^^^^
+::
+
+	0 BID 53.3200 x 958  @ 3 ASK 53.3400 x 250  @ 1
+	1 BID 53.3100 x 1165 @ 5 ASK 53.3500 x 968  @ 2
+	2 BID 53.3000 x 4054 @ 4 ASK 53.3600 x 1489 @ 3
+	3 BID 53.2900 x 1241 @ 6 ASK 53.3700 x 994  @ 3
+	4 BID ****************** ASK *******************
+
+Received Notification
+^^^^^^^^^^^^^^^^^^^^^
+::
+
+	notification=MBLDeltaRefresh
+	- Code=<numeric instrument code>
+	- LayerID=0
+	- Timestamps={Server_utc_time=2010-11-08 16:22:41:159,
+	              Market_utc_time=2010-11-08 16:22:41:159}
+	- Action=BidClearFromLevel
+	- Level=2
+	- Price=<not relevant>
+	- Qty=<not relevant>
+	- ContinuationFlag=false
+	- OtherValues=()
+
+After
+^^^^^
+::
+
+	0 BID 53.3200 x 958  @ 3 ASK 53.3400 x 250  @ 1
+	1 BID 53.3100 x 1165 @ 5 ASK 53.3500 x 968  @ 2
+	2 BID ****************** ASK 53.3600 x 1489 @ 3
+	3 BID ****************** ASK 53.3700 x 994  @ 3
+	4 BID ****************** ASK *******************
+
+MBLDeltaRefresh, action=ALLClearFromLevel
+-----------------------------------------
+
+Before
+^^^^^^
+::
+
+	0 BID 53.3200 x 958  @ 3 ASK 53.3400 x 250  @ 1
+	1 BID 53.3100 x 1165 @ 5 ASK 53.3500 x 968  @ 2
+	2 BID ****************** ASK 53.3600 x 1489 @ 3
+	3 BID ****************** ASK *******************
+
+Received Notification
+^^^^^^^^^^^^^^^^^^^^^
+::
+
+	notification=MBLDeltaRefresh
+	- Code=<numeric instrument code>
+	- LayerID=0
+	- Timestamps={Server_utc_time=2010-11-08 16:22:48:158,
+	              Market_utc_time=2010-11-08 16:22:48:158}
+	- Action=ALLClearFromLevel
+	- Level=0
+	- Price=<not relevant>
+	- Qty={cumulated=<not relevant>, nb_orders=<not relevant>}
+	- ContinuationFlag=false
+	- OtherValues=()
+
+After
+^^^^^
+::
+
+	0 BID ******************* ASK *******************
+
+
+Continuation Flag
+-----------------
+
+Initial Snapshot
+^^^^^^^^^^^^^^^^
+::
+
+	0 BID 53.3200 x 1916 @ 6  ASK 53.3400 x 501  @ 3
+	1 BID 53.3100 x 2331 @ 10 ASK 53.3500 x 1936 @ 5
+	2 BID 53.3000 x 8109 @ 8  ASK 53.3600 x 2978 @ 7
+	3 BID 53.2900 x 2482 @ 12 ASK 53.3700 x 1988 @ 7
+	4 BID ******************* ASK *******************
+
+First Event
+^^^^^^^^^^^
+Layer 0 is locked on Price 53.34. The consistency of the cache book is not
+guaranteed with the current event.
+
+::
+
+	notification=MBLDeltaRefresh
+	- Code=<numeric instrument code>
+	- LayerID=0
+	- Timestamps={Server_utc_time=2013-12-03 16:49:11:147,
+	              Market_utc_time=2013-12-03 16:49:11:147}
+	- Action=BidInsertAtLevel
+	- Level=0
+	- Price=53.34
+	- Qty={cumulated=666, nb_orders=1}
+	- ContinuationFlag=true
+	- OtherValues=()
+
+Bid and Ask sides are locked at price 53.34
+
+Cache Book After First Event (ContinuationFlag=true)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+::
+
+	0 BID 53.3400 x 666  @ 1  ASK 53.3400 x 501  @ 3
+	1 BID 53.3200 x 1916 @ 6  ASK 53.3500 x 1936 @ 5
+	2 BID 53.3100 x 2331 @ 10 ASK 53.3600 x 2978 @ 7
+	3 BID 53.3000 x 8109 @ 8  ASK 53.3700 x 1988 @ 7
+	4 BID ******************* ASK *******************
+
+Second Event
+^^^^^^^^^^^^
+The book is then unlocked with a Delta that has the Continuation Flag set to
+False.
+
+::
+
+	notification=MBLDeltaRefresh
+	- Code=<numeric instrument code>
+	- LayerID=0
+	- Timestamps={Server_utc_time=2013-12-03 16:49:11:147,
+	              Market_utc_time=2013-12-03 16:49:11:147}
+	- Action=AskRemoveLevel
+	- Level=0
+	- Price=0
+	- Qty={cumulated=0, nb_orders=<empty>}
+	- ContinuationFlag=false
+	- OtherValues=()
+
+Cache Book After Second Event, Unlocked Cache Book (ContinuationFlag=false)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+::
+
+	0 BID 53.3400 x 666  @ 1  ASK 53.3500 x 1936 @ 5
+	1 BID 53.3200 x 1916 @ 6  ASK 53.3600 x 2978 @ 7
+	2 BID 53.3100 x 2331 @ 10 ASK 53.3700 x 1988 @ 7
+	3 BID 53.3000 x 8109 @ 8  ASK *******************
+	4 BID ******************* ASK *******************
+
+MBLOverlapRefresh
+-----------------
+
+Field Description
+^^^^^^^^^^^^^^^^^
+::
+
+	notification=MBLOverlapRefresh
+	- BidChangeIndicator=...
+	- AskChangeIndicator=...
+	- BidLimits=({ Price { QTY NbOrders } })
+	- AskLimits=({ Price { QTY NbOrders } })
+
+For each side (bid, ask), a *list of order book entries* is provided along with
+an *indicator*. The list of entries can be empty. When not empty, the best
+prices display first. The indicator specifies:
+
+* ``start_level``: indicates the depth where the order book entries belong
+* ``is_full``: a boolean value indicating if the order book entries span up to
+  the bottom of the visible book.
+
+At the ``start_level``, you should copy the provided order book entries,
+overwriting any existing value (if any). When ``is_full`` is true, you should
+crop any previous entries that go deeper than the latest entry being updated.
+
+To handle the indicator:
+
+.. code-block:: java
+
+	int start_level;
+	boolean is_full;
+	if (indicator < 0) {
+	    is_full=true;
+	    start_level=-indicator-1;
+	} else {
+	    is_full=false;
+	    start_level=indicator;
+	}
+
+For more details, see also the following sections.
+
+Overlap
+^^^^^^^
+
+Before
+""""""
+::
+
+	0 BID 13.3000 x 8122 @ 7  ASK 13.3400 x 51   @ 3
+	1 BID 13.2900 x 1112 @ 5  ASK 13.3500 x 936  @ 16
+	2 BID 13.2700 x 1996 @ 20 ASK 13.3600 x 8941 @ 5
+	3 BID 13.2600 x 718  @ 11 ASK 13.3700 x 985  @ 17
+	4 BID ******************* ASK ********************
+
+Received Notification
+"""""""""""""""""""""
+``start_level=0`` and ``is_full=false``
+
+::
+
+	notification=MBLOvelapRefresh
+	- Code=<numeric instrument code>
+	- LayerID=0
+	- Timestamps={Server_utc_time=2010-11-08 16:52:22:100,
+	              Market_utc_time=2010-11-08 16:52:22:100}
+	- BidChangeIndicator=0
+	- AskChangeIndicator=0
+	- BidLimits=( { 13.295 { 9885 10 } } { 13.28 { 3273 9 } } )
+	- AskLimits=()
+	- OtherValues=()
+
+After
+"""""
+::
+
+	0 BID 13.2950 x 9885 @ 10 ASK 13.3400 x 51   @ 3
+	1 BID 13.2800 x 3273 @ 9  ASK 13.3500 x 936  @ 16
+	2 BID 13.2700 x 1996 @ 20 ASK 13.3600 x 8941 @ 5
+	3 BID 13.2600 x 718  @ 11 ASK 13.3700 x 985  @ 17
+	4 BID ******************* ASK ********************
+
+Overlap and Crop
+^^^^^^^^^^^^^^^^
+
+Before
+""""""
+::
+
+	0 BID 13.3000 x 8122 @ 7  ASK 13.3400 x 51   @ 3
+	1 BID 13.2900 x 1112 @ 5  ASK 13.3500 x 936  @ 16
+	2 BID 13.2700 x 1996 @ 20 ASK 13.3600 x 8941 @ 5
+	3 BID 13.2600 x 718  @ 11 ASK 13.3700 x 985  @ 17
+	4 BID ******************* ASK ********************
+
+Received Notification
+"""""""""""""""""""""
+``start_level=1`` and ``is_full=true``
+
+::
+
+	notification=MBLOvelapRefresh
+	- Code=<numeric instrument code>
+	- LayerID=0
+	- Timestamps={Server_utc_time=2010-11-08 16:52:22:100,
+	              Market_utc_time=2010-11-08 16:52:22:100}
+	- BidChangeIndicator=-2
+	- AskChangeIndicator=0
+	- BidLimits=( { 13.29 { 985 10 } } { 13.28 { 1173 19 } }  )
+	- AskLimits=()
+	- OtherValues=()
+
+After
+^^^^^
+::
+
+	0 BID 13.3000 x 8122 @ 7  ASK 13.3400 x 51   @ 3
+	1 BID 13.2900 x 985  @ 10 ASK 13.3500 x 936  @ 16
+	2 BID 13.2800 x 1173 @ 19 ASK 13.3600 x 8941 @ 5
+	3 BID ******************* ASK 13.3700 x 985  @ 17
+	4 BID ******************* ASK ********************
+
+Overlap and Append
+~~~~~~~~~~~~~~~~~~
+
+Before
+^^^^^^
+::
+
+	0 BID 13.3000 x 8122 @ 7  ASK 13.3400 x 51   @ 3
+	1 BID 13.2900 x 1112 @ 5  ASK 13.3500 x 936  @ 16
+	2 BID 13.2700 x 1996 @ 20 ASK 13.3600 x 8941 @ 5
+	3 BID ******************* ASK ********************
+
+Received Notification
+"""""""""""""""""""""
+``start_level=0`` and ``is_full=false``
+
+::
+
+	notification=MBLOvelapRefresh
+	- Code=<numeric instrument code>
+	- LayerID=0
+	- Timestamps={Server_utc_time=2010-11-08 16:52:22:100,
+	              Market_utc_time=2010-11-08 16:52:22:100}
+	- BidChangeIndicator=0
+	- AskChangeIndicator=0
+	- BidLimits=( { 13.31 { 985 10 } } { 13.30 { 1173 19 } } { 13.29 { 9185 2 } }
+	              { 13.28 { 233 3 } } )
+	- AskLimits=()
+	- OtherValues=()
+
+After
+^^^^^
+::
+
+	0 BID 13.3100 x 985  @ 10 ASK 13.3400 x 51   @ 3
+	1 BID 13.3000 x 1173 @ 19 ASK 13.3500 x 936  @ 16
+	2 BID 13.2900 x 9185 @ 2  ASK 13.3600 x 8941 @ 5
+	3 BID 13.2800 x 233  @ 3  ASK ********************
+	4 BID ******************* ASK ********************
+
+
+MBLMaxVisibleDepth
+------------------
+
+Before
+~~~~~~
+::
+
+	0 BID 53.3100 x 2331 @ 10 ASK 53.3300 x 473  @ 1
+	1 BID 53.3000 x 8109 @ 8  ASK 53.3400 x 501  @ 3
+	2 BID 53.2700 x 1626 @ 2  ASK 53.3600 x 3273 @ 9
+	3 BID 53.2600 x 811  @ 5  ASK 53.3700 x 1988 @ 7
+	4 BID ******************* ASK *******************
+
+Received Notification
+~~~~~~~~~~~~~~~~~~~~~
+::
+
+	notification=MBLMaxVisibleDepth
+	- Code=<numeric instrument code>
+	- LayerID=0
+	- MaxVisibleDepth=2
+
+After
+~~~~~
+::
+
+	0 BID 53.3100 x 2331 @ 10 ASK 53.3300 x 473 @ 1
+	1 BID 53.3000 x 8109 @ 8  ASK 53.3400 x 501 @ 3
+	2 BID ******************* ASK ******************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.. _referential_guide:
+
+Referential
+===========
+
+* Code - the QuantHouse instrument identifier :ref:`code_label`
+
+See :ref:`referential_tags`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.. _code_label:
+
+Code
+----
+
+The Internal Code is a numeric value used internally to uniquely identify an
+instrument.
+
+.. _TradingStatus:
+
+TradingStatus
+-------------
+``TradingStatus`` is a quotation variable with integer value, used to represent
+the current status of an instrument. Possible values are based on those of the
+FIX tag ``SecurityTradingStatus`` (326):
+
+* ``UNKNOWN``;
+* ``OpeningDelay``;
+* ``TradingHalt``;
+* ``Resume``;
+* ``NoOpenNoResume``;
+* ``PriceIndication``;
+* ``TradingRangeIndication``;
+* ``MarketImbalanceBuy``;
+* ``MarketImbalanceSell``;
+* ``MarketOnCloseImbalanceBuy``;
+* ``MarketOnCloseImbalanceSell``;
+* ``NoMarketImbalance``;
+* ``NoMarketOnCloseImbalance``;
+* ``ITSPreOpening``;
+* ``NewPriceIndication``;
+* ``TradeDisseminationTime``;
+* ``ReadyToTrade``;
+* ``NotAvailableForTrading``;
+* ``NotTradedOnThisMarket``;
+* ``UnknownOrInvalid``;
+* ``PreOpen``;
+* ``OpeningRotation``;
+* ``FastMarket``;
+* ``PreCross``;
+* ``Cross``.
+
+.. _MarketBranchId:
+
+MarketBranchId
+--------------
+``MarketBranchId`` is the identifier of a referential branch. It consists of:
+
+* market identifier (MIC): numerical identifier;
+* security type: string;
+* CFI code: string.
+
+Every instrument belongs to one branch (and one only).
+
+A ``MarketBranchId`` can also host a branch filter; in that case each of these
+fields can contain patterns:
+
+* ``MARKET_ID_unknown`` (0) is the wildcard value for ``FOSMarketId``;
+* ``""`` (empty string) is the wildcard value for security types;
+* for CFI codes, ending letters can be omitted to indicate a wodlcard value;
+  for example "E" matches "ESXXXX" and "EUXXXX", but "EX" won't.
+
+.. _MarketCharacteristics:
+
+MarketCharacteristics
+---------------------
+``MarketCharacteristics`` is used to describe a market. It consists of:
+
+* numerical identifier (bound to a 4-letter acronym constant);
+* name;
+* name of the timezone attached to it;
+* name of the country;
+* maximum number of instruments for this market.
+
+.. _VariableIncrementPriceBandTable:
+
+VariableIncrementPriceBandTable
+-------------------------------
+``VariableIncrementPriceBandTable`` is used to store variable tick size
+information. That is the association between a price and its minimal increment.
+
+Exchanges may indeed define the minimal increment that applies by price ranges.
+For example: prices between 0 and 1 have 0.01 increment, prices between 1 and 10
+have 0.1 increment, prices between 10 and 100 have 1 minimal increment, etc.
+Meaning that 0.52 may exist but 0.521 may not; 3.6 exist but 3.75 does not, etc.
+
+Each instrument may have a different table. The referential value
+``PriceIncrement_dynamic_TableId`` indicates (if present) what table to
+currently use for an instrument. Note that this table ID might change over time.
+
+It consists of:
+
+* Numerical identifier (uint32);
+* Description (string);
+* List of price bands:
+
+  * Boolean indicating whether boundary is included or not;
+  * Lower price to apply this increment to;
+  * Price increment.
+
+Example of bands::
+
+  >  100 : 0.5
+  >= 10  : 0.05
+  >= 1   : 0.005
+  >= 0.5 : 0.001
+
+This table reads like this: price increment is 0.001 for prices between 0.5
+(included) and 1 (excluded), price increment is 0.005 for prices between 1
+(included) and 10 (excluded), etc. The upper band reads: price increment is 0.5
+for prices higher than 100 (excluded).
+
+
+Quotation
+=========
+
+.. _MagicPrices:
+
+Magic Prices
+------------
+
+The API defines 4 constants used as "magic" prices:
+
+* ``666666.666``: an Unquoted price field. Field has no value;
+* ``999999.999``: a price At Best. Price references the current best price;
+* ``999999.989``: a price At Open. Price references the current opening price;
+* ``999999.979``: a PEG order. According to the Euronext documentation, a pegged order is a limit order
+  to buy or sell a stated amount of a security at a displayed price set to track
+  the current bid or ask of the Euronext Central Order Book. See Euronext
+  documentation for more details.
+
+These constants can be seen in any type of pricing data.
+
+.. _NbOrders:
+
+NbOrders
+--------
+
+The NbOrders API defines 2 constants associated with the "number of orders" part of
+a quantity:
+
+* ``EMPTY``: the associated price has been reset. Usually, the last value of the
+  price is left as-is so that users can know what was the price before the
+  reset. It means that a price cannot be interpreted without considering its
+  associated quantity (if relevant).
+* ``-1``: information not provided by the market.
+
+
+.. _referential_tags:
+
+Referential Tags
+================
+
+.. raw:: latex
+
+   \newgeometry{margin=0.375in, includehead, includefoot}
+   \begin{landscape}
+   {\centering\bfseries Referential Tags\par}
+
+.. tabularcolumns:: |>{\RaggedRight\hspace*{0pt}}p{3cm}|p{1cm}|p{1.7cm}|p{5cm}|p{3cm}|p{1.5cm}|p{2.3cm}|>{\RaggedRight\hspace*{0pt}}p{2.5cm}|>{\RaggedRight\hspace*{0pt}}p{2.7cm}|
+
+.. csv-table::
+   :class: longtable forcehtmllongtable largetable
+   :header-rows: 1
+   :file: /home/olivier_collard/DEV/git/dev/olivier.collard_feedos/feedos_metadata/doc/tags_referential.csv
+
+.. raw:: latex
+
+   \end{landscape}
+   \restoregeometry
+
+.. only:: html
+
+.. _quotation_tags_label:
+
+Quotation Tags
+==============
+
+.. raw:: latex
+
+   \newgeometry{margin=0.375in, includehead, includefoot}
+   \begin{landscape}
+   {\centering\bfseries Quotation Tags\par}
+
+.. tabularcolumns:: |>{\RaggedRight\hspace*{0pt}}p{3cm}|p{1cm}|p{1.7cm}|p{5cm}|p{3cm}|p{1.5cm}|p{2.3cm}|>{\RaggedRight\hspace*{0pt}}p{2.5cm}|>{\RaggedRight\hspace*{0pt}}p{2.7cm}|
+
+.. csv-table::
+   :class: longtable forcehtmllongtable largetable
+   :header-rows: 1
+   :file: /home/olivier_collard/DEV/git/dev/olivier.collard_feedos/feedos_metadata/doc/tags_quotation.csv
+
+.. raw:: latex
+
+   \end{landscape}
+   \restoregeometry
+
+.. only:: html
+
+.. _quotation_context_tags_label:
+
+Quotation Context Tags
+======================
+
+.. raw:: latex
+
+   \newgeometry{margin=0.375in, includehead, includefoot}
+   \begin{landscape}
+   {\centering\bfseries Quotation Context Tags\par}
+
+.. tabularcolumns:: |>{\RaggedRight\hspace*{0pt}}p{3cm}|p{1cm}|p{1.7cm}|p{6cm}|p{3.5cm}|p{1.5cm}|p{2.3cm}|p{2.5cm}|p{1.2cm}|
+
+.. csv-table::
+   :class: longtable forcehtmllongtable largetable
+   :header-rows: 1
+   :file: /home/olivier_collard/DEV/git/dev/olivier.collard_feedos/feedos_metadata/doc/tags_quotation_context.csv
+
+.. raw:: latex
+
+   \end{landscape}
+   \restoregeometry
