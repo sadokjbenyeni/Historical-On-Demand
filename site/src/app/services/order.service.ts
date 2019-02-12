@@ -24,6 +24,10 @@ export class OrderService {
     return this.http.post( environment.api + '/order/verify', order ).map( res => res.json() );
   }
 
+  logPayement(log) {
+    return this.http.post( environment.api + '/order/logPayement', log ).map( res => res.json() );
+  }
+
   updateOrder(order) {
     return this.http.put( environment.api + '/order/update', order ).map( res => res.json() );
   }
@@ -47,12 +51,18 @@ export class OrderService {
   getOrder(user) {
     return this.http.get( environment.api + '/order/' +  user ).map( res => res.json() );
   }
+  postOrder(user, sort = 1) {
+    return this.http.post( environment.api + '/order',  {user:user, sort:sort} ).map( res => res.json() );
+  }
   getIdOrder(id) {
     return this.http.get( environment.api + '/order/idCmd/' +  id ).map( res => res.json() );
   }
 
   getList(requete, order) {
     return this.http.post( environment.api + '/order/list',  {requete:requete, order: order} ).map( res => res.json() );
+  }
+  getListExport(requete) {
+    return this.http.post( environment.api + '/order/listExport',  requete ).map( res => res.json() );
   }
 
   getCaddies(user) {

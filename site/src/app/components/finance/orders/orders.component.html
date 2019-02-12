@@ -15,7 +15,7 @@
       <button class="btn btn-success" (click)="exportFile()" *ngIf="export"><span class="fa fa-upload"></span> Invoice Export</button>
       <div class="panel panel-primary" *ngIf="export">
         <div class="table-responsive container">
-          <div class="col-md-3 text-center">
+          <!-- <div class="col-md-3 text-center">
             <b>Select the desired columns</b><br>
             <div class="btn btn-info" *ngFor="let col of columnsSelect">
               <span aria-hidden="true" (click)="delCol(col)" class="text-danger ">&times;</span> {{ col.name }}
@@ -24,7 +24,7 @@
               <option value="" disabled>Selected Columns</option>
               <option *ngFor='let c of columns' [value]="c.id + '§' + c.name" [disabled]="columnsSelect.indexOf(c.id) !== -1 ">{{c.name}}</option>
             </select>
-          </div>
+          </div> -->
           <div class="col-md-3 text-center">
             <b>Select Invoice ID range</b><br>
             <div class="form-group input-group">

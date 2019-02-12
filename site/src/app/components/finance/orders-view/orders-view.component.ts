@@ -15,12 +15,16 @@ import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 })
 export class OrdersViewComponent implements OnInit {
   id: any;
-  payment: any;
   existSubscribe: boolean;
   totalHTOld: number;
   currencyTxUsd: any;
   currencyTx: any;
   companyName: any;
+  payment: string;
+  firstname: any;
+  lastname: any;
+  job: any;
+  country: any;
   currency: any;
   symbols: any[];
   totalVat: number;
@@ -99,6 +103,10 @@ export class OrdersViewComponent implements OnInit {
         this.cmd = c.cmd;
         this.companyName = c.cmd.companyName;
         this.payment = c.cmd.payment;
+        this.firstname = c.cmd.firstname;
+        this.lastname = c.cmd.lastname;
+        this.job = c.cmd.job;
+        this.country = c.cmd.country;
         this.discount = c.cmd.discount;
         this.currency = c.cmd.currency;
         this.currencyTx = c.cmd.currencyTx;

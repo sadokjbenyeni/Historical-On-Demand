@@ -18,6 +18,11 @@ export class OrderscViewComponent implements OnInit {
   currencyTxUsd: any;
   currencyTx: any;
   companyName: any;
+  payment: string;
+  firstname: any;
+  lastname: any;
+  job: any;
+  country: any;
   currency: any;
   symbols: any[];
   totalVat: number;
@@ -93,6 +98,11 @@ export class OrderscViewComponent implements OnInit {
         this.id = c.cmd.id;
         this.cmd = c.cmd;
         this.companyName = c.cmd.companyName;
+        this.payment = c.cmd.payment;
+        this.firstname = c.cmd.firstname;
+        this.lastname = c.cmd.lastname;
+        this.job = c.cmd.job;
+        this.country = c.cmd.country;
         this.currency = c.cmd.currency;
         this.discount = c.cmd.discount;
         this.currencyTx = c.cmd.currencyTx;

@@ -20,13 +20,18 @@
           <div class="panel panel-info">
             <div class="table-responsive container row">
               <div class="col-md-6">
-                <p><b>Company Name : </b> {{ companyName }}</p>
                 <p><b>Submission Date and Time : </b> {{ submissionDate | date:'medium' }}</p>
-                <p><b>Order Status : </b> {{ states[state] }}</p>
-              </div>
-              <div class="col-md-6">
                 <p><b>Order Form : </b> </p>
+                <p><b>Payment method : </b>{{ payment }}</p>
                 <p><b>Invoice : </b> </p>
+                <p><b>Order Status : <span [class]="textcolor">{{states[state]}}</span></b>
+                </div>
+              <div class="col-md-6">
+                <p><b>Company Name: </b>{{ companyName }}</p>
+                <p><b>First name : </b>{{ firstname }}</p>
+                <p><b>Last name : </b>{{ lastname }}</p>
+                <p><b>Job role : </b>{{ job }}</p>
+                <p><b>Country : </b>{{ country }}</p>
               </div>
             </div>
           </div>

@@ -64,4 +64,12 @@ router.put('/downloadSetting', (req, res) => {
     });
 });
 
+router.get('/elastic', (req, res) => {
+    Config.findOne({ id: 'elastic' })
+    .then((Config) => {
+        if (!Config) { return res.sendStatus(404); }
+        return res.status(200).json(Config);
+    });
+});
+
 module.exports = router;

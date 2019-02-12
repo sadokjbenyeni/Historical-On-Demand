@@ -1,0 +1,176 @@
+<app-menu></app-menu>
+<div class="container">
+  <div class="row">
+    <!--  page header -->
+    <div class="col-lg-12">
+      <h1 class="page-header">Order : {{ id }}</h1>
+    </div>
+    <!-- end  page header -->
+  </div>
+  <div class="row">
+      <app-configuration></app-configuration>
+    <div class="col-md-10">
+      <div class="table-responsive">
+        <div class="panel panel-primary" *ngIf="message">
+          <div class="panel-heading">
+            <h5 class="text-center">{{message}}</h5>
+          </div>
+        </div>
+        <div class="panel panel-info">
+          <div class="table-responsive container row">
+            <div class="col-md-6">
+              <p><b>Submission Date and Time : </b> {{ submissionDate | date:'medium' }}</p>
+              <p><b>Order Form : </b> </p>
+              <p><b>Payment method : </b>{{ payment }}</p>
+              <p><b>Invoice : </b> </p>
+              <p><b>Order Status : <span [class]="textcolor">{{states[state]}}</span></b>
+              </div>
+            <div class="col-md-6">
+              <p><b>Company Name: </b>{{ companyName }}</p>
+              <p><b>First name : </b>{{ firstname }}</p>
+              <p><b>Last name : </b>{{ lastname }}</p>
+              <p><b>Job role : </b>{{ job }}</p>
+              <p><b>Country : </b>{{ country }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Item #</th>
+                <th>Data Set</th>
+                <th>Symbol</th>
+                <th>Exchange</th>
+                <th>Product ID</th>
+                <th>Purchase Type</th>
+                <th>Engagement Period<br>(month)</th>
+                <th>Date From</th>
+                <th>Date To</th>
+                <th>Pricing Tier</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of cart" [ngClass]="{ 'danger':c.status==='failed', 'warning':c.status==='running', clickable: true }" (click)="detail(c)">
+                <td *ngIf="!c.print">{{ c.idx}}</td>
+                <td *ngIf="!c.print">{{ c.quotation_level }}</td>
+                <td *ngIf="!c.print">{{ c.symbol }}</td>
+                <td *ngIf="!c.print">{{ c.exchange }}</td>
+                <td *ngIf="!c.print">{{ c.eid }}</td>
+                <td *ngIf="c.onetime === 1 && !c.print">One-Off</td>
+                <td *ngIf="c.subscription === 1 && !c.print">Subscription</td>
+                <td *ngIf="c.subscription === 1 && !c.print">{{c.period}}</td>
+                <td *ngIf="c.subscription === 1 && !c.print && !c.begin_date_select"></td>
+                <td *ngIf="c.subscription === 1 && !c.print && !c.end_date_select"></td>
+                <td *ngIf="c.subscription === 1 && !c.print && c.begin_date_select">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
+                <td *ngIf="c.subscription === 1 && !c.print && c.end_date_select">{{ c.end_date | date:'yyyy-MM-dd' }}</td>
+                <td *ngIf="c.subscription === 0 && !c.print"></td>
+                <td *ngIf="c.subscription === 0 && !c.print">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
+                <td *ngIf="c.subscription === 0 && !c.print">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
+                <td *ngIf="!c.print">{{ c.pricingTier }}</td>
+                <td *ngIf="!c.print">{{ getHt(c.ht) | number:'1.2-2' }} {{ symbols[currency] }}</td>
+                <td class="bg-grey" colspan="8" *ngIf="c.print"></td>
+                <td *ngIf="(c.backfill_fee || c.ongoing_fee)"><b>Exchange Fees</b></td>
+                <td *ngIf="(c.backfill_fee || c.ongoing_fee)">{{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }} {{ symbols[currency] }}</td>
+                <td>{{ c.status }}</td>
+                <!-- <td><button class="btn btn-success" (click)="retry(c)">Retry</button></td> -->
+                <td><button class="btn btn-success" (click)="openModal(retrymodal);">Retry</button></td>
+              </tr>
+              <tr *ngIf="cart?.length === 0">
+                <td colspan="11" class="no-data-available">Empty !</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="panel panel-primary" *ngIf="item">
+          <div class="table-responsive container">
+            <div class="col-lg-12">
+              <h4 [ngClass]="{ 'text-danger':item.status==='failed', 'text-warning':item.status==='running' }">Status : {{item.status}}</h4>
+              <ul class="list-group">
+                <li class="list-group-item">
+                  <label for="idelement">Item : {{ item.idElem }}</label>
+                </li>
+                <li class="list-group-item">
+                  <label>Logs :</label>
+                  <ul class="list-group">
+                    <li class="list-group-item" *ngFor="let log of item.log">
+                      <pre [ngClass]="{ 'alert-danger':log.status==='failed', 'alert-warning':log.status==='running' }">{{ log | json }}</pre>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+            <!-- <div class="col-lg-6">
+              <h4>Action</h4>
+              <ul class="list-group">
+                <li class="list-group-item">
+                  <label for="Status">Status</label>
+                  <div class="custom-control custom-radio">
+                    <input type="radio" id="active" name="customRadio" class="custom-control-input"  [value]="'active'" [(ngModel)]="item.status">
+                    <label class="custom-control-label" for="active">Active</label>
+                  </div>
+                  <div class="custom-control custom-radio">
+                    <input type="radio" id="failed" name="customRadio" class="custom-control-input" [value]="'failed'" [(ngModel)]="item.status">
+                    <label class="custom-control-label" for="failed">Failed</label>
+                  </div>
+                  <div *ngIf="!item.links || item.links.length === 0">
+                      <input type="text" [(ngModel)]="link[item.idx]">
+                  </div>
+                  <div *ngFor="let links of item.links">
+                    <div *ngFor="let link of links.links">
+                      <input type="text" [(ngModel)]="link.link" class="form-control">
+                    </div>
+                  </div>
+                </li>
+              </ul>
+              <button class="btn btn-success" (click)="item=false">Update</button>
+              <button class="btn btn-default" (click)="item=false">Cancel</button>
+            </div> -->
+          </div>
+          <div class="table-responsive text-center">
+            <div class="btn-action">
+              <span class="btn btn-success fa fa-handshake-o" *ngIf="verifState()" (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
+            </div>
+          </div>
+        </div>
+        <span class="btn btn-danger fa fa-power-off" [routerLink]='["/admin/clientorder"]'> Close</span>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #content let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h5 class="modal-title"><b>{{ action }}</b></h5>
+    <button type="button" class="close" aria-label="Close" (click)="d('')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body text-right">
+    <button type="button" class="btn btn-danger" (click)="confirm(); c('')">Confirm</button>
+    <button type="button" class="btn btn-light" (click)="c('')">Close</button>
+  </div>
+</ng-template>
+
+<ng-template #retrymodal let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h5 class="modal-title"><b>Retry</b></h5>
+    <button type="button" class="close" aria-label="Close" (click)="d('')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  
+  <div class="modal-body">
+    <p>Please enter the reference of the item to be reinjected</p>
+    <div class="form-group input-group">
+      <span class="input-group-addon">Reference</span>
+      <input class="form-control ng-untouched" name="reference" placeholder="Reference" type="text" [(ngModel)]="item.reference">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-danger" (click)="retry(); c('')" [disabled]="item.reference ===''">Retry</button>
+    <button type="button" class="btn btn-light" (click)="c('')">Close</button>
+  </div>
+</ng-template>

@@ -39,5 +39,9 @@ export class ConfigService {
     return this.http.put( environment.api + '/config/downloadSetting', downloadSetting )
     .map( res => res.json() );
   }
+  getElasticSetting() {
+    return this.http.get( environment.api + '/config/elastic' )
+    .map( res => res.json() );
+  }
 
 }

@@ -6,6 +6,8 @@ import { GuardGuard } from './guard.guard';
 // Site Admins
 import { UsersComponent } from './components/admin/users/users.component';
 import { UserDetailComponent } from './components/admin/user-detail/user-detail.component';
+import { ClientOrderComponent } from './components/admin/client-order/client-order.component';
+import { ClientOrderDetailsComponent } from './components/admin/client-order-details/client-order-details.component';
 import { RoleComponent } from './components/admin/role/role.component';
 import { CountriesComponent } from './components/admin/countries/countries.component';
 import { CountryComponent } from './components/admin/country/country.component';
@@ -56,6 +58,8 @@ export const routes: Routes = [
   // ADMINISTRATOR
   { path: 'admin/profil/:id', component : UserDetailComponent, canActivate: [GuardGuard] },
   { path: 'admin/users', component : UsersComponent, canActivate: [GuardGuard] },
+  { path: 'admin/clientorder', component : ClientOrderComponent, canActivate: [GuardGuard] },
+  { path: 'admin/clientorderdetails/:id', component : ClientOrderDetailsComponent, canActivate: [GuardGuard] },
   { path: 'admin/role', component : RoleComponent, canActivate: [GuardGuard] },
   { path: 'admin/countries', component : CountriesComponent, canActivate: [GuardGuard] },
   { path: 'admin/country/:id', component : CountryComponent, canActivate: [GuardGuard] },

@@ -13,6 +13,7 @@ export class DownloadSettingComponent implements OnInit {
 
   periodOneOff: number;
   downloadOneOff: number;
+  linkPerFile: number;
   periodSubscription: number;
   downloadSubscription: number;
 
@@ -28,13 +29,14 @@ export class DownloadSettingComponent implements OnInit {
     this.configService.getDownloadSetting().subscribe(res => {
       this.periodOneOff = res[0].periodOneOff;
       this.downloadOneOff = res[0].downloadOneOff;
+      this.linkPerFile = res[0].linkPerFile;
       this.periodSubscription = res[0].periodSubscription;
       this.downloadSubscription = res[0].downloadSubscription;
     });
   }
 
   saveOneOff(){
-    this.configService.setDownloadSetting({periodOneOff: this.periodOneOff, downloadOneOff: this.downloadOneOff}).subscribe(res => {
+    this.configService.setDownloadSetting({periodOneOff: this.periodOneOff,linkPerFile: this.linkPerFile, downloadOneOff: this.downloadOneOff}).subscribe(res => {
       this.message = res.message;
     });
   }

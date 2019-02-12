@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { OrderService } from '../../services/order.service';
 import { UploadService } from '../../services/upload.service';
 import { CurrencyService } from '../../services/currency.service';
+import { ConfigService } from '../../services/config.service';
 
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 
@@ -44,12 +45,19 @@ export class OrderHistoryComponent implements OnInit {
   list: boolean;
   viewdetail: boolean;
   phrase: string;
+  period: any;
+  firstname: any;
+  company: any;
+  lastname: any;
+  job: any;
+  country: any;
 
   constructor(
     private http: HttpClient,
     private modalService: NgbModal,
     private orderService: OrderService,
     private currencyService: CurrencyService,
+    private configService: ConfigService,
     private uploadService: UploadService
   ) {
     this.phrase = 'test';
@@ -57,6 +65,7 @@ export class OrderHistoryComponent implements OnInit {
 
   ngOnInit() {
     this.today = new Date();
+    this.periodDnl();
     this.title = 'Order History';
     this.details = [];
     this.states = {
@@ -116,7 +125,12 @@ export class OrderHistoryComponent implements OnInit {
     this.title = 'Order : ' + c.id;
     this.idCmd = c.id_cmd;
     this.state = c.state;
+    this.firstname = c.firstname;
+    this.lastname = c.lastname;
     this.payment = c.payment;
+    this.company = c.companyName;
+    this.job = c.job;
+    this.country = c.country;
     if(this.state === 'active') {
       this.textcolor = 'text-success';
     } else if(this.state === 'rejected') {
@@ -143,6 +157,7 @@ export class OrderHistoryComponent implements OnInit {
         let prod = {
           id: index,
           print: false, 
+          idC: c.id,
           idCmd: c.id_cmd,
           idElem: p.id_undercmd,
           quotation_level: p.dataset,
@@ -218,7 +233,7 @@ export class OrderHistoryComponent implements OnInit {
       r.currencies.forEach(s => {
         this.symbols[s.id] = s.symbol;
       });
-      this.orderService.getOrder(this.idUser).subscribe(resp => {
+      this.orderService.postOrder(this.idUser, -1).subscribe(resp => {
         this.cmd = [];
         if(resp.cmd.length > 0){
           this.cmd = resp.cmd;
@@ -252,7 +267,6 @@ export class OrderHistoryComponent implements OnInit {
     let ttc = 0;
     if (val.currency !== 'usd') {
       ttc = ((val.totalHT / val.currencyTxUsd) * val.currencyTx);
-      console.log(ttc);
       if(val.discount>0){
         ttc = ttc - ( ttc * (val.discount / 100) );
       }
@@ -287,9 +301,20 @@ export class OrderHistoryComponent implements OnInit {
     return diff;
   }
 
-  limitDownLoad(datelk) {
+  periodDnl(){
+    this.configService.getDownloadSetting().subscribe(period=>{
+      this.period = period;
+    });
+  }
+
+  limitDownLoad(onetime, subscription, datelk) {
     let expired = new Date(datelk);
-    return expired.setDate(expired.getDate() + 7);
+    if(onetime === 1){
+      return expired.setDate(expired.getDate() + this.period[0].periodOneOff);
+    }
+    if(subscription === 1){
+      return expired.setDate(expired.getDate() + this.period[0].periodOneOff);
+    }
   }
 
   precisionRound(number, precision) {
@@ -310,13 +335,18 @@ export class OrderHistoryComponent implements OnInit {
     let liens = [];
     text.forEach(ll => {
       ll.link.split('|').forEach(lien => {
-        liens.push({link: environment.api + '/user/test/'+this.token+'/'+ path +'/'+ lien });
+        liens.push(environment.api + '/user/test/'+this.token+'/'+ path +'/'+ lien);
       });
     });
     const element = this.setting.element.dynamicDownload;
-    const fileType = 'text/json';
-    element.setAttribute('href', `data:${fileType};charset=utf-8,${encodeURIComponent(JSON.stringify(liens))}`);
-    element.setAttribute('download', fileName);
+    // const fileType = 'text/json';
+    // element.setAttribute('href', `data:${fileType};charset=utf-8,${encodeURIComponent(JSON.stringify(liens))}`);
+    const fileType = 'text/plain';
+    element.setAttribute('href', `data:${fileType};charset=utf-8,${liens.join('\r\n')}`);
+    let fn = fileName.split('¤');
+    let datedeb = fn[1].split('T')[0].replace(/-/gi, '');
+    let datefin = fn[2].split('T')[0].replace(/-/gi, '');
+    element.setAttribute('download', fn[0]+datedeb+'-'+datefin+'.txt');
 
     var event = new MouseEvent("click");
     element.dispatchEvent(event);

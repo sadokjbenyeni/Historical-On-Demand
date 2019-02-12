@@ -13,6 +13,7 @@ let PoolSchema = new mongoose.Schema({
     quotation_level: { type: String },
     begin_date: { type: String },
     end_date: { type: String },
+    searchdate: { type: Date },
     status: { type: String }
 }, { timestamps: true });
 

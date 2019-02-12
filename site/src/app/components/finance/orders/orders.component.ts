@@ -13,11 +13,8 @@ import { OrderService } from '../../../services/order.service';
 import { DataTableDirective } from 'angular-datatables';
 import { environment } from '../../../../environments/environment';
 
-import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
-
-const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-const EXCEL_EXTENSION = '.xlsx';
+import { Angular5Csv } from 'angular5-csv/Angular5-csv';
 
 class DataTablesResponse {
   listorders: any[];
@@ -37,6 +34,12 @@ class Orders {
   name: string;
 }
 
+class DataExport {
+  _id: string;
+  id: string;
+  name: string;
+}
+
 @Component({
   selector: 'app-orders',
   templateUrl: './orders.component.html',
@@ -48,8 +51,8 @@ export class OrdersComponent implements OnInit {
   columns: Array<column>;
   columnsSelect: Array<column>;
   export: boolean;
-  beginDate: Date;
-  endDate: Date;
+  beginDate: any;
+  endDate: any;
   dateSubmission: Date;
   state: string;
   states: Array<any>;
@@ -58,7 +61,11 @@ export class OrdersComponent implements OnInit {
   dtTrigger: Subject<any> = new Subject();
   dtOptions: DataTables.Settings = {};
   listorders: Orders[] = [];
+  listextract: DataExport[] = [];
   ncol: string;
+  typeexport: string;
+  beginID: any;
+  endID: any;
 
   constructor(
     private http: Http,
@@ -75,6 +82,11 @@ export class OrdersComponent implements OnInit {
     this.export = false;
     this.message = '';
     this.ncol = '';
+    this.beginID = null;
+    this.endID = null;
+    this.beginDate = null;
+    this.endDate = null;
+    this.typeexport = "csv";
     this.columnsSelect = [];
     this.dtOptions = {};
     this.state = 'PVF';
@@ -181,25 +193,78 @@ export class OrdersComponent implements OnInit {
   }
 
   exportFile() {
-    // let filter = {this.columnsSelect
+    let req = { state: { $in: ["PVF", "validated"]} };
+    if( this.beginID !== "" && this.endID !== "" ){
+      req["id"] = { $gte: this.beginID, $lte: this.endID };
+    }
+    let ids = {};
+    if( this.beginID){
+      ids["$gte"] = this.beginID;
+    }
+    if(this.endID){
+      ids["$lte"] = this.endID;
+    }
+    if( this.beginID || this.endID){ req["id"] = ids; }
+
+    let dates = {};
+    if( this.beginDate){
+      dates["$gte"] = new Date(this.beginDate.year+'-'+ this.beginDate.month+'-'+ this.beginDate.day);
+    }
+    if(this.endDate){
+      dates["$lte"] = new Date(this.endDate.year+'-'+ this.endDate.month+'-'+ this.endDate.day);
+    }
+    if(this.endDate || this.beginDate){ req["submissionDate"] = dates; }
+
+    if( this.typeexport === "csv"){
+      this.orderService.getListExport(req).subscribe(data=>{
+        let options = { 
+          fieldSeparator: ',',
+          quoteStrings: '"',
+          decimalseparator: '.',
+          showTitle: true,
+          useBom: true,
+          headers: [
+            "Invoice_ID",
+            "Client_ID",
+            "Client_Name",
+            "Client_Country",
+            "Order_Date",
+            "Payment_Date",
+            "Order_Currency",
+            "Order_Amount_Before_Taxes",
+            "Exchange_Fees",
+            "VAT",
+            "Payment_Method",
+            "TOTAL_Order_Amount",
+          ]
+        };
+        new Angular5Csv(data, 'Invoices_export_'+ new Date().getTime(), options);
+      });
+    }
+    if( this.typeexport === "xlsx"){
+      this.orderService.getListExport(req).subscribe(data=>{
+        this.exportAsExcelFiles(data, "Invoices");
+      });
+    }
   }
+
+  toExportFileName(excelFileName: string): string {
+    return `${excelFileName}_export_${new Date().getTime()}.xlsx`;
+  }
+
+  exportAsExcelFiles(json: any[], excelFileName: string): void {
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
+    const workbook: XLSX.WorkBook = {Sheets: {'data': worksheet}, SheetNames: ['data']};
+    XLSX.writeFile(workbook, this.toExportFileName(excelFileName));
+  }
+
+  // saveAsExcelFile(buffer: any, fileName: string): void {
+  //   const data: Blob = new Blob(['\ufeff' + buffer], { type: 'text/csv;charset=utf-8;' });
+  //   FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + ".csv");
+  // }
 
   delCol(a) {
     this.columnsSelect.splice(this.columnsSelect.indexOf(a), 1);
-  }
-
-  exportAsExcelFile(json: any[], excelFileName: string): void {
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
-    const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['Invoice'] };
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
-    this.saveAsExcelFile(excelBuffer, excelFileName);
-  }
-
-  saveAsExcelFile(buffer: any, fileName: string): void {
-    const data: Blob = new Blob([buffer], {
-      type: EXCEL_TYPE
-    });
-    FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
   }
 
   getHt(val, currency, currencyTxUsd, currencyTx, discount, vatValue){

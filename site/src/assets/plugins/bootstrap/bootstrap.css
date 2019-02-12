@@ -1580,7 +1580,7 @@ table th[class*="col-"] {
 .table > thead > tr.danger > th,
 .table > tbody > tr.danger > th,
 .table > tfoot > tr.danger > th {
-  background-color: #f2dede;
+  background-color: #ff8e8e;
 }
 .table-hover > tbody > tr > td.danger:hover,
 .table-hover > tbody > tr > th.danger:hover,
@@ -2087,8 +2087,8 @@ fieldset[disabled] .btn-default.active {
 }
 .btn-primary {
   color: #fff;
-  background-color: #428bca;
-  border-color: #357ebd;
+  background-color: rgb(226, 80, 46);
+  border-color: rgb(240, 46, 0);
 }
 .btn-primary:hover,
 .btn-primary:focus,
@@ -2096,8 +2096,8 @@ fieldset[disabled] .btn-default.active {
 .btn-primary.active,
 .open .dropdown-toggle.btn-primary {
   color: #fff;
-  background-color: #3276b1;
-  border-color: #285e8e;
+  background-color: rgb(240, 46, 0);
+  border-color: rgb(226, 80, 46);
 }
 .btn-primary:active,
 .btn-primary.active,
@@ -2119,8 +2119,8 @@ fieldset[disabled] .btn-primary:active,
 .btn-primary.disabled.active,
 .btn-primary[disabled].active,
 fieldset[disabled] .btn-primary.active {
-  background-color: #428bca;
-  border-color: #357ebd;
+  background-color: rgb(226, 80, 46);
+  border-color: rgb(240, 46, 0);
 }
 .btn-primary .badge {
   color: #428bca;
@@ -2128,8 +2128,8 @@ fieldset[disabled] .btn-primary.active {
 }
 .btn-success {
   color: #fff;
-  background-color: #5cb85c;
-  border-color: #4cae4c;
+  background-color: rgb(226, 80, 46);
+  border-color: rgb(240, 80, 46);
 }
 .btn-success:hover,
 .btn-success:focus,
@@ -2137,8 +2137,8 @@ fieldset[disabled] .btn-primary.active {
 .btn-success.active,
 .open .dropdown-toggle.btn-success {
   color: #fff;
-  background-color: #47a447;
-  border-color: #398439;
+  background-color: rgb(226, 80, 46);
+  border-color: rgb(240, 46, 0);
 }
 .btn-success:active,
 .btn-success.active,
@@ -2160,26 +2160,27 @@ fieldset[disabled] .btn-success:active,
 .btn-success.disabled.active,
 .btn-success[disabled].active,
 fieldset[disabled] .btn-success.active {
-  background-color: #5cb85c;
-  border-color: #4cae4c;
+  background-color: rgb(226, 80, 46);
+  border-color: rgb(240, 46, 0);
 }
 .btn-success .badge {
-  color: #5cb85c;
+  color: rgb(226, 80, 46);
   background-color: #fff;
 }
 .btn-info {
   color: #fff;
-  background-color: #5bc0de;
-  border-color: #46b8da;
+  background-color: rgb(226, 80, 46);
+  border-color: rgb(240, 46, 0);
 }
 .btn-info:hover,
+.btn-success:hover,
 .btn-info:focus,
 .btn-info:active,
 .btn-info.active,
 .open .dropdown-toggle.btn-info {
   color: #fff;
-  background-color: #39b3d7;
-  border-color: #269abc;
+  background-color: rgb(240, 46, 0);
+  border-color: rgb(226, 80, 46);
 }
 .btn-info:active,
 .btn-info.active,

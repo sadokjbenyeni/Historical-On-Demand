@@ -7,6 +7,10 @@ const admin = config.admin();
 const URLS = config.config();
 const SMTP = config.smtpconf();
 
+const mongoose = require('mongoose');
+const Config = mongoose.model('Config');
+
+
 const smtpTransport = nodemailer.createTransport({
   host: SMTP.host,
   port: SMTP.port,
@@ -160,12 +164,12 @@ router.post('/newOrder', (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
-    subject: 'Order # ' + req.body.idCmd + ' confirmation',
+    subject: 'Order # ' + req.body.idCmd + ' Confirmation',
     text: `Hello,
 
 
     Thank you for choosing the QH's Historical Data On-Demand product.<br>
-    You Order # `+ req.body.idCmd +` has been received on ` + req.body.paymentdate.substring(0, 10) + " " + req.body.paymentdate.substring(11, 19) + ` CET and is currently pending validation by the QH ` + req.body.service + ` department.
+    You Order # `+ req.body.idCmd +` has been received on ` + req.body.paymentdate.substring(0, 10) + " " + req.body.paymentdate.substring(11, 19) + ` CET and is currently pending validation.
     For any further information about your order, please use the following link: `+ domain + `/order/history
 
     
@@ -174,11 +178,12 @@ router.post('/newOrder', (req, res, next) => {
 
     html: `Hello,<br><br>
     Thank you for choosing the QH's Historical Data On-Demand product.<br>
-    You Order <b># `+ req.body.idCmd +`</b> has been received on ` + req.body.paymentdate.substring(0, 10) + " " + req.body.paymentdate.substring(11, 19) + ` CET and is currently pending validation by the <b>QH ` + req.body.service + ` department</b>.<br>
+    You Order <b># `+ req.body.idCmd +`</b> has been received on ` + req.body.paymentdate.substring(0, 10) + " " + req.body.paymentdate.substring(11, 19) + ` CET and is currently pending validation.<br>
     For any further information about your order, please use the following link: <a href="`+ domain + `/order/history"> Click here</a>
     <br><br>
     <b>Thank you,<br>Quanthouse</b>`
   };
+  console.dir(mailOptions);
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
       return console.log(error);
@@ -218,7 +223,7 @@ router.post('/orderValidated', (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
-    subject: 'Order # ' + req.body.idCmd + ' validated',
+    subject: 'Order # ' + req.body.idCmd + ' Validation',
     text: `Hello,
 
     You Order # `+ req.body.idCmd +` has been now validated.
@@ -241,22 +246,67 @@ router.post('/orderValidated', (req, res, next) => {
   });
 });
 
-router.post('/orderExecuted', (req, res, next) => {
+router.post('/orderFailedJob', (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
-    subject: 'Order # ' + req.body.idCmd + ' executed',
+    subject: 'Order #' + req.body.idCmd + ' execution failure',
     text: `Hello,
 
-    You Order # `+ req.body.idCmd +` has been now executed.
-    You can also access your data via the Order History page of your account : `+ domain + `/order/history/
+    Client Order # `+ req.body.idCmd +` execution has failed with the following error:
+    You will receive shortly an email notification with all relevant information allowing you to access your data.
+    
+    Date : `+ req.body.date + ` 
+    Description : 
+    `+ req.body.description +`
+    
+    Additional context information :
+    Logs :
+    `+ req.body.logs +`
+    
+    
+    This is an automated email, sent by the HoD Web Portal`,
+
+    html: `Hello,<br><br>
+    Client Order <b># `+ req.body.idCmd +`</b> execution has failed with the following error:<br>
+    You will receive shortly an email notification with all relevant information allowing you to access your data.
+    <br>
+    Date : `+ req.body.date + ` <br>
+    Description : <br>
+    `+ req.body.description +`
+    <br>
+    Additional context information :<br>
+    Logs :<br>
+    `+ req.body.logs +`
+    <br>
+    <br>
+    This is an automated email, sent by the HoD Web Portal`
+  };
+  smtpTransport.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return console.log(error);
+    }
+    return res.json({mail:true}).statusCode(200);
+  });
+});
+
+router.post('/orderFailed', (req, res, next) => {
+  let mailOptions = {
+    from: 'no-reply@quanthouse.com',
+    to: req.body.email,
+    subject: 'Order # ' + req.body.idCmd + ' execution issue',
+    text: `Hello,
+
+    An issue has been encountered executing your Order # `+ req.body.idCmd +` Our teams are working actively to resolve the issue as quickly as possible.
+    
+    Please contact your local support should you need any further information.
     
     Thank you,
     Quanthouse`,
 
     html: `Hello,<br><br>
-    You Order # `+ req.body.idCmd +` has been now executed.<br>
-    You can also access your data via the Order History page of your account : <a href="`+ domain + `/order/history/"> Click here</a>
+    An issue has been encountered executing your Order <b># `+ req.body.idCmd +`</b> Our teams are working actively to resolve the issue as quickly as possible.<br><br>
+    Please contact your local support should you need any further information.
     <br><br>
     <b>Thank you,<br>Quanthouse</b>`
   };
@@ -265,6 +315,46 @@ router.post('/orderExecuted', (req, res, next) => {
       return console.log(error);
     }
     return res.json({mail:true}).statusCode(200);
+  });
+});
+
+router.post('/orderExecuted', (req, res, next) => {
+  Config.findOne({
+    id : "downloadSetting"
+  })
+  .then(result=>{  
+    let mailOptions = {
+      from: 'no-reply@quanthouse.com',
+      to: req.body.email,
+      subject: 'Order # ' + req.body.idCmd + ' Execution',
+      text: `Hello,
+  
+      You Order # `+ req.body.idCmd +` has been now executed.
+      You can also access your data via the Order History page of your account : `+ domain + `/order/history/
+  
+      Your data will be available for download during :
+      `+ result.periodOneOff +` days, for One-Time delivery items
+      `+ result.periodSubscription +` days, for Recurrent delivery items (Subscription)
+      
+      Thank you,
+      Quanthouse`,
+  
+      html: `Hello,<br><br>
+      You Order # `+ req.body.idCmd +` has been now executed.<br>
+      You can also access your data via the Order History page of your account : <a href="`+ domain + `/order/history/"> Click here</a>
+      <br><br>
+      Your data will be available for download during :<br>
+      `+ result.periodOneOff +` days, for One-Time delivery items<br>
+      `+ result.periodSubscription +` days, for Recurrent delivery items (Subscription)
+      <br><br>
+      <b>Thank you,<br>Quanthouse</b>`
+    };
+    smtpTransport.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return console.log(error);
+      }
+      return res.json({mail:true}).statusCode(200);
+    });
   });
 });
 

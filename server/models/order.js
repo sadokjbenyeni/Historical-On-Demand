@@ -43,6 +43,7 @@ let OrderSchema = new mongoose.Schema({
   format: { type: Array, default: ['csv'] },
   survey: { type: Array },
   state: { type: String },
+  reason: { type: String },
   products: { type: Array },
   logs: { type: Array },
   logsPayment: { type: Array },

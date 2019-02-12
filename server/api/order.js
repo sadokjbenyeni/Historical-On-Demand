@@ -67,6 +67,27 @@ router.post('/verify', (req, res) => {
   });
 });
 
+router.post('/logPayement', (req, res) => {
+  let options = {
+    url: PAYMENTVERIFY,
+    headers: { 
+      'content-type': 'application/json',
+      'X-API-Key': PAYMENTKEY
+    },
+    body: 
+    { 
+      'payload': req.body.payload
+    }, json: true
+  };
+  request.post(options, function (error, response, body) {
+    body.date = new Date();
+    Order.updateOne( { id_cmd: body.merchantReference }, { $push : { logsPayment: body} } )
+    .then((rs)=>{
+      res.status(201).json(rs);
+    });
+  });
+});
+
 router.post('/rib', (req, res) => {
   // Order.updateOne( { id_cmd: req.body.idCmd }, { $set:{ 
   //   total: req.body.total,
@@ -95,9 +116,9 @@ Order.findOne({ id_cmd: idCmd})
   .then(o => { // Autovalidation Compliance
     log.date = new Date();
     o.products.forEach(product=>{
-      if(o.state !== 'PVC') {
+      if(o.state === 'PSC') {
         corp = { 
-          "email": logsPayment.email,
+          "email": o.email,
           "idCmd": o.id,
           "paymentdate": logsPayment.date,
           "token": logsPayment.token,
@@ -117,21 +138,21 @@ Order.findOne({ id_cmd: idCmd})
           o.state = 'PVP';
           log.status = 'PVP';
         }
-        if(o.state !== 'PVC') {
-          if( ( product.historical_data && (product.historical_data.ongoing_agreement || 
-            product.historical_data.ongoing_applyfee ) || 
-            o.survey[0].dd === "1") && 
-            product.subscription === 1) {
-              o.state = 'PVC';
-              log.status = 'PVC';
-              log.referer = 'Client';
-            } else {
-            o.validationCompliance = true;
-            log.referer = 'Autovalidation';
-            log.status = 'PVP';
-            o.state = 'PVP';
-          }
-        }
+        // if(o.state === 'PSC') {
+        //   if( ( product.historical_data && (product.historical_data.ongoing_agreement || 
+        //     product.historical_data.ongoing_applyfee ) || 
+        //     o.survey[0].dd === "1") && 
+        //     product.subscription === 1) {
+        //       o.state = 'PVC';
+        //       log.status = 'PVC';
+        //       log.referer = 'Client';
+        //     } else {
+        //     o.validationCompliance = true;
+        //     log.referer = 'Autovalidation';
+        //     log.status = 'PVP';
+        //     o.state = 'PVP';
+        //   }
+        // }
       }
     })
     return o;
@@ -141,7 +162,7 @@ Order.findOne({ id_cmd: idCmd})
     let corp = {};
     if(o.validationCompliance) {
       corp = { 
-        "email": logsPayment.email,
+        "email": o.email,
         "idCmd": o.id,
         "paymentdate": logsPayment.date,
         "token": logsPayment.token,
@@ -156,7 +177,7 @@ Order.findOne({ id_cmd: idCmd})
         "service": 'Finance'
       };
     }
-    sendMail(url, corp);
+    // if(o.state === 'PSC'){ sendMail(url, corp); }
     Order.updateOne( { id_cmd: idCmd }, { $push : { logsPayment: logsPayment, logs: log }, $set:{ validationCompliance: o.validationCompliance, submissionDate: new Date(), state: o.state } } )
     .then((rs)=>{
       res.status(201).json(rs);
@@ -359,7 +380,7 @@ router.put('/state', (req, res) => {
       "paymentdate": new Date(),
       "service": 'Finance'
     };
-    sendMail('/api/mail/newOrder', corp);
+    // sendMail('/api/mail/newOrder', corp);
   }
   if(req.body.referer === 'Finance'){
     updt.validationFinance = true;
@@ -562,6 +583,14 @@ router.get('/:id', (req, res) => {
   });
 });
 
+router.post('/', (req, res) => {
+  Order.find({idUser: req.body.user})
+  .sort({id:req.body.sort})
+  .then((cmd)=>{
+    return res.status(200).json({cmd: cmd});
+  });
+});
+
 router.get('/idCmd/:id', (req, res) => {
   Order.findOne({_id: req.params.id})
   .then((cmd)=>{
@@ -570,6 +599,50 @@ router.get('/idCmd/:id', (req, res) => {
 });
 
 
+router.post('/listExport', (req, res) => {
+  let sort = {};
+  sort.id = 1;
+    let search = {};
+    Order.find(req.body)
+      .sort(sort)
+      .then((orders) => {
+          if (!orders) { return res.status(404); }
+          var list = [];
+          orders.forEach(order => {
+            let o = {};
+            o["Invoice_ID"] =  order.id;
+            o["Client_ID"] =  order.idUser;
+            o["Client_Name"] = order.companyName + ": "+order.firstname+ " "+ order.lastname;
+            o["Client_Country"] =  order.country;
+            o["Order_Date"] =  order.submissionDate;
+            if(order.validationFinance){
+              order.logs.forEach(lo=>{
+                if(lo.referer === "Finance"){
+                  o["Payment_Date"] =  lo.date;// (validation by Finance)
+                }
+              });
+            }
+            o["Order_Currency"] =  order.currency;
+            o["Order_Amount_Before_Taxes"] =  order.totalHT;
+            o["Exchange_Fees"] =  order.totalExchangeFees;
+            o["VAT"] =  order.vatValue;
+            var pay = '';
+            if(order.payment === 'creditcard'){
+              if(order.logsPayment){
+                order.logsPayment.forEach(ord=>{
+                  if(ord && ord.authResponse === 'Authorised'){
+                    pay = " - ref : " + ord.pspReference;
+                  }
+                })
+              }
+            }
+            o["Payment_Method"] =  order.payment + pay;
+            o["TOTAL_Order_Amount"] =  order.total;// CB : mettre la référence Adyen
+            list.push(o);
+          });
+          return res.status(200).json(list);
+      });
+});
 router.post('/list', (req, res) => {
   let sort = {};
   sort.createdAt = -1;

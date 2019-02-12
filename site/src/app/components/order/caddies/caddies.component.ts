@@ -653,15 +653,21 @@ export class CaddiesComponent implements OnInit {
       }
       let checkout = chckt.checkout(resp.body, '#paymentcard', sdkConfigObj);
       chckt.hooks.beforeComplete = function(node, paymentData) {
-        that.orderService.verify(paymentData).subscribe(r=>{
-          if(r.ok === 1){
-            sessionStorage.removeItem('tc');
-            sessionStorage.removeItem('surveyForm');
-            that.surveyForm = {dd: '', dt: '', du: { cb: [], other: ''} };
-            that.open();
-          }
-          return false;
-        });
+        if(paymentData.resultCode === "authorised") {
+          that.orderService.verify(paymentData).subscribe(r=>{
+            if(r.ok === 1){
+              sessionStorage.removeItem('tc');
+              sessionStorage.removeItem('surveyForm');
+              that.surveyForm = {dd: '', dt: '', du: { cb: [], other: ''} };
+              that.open();
+            }
+            return false;
+          });
+        } else {
+          that.orderService.logPayement(paymentData).subscribe(r=>{
+            return false;
+          });
+        }
       }
     });
   }

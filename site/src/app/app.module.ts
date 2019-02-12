@@ -44,6 +44,8 @@ import { HelpComponent } from './components/admin/help/help.component';
 import { UsersComponent } from './components/admin/users/users.component';
 import { UserDetailComponent } from './components/admin/user-detail/user-detail.component';
 import { UsersListComponent } from './components/admin/users-list/users-list.component';
+import { ClientOrderComponent } from './components/admin/client-order/client-order.component';
+import { ClientOrderDetailsComponent } from './components/admin/client-order-details/client-order-details.component';
 // Products
 import { MenuproductComponent } from './components/product/menuproduct/menuproduct.component';
 import { ConfigpComponent } from './components/product/config/configp.component';
@@ -99,6 +101,12 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
 // import { PdfComponent } from './components/commun/pdf/pdf.component';
 import { AdtvComponent } from './components/product/adtv/adtv.component';
 
+import { CallbackPipe } from './callback.pipe';
+import { ConfigElasticComponent } from './components/admin/config-elastic/config-elastic.component';
+
+// lazy loading
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -151,7 +159,11 @@ import { AdtvComponent } from './components/product/adtv/adtv.component';
     DownloadSettingComponent,
     PaymentsComponent,
     // PdfComponent,
-    AdtvComponent
+    AdtvComponent,
+    CallbackPipe,
+    ClientOrderComponent,
+    ClientOrderDetailsComponent,
+    ConfigElasticComponent
   ],
   entryComponents:[NgbdModalContent],
   imports: [
@@ -165,6 +177,9 @@ import { AdtvComponent } from './components/product/adtv/adtv.component';
     RecaptchaModule.forRoot(),
     PdfViewerModule
   ],
+  // exports: [
+  //   RouterModule
+  // ],
   providers: [
     GuardGuard,
     ConfigService,

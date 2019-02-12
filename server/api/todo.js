@@ -1,8 +1,14 @@
 const app = require('express')();
 const router = require('express').Router();
+const request = require("request");
 const mongoose = require('mongoose');
 
+const config = require('../config/config.js');
+const URLS = config.config();
+const DOMAIN = config.domain();
+
 const Order = mongoose.model('Order');
+const User = mongoose.model('User');
 const Pool = mongoose.model('Pool');
 
 router.param('cmd', function (req, res, next, id) {
@@ -213,6 +219,7 @@ router.put('/finish', (req, res) => {
             },
             "products.$.logs" : {
               referer: 'job',
+              ref: req.body.id_cmd,
               status: recup.req.status,
               state_description: recup.req.state_description,
               log: recup.req.log,
@@ -239,6 +246,19 @@ router.put('/finish', (req, res) => {
 
 
 // Fonctions utiles
+sendMail = (url, corp) => {
+  let options = {
+    url: DOMAIN + url,
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: corp, json: true
+  };
+  request.post(options, function (error, response, body) {
+    if (error) throw new Error(error);
+  });
+}
+
 addPool = (data => {
   Pool.findOne({ id_cmd: data.id_cmd, begin_date: data.begin_date }).then(p=>{
     if(!p){
