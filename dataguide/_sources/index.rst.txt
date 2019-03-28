@@ -89,10 +89,10 @@ Columns
 =======
 
 * Code - the QuantHouse instrument identifier :ref:`code_label`
-* ServerTimestamp - microseconds timestamp
+* ServerTimestamp - event reception timestamp (in microseconds since Epoch)
 * TradeEvent
 
-  * MarketTimestamp - microseconds timestamp, as published by the exchange
+  * MarketTimestamp - event timestamp, as published by the exchange (in microseconds since Epoch)
   * Flags
 
     * Open - Signal an open event.

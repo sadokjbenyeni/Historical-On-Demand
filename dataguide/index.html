@@ -318,11 +318,11 @@ Still, the two messages share columns <strong>Code</strong> and <strong>ServerTi
 <ul>
 <li><p class="first">Code - the QuantHouse instrument identifier <a class="reference internal" href="#code-label"><span class="std std-ref">1.4.5.1&nbsp;&nbsp;&nbsp;Code</span></a></p>
 </li>
-<li><p class="first">ServerTimestamp - microseconds timestamp</p>
+<li><p class="first">ServerTimestamp - event reception timestamp (in microseconds since Epoch)</p>
 </li>
 <li><p class="first">TradeEvent</p>
 <ul class="simple">
-<li>MarketTimestamp - microseconds timestamp, as published by the exchange</li>
+<li>MarketTimestamp - event timestamp, as published by the exchange (in microseconds since Epoch)</li>
 <li>Flags<ul>
 <li>Open - Signal an open event.</li>
 <li>Close - Signal a close event.</li>
