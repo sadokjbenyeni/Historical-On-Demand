@@ -234,19 +234,18 @@ export class OrderspViewComponent implements OnInit {
 
 
   verifState() {
-    if(this.state === 'PVP' || this.state === 'PVF' || this.state === 'PSC' ) {
-      return true;
-    } else {
-      return false;
-    }
+    let statesForCancel = ['PVP', 'PVF', 'PSC'];
+    return statesForCancel.includes(this.state);
   }
 
   verifStatePVP() {
-    if(this.state === 'PVP' || this.state === 'PVF') {
-      return true;
-    } else {
-      return false;
-    }
+    let statesForCancel = ['PVP', 'PVF'];
+    return statesForCancel.includes(this.state);
+  }
+
+  verifStateForCancel() {
+    let statesForCancel = ['PVP', 'PVF', 'PSC', 'active', 'validated'];
+    return statesForCancel.includes(this.state);
   }
 
   verifDiscount() {

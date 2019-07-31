@@ -114,7 +114,7 @@
                 <span class="btn btn-success fa fa-handshake-o" *ngIf="verifStatePVP()" (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
                 <span class="btn btn-danger fa fa-power-off" [routerLink]='["/product/orders"]'> Close</span>
                 <span class="btn btn-danger fa fa-times" *ngIf="verifStatePVP()" (click)="openModal(content); actions('Confirm Client Order Rejection')"> Reject</span>
-                <span class="btn btn-warning fa fa-trash" *ngIf="verifState() || this.state === 'validated' || this.state === 'active'" (click)="openModal(content); actions('Confirm Client Order Cancelation')"> Cancel Order</span>
+                <span class="btn btn-warning fa fa-trash" *ngIf="verifStateForCancel()" (click)="openModal(content); actions('Confirm Client Order Cancelation')"> Cancel Order</span>
               </div>
             </div>
           </div>
