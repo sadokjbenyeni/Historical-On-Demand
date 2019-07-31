@@ -126,7 +126,7 @@ export class OrdersComponent implements OnInit {
           that.listorders = res.listorders;
           callback({
             recordsTotal: res.recordsTotal,
-            recordsFiltered: res.recordsTotal,
+            recordsFiltered: res.recordsFiltered,
             data: [],
           });
         });
