@@ -819,9 +819,9 @@ router.post('/list', (req, res) => {
       req.body.columns.forEach(s => {
         if(s.data === 'redistribution' && s.search.value !== '') {
           search['survey.dd'] =  s.search.value;
-        } else if(s.data === 'updatedAt' && s.search.value !== '') {
+        } else if(s.data === 'submissionDate' && s.search.value !== '') {
           let d = s.search.value.split('|');
-          search['updatedAt'] =  { $gte: new Date(d[0]), $lt: new Date(d[1]) };
+          search['submissionDate'] =  { $gte: new Date(d[0]), $lt: new Date(d[1]) };
         } else if(s.data === 'id' && s.search.value !== '') {
           search[s.data] =  parseInt(s.search.value);
         } else if ((s.data === 'total' || s.data === 'discount') && s.search.value !== '') {
