@@ -60,7 +60,8 @@
                 <td *ngIf="!c.print">{{ c.eid }}</td>
                 <td *ngIf="c.onetime === 1 && !c.print">One-Off</td>
                 <td *ngIf="c.subscription === 1 && !c.print">Subscription</td>
-                <td *ngIf="c.subscription === 1 && !c.print"><input type="number" [(ngModel)]="c.period" min="1" (ngModelChange)="setPeriod(c)"></td>
+                <td *ngIf="c.subscription === 1 && verifState() && !c.print"><input type="number" [(ngModel)]="c.period" min="1" (ngModelChange)="setPeriod(c)"></td>
+                <td *ngIf="c.subscription === 1 && !verifState() && !c.print">{{ c.period }}</td>
                 <td *ngIf="c.subscription === 0 && !c.print"></td>
                 <td *ngIf="!c.print">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
                 <td *ngIf="!c.print">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
@@ -91,7 +92,8 @@
                   </tr>
                   <tr>
                     <td>Discount (%)</td>
-                    <td><input type="number" [(ngModel)]="discount" (change)="verifDiscount()" min="0" max="100" style="width:100%"></td>
+                    <td *ngIf="verifState()"><input type="number" [(ngModel)]="discount" (change)="verifDiscount()" min="0" max="100" style="width:100%"></td>
+                    <td *ngIf="!verifState()">{{ discount }}</td>
                   </tr>
                   <tr>
                     <td>VAT ({{vat*100}}%)</td>
