@@ -105,7 +105,7 @@ export class RegisterComponent implements OnInit {
     };
     this.title = 'Register';
     if ( this.page === '/account' ) {
-      this.title = 'My Profil';
+      this.title = 'My Profile';
       this.getUser();
       this.getCurrency();
     }

@@ -2,7 +2,9 @@
 <div class="container">
   <div class="row page-header">
     <div class="col-lg-3 col-md-3">
-      <h2 class="">{{ search }}</h2>
+      <ol class="breadcrumb custom-breadcrumb">
+        <li class="active">{{ search }}</li>
+      </ol>
       <div class="form-group input-group">
         <select name="newAssetClass" class="form-control" [(ngModel)]="dataset.dataset" (change)="setDataset($event.target.value)">
             <option *ngFor="let datast of datasets" [value]="datast.id">{{ datast.name }}</option>

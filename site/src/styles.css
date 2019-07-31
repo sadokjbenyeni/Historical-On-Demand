@@ -477,3 +477,14 @@ span.cap {
 .ngb-dp-day.hidden {
   display: block !important;
 }
+
+.custom-breadcrumb {
+    font-size: 30px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    padding: 0;
+    line-height: 33px;
+    list-style: none;
+    background-color: transparent;
+    border-radius: 4px;
+}
