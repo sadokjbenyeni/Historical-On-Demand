@@ -98,7 +98,7 @@
             <td>{{ o.id }}</td>
             <!-- <td>{{ o.idUser }}</td> -->
             <td class="text-center">{{ o.state }}</td>
-            <td>{{ o.updatedAt | date:'yyyy-MM-dd' }}</td>
+            <td>{{ o.submissionDate | date:'yyyy-MM-dd' }}</td>
             <td>{{ precisionRound(getHt(o.totalHT, o.currency, o.currencyTxUsd, o.currencyTx, o.discount, o.vatValue), 2)  | number:'1.2-2' }}</td>
             <td>{{ o.discount }}</td>
             <td class="text-center">

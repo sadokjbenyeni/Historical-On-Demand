@@ -135,7 +135,7 @@ export class OrdersComponent implements OnInit {
         { data: 'companyName' },
         { data: 'id' },
         { data: 'state' },
-        { data: 'updatedAt' },
+        { data: 'submissionDate' },
         { data: 'total' },
         { data: 'discount' },
         { data: 'redistribution' },

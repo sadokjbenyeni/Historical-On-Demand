@@ -95,7 +95,7 @@ export class ClientOrderComponent implements OnInit {
         { data: 'companyName' },
         { data: 'id' },
         { data: 'state' },
-        { data: 'updatedAt' },
+        { data: 'submissionDate' },
         // { data: 'period' },  
         { data: 'redistribution' },
         { data: 'review', searchable: false, orderable: false },
@@ -123,8 +123,8 @@ export class ClientOrderComponent implements OnInit {
 
   changeDate(col){
     let val = "";
-    if(this.dateSubmission){
-      val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + this.dateSubmission['day']
+    if(this.dateSubmission && this.dateSubmission['year']){
+      val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + this.dateSubmission['day'];
       val += '|';
       val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + (this.dateSubmission['day']+1);
     }

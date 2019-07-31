@@ -137,7 +137,7 @@ export class ClientOrderDetailsComponent implements OnInit {
         this.vat = c.cmd.vatValue;
         this.totalVat = this.totalHT * this.vat;
         this.totalTTC = this.totalHT + this.totalVat;
-        this.submissionDate = c.cmd.updatedAt;
+        this.submissionDate = c.cmd.submissionDate;
         this.state = c.cmd.state;
         let index = 0;
         if(c.cmd.products.length > 0){
