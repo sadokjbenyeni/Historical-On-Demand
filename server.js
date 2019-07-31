@@ -8,13 +8,11 @@ const mongoose = require('mongoose');
 
 const cron = require('node-cron');
 
+const MDB = require('./server/config/configmdb.js').mdb;
+
 //Connect to mongoDB server
-// const userdb = ''; � param�trer
-// const passdb = ''; � param�trer
-// mongoose.connect('mongodb://userdb:passdb@localhost:27017/histodataweb', { 
-mongoose.connect('mongodb://localhost:27017/histodataweb', { 
+mongoose.connect('mongodb://'+MDB.userdb+':'+MDB.passdb+'@localhost:27017/histodataweb?authSource='+MDB.authdb, { 
     useMongoClient: true,
-    /* other options */
 });
 mongoose.set('debug', true);
 
@@ -79,6 +77,25 @@ const cronCurrency = cron.schedule('30 15 * * *', function(){
 cronCurrency.start();
 // test.destroy();
 
+// CRON envoi mail après délai paramètrer
+// const cronFailed = cron.schedule('59 23 * * *', function(){
+//   request.post({
+//       headers: {'content-type' : 'application/x-www-form-urlencoded'},
+//       url: 'http://localhost:3000/api/cmd/verifFailed'
+//     }, (err, r, body) => {
+//   });
+// });
+// cronFailed.start();
+
+// CRON Passer Item et commande à l'état Inactive
+// const cronInactive = cron.schedule('1 * * * *', function(){
+//   request.post({
+//       headers: {'content-type' : 'application/x-www-form-urlencoded'},
+//       url: 'http://localhost:3000/api/cmd/verifInactive'
+//     }, (err, r, body) => {
+//   });
+// });
+// cronInactive.start();
 
 // const cronAutovalidationPVF = cron.schedule('30 15 * * *', function(){
 //   request.post({
@@ -97,7 +114,7 @@ app.use(express.static(path.join(__dirname, 'site/dist')));
 app.use('/files', express.static(path.join(__dirname, 'files')));
 app.use('/cmd', express.static(path.join(__dirname, 'files/command')));
 app.use('/iv', express.static(path.join(__dirname, 'files/invoice')));
-// app.use('/loadfile', express.static('/histoondemand/mapr_exports/'));
+// app.use('/loadfile', express.static('/mapr/client_exports/'));
 app.use('/help/dataguide', express.static(path.join(__dirname, 'dataguide/')));
 
 //Catch all other routes and return to the index file

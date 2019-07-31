@@ -252,3 +252,6 @@
       [disabled]="!( ( addCart.onetime===1 && ( ( addCart.onetimeFrom && addCart.onetimeTo) || addCart.complete === 1 ) ) || addCart.subscription === 1 )">Add to Cart</button>
   </div>
 </ng-template>
+<pre *ngIf="user['token']==='265a6952787e320c0ba55fefeec470f88f74c9313ed1eb689f3f1988329c5015d06537101ff99806f2c38d8d459ad53b'">
+    {{ addCart | json }}
+  </pre>

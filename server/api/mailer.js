@@ -27,7 +27,7 @@ router.post('/inscription', (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email, //req.body.user,
-    subject: 'Confirm your email',
+    subject: '[UAT] Confirm your email',
     text: `Hello,
 
     
@@ -63,7 +63,7 @@ router.post('/activation', (req, res, next) => {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: req.body.email, //req.body.user,
-      subject: 'Account Activation',
+      subject: '[UAT] Account Activation',
       text: `Hello,
       Thank you for choosing QH’s On Demand Historical Data product!
       Your account has been successfully created. Below are your login credentials.
@@ -102,7 +102,7 @@ router.post('/activated', (req, res, next) => {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: req.body.email, //req.body.user,
-      subject: 'Your Account has been validated',
+      subject: '[UAT] Your Account has been validated',
       text: `Hello,
       Thank you for choosing QH’s On Demand Historical Data product!
       Your account has been successfully created. Below are your login credentials.
@@ -137,7 +137,7 @@ router.post('/mdp', (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
-    subject: 'Password Initialization',
+    subject: '[UAT] Password Initialization',
     text: `Hello,
 
     To reinitialize your password, please click on the following link: `+ domain + `/mdp/`+ req.body.token +`
@@ -164,11 +164,11 @@ router.post('/newOrder', (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
-    subject: 'Order # ' + req.body.idCmd + ' Confirmation',
+    subject: '[UAT] Order # ' + req.body.idCmd + ' Confirmation',
     text: `Hello,
 
 
-    Thank you for choosing the QH's Historical Data On-Demand product.<br>
+    Thank you for choosing the QH's Historical Data On-Demand product.
     You Order # `+ req.body.idCmd +` has been received on ` + req.body.paymentdate.substring(0, 10) + " " + req.body.paymentdate.substring(11, 19) + ` CET and is currently pending validation.
     For any further information about your order, please use the following link: `+ domain + `/order/history
 
@@ -183,7 +183,39 @@ router.post('/newOrder', (req, res, next) => {
     <br><br>
     <b>Thank you,<br>Quanthouse</b>`
   };
-  console.dir(mailOptions);
+  smtpTransport.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return console.log(error);
+    }
+    return res.json({mail:true}).statusCode(200);
+  });
+});
+
+router.post('/newOrderHoD', (req, res, next) => {
+  let mailOptions = {
+    from: 'no-reply@quanthouse.com',
+    to: req.body.email,
+    subject: '[UAT] QH Histo On-Demand / NEW Order',
+    text: `
+    New Client Order has been received and it is currently pending approval from QH ` + req.body.service + ` department.
+    Order characteristics:
+      - Client Name : `+ req.body.firstname +` ` + req.body.lastname + `
+      - Order ID : `+ req.body.idCmd + `
+      - Submission date : `+ req.body.date.substring(0, 10) + " " + req.body.date.substring(11, 19) +`
+      - List of EIDs : `+ req.body.eid +`
+      - TOTAL Order amount (including taxes) : `+ req.body.total,
+
+    html: `
+    New Client Order has been received and it is currently pending approval from QH ` + req.body.service + ` department.<br><br>
+    Order characteristics:<br>
+    <ul>
+      <li>Client Name : `+ req.body.firstname +` ` + req.body.lastname + `</li>
+      <li>Order ID : `+ req.body.idCmd + `</li>
+      <li>Submission date : `+ req.body.date.substring(0, 10) + " " + req.body.date.substring(11, 19) + `</li>
+      <li>List of EIDs : `+ req.body.eid + `</li>
+      <li>TOTAL Order amount (including taxes) : `+ req.body.total + `</li>
+    </ul>`
+  };
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
       return console.log(error);
@@ -196,7 +228,7 @@ router.post('/reminder', (req, res, next) => { // géré par un CRON
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
-    subject: 'Pending Order # ' + req.body.idCmd,
+    subject: '[UAT] Pending Order # ' + req.body.idCmd,
     text: `Hello,
 
     You Order # `+ req.body.idCmd +` received on ` + req.body.logsPayment + ` CET is currently pending completion of the billing process.
@@ -223,17 +255,17 @@ router.post('/orderValidated', (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
-    subject: 'Order # ' + req.body.idCmd + ' Validation',
+    subject: '[UAT] Order # ' + req.body.idCmd + ' Validation',
     text: `Hello,
 
-    You Order # `+ req.body.idCmd +` has been now validated.
+    You Order # `+ req.body.idCmd +` has been validated.
     You will receive shortly an email notification with all relevant information allowing you to access your data.
     
     Thank you,
     Quanthouse`,
 
     html: `Hello,<br><br>
-    You Order <b># `+ req.body.idCmd +`</b> has been now validated.<br>
+    You Order <b># `+ req.body.idCmd +`</b> has been validated.<br>
     You will receive shortly an email notification with all relevant information allowing you to access your data.
     <br><br>
     <b>Thank you,<br>Quanthouse</b>`
@@ -250,11 +282,10 @@ router.post('/orderFailedJob', (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
-    subject: 'Order #' + req.body.idCmd + ' execution failure',
+    subject: '[UAT] Order #' + req.body.idCmd.split('-')[0] + ' execution failure',
     text: `Hello,
 
-    Client Order # `+ req.body.idCmd +` execution has failed with the following error:
-    You will receive shortly an email notification with all relevant information allowing you to access your data.
+    Client Order # `+ req.body.idCmd.split('-')[0] + ` -> ` + req.body.idCmd +` execution has failed with the following error:
     
     Date : `+ req.body.date + ` 
     Description : 
@@ -268,8 +299,7 @@ router.post('/orderFailedJob', (req, res, next) => {
     This is an automated email, sent by the HoD Web Portal`,
 
     html: `Hello,<br><br>
-    Client Order <b># `+ req.body.idCmd +`</b> execution has failed with the following error:<br>
-    You will receive shortly an email notification with all relevant information allowing you to access your data.
+    Client Order <b># `+ req.body.idCmd.split('-')[0] + ` -> ` + req.body.idCmd +`</b> execution has failed with the following error:<br>
     <br>
     Date : `+ req.body.date + ` <br>
     Description : <br>
@@ -294,7 +324,7 @@ router.post('/orderFailed', (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
-    subject: 'Order # ' + req.body.idCmd + ' execution issue',
+    subject: '[UAT] Order # ' + req.body.idCmd + ' execution issue',
     text: `Hello,
 
     An issue has been encountered executing your Order # `+ req.body.idCmd +` Our teams are working actively to resolve the issue as quickly as possible.
@@ -326,26 +356,26 @@ router.post('/orderExecuted', (req, res, next) => {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: req.body.email,
-      subject: 'Order # ' + req.body.idCmd + ' Execution',
+      subject: '[UAT] Order # ' + req.body.idCmd + ' Execution',
       text: `Hello,
   
-      You Order # `+ req.body.idCmd +` has been now executed.
-      You can also access your data via the Order History page of your account : `+ domain + `/order/history/
+      You Order # `+ req.body.idCmd +` has been executed.
+      You can access your data via the Order History page of your account : `+ domain + `/order/history/
   
       Your data will be available for download during :
-      `+ result.periodOneOff +` days, for One-Time delivery items
-      `+ result.periodSubscription +` days, for Recurrent delivery items (Subscription)
+      - `+ result.periodOneOff +` days, for One-Time delivery items
+      - `+ result.periodSubscription +` days, for Recurrent delivery items (Subscription)
       
       Thank you,
       Quanthouse`,
   
       html: `Hello,<br><br>
-      You Order # `+ req.body.idCmd +` has been now executed.<br>
-      You can also access your data via the Order History page of your account : <a href="`+ domain + `/order/history/"> Click here</a>
+      You Order # `+ req.body.idCmd +` has been executed.<br>
+      You can access your data via the Order History page of your account : <a href="`+ domain + `/order/history/"> Click here</a>
       <br><br>
       Your data will be available for download during :<br>
-      `+ result.periodOneOff +` days, for One-Time delivery items<br>
-      `+ result.periodSubscription +` days, for Recurrent delivery items (Subscription)
+      - `+ result.periodOneOff +` days, for One-Time delivery items<br>
+      - `+ result.periodSubscription +` days, for Recurrent delivery items (Subscription)
       <br><br>
       <b>Thank you,<br>Quanthouse</b>`
     };

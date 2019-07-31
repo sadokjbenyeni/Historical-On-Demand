@@ -9,7 +9,7 @@
     <div class="col-lg-12 col-md-12">
       <div class="panel-body">
         <div class="table-responsive">
-          <table class="table" *ngIf="list">
+          <table class="table order" *ngIf="list">
             <thead>
               <tr>
                 <th>Order Id</th>
@@ -40,7 +40,7 @@
                   <p><b>Submission Date and Time : </b> {{ submissionDate | date:'medium' }}</p>
                   <p><b>Order Form : </b> </p>
                   <p><b>Payment method : </b>{{ payment }}</p>
-                  <p><b>Invoice : </b> </p>
+                  <p><b>Invoice : </b><a target="_blank" [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}}</a></p>
                   <p><b>Order Status : <span [class]="textcolor">{{states[state]}}</span></b>
                   </div>
                 <div class="col-md-6">
@@ -98,24 +98,24 @@
                       <td *ngIf="!detail.print">{{ detail.pricingTier }}</td>
                       <td *ngIf="!detail.print">{{ getHt(detail.ht) | number:'1.2-2' }} {{ symbols[currency] }}</td>
                       <td *ngIf="!detail.print">
-                        <span *ngFor="let lk of detail.links | callback: filterUser" class="cap">
+                        <span *ngFor="let lk of detail.links | callback: filterUser" [class]="lk.subscription === 1 ? 'cap souscription' : 'cap'">
                           {{ limitDownLoad(lk.createLinkDate) | date:'yyyy-MM-dd' }}
                         </span>
                       </td>
                       <td *ngIf="!detail.print">
-                        <span *ngFor="let lk of detail.links | callback: filterUser" class="cap">
+                        <span *ngFor="let lk of detail.links | callback: filterUser" [class]="lk.subscription === 1 ? 'cap souscription' : 'cap'">
                           <span>{{ dateDiff(today, limitDownLoad(lk.createLinkDate)).day>0?dateDiff(today, limitDownLoad(lk.createLinkDate)).day + 1:0 }}</span>
                         </span>
                       </td>
                       <!-- <td *ngIf="!detail.print">0</td> -->
                       <td *ngIf="!detail.print">
                         <!-- <a (click)="bulkdownload()">test</a><br> -->
-                        <span *ngFor="let lk of detail.links | callback: filterUser" class="cap">
+                        <span *ngFor="let lk of detail.links | callback: filterUser">
                           <!-- <span *ngIf="dateDiff(today, limitDownLoad(lk.createLinkDate)).day > 0 && lk.status === 'active'"> -->
-                            <span *ngIf="lk.subscription === 1">
+                            <span *ngIf="lk.subscription === 1" class="cap souscription">
                               <span *ngFor="let links of lk.links">
                                 <div *ngFor="let link of links.link.split('|')">
-                                    <a href="/api/user/test/{{token}}/{{ lk.path }}/{{ link }}" 
+                                    <a href="{{gateway}}/api/user/test/{{token}}/{{ lk.path }}/{{ link }}" 
                                        target="_blank" 
                                        *ngIf="dateDiff(today, limitDownLoad(detail.onetime, detail.subscription, lk.createLinkDate)).day>0 && link && lk.status === 'active'">{{ link }}</a>
                                   <span *ngIf="dateDiff(today, limitDownLoad(detail.onetime, detail.subscription, lk.createLinkDate)).day<=0">
@@ -124,14 +124,16 @@
                                 </div>
                               </span>
                             </span>
-                            <span *ngIf="lk.onetime === 1 && lk.links[0].link.split('|').length > period[0].linkPerFile">
-                              <i class="fa fa-upload text-color fa-3x clickable" (click)="dyanmicDownloadByHtmlTag(detail.idC+'-'+datasets[detail.quotation_level]+'-'+detail.eid+'-one-off-¤'+detail.begin_date+'¤'+detail.end_date, lk.links, lk.path)" ></i>
-                              <!-- <i class="fa fa-upload text-color fa-3x clickable" (click)="dyanmicDownloadByHtmlTag('one-off-'+detail.qhid+'-'+detail.eid+'.txt', lk.links, lk.path)" ></i> -->
+                            <!-- <span *ngIf="lk.onetime === 1 && lk.links[0].link.split('|').length > period[0].linkPerFile"> -->
+                            <span *ngIf="lk.onetime === 1 && countLink(lk.links) > period[0].linkPerFile" class="cap">
+                              <i class="fa fa-upload text-color fa-3x clickable" (click)="dyanmicDownloadByHtmlTag(detail.idC, detail.quotation_level, detail.eid, detail.symbol, detail.assetClass, 'One-Off', detail.begin_date_select, detail.end_date_select, lk.links, lk.path)" ></i>
+                              <!-- <i class="fa fa-upload text-color fa-3x clickable" (click)="dyanmicDownloadByHtmlTag(detail.idC+'_'+datasetsLink[detail.quotation_level]+'_'+detail.eid+'_one-off-¤'+detail.begin_date_select+'¤'+detail.end_date_select, lk.links, lk.path, detail.assetClass)" ></i> -->
                             </span>
-                            <span *ngIf="lk.onetime === 1 && lk.links[0].link.split('|').length < period[0].linkPerFile">
+                            <span *ngIf="lk.onetime === 1 && countLink(lk.links) < period[0].linkPerFile" class="cap">
+                            <!-- <span *ngIf="lk.onetime === 1 && lk.links[0].link.split('|').length < period[0].linkPerFile"> -->
                               <span *ngFor="let links of lk.links">
                                 <div *ngFor="let link of links.link.split('|')">
-                                    <a href="/api/user/test/{{token}}/{{ lk.path }}/{{ link }}" 
+                                    <a href="{{gateway}}/api/user/test/{{token}}/{{ lk.path }}/{{ link }}" 
                                        target="_blank" 
                                        *ngIf="dateDiff(today, limitDownLoad(detail.onetime, detail.subscription, lk.createLinkDate)).day>0 && link && lk.status === 'active'">{{ link }}</a>
                                   <span *ngIf="dateDiff(today, limitDownLoad(detail.onetime, detail.subscription, lk.createLinkDate)).day<=0">

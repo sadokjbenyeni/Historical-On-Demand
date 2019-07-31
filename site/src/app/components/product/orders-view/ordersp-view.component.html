@@ -3,7 +3,6 @@
   <div class="row">
     <!--  page header -->
     <div class="col-lg-12">
-      <!-- <h1 class="page-header">Order : {{ cart['id'] }}</h1> -->
       <h1 class="page-header">Order : {{ id }}</h1>
     </div>
     <!-- end  page header -->
@@ -24,7 +23,7 @@
               <p><b>Order Form : </b> </p>
               <p><b>Payment method : </b>{{ payment }}</p>
               <p><b>Invoice : </b> </p>
-              <p><b>Order Status : <span [class]="textcolor">{{states[state]}}</span></b>
+              <p><b>Order Status : <span>{{states[state]}}</span></b>
               </div>
             <div class="col-md-6">
               <p><b>Company Name: </b>{{ companyName }}</p>
@@ -113,7 +112,7 @@
                 <span class="btn btn-success fa fa-handshake-o" *ngIf="verifStatePVP()" (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
                 <span class="btn btn-danger fa fa-power-off" [routerLink]='["/product/orders"]'> Close</span>
                 <span class="btn btn-danger fa fa-times" *ngIf="verifStatePVP()" (click)="openModal(content); actions('Confirm Client Order Rejection')"> Reject</span>
-                <span class="btn btn-warning fa fa-trash" *ngIf="verifState()" (click)="openModal(content); actions('Confirm Client Order Cancelation')"> Cancel Order</span>
+                <span class="btn btn-warning fa fa-trash" *ngIf="verifState() || this.state === 'validated' || this.state === 'active'" (click)="openModal(content); actions('Confirm Client Order Cancelation')"> Cancel Order</span>
               </div>
             </div>
           </div>

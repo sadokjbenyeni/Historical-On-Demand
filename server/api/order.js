@@ -6,7 +6,10 @@ const mongoose = require('mongoose');
 var tar = require('tar-fs')
 var fs = require('fs')
 
+const Config = mongoose.model('Config');
 const Order = mongoose.model('Order');
+const Pool = mongoose.model('Pool');
+const User = mongoose.model('User');
 
 const config = require('../config/config.js');
 const URLS = config.config();
@@ -115,7 +118,9 @@ autoValidation = function(idCmd, logsPayment, r, res) {
 Order.findOne({ id_cmd: idCmd})
   .then(o => { // Autovalidation Compliance
     log.date = new Date();
+    let eids = [];
     o.products.forEach(product=>{
+      eids.push(product.eid);
       if(o.state === 'PSC') {
         corp = { 
           "email": o.email,
@@ -137,29 +142,70 @@ Order.findOne({ id_cmd: idCmd})
           log.referer = 'Autovalidation';
           o.state = 'PVP';
           log.status = 'PVP';
+          // Envoi email aux products
         }
-        // if(o.state === 'PSC') {
-        //   if( ( product.historical_data && (product.historical_data.ongoing_agreement || 
-        //     product.historical_data.ongoing_applyfee ) || 
-        //     o.survey[0].dd === "1") && 
-        //     product.subscription === 1) {
-        //       o.state = 'PVC';
-        //       log.status = 'PVC';
-        //       log.referer = 'Client';
-        //     } else {
-        //     o.validationCompliance = true;
-        //     log.referer = 'Autovalidation';
-        //     log.status = 'PVP';
-        //     o.state = 'PVP';
-        //   }
-        // }
       }
     })
+    o.eid = eids;
     return o;
   })
   .then(o => {
     let url = '/api/mail/newOrder';
     let corp = {};
+    if(o.state === "PVC") {
+      // Envoi email aux compliances
+      User.find({roleName:"Compliance"},{email:true, _id:false})
+      .then((users)=>{ users.forEach(user => {
+        sendMail('/api/mail/newOrderHoD', 
+          {
+            idCmd: corp.idCmd,
+            email: user.email,
+            lastname: o.lastname,
+            firstname: o.firstname,
+            eid: o.eid.join(),
+            date: logsPayment.date,
+            total : totalttc(o),
+            service: "Compliance"
+          });
+        });
+      });
+    }
+    if(o.state === "PVP") {
+      // Envoi email aux products
+      User.find({roleName:"Product"},{email:true, _id:false})
+      .then((users)=>{ users.forEach(user => {
+        sendMail('/api/mail/newOrderHoD', 
+          {
+            idCmd: corp.idCmd,
+            email: user.email,
+            lastname: o.lastname,
+            firstname: o.firstname,
+            eid: o.eid.join(),
+            date: logsPayment.date,
+            total : totalttc(o),
+            service: "Product"
+          });
+        });
+      });
+    }
+    if(o.state === "PVF") {
+      // Envoi email aux finances
+      User.find({roleName:"Finance"},{email:true, _id:false})
+      .then((users)=>{ users.forEach(user => {
+        sendMail('/api/mail/newOrderHoD', 
+          {
+            idCmd: corp.idCmd,
+            email: user.email,
+            lastname: o.lastname,
+            firstname: o.firstname,
+            eid: o.eid.join(),
+            date: logsPayment.date,
+            total : totalttc(o),
+            service: "Finance"
+          });
+        });
+      });
+    }
     if(o.validationCompliance) {
       corp = { 
         "email": o.email,
@@ -353,6 +399,8 @@ router.put('/state', (req, res) => {
   let updt = {};
   let log = {};
   let corp = {};
+  let prefixe = "QH_HISTO_";
+  let nbcar = 7;
   updt.state = req.body.status;
   log.status = req.body.status;
   log.referer = req.body.referer;
@@ -368,7 +416,30 @@ router.put('/state', (req, res) => {
       "paymentdate": new Date(),
       "service": 'Product'
     };
-    sendMail('/api/mail/newOrder', corp);
+    // sendMail('/api/mail/newOrder', corp);
+    // Email validation au pvp
+    Order.findOne({ id_cmd : req.body.idCmd})
+    .then(o => {
+      let eids = [];
+      o.products.forEach(p => {
+        eids.push(p.eid);
+      });
+      User.find({roleName:"Product"},{email:true, _id:false})
+      .then((users)=>{ users.forEach(user => {
+        sendMail('/api/mail/newOrderHoD', 
+          {
+            idCmd: o.id,
+            email: user.email,
+            lastname: o.lastname,
+            firstname: o.firstname,
+            eid: eids.join(),
+            date: o.submissionDate,
+            total : totalttc(o),
+            service: "Product"
+          });
+        });
+      });
+    });
   }
   if(req.body.referer === 'Product'){
     updt.validationProduct = true;
@@ -380,9 +451,41 @@ router.put('/state', (req, res) => {
       "paymentdate": new Date(),
       "service": 'Finance'
     };
+    // Email validation au pvf
+    Order.findOne({ id_cmd : req.body.idCmd})
+    .then(o => {
+      let eids = [];
+
+      if (req.body.status === "cancelled") {
+        Pool.remove({ id: req.body.idCmd.split("-")[0] }).then(()=>{ 
+          return true;
+        });
+      }
+
+      o.products.forEach(p => {
+        eids.push(p.eid);
+      });
+      if(req.body.status !== "cancelled"){
+        User.find({roleName:"Product"},{email:true, _id:false})
+        .then((users)=>{ users.forEach(user => {
+          sendMail('/api/mail/newOrderHoD', 
+            {
+              idCmd: o.id,
+              email: user.email,
+              lastname: o.lastname,
+              firstname: o.firstname,
+              eid: eids.join(),
+              date: o.submissionDate,
+              total : totalttc(o),
+              service: "Finance"
+            });
+          });
+        });
+      }
+    });
     // sendMail('/api/mail/newOrder', corp);
   }
-  if(req.body.referer === 'Finance'){
+  if(req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance"){
     updt.validationFinance = true;
     updt.reason = req.body.reason;
     let deb = datedebref;
@@ -390,6 +493,8 @@ router.put('/state', (req, res) => {
     let debut = new Date(clone(deb));
     let end = dateFinref;
     let cart = [];
+    let id = "";
+    let item = "";
     req.body.product.forEach(p=>{
       p.dataset = p.quotation_level;
       p.exchangeName = p.exchange;
@@ -398,16 +503,23 @@ router.put('/state', (req, res) => {
         end = verifWeekNext(end);
         p.begin_date = deb;
         p.end_date = end;
+        let qhid = "";
+        if (p.qhid !== null || p.qhid !== "") {
+          qhid = p.qhid.toString();
+        }
         let c = 0;
         for(let d= debut; d<= end; d.setDate(d.getDate() + 1)){ 
+          id = p.id_undercmd.split("-")[0];
+          suffixe = p.id_undercmd.split("§")[1];
           addPool({
             index: p.index,
+            id: req.body.id,
             id_cmd: p.id_undercmd + '|' + c++,
             onetime: p.onetime,
             subscription: p.subscription,
             eid: p.eid,
             contractID: p.contractid,
-            qhid: p.qhid,
+            qhid: qhid,
             quotation_level: p.dataset,
             searchdate: new Date(d.yyyymmdd()),
             begin_date: d.yyyymmdd(),
@@ -415,24 +527,29 @@ router.put('/state', (req, res) => {
             status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
           });
         }
+        debut = new Date(clone(deb));
       } else {
         p.begin_date = p.begin_date_select;
         p.end_date = p.end_date_select;
+        let qhid = "";
+        if (p.qhid !== null || p.qhid !== "") {
+          qhid = p.qhid.toString();
+        }
         addPool({
-          index: p.index,
+          // index: p.index,
+          id: req.body.id,
           id_cmd: p.id_undercmd,
           onetime: p.onetime,
           subscription: p.subscription,
           eid: p.eid,
           contractID: p.contractid,
-          qhid: p.qhid,
+          qhid: qhid,
           quotation_level: p.dataset,
           searchdate: p.begin_date,
           begin_date: yyyymmdd(p.begin_date),
           end_date: yyyymmdd(p.end_date),
           status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
         });
-  
       }
       cart.push(p);
       updt.products = cart;
@@ -442,15 +559,43 @@ router.put('/state', (req, res) => {
       "idCmd": req.body.id
     };
     sendMail('/api/mail/orderValidated', corp);
+  // }
+  // if(req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance"){
+    Config.findOne({id:"counter"}).then( (cnt) => {
+      let id = cnt.value;
+      let prefix = "QH_HISTO_";
+      let nbcar = 7;
+      let nbid = nbcar - id.toString().length;
+      for (let i = 0; i < nbid; i++){
+        prefix+= "0";
+      }
+      idnew =  id + 1;
+      updt.idCommande = prefix + idnew.toString();
+      Config.updateOne({id:"counter"}, {$inc:{value:1}}).then(()=>{
+        Order.updateOne( { id_cmd: req.body.idCmd }, { $set: updt, $push: {logs: log} } )
+        .then((r)=>{
+          pdfpost(req.body.id);
+          res.status(201).json({ok:true});
+        });
+      })
+    });
   }
-  // if(req.body.referer !== 'Finance'){
+  else {
     Order.updateOne( { id_cmd: req.body.idCmd }, { $set: updt, $push: {logs: log} } )
     .then((r)=>{
       res.status(201).json({ok:true});
     });
-  // }
+  }
 })
 
+too = function(d){
+  Pool.findOne({ id_cmd: d.id_cmd, begin_date: d.begin_date }).then(p=>{
+    console.dir(p.isNew);
+    // if(!p){
+      Pool.create(d).then(pa=>{ return true;});
+    // }
+  });
+}
 router.put('/update', (req, res) => {
   Order.findOne({_id: req.body.idcmd.id_cmd})
   .then((updt)=>{
@@ -598,6 +743,13 @@ router.get('/idCmd/:id', (req, res) => {
   });
 });
 
+router.get('/retry/:id', (req, res) => {
+  Pool.updateOne({id_cmd: req.params.id},{ $set: { status: "validated" } }).then(p=>{ return true;})
+  .then(()=>{
+    return res.status(200).json({ok: "ok"});
+  });
+});
+
 
 router.post('/listExport', (req, res) => {
   let sort = {};
@@ -631,12 +783,13 @@ router.post('/listExport', (req, res) => {
               if(order.logsPayment){
                 order.logsPayment.forEach(ord=>{
                   if(ord && ord.authResponse === 'Authorised'){
-                    pay = " - ref : " + ord.pspReference;
+                    pay = ord.pspReference;
                   }
                 })
               }
             }
-            o["Payment_Method"] =  order.payment + pay;
+            o["Payment_Method"] =  order.payment;
+            o["Payment_Reference"] =  pay;
             o["TOTAL_Order_Amount"] =  order.total;// CB : mettre la référence Adyen
             list.push(o);
           });
@@ -698,6 +851,22 @@ router.post('/caddies', (req, res) => {
       return res.status(200).json({cmd: cmd});
     });
 });
+
+pdfpost = function(id){
+  let options = {
+    url: DOMAIN + '/api/pdf',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: {
+      id: id
+    },
+    json: true
+  };
+  request.post(options, function (error, response, body) {
+    if (error) throw new Error(error);
+  });
+}
 
 sendMail = function(url, corp) {
   let options = {
@@ -762,16 +931,19 @@ yyyymmdd = function(d) {
 };
 
 
-idcommande = function(prefix, id, nbcar) {
-	idf = prefix;
+idcommande = function(prefix, nbcar) {
+  Config.findOne({id:"counter"}).then( (cnt) => {
+    let id = cnt.value;
     let nbid = nbcar - id.toString().length;
-
     for (let i = 0; i < nbid; i++){
-        idf+= "0";
+      prefix+= "0";
     }
     idnew =  id + 1;
-    idf += idnew;
-    return idf;
+    prefix += idnew;
+    Config.updateOne({id:"counter"}, {$inc:{value:1}}).then(()=>{
+      return prefix;
+    })
+  });
 }
 
 endperiod = function(data, periode){
@@ -782,6 +954,35 @@ endperiod = function(data, periode){
 precisionRound = function(number, precision) {
   var factor = Math.pow(10, precision);
   return Math.round(number * factor) / factor;
+}
+
+totalttc = function(o) {
+  let totalExchangeFees = 0;
+  let discount = 0;
+  let totalVat = 0;
+  let totalHT = 0;
+  let totalTTC = 0;
+
+  if (o.currency !== 'usd') {
+    totalExchangeFees = (o.totalExchangeFees / o.currencyTxUsd) * o.currencyTx;
+    discount = o.discount;
+    totalHT = ( (o.totalHT + o.totalExchangeFees) / o.currencyTxUsd) * o.currencyTx;
+    if(discount>0){
+      totalHT = totalHT - ( totalHT * (discount / 100) );
+    }
+    totalVat = totalHT * o.vatValue;
+    totalTTC = precisionRound((totalHT * (1 + o.vatValue)), 2);
+  } else{
+    totalExchangeFees = o.totalExchangeFees;
+    discount = o.discount;
+    totalHT = o.totalHT + o.totalExchangeFees;
+    if(discount>0){
+      totalHT = totalHT - ( totalHT * (discount / 100) );
+    }
+    totalVat = totalHT * o.vatValue;
+    totalTTC = precisionRound((totalHT * (1 + o.vatValue)), 2);
+  }
+  return totalTTC;
 }
 
 addPool = function(data) {

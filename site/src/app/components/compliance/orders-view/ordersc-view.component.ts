@@ -135,6 +135,7 @@ export class OrderscViewComponent implements OnInit {
               assetClass: p.assetClass,
               eid: p.eid,
               qhid: p.qhid,
+              contractid: p.contractid,
               description: p.description,
               onetime: p.onetime,
               subscription: p.subscription,

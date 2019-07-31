@@ -8,7 +8,7 @@ exports.rtconfig = () => { const urls = [ "192.168.10.10" ]; }
 exports.domain = () => { return "http://hod-lab.quanthouse.com"; }
 
 // IPs ElastcSearch
-exports.hostsES = () => { return ['10.0.10.218:9200', '10.0.10.190:9200', '10.0.10.234:9200']; }
+exports.hostsES = () => { return ['10.0.10.100:9200', '10.0.10.101:9200', '10.0.10.102:9200']; }
 
 // Param SMTP
 exports.smtpconf = () => {
@@ -16,8 +16,8 @@ exports.smtpconf = () => {
         host: 'quanthouse-com.mail.protection.outlook.com',
         port: 25,
         secure: false,
-        tls: {rejectUnauthorized: false},
-        debug:false
+        tls: { rejectUnauthorized: false},
+        debug: false
     };
 }
 exports.phrase = () => { return '14cb4a9235d7360d2911d6444aa69f02'; }
@@ -26,7 +26,7 @@ exports.phrase = () => { return '14cb4a9235d7360d2911d6444aa69f02'; }
 exports.apiqf = () => { return "http://10.1.0.6"; }
 
 // Download file HoD
-exports.dnwfile = () => { return "http://gateway0X.hod.quanthouse.com"; }
+exports.dnwfile = () => { return "http://gateway01.hod-lab.quanthouse.com"; }
 
 // Link API Currency
 exports.currency = () => { return "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"; }

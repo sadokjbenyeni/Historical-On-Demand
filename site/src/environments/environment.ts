@@ -1,22 +1,18 @@
-// The file contents for the current environment will overwrite these during build.
-// The build system defaults to the dev environment which uses `environment.ts`, but if you do
-// `ng build --env=prod` then `environment.prod.ts` will be used instead.
-// The list of which env maps to which file can be found in `.angular-cli.json`.
-
 export const environment = {
   production: false,
   api: 'http://hod-lab.quanthouse.com/api',
+  gateway: "http://gateway01.hod-lab.quanthouse.com",
   elastic: {
     instrument: {
-      derivatives: 'derivatives_3',
-      nonderivatives: 'nonderivatives_3',
-      index: ['derivatives_3', 'nonderivatives_3'],
+      derivatives: 'derivatives_5',
+      nonderivatives: 'nonderivatives_5',
+      index: ['derivatives_5', 'nonderivatives_5'],
       type: ['productDB-derivatives', 'productDB-nonderivatives']
     },
     feed: {
-      productdb: 'productdb_3',
-      index: ['productdb_3'],
-      type: ['productdb_3']
+      productdb: 'productdb_5',
+      index: ['productdb_5'],
+      type: ['productDB']
     }
   }
 };

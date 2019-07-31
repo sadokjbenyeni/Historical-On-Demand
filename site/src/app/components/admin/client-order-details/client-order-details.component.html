@@ -23,7 +23,8 @@
               <p><b>Order Form : </b> </p>
               <p><b>Payment method : </b>{{ payment }}</p>
               <p><b>Invoice : </b> </p>
-              <p><b>Order Status : <span [class]="textcolor">{{states[state]}}</span></b>
+              <!-- <p><b>Order Status : <span [class]="textcolor">{{states[state]}}</span></b> -->
+              <p><b>Order Status : <span>{{states[state]}}</span></b>
               </div>
             <div class="col-md-6">
               <p><b>Company Name: </b>{{ companyName }}</p>
@@ -66,7 +67,7 @@
                 <td *ngIf="c.subscription === 1 && !c.print && !c.begin_date_select"></td>
                 <td *ngIf="c.subscription === 1 && !c.print && !c.end_date_select"></td>
                 <td *ngIf="c.subscription === 1 && !c.print && c.begin_date_select">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
-                <td *ngIf="c.subscription === 1 && !c.print && c.end_date_select">{{ c.end_date | date:'yyyy-MM-dd' }}</td>
+                <td *ngIf="c.subscription === 1 && !c.print && c.end_date_select">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
                 <td *ngIf="c.subscription === 0 && !c.print"></td>
                 <td *ngIf="c.subscription === 0 && !c.print">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
                 <td *ngIf="c.subscription === 0 && !c.print">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
@@ -77,7 +78,7 @@
                 <td *ngIf="(c.backfill_fee || c.ongoing_fee)">{{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }} {{ symbols[currency] }}</td>
                 <td>{{ c.status }}</td>
                 <!-- <td><button class="btn btn-success" (click)="retry(c)">Retry</button></td> -->
-                <td><button class="btn btn-success" (click)="openModal(retrymodal);">Retry</button></td>
+                <td><button class="btn btn-success" (click)="openModal(retrymodal);" *ngIf="c.onetime === 1">Retry</button></td>
               </tr>
               <tr *ngIf="cart?.length === 0">
                 <td colspan="11" class="no-data-available">Empty !</td>

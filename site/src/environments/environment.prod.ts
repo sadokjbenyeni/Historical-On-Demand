@@ -1,17 +1,18 @@
 export const environment = {
   production: true,
   api: 'http://hod.quanthouse.com/api',
+  gateway: "http://gateway01.hod.quanthouse.com",
   elastic: {
     instrument: {
-      derivatives: 'derivatives_3',
-      nonderivatives: 'nonderivatives_3',
-      index: ['derivatives_3', 'nonderivatives_3'],
+      derivatives: 'derivatives_5',
+      nonderivatives: 'nonderivatives_5',
+      index: ['derivatives_5', 'nonderivatives_5'],
       type: ['productDB-derivatives', 'productDB-nonderivatives']
     },
     feed: {
-      productdb: 'productdb_3',
-      index: ['productdb_3'],
-      type: ['productdb_3']
+      productdb: 'productdb_5',
+      index: ['productdb_5'],
+      type: ['productDB']
     }
   }
 };

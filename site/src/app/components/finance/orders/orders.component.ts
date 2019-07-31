@@ -194,9 +194,9 @@ export class OrdersComponent implements OnInit {
 
   exportFile() {
     let req = { state: { $in: ["PVF", "validated"]} };
-    if( this.beginID !== "" && this.endID !== "" ){
-      req["id"] = { $gte: this.beginID, $lte: this.endID };
-    }
+    // if( this.beginID !== "" && this.endID !== "" ){
+    //   req["id"] = { $gte: this.beginID, $lte: this.endID };
+    // }
     let ids = {};
     if( this.beginID){
       ids["$gte"] = this.beginID;
@@ -235,6 +235,7 @@ export class OrdersComponent implements OnInit {
             "Exchange_Fees",
             "VAT",
             "Payment_Method",
+            "Payment_Reference",
             "TOTAL_Order_Amount",
           ]
         };

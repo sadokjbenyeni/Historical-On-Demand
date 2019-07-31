@@ -43,5 +43,5 @@ export class ConfigService {
     return this.http.get( environment.api + '/config/elastic' )
     .map( res => res.json() );
   }
-
+  
 }

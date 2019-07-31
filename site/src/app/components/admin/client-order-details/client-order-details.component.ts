@@ -92,7 +92,7 @@ export class ClientOrderDetailsComponent implements OnInit {
 
   detail(c) {
     this.item = c;
-    console.dir(c);
+    // console.dir(c);
     if(this.item.onetime === 1){
       this.item.reference = this.item.idElem;
     }
@@ -105,7 +105,10 @@ export class ClientOrderDetailsComponent implements OnInit {
   }
 
   retry() {
-    console.dir(this.item.reference);
+    this.orderService.getRetry(this.item.reference).subscribe((c) => {
+      this.getCmd();
+    });
+    // console.dir(this.item.reference);
   }
 
   getCmd(){

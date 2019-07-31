@@ -156,12 +156,14 @@ export class OrderspViewComponent implements OnInit {
               print: false, 
               idCmd: c.cmd.id_cmd,
               idElem: p.id_undercmd,
+              id_undercmd: p.id_undercmd,
               quotation_level: p.dataset,
               symbol: p.symbol,
               exchange: p.exchangeName,
               assetClass: p.assetClass,
               eid: p.eid,
               qhid: p.qhid,
+              contractid: p.contractid,
               description: p.description,
               onetime: p.onetime,
               subscription: p.subscription,
@@ -204,13 +206,17 @@ export class OrderspViewComponent implements OnInit {
     }
     if(this.action === 'Confirm Client Order Validation') {
       let s = '';
+      let referer = 'Product';
       if (this.payment === 'banktransfer') {
         s  = 'PVF';
+      } else if(this.totalTTC === 0){
+        s = "validated";
+        referer = "ProductAutovalidateFinance";
       } else {
-        // s = 'validated';
         s = 'PVF'; // cron pour l'auto-validation après délai des commandes n'excédant pas le montant max et payé par credit card ou paypal
       }
-      this.orderService.state({idCmd: this.idCmd, id: this.id, status: s, referer: 'Product', email: this.cmd['email']}).subscribe(()=>{
+      
+      this.orderService.state({idCmd: this.idCmd, id: this.id, status: s, referer: referer, product: this.cart, email: this.cmd['email']}).subscribe(()=>{
         this.router.navigate(['/product/orders']);
       });
     }
@@ -228,7 +234,7 @@ export class OrderspViewComponent implements OnInit {
 
 
   verifState() {
-    if(this.state === 'PVP' || this.state === 'PSC') {
+    if(this.state === 'PVP' || this.state === 'PVF' || this.state === 'PSC' ) {
       return true;
     } else {
       return false;
@@ -236,7 +242,7 @@ export class OrderspViewComponent implements OnInit {
   }
 
   verifStatePVP() {
-    if(this.state === 'PVP') {
+    if(this.state === 'PVP' || this.state === 'PVF') {
       return true;
     } else {
       return false;

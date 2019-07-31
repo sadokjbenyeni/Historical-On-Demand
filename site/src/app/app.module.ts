@@ -55,6 +55,7 @@ import { OrderspViewComponent } from './components/product/orders-view/ordersp-v
 import { RibComponent } from './components/finance/rib/rib.component';
 import { DownloadSettingComponent } from './components/product/download-setting/download-setting.component';
 import { PaymentsComponent } from './components/product/payments/payments.component';
+import { MailFailedComponent } from './components/product/mail-failed/mail-failed.component';
 // Compliances
 import { MenucomplianceComponent } from './components/compliance/menucompliance/menucompliance.component';
 import { ConfigcComponent } from './components/compliance/config/configc.component';
@@ -163,7 +164,8 @@ import { ConfigElasticComponent } from './components/admin/config-elastic/config
     CallbackPipe,
     ClientOrderComponent,
     ClientOrderDetailsComponent,
-    ConfigElasticComponent
+    ConfigElasticComponent,
+    MailFailedComponent
   ],
   entryComponents:[NgbdModalContent],
   imports: [

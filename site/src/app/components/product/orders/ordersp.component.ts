@@ -139,15 +139,12 @@ export class OrderspComponent implements OnInit {
     })
   }
 
-  getHt(val, currency, currencyTxUsd, currencyTx, discount, vatValue){
-    let v = 0;
+  getHt(val, currency, currencyTxUsd, currencyTx, discount){
     if (currency !== 'usd') {
-      v = ((val / currencyTxUsd) * currencyTx);
-      v = v - (v * discount/100)
-      return v * (1 + vatValue);
+      let v = ((val / currencyTxUsd) * currencyTx);
+      return v - (v * discount/100);
     } else{
-      v = val - (val * discount/100);
-      return v * (1 + vatValue);
+      return val - (val * discount/100);
     }
   }
 

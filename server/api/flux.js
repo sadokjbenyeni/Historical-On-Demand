@@ -33,11 +33,7 @@ router.get('/eid/:dataset', (req, res) => {
     objectToArray(body.hod_catalogue).forEach(c => {
       // if (objectToArray(c.dataset).indexOf(req.params.dataset) != -1 && c.is_active) {
       if (objectToArray(c.dataset).indexOf(req.params.dataset) != -1) {
-        console.dir("*************************");
-        console.dir(req.params.dataset);
-        console.dir(c);
-        console.dir("*************************");
-          objectToArray(c.EIDs).forEach((e)=>{
+        objectToArray(c.EIDs).forEach((e)=>{
           tabeid.push(e);
           t.push(
             {

@@ -20,6 +20,7 @@ import * as crypto from 'crypto-js';
 export class OrderHistoryComponent implements OnInit {
 
   token: any;
+  gateway: string;
   idCmd: string;
   today: Date;
   textcolor: string;
@@ -47,10 +48,12 @@ export class OrderHistoryComponent implements OnInit {
   phrase: string;
   period: any;
   firstname: any;
+  invoice: string;
   company: any;
   lastname: any;
   job: any;
   country: any;
+  datasetsLink: { L1: string; L1TRADEONLY: string; L2: string; };
 
   constructor(
     private http: HttpClient,
@@ -64,6 +67,7 @@ export class OrderHistoryComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.gateway = environment.gateway;
     this.today = new Date();
     this.periodDnl();
     this.title = 'Order History';
@@ -85,6 +89,11 @@ export class OrderHistoryComponent implements OnInit {
     this.datasets = {
       L1: 'L1 - Full',
       L1TRADEONLY: 'L1 - Trades',
+      L2: 'L2' 
+    };
+    this.datasetsLink = {
+      L1: 'L1-Full',
+      L1TRADEONLY: 'L1-Trades',
       L2: 'L2' 
     };
     // this.datasets = {
@@ -124,6 +133,7 @@ export class OrderHistoryComponent implements OnInit {
     this.viewdetail = true;
     this.title = 'Order : ' + c.id;
     this.idCmd = c.id_cmd;
+    this.invoice = c.idCommande;
     this.state = c.state;
     this.firstname = c.firstname;
     this.lastname = c.lastname;
@@ -184,6 +194,7 @@ export class OrderHistoryComponent implements OnInit {
         if (p.backfill_fee > 0 || p.ongoing_fee > 0) {
           this.details.push({ print: true, backfill_fee: p.backfill_fee, ongoing_fee: p.ongoing_fee });
         }
+        // console.log(this.details);
       });
     }
     // this.details = c.products;
@@ -317,6 +328,15 @@ export class OrderHistoryComponent implements OnInit {
     }
   }
 
+  countLink(lks) {
+    let countlk = 0;
+    lks.forEach(el => {
+      countlk += el.link.split("|").length;
+    });
+
+    return countlk;
+  }
+
   precisionRound(number, precision) {
     var factor = Math.pow(10, precision);
     return Math.round(number * factor) / factor;
@@ -327,15 +347,33 @@ export class OrderHistoryComponent implements OnInit {
       dynamicDownload: null as HTMLElement
     }
   }
+//detail.idC+'_'+datasetsLink[detail.quotation_level]+'_'+detail.eid+'_one-off-¤'+detail.begin_date_select+'¤'+detail.end_date_select
+//lk.links
+//lk.path
+//detail.assetClass
+  dyanmicDownloadByHtmlTag(id: number, dataset: string, eid: string, symbol: string, asset: string, type: string, debut: string, fin: string, text: Array<any>, path: string) {
+    let fileName = "";
+    fileName += id;
+    fileName += "_"+ this.datasetsLink[dataset];
+    fileName += "_"+ eid;
+    if(symbol !== ""){
+      fileName += "_"+ symbol;
+    }
+    if(asset !== ""){
+      fileName += "_"+ asset;
+    }
+    fileName += "_"+ type;
+    fileName += "_"+ this.yyyymmdd(debut.split('T')[0]);
+    fileName += "_"+ this.yyyymmdd(fin.split('T')[0]);
 
-  dyanmicDownloadByHtmlTag(fileName: string, text: Array<any>, path: string) {
+
     if (!this.setting.element.dynamicDownload) {
       this.setting.element.dynamicDownload = document.createElement('a');
     }
     let liens = [];
     text.forEach(ll => {
       ll.link.split('|').forEach(lien => {
-        liens.push(environment.api + '/user/test/'+this.token+'/'+ path +'/'+ lien);
+        liens.push(environment.gateway + '/api/user/test/'+this.token+'/'+ path +'/'+ lien);
       });
     });
     const element = this.setting.element.dynamicDownload;
@@ -343,14 +381,25 @@ export class OrderHistoryComponent implements OnInit {
     // element.setAttribute('href', `data:${fileType};charset=utf-8,${encodeURIComponent(JSON.stringify(liens))}`);
     const fileType = 'text/plain';
     element.setAttribute('href', `data:${fileType};charset=utf-8,${liens.join('\r\n')}`);
-    let fn = fileName.split('¤');
-    let datedeb = fn[1].split('T')[0].replace(/-/gi, '');
-    let datefin = fn[2].split('T')[0].replace(/-/gi, '');
-    element.setAttribute('download', fn[0]+datedeb+'-'+datefin+'.txt');
+    // let fn = fileName.split('¤');
+    // let datedeb = fn[1].split('T')[0].replace(/-/gi, '');
+    // let datefin = fn[2].split('T')[0].replace(/-/gi, '');
+    // element.setAttribute('download', fn[0]+this.viewDate(datedeb)+'_'+this.viewDate(datefin)+'.txt');
+    element.setAttribute('download', fileName +'.txt');
 
     var event = new MouseEvent("click");
     element.dispatchEvent(event);
   }
-
+  yyyymmdd = function(d) {
+    let dat = d.split('-');
+    let mm = parseInt(dat[1]);
+    let dd = parseInt(dat[2]);
+  
+    return [
+      dat[0],
+      (mm>9 ? '-' : '-0') + mm,
+      (dd>9 ? '-' : '-0') + dd
+    ].join('');
+  };
 }
 

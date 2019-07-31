@@ -460,6 +460,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       'ContractAvailability',
       'ContractAssetClass',
       'ADTV',
+      'Constituents',
       'MICs',
       'ContractADTV'
     ];
@@ -750,8 +751,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
       let selectdate = new Date(date.year + '-' + date.month + '-' + date.day);
       this.addCart.products.forEach((p, i) => {
         let bd = new Date(p.begin_date);
+        let ed = new Date(p.end_date);
         if (bd <= selectdate) {
-          this.addCart.products[i].begin_date_select = date.year + '-' + date.month + '-' + date.day;
+          if (ed >= selectdate) {
+            this.addCart.products[i].begin_date_select = date.year + '-' + date.month + '-' + date.day;
+          } else {
+            this.addCart.products[i].begin_date_select = p.end_date;
+          }
         }
       });
     }
@@ -762,8 +768,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
       let selectdate = new Date(date.year + '-' + date.month + '-' + date.day);
       this.addCart.products.forEach((p, i) => {
         let ed = new Date(p.end_date);
+        let bd = new Date(p.begin_date);
         if (ed >= selectdate) {
-          this.addCart.products[i].end_date_select = date.year + '-' + date.month + '-' + date.day;
+          if(bd <= selectdate) {
+            this.addCart.products[i].end_date_select = date.year + '-' + date.month + '-' + date.day;
+          } else {
+            this.addCart.products[i].end_date_select = p.begin_date;
+          }
         }
       });
     }
@@ -788,6 +799,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.addCart.onetimeFrom = this.onetimeFrom.year + '-' + this.onetimeFrom.month  + '-' + this.onetimeFrom.day;
     this.dateChangeBegin(this.onetimeFrom);
   }
+  
   dateChangeTo() {
     let convOneTimeFrom = new Date();
     let convOneTimeTo = new Date();
@@ -1121,18 +1133,19 @@ export class SearchComponent implements OnInit, AfterViewInit {
   open(content) {
     this.addCart.onetimeFrom = this.minDate.year + '-' + this.minDate.month  + '-' + this.minDate.day;
     this.addCart.onetimeTo = this.maxDate.year + '-' + this.maxDate.month  + '-' + this.maxDate.day;
-    if(!this.onetimeFrom) {
+    // if(!this.onetimeFrom) {
       this.onetimeFrom = this.minDate;
-    }
-    if(!this.onetimeTo) {
+    // }
+    // if(!this.onetimeTo) {
       this.onetimeTo = this.maxDate;
-    }
+    // }
     this.modalService.open(content).result.then((result) => {
       this.closeResult = `Closed with: ${result}`;
     }, (reason) => {
       this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
     });
   }
+
   private getDismissReason(reason: any): string {
     if (reason === ModalDismissReasons.ESC) {
       return 'by pressing ESC';

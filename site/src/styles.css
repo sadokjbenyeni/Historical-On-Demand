@@ -466,8 +466,14 @@ tfoot.pagine>tr>td.bb {
 td.bg-grey {
   background: #dcdcdc;
 }
+.order>td {
+  border-bottom: 1px solid #ddd;
+}
 span.cap {
   display: block;
-  height: 60px;
-  border-bottom: 1px solid #ddd;
+  /* min-height: 60px;
+  border-bottom: 1px solid #ddd; */
+}
+.ngb-dp-day.hidden {
+  display: block !important;
 }

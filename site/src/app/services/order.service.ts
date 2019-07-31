@@ -58,6 +58,10 @@ export class OrderService {
     return this.http.get( environment.api + '/order/idCmd/' +  id ).map( res => res.json() );
   }
 
+  getRetry(id) {
+    return this.http.get( environment.api + '/order/retry/' +  id ).map( res => res.json() );
+  }
+
   getList(requete, order) {
     return this.http.post( environment.api + '/order/list',  {requete:requete, order: order} ).map( res => res.json() );
   }
