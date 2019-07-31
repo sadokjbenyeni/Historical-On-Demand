@@ -462,6 +462,15 @@ router.put('/state', (req, res) => {
         });
       }
 
+      if( req.body.status === 'rejected' ) {
+        sendMail('/api/mail/orderRejected', corp);
+        return true;
+      }
+      if( req.body.status === 'cancelled' ) {
+        sendMail('/api/mail/orderCancelled', corp);
+        return true;
+      }
+
       o.products.forEach(p => {
         eids.push(p.eid);
       });

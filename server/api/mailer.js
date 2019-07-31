@@ -388,5 +388,60 @@ router.post('/orderExecuted', (req, res, next) => {
   });
 });
 
+router.post('/orderRejected', (req, res, next) => {
+  let mailOptions = {
+    from: 'no-reply@quanthouse.com',
+    to: req.body.email,
+    subject: '[UAT] Order # ' + req.body.idCmd + ' rejection',
+    text: `Hello,
+
+    Your Order # `+ req.body.idCmd +` has been rejected with the following reason:
+    `+ req.body.reason +`
+
+    Please contact your local support should you need any further information.
+
+    Thank you,
+    Quanthouse`,
+
+    html: `Hello,<br><br>
+    Your Order <b># `+ req.body.idCmd +`</b> has been rejected with the following reason:<br>
+    `+ req.body.reason +`<br><br>
+    Please contact your local support should you need any further information.<br><br>
+    <b>Thank you,<br>Quanthouse</b>`
+  };
+  smtpTransport.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return console.log(error);
+    }
+    return res.status(200).json({mail:true});
+  });
+});
+
+router.post('/orderCancelled', (req, res, next) => {
+  let mailOptions = {
+    from: 'no-reply@quanthouse.com',
+    to: req.body.email,
+    subject: '[UAT] Order # ' + req.body.idCmd + ' cancellation',
+    text: `Hello,
+
+    Your Order # `+ req.body.idCmd +` has been cancelled.
+
+    Please contact your local support should you need any further information.
+
+    Thank you,
+    Quanthouse`,
+
+    html: `Hello,<br><br>
+    Your Order <b># `+ req.body.idCmd +`</b> has been rejected with the following reason:<br><br>
+    Please contact your local support should you need any further information.<br><br>
+    <b>Thank you,<br>Quanthouse</b>`
+  };
+  smtpTransport.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return console.log(error);
+    }
+    return res.status(200).json({mail:true});
+  });
+});
 
 module.exports = router;
