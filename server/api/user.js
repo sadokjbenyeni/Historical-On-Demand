@@ -262,8 +262,8 @@ router.post('/activation/', (req, res) => {
 router.post('/suspendre/', (req, res) => {  
     User.update( { token: req.body.token }, { $set:{ actif: -1 } } )
     .then((user) => {
-        if (!user) { res.json({}).statusCode(200) }
-        return res.json({valid:true}).statusCode(200);
+        if (!user) { res.status(200).json({}) }
+        return res.status(200).json({valid:true});
     });    
 });
             

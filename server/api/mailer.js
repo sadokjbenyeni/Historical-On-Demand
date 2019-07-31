@@ -52,7 +52,7 @@ router.post('/inscription', (req, res, next) => {
     if (error) {
       return console.log(error);
     }
-    return res.json({mail:true}).statusCode(200);
+    return res.status(200).json({mail:true});
   });
 });
 router.post('/activation', (req, res, next) => {
@@ -86,7 +86,7 @@ router.post('/activation', (req, res, next) => {
       if (error) {
         return console.log(error);
       }
-      return res.json({mail:true}).statusCode(200);
+      return res.status(200).json({mail:true});
     });
   // }
   // else{
@@ -125,7 +125,7 @@ router.post('/activated', (req, res, next) => {
       if (error) {
         return console.log(error);
       }
-      return res.json({mail:true}).statusCode(200);
+      return res.status(200).json({mail:true});
     });
   // }
   // else{
@@ -156,7 +156,7 @@ router.post('/mdp', (req, res, next) => {
     if (error) {
       return console.log(error);
     }
-    return res.json({mail:true}).statusCode(200);
+    return res.status(200).json({mail:true});
   });
 });
 
@@ -187,7 +187,7 @@ router.post('/newOrder', (req, res, next) => {
     if (error) {
       return console.log(error);
     }
-    return res.json({mail:true}).statusCode(200);
+    return res.status(200).json({mail:true});
   });
 });
 
@@ -220,7 +220,7 @@ router.post('/newOrderHoD', (req, res, next) => {
     if (error) {
       return console.log(error);
     }
-    return res.json({mail:true}).statusCode(200);
+    return res.status(200).json({mail:true});
   });
 });
 
@@ -247,7 +247,7 @@ router.post('/reminder', (req, res, next) => { // géré par un CRON
     if (error) {
       return console.log(error);
     }
-    return res.json({mail:true}).statusCode(200);
+    return res.status(200).json({mail:true});
   });
 });
 
@@ -274,7 +274,7 @@ router.post('/orderValidated', (req, res, next) => {
     if (error) {
       return console.log(error);
     }
-    return res.json({mail:true}).statusCode(200);
+    return res.status(200).json({mail:true});
   });
 });
 
@@ -316,7 +316,7 @@ router.post('/orderFailedJob', (req, res, next) => {
     if (error) {
       return console.log(error);
     }
-    return res.json({mail:true}).statusCode(200);
+    return res.status(200).json({mail:true});
   });
 });
 
@@ -344,7 +344,7 @@ router.post('/orderFailed', (req, res, next) => {
     if (error) {
       return console.log(error);
     }
-    return res.json({mail:true}).statusCode(200);
+    return res.status(200).json({mail:true});
   });
 });
 
@@ -383,7 +383,7 @@ router.post('/orderExecuted', (req, res, next) => {
       if (error) {
         return console.log(error);
       }
-      return res.json({mail:true}).statusCode(200);
+      return res.status(200).json({mail:true});
     });
   });
 });

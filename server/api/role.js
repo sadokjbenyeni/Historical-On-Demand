@@ -24,8 +24,7 @@ router.get('/', (req, res) => {
     Role.find()
     .then((roles) => {
         if (!roles) { return res.sendStatus(404); }
-        return res.json({roles: roles})
-        .statusCode(200);
+        return res.status(200).json({roles: roles});
     });
 });
 
@@ -33,8 +32,7 @@ router.get('/page', (req, res) => {
     Role.distinct('pages')
     .then((pages) => {
         if (!pages) { return res.sendStatus(404); }
-        return res.json({pages: pages})
-        .statusCode(200);
+        return res.status(200).json({pages: pages});
     });
 });
 
@@ -43,8 +41,8 @@ router.get('/:role', (req, res) => {
     // if(URLS.indexOf(test) !== -1){
         Role.findById({_id: Object(req.params.role)})
         .then((role) => {
-            if (!role) { res.json({}).statusCode(200) }
-            return res.json({role:role}).statusCode(200);           
+            if (!role) { res.status(200).json({}) }
+            return res.status(200).json({role:role});
         });
     // }
     // else{
