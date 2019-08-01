@@ -100,7 +100,7 @@
             <td>{{ o.companyName }}</td>
             <td>{{ o.id }}</td>
             <!-- <td>{{ o.idUser }}</td> -->
-            <td class="text-center">{{ o.state }}</td>
+            <td class="text-center">{{ getStateName(o.state) }}</td>
             <td>{{ o.submissionDate | date:'yyyy-MM-dd' }}</td>
             <td>{{ precisionRound(getHt(o.totalHT, o.currency, o.currencyTxUsd, o.currencyTx, o.discount, o.vatValue), 2)  | number:'1.2-2' }}</td>
             <td>{{ o.discount }}</td>

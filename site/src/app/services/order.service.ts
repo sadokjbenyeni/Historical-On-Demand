@@ -73,4 +73,8 @@ export class OrderService {
     return this.http.post( environment.api + '/order/caddies',  user ).map( res => res.json() );
   }
 
+  getListStates(requete) {
+    return this.http.post( environment.api + '/order/listStates', requete ).map( res => res.json() );
+  }
+
 }

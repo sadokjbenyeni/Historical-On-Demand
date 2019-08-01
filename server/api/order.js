@@ -862,6 +862,25 @@ router.post('/caddies', (req, res) => {
     });
 });
 
+router.post('/listStates', (req, res) => {
+    let states = [
+      {id:'CART', name: 'Cart' },
+      {id:'PLI', name: 'Pending Licensing Information' },
+      {id:'PBI', name: 'Pending Billing Information' },
+      {id:'PSC', name: 'Pending Submission by Client' },
+      {id:'PVP', name: 'Pending Validation by Product' },
+      {id:'PVC', name: 'Pending Validation by Compliance' },
+      {id:'PVF', name: 'Pending Validation by Finance' },
+      {id:'validated', name: 'Validated' },
+      {id:'active', name: 'Active' },
+      {id:'inactive', name: 'Inactive' },
+      {id:'cancelled', name: 'Cancelled' },
+      {id:'rejected', name: 'Rejected' },
+      {id:'failed', name: 'Failed' },
+    ];
+    return res.status(200).json({states: states});
+});
+
 pdfpost = function(id){
   let options = {
     url: DOMAIN + '/api/pdf',

@@ -26,7 +26,7 @@
               <tr *ngFor="let c of cmd; let idx = index">
                 <td *ngIf="c.products.length > 0">{{c.id}}</td>
                 <td *ngIf="c.products.length > 0">{{ c.submissionDate | date:'medium' }}</td>
-                <td *ngIf="c.products.length > 0"><span>{{states[c.state]}}</span></td>
+                <td *ngIf="c.products.length > 0"><span>{{ getStateName(c.state) }}</span></td>
                 <td *ngIf="c.products.length > 0">{{ getTTC(c) | number:'1.2-2' }}</td>
                 <td *ngIf="c.products.length > 0"></td>
                 <td *ngIf="c.products.length > 0"><span class="btn btn-success fa fa-eye" (click)="view(c)"></span></td>
@@ -43,7 +43,7 @@
                   <p><b>Order Form : </b> </p>
                   <p><b>Payment method : </b>{{ payment }}</p>
                   <p><b>Invoice : </b><a target="_blank" [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}}</a></p>
-                  <p><b>Order Status : <span [class]="textcolor">{{states[state]}}</span></b>
+                  <p><b>Order Status : <span [class]="textcolor">{{ getStateName(state) }}</span></b>
                   </div>
                 <div class="col-md-6">
                   <p><b>Company Name: </b>{{ company }}</p>

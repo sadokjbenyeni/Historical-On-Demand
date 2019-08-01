@@ -35,7 +35,7 @@ export class OrderHistoryComponent implements OnInit {
   discount: any;
   totalVat: number;
   title: string;
-  states: object;
+  states: Array<any>;
   datasets: object;
   state: string;
   payment: string;
@@ -72,20 +72,7 @@ export class OrderHistoryComponent implements OnInit {
     this.periodDnl();
     this.title = 'Order History';
     this.details = [];
-    this.states = {
-      CART: 'Pending Licensing Information',
-      PLI: 'Pending Licensing Information',
-      PBI: 'Pending Billing Information',
-      PSC: 'Pending Submission by Client',
-      PVP: 'Pending Validation by Product',
-      PVC: 'Pending Validation by Compliance',
-      PVF: 'Pending Validation by Finance',
-      validated: 'Validated',
-      active: 'Active',
-      inactive: 'Inactive',
-      cancelled: 'Cancelled',
-      rejected: 'Rejected' 
-    };
+    this.getListStates();
     this.datasets = {
       L1: 'L1 - Full',
       L1TRADEONLY: 'L1 - Trades',
@@ -401,5 +388,17 @@ export class OrderHistoryComponent implements OnInit {
       (dd>9 ? '-' : '-0') + dd
     ].join('');
   };
+
+  getListStates(){
+    this.orderService.getListStates({}).subscribe(res=>{
+      this.states = res.states;
+    });
+  }
+  getStateName(stateId) {
+    if( !this.states )
+      return stateId;
+    return this.states.filter( e => e.id === stateId )[0] ? this.states.filter( e => e.id === stateId )[0].name : stateId;
+  }
+
 }
 

@@ -57,19 +57,7 @@ export class OrderscComponent implements OnInit {
     this.message = '';
     this.dtOptions = {};
     this.state = 'PVC';
-    this.states = [
-      {id:'PLI', name: 'Pending Licensing Information' },
-      {id:'PBI', name: 'Pending Billing Information' },
-      {id:'PSC', name: 'Pending Submission by Client' },
-      {id:'PVP', name: 'Pending Validation by Product' },
-      {id:'PVC', name: 'Pending Validation by Compliance' },
-      {id:'PVF', name: 'Pending Validation by Finance' },
-      {id:'validated', name: 'Validated' },
-      {id:'active', name: 'Active' },
-      {id:'inactive', name: 'Inactive' },
-      {id:'cancelled', name: 'Cancelled' },
-      {id:'rejected', name: 'Rejected' }
-    ];
+    this.getListStates();
 
     const that = this;
     this.dtOptions = {
@@ -142,4 +130,16 @@ export class OrderscComponent implements OnInit {
     const body = res.json();
     return body.data || {};
   }
+
+  getListStates(){
+    this.orderService.getListStates({}).subscribe(res=>{
+      this.states = res.states;
+    });
+  }
+  getStateName(stateId) {
+    if( !this.states )
+      return stateId;
+    return this.states.filter( e => e.id === stateId )[0] ? this.states.filter( e => e.id === stateId )[0].name : stateId;
+  }
+
 }

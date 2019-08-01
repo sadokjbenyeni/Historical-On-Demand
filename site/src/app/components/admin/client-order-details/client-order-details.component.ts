@@ -38,7 +38,7 @@ export class ClientOrderDetailsComponent implements OnInit {
   idCmd: string;
   submissionDate: string;
   state: string;
-  states: object;
+  states: Array<any>;
   discount: number;
   ht: number;
   vat: number;
@@ -73,19 +73,7 @@ export class ClientOrderDetailsComponent implements OnInit {
     this.discount = 0;
     this.total = 0;
     this.state = '';
-    this.states = {
-      PLI: 'Pending Licensing Information',
-      PBI: 'Pending Billing Information',
-      PSC: 'Pending Submission by Client',
-      PVP: 'Pending Validation by Product',
-      PVC: 'Pending Validation by Compliance',
-      PVF: 'Pending Validation by Finance',
-      validated: 'Validated',
-      active: 'Active',
-      inactive: 'Inactive',
-      cancelled: 'Cancelled',
-      rejected: 'Rejected' 
-    };
+    this.getListStates();
     this.getCmd();
     // this.getVat();
   }
@@ -240,6 +228,17 @@ export class ClientOrderDetailsComponent implements OnInit {
     tmp = Math.floor((tmp-diff.hour)/24);           // Nombre de jours restants
     diff.day = tmp;
     return diff;
+  }
+
+  getListStates(){
+    this.orderService.getListStates({}).subscribe(res=>{
+      this.states = res.states;
+    });
+  }
+  getStateName(stateId) {
+    if( !this.states )
+      return stateId;
+    return this.states.filter( e => e.id === stateId )[0] ? this.states.filter( e => e.id === stateId )[0].name : stateId;
   }
 
 }

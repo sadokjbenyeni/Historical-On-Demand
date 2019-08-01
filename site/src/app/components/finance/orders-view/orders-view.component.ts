@@ -39,7 +39,7 @@ export class OrdersViewComponent implements OnInit {
   idCmd: string;
   submissionDate: string;
   state: string;
-  states: object;
+  states: Array<any>;
   discount: number;
   ht: number;
   vat: number;
@@ -73,20 +73,7 @@ export class OrdersViewComponent implements OnInit {
     this.totalHT = 0;
     this.totalHTOld = 0;
     this.state = '';
-    this.states = {
-      CART: 'Pending Licensing Information',
-      PLI: 'Pending Licensing Information',
-      PBI: 'Pending Billing Information',
-      PSC: 'Pending Submission by Client',
-      PVP: 'Pending Validation by Product',
-      PVC: 'Pending Validation by Compliance',
-      PVF: 'Pending Validation by Finance',
-      validated: 'Validated',
-      active: 'Active',
-      inactive: 'Inactive',
-      cancelled: 'Cancelled',
-      rejected: 'Rejected' 
-    };
+    this.getListStates();
     this.getCmd();
   }
 
@@ -220,6 +207,17 @@ export class OrdersViewComponent implements OnInit {
   precisionRound(number, precision) {
     var factor = Math.pow(10, precision);
     return Math.round(number * factor) / factor;
+  }
+
+  getListStates(){
+    this.orderService.getListStates({}).subscribe(res=>{
+      this.states = res.states;
+    });
+  }
+  getStateName(stateId) {
+    if( !this.states )
+      return stateId;
+    return this.states.filter( e => e.id === stateId )[0] ? this.states.filter( e => e.id === stateId )[0].name : stateId;
   }
 
 }
