@@ -35,27 +35,31 @@ router.put('/ue', (req, res) => {
 
 router.post('/', (req, res) => {
     let sort = {};
-    sort.ue = -1;
-    sort[req.body.columns[req.body.order[0].column].data] = req.body.order[0].dir;
+    for (var i = 0; i < req.body.order.length; i++) {
+      sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
+    }
     Countries.count().then((c) => {
         let search = {};
         req.body.columns.forEach(s => {
-            if (s.search.value !== '') {
-                search[s.data] = new RegExp(s.search.value, "i");
-            }
+          if (s.search.value !== '') {
+            search[s.data] = new RegExp(s.search.value, "i");
+          }
         });
         if (req.body.search.value !== '') {
-            search['name'] =  new RegExp(req.body.search.value, "i");
+          search['$or'] = [
+            { id: new RegExp(req.body.search.value, "i") },
+            { name: new RegExp(req.body.search.value, "i") }
+          ];
         }
         Countries.count(search).then((cf) => {
-            Countries.find(search)
-            .skip(req.body.start)
-            .limit(req.body.length)
-            .sort(sort)
-            .then((countries) => {
-                if (!countries) { return res.status(404); }
-                return res.status(200).json({recordsFiltered: cf, recordsTotal: c, draw:req.body.draw, countries: countries});
-            });
+          Countries.find(search)
+          .skip(req.body.start)
+          .limit(req.body.length)
+          .sort(sort)
+          .then((countries) => {
+            if (!countries) { return res.status(404); }
+            return res.status(200).json({recordsFiltered: cf, recordsTotal: c, draw:req.body.draw, countries: countries});
+          });
         });
     });
 });

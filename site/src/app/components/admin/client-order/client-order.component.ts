@@ -78,6 +78,7 @@ export class ClientOrderComponent implements OnInit {
       pageLength: 10,
       serverSide: true,
       processing: true,
+      order: [[ 1, 'desc' ]],
       ajax: (dataTablesParameters: any, callback) => {
         dataTablesParameters.state = this.state;
         that.httpc

@@ -807,8 +807,12 @@ router.post('/listExport', (req, res) => {
 });
 router.post('/list', (req, res) => {
   let sort = {};
-  sort.createdAt = -1;
-  sort[req.body.columns[req.body.order[0].column].data] = req.body.order[0].dir;
+  for (var i = 0; i < req.body.order.length; i++) {
+    if( req.body.columns[req.body.order[i].column].data === 'redistribution' )
+      sort['survey.dd'] = req.body.order[i].dir;
+    else
+      sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
+  }
   Order.count({state: {$ne:''}, state: {$exists:true}}).then((c) => {
       let search = {};
       search['state'] = { $ne: '' };
@@ -830,20 +834,18 @@ router.post('/list', (req, res) => {
           search[s.data] = new RegExp(s.search.value, "i");
         }
       });
-      
       if (req.body.search.value !== '') {
-          search = { 
-            '$or': [
+        search['$or'] = [
               { state: new RegExp(req.body.search.value, "i") },
               { companyName: new RegExp(req.body.search.value, "i") },
               { id_cmd: new RegExp(req.body.search.value, "i") }
-            ]
-          };
+          ];
       }
       Order.count(search).then((cf) => {
         Order.find(search)
           .skip(req.body.start)
           .limit(req.body.length)
+          .collation({ locale: "en" })
           .sort(sort)
           .then((orders) => {
               if (!orders) { return res.status(404); }
@@ -851,7 +853,6 @@ router.post('/list', (req, res) => {
           });
       });
   });
-
 });
 
 router.post('/caddies', (req, res) => {
