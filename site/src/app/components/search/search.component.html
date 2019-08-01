@@ -1,32 +1,34 @@
 <app-menu></app-menu>
-<div class="container">
-  <div class="row page-header">
-    <div class="col-lg-3 col-md-3">
-      <ol class="breadcrumb custom-breadcrumb">
-        <li class="active">{{ search }}</li>
-      </ol>
-      <div class="form-group input-group">
-        <select name="newAssetClass" class="form-control" [(ngModel)]="dataset.dataset" (change)="setDataset($event.target.value)">
-            <option *ngFor="let datast of datasets" [value]="datast.id">{{ datast.name }}</option>
-        </select>
-      </div>
-    </div>
-    <!-- <pre *ngIf="uuu.token==='265a6952787e320c0ba55fefeec470f88f74c9313ed1eb689f3f1988329c5015d06537101ff99806f2c38d8d459ad53b'">{{ exchanges | json }}</pre> -->
-    <!-- <pre>{{ user.token | json }}</pre> -->
-    <div class="col-lg-9 col-md-9">
-      <br>
-      <button 
-        class="text-color btn btn-default"
-        title="Add Products"
-        alt="Add Products"
-        (click)="open(popProducts)"
-        [disabled]="addCart.products.length === 0">
-        Add Selected and Continue <i class="fa fa-cart-plus align-right fa-2x text-color" aria-hidden="true"></i>
-      </button>
-    </div>
+<div class="row page-header">
+  <div class="col-lg-12">
+    <ol class="breadcrumb custom-breadcrumb">
+      <li class="active">{{ search }}</li>
+    </ol>
   </div>
+</div>
+<div class="container page-content">
   <div class="row">
     <div class="col-lg-12 col-md-12">
+      <div class="col-lg-3 col-md-3">
+        <div class="form-group input-group">
+          <select name="newAssetClass" class="form-control" [(ngModel)]="dataset.dataset" (change)="setDataset($event.target.value)">
+            <option *ngFor="let datast of datasets" [value]="datast.id">{{ datast.name }}</option>
+          </select>
+        </div>
+      </div>
+      <!-- <pre *ngIf="uuu.token==='265a6952787e320c0ba55fefeec470f88f74c9313ed1eb689f3f1988329c5015d06537101ff99806f2c38d8d459ad53b'">{{ exchanges | json }}</pre> -->
+      <!-- <pre>{{ user.token | json }}</pre> -->
+      <div class="col-lg-9 col-md-9">
+        <br>
+        <button
+          class="text-color btn btn-default"
+          title="Add Products"
+          alt="Add Products"
+          (click)="open(popProducts)"
+          [disabled]="addCart.products.length === 0">
+          Add Selected and Continue <i class="fa fa-cart-plus align-right fa-2x text-color" aria-hidden="true"></i>
+        </button>
+      </div>
       <div class="col-lg-3 col-md-3 filter">
         <ngb-tabset (tabChange)="beforeChange($event)">
           <ngb-tab id="instrument">
