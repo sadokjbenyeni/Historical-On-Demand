@@ -7,192 +7,191 @@
   </div>
 </div>
 <div class="container page-content">
-  
-    <!-- Edit utilisateur -->
-    <div class="row">
-      <div [class]="coll">
-        <!-- Advanced Tables -->
-        <div [class]="pnl">
-          <div class="panel-body" *ngIf="term">
-            <form #userForm="ngForm" role="form">
-              <fieldset class="form-group">
-                <legend>Contact Information</legend>
-                <div [class]="colg">
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">First Name*</span>
-                    <input type="text"  name="newfirstname" class="form-control" placeholder="Fisrt Name" [(ngModel)]="user['firstname']" #newfirstname="ngModel" ngModel required>
-                    <show-errors [control]="newfirstname"></show-errors>
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Last Name*</span>
-                    <input type="text" name="newlastname" class="form-control" placeholder="Last Name" [(ngModel)]="user['lastname']" #newlastname="ngModel" ngModel required>
-                    <show-errors [control]="newlastname"></show-errors>
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Job Role*</span>
-                    <input type="text" name="newjob" class="form-control" [(ngModel)]="user['job']" placeholder="Job role" #newjob="ngModel" ngModel required>
-                    <show-errors [control]="newjob"></show-errors>
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Company Name*</span>
-                    <input type="text" name="newcompanyname" class="form-control" [(ngModel)]="user['companyName']" placeholder="Company name" #newcompanyname="ngModel" ngModel required>
-                    <show-errors [control]="newcompanyname"></show-errors>
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Company Type</span>
-                    <select name="newCompanyType" class="form-control" [(ngModel)]="user['companyType']" ngModel>
-                      <option value="">Selected Company Type</option>
-                      <option *ngFor='let ct of companyType' [value]="ct.id">{{ct.name}}</option>
-                    </select>
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Country*</span>
-                    <select name="newcountry" class="form-control" [(ngModel)]="user['country']" ngModel #newcountry="ngModel" required>
-                      <option value="">Select country</option>
-                      <option *ngFor='let c of country' [value]="c.id">{{c.name}}</option>
-                    </select>
-                    <show-errors [control]="newcountry"></show-errors>
-                  </div>
+  <!-- Edit utilisateur -->
+  <div class="row">
+    <div [class]="coll">
+      <!-- Advanced Tables -->
+      <div [class]="pnl">
+        <div class="panel-body" *ngIf="term">
+          <form #userForm="ngForm" role="form">
+            <fieldset class="form-group">
+              <legend>Contact Information</legend>
+              <div [class]="colg">
+                <div class="form-group input-group">
+                  <span class="input-group-addon">First Name*</span>
+                  <show-errors [control]="newfirstname"></show-errors>
+                  <input type="text"  name="newfirstname" class="form-control" placeholder="Fisrt Name" [(ngModel)]="user['firstname']" #newfirstname="ngModel" ngModel required>
                 </div>
-                <div [class]="colg">
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Address</span>
-                    <input type="text" name="newAddress" class="form-control" placeholder="Address" [(ngModel)]="user['address']">
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Postal Code</span>
-                    <input type="text" name="newPostalCode" class="form-control" [(ngModel)]="user['postalCode']" placeholder="Postal Code">
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">City</span>
-                    <input type="text" name="newCity" class="form-control" [(ngModel)]="user['city']" placeholder="City">
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">State/Province/Region</span>
-                    <input type="text" name="newRegion" class="form-control" [(ngModel)]="user['region']" placeholder="State/Province/Region">
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Primary Phone Number</span>
-                    <input type="tel" name="newPhone" class="form-control" [(ngModel)]="user['phone']" placeholder="Phone">
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Website</span>
-                    <input type="tel" name="newWebsite" class="form-control" [(ngModel)]="user['website']" placeholder="Website">
-                  </div>
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Last Name*</span>
+                  <show-errors [control]="newlastname"></show-errors>
+                  <input type="text" name="newlastname" class="form-control" placeholder="Last Name" [(ngModel)]="user['lastname']" #newlastname="ngModel" ngModel required>
                 </div>
-              </fieldset>
-              <fieldset class="form-group">
-                <legend>Login Information</legend>
-                <div class="col-lg-4 col-lg-offset-4">
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Email*</span>
-                    <input type="email" name="newemail" class="form-control" placeholder="Email" emailString [(ngModel)]="user['email']" (change)="verifMail()" #newemail="ngModel" ngModel required>
-                    <div class="alert alert-danger" *ngIf="exist && user['email'] !== '' && page === '/register'"><span>This email already exists</span></div>
-                    <show-errors [control]="newemail"></show-errors>
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Password*</span>
-                    <input type="password" name="newpassword"  class="form-control" [(ngModel)]="user['password']" #newpassword="ngModel" mdp ngModel required>
-                    <div class="alert alert-danger" *ngIf="isValidPwd">
-                      <span>Password does not match the confirm password</span>
-                    </div>
-                    <show-errors [control]="newpassword"></show-errors>
-                  </div>
-                  <div class="form-group input-group" *ngIf="page === '/register'">
-                    <span class="input-group-addon">Confirm password*</span>
-                    <input type="password" name="newconfirmation" class="form-control" [(ngModel)]="confirmation" #newconfirmation="ngModel" ngModel required>
-                    <div class="alert alert-danger" *ngIf="isValidPwd">
-                      <span>Password does not match the confirm password</span>
-                    </div>
-                    <show-errors [control]="newconfirmation"></show-errors>
-                  </div>
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Job Role*</span>
+                  <show-errors [control]="newjob"></show-errors>
+                  <input type="text" name="newjob" class="form-control" [(ngModel)]="user['job']" placeholder="Job role" #newjob="ngModel" ngModel required>
                 </div>
-              </fieldset>
-              <fieldset class="form-group" *ngIf="page === '/account'">
-                <legend>Billing Information</legend>
-                <div class="col-lg-6">
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">VAT Number<b class="valid" *ngIf="checkv && user.vat !==''">✓</b></span>
-                    <input type="text" name="newvat" [class]="loadvat" placeholder="VAT Number" (change)="checkVat()" [(ngModel)]="user.vat" #newvat="ngModel" ngModel>
-                    <div class="alert alert-danger" *ngIf="user.vat !== '' && (loadvat === 'form-control ko' || !user.checkvat)"><span>You have entered an invalid VAT Number</span></div>
-                  </div>
-                  <input type="checkbox" name="sameaddress" (change)="sameAddress()"  [(ngModel)]="user.sameAddress"> Same as Contact Address
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Address</span>
-                    <input type="text" name="addressBilling" class="form-control" placeholder="Billing Address" [(ngModel)]="user.addressBilling" ngModel>
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">City</span>
-                    <input type="text" name="cityBilling" class="form-control" placeholder="Billing City" [(ngModel)]="user.cityBilling" ngModel>
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Postal Code</span>
-                    <input type="text" name="postalCodeBilling" class="form-control" placeholder="Billing Postal Code" [(ngModel)]="user.postalCodeBilling"  ngModel>
-                  </div>
-                  <div class="form-group input-group">
-                    <span class="input-group-addon">Country</span>
-                    <select name="countryBilling" class="form-control" [(ngModel)]="user.countryBilling" ngModel #newcountry="ngModel">
-                      <option value="">Select country</option>
-                      <option *ngFor='let c of country' [value]="c.id">{{c.name}}</option>
-                    </select>
-                    <show-errors [control]="newcountry"></show-errors>
-                  </div>
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Company Name*</span>
+                  <show-errors [control]="newcompanyname"></show-errors>
+                  <input type="text" name="newcompanyname" class="form-control" [(ngModel)]="user['companyName']" placeholder="Company name" #newcompanyname="ngModel" ngModel required>
                 </div>
-                <div class="col-lg-6">
-                  <div class="form-group input-group">
-                    <div class="col-lg-6 panel panel-primary">
-                      <h4>Please select your payment method</h4>
-                      <label class="radio" *ngFor="let payment of payments">
-                        <input type="radio" name="payment" [value]="payment.id" [(ngModel)]="user.payment"> {{ payment.name }}
-                      </label>
-                    </div>
-                    <div class="col-lg-6 panel panel-primary">
-                      <h4>Please select your billing currency</h4>
-                      <label class="radio" *ngFor="let currency of currencies">
-                        <input type="radio" name="currency" [value]="currency.id" [(ngModel)]="user.currency" [title]="currency.name"> {{ currency.device }}
-                      </label>
-                    </div>
-                  </div>
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Company Type</span>
+                  <select name="newCompanyType" class="form-control" [(ngModel)]="user['companyType']" ngModel>
+                    <option value="">Selected Company Type</option>
+                    <option *ngFor='let ct of companyType' [value]="ct.id">{{ct.name}}</option>
+                  </select>
                 </div>
-              </fieldset>
-              <div class="col-lg-4 col-lg-offset-4" *ngIf="page === '/account'">
-                <input type="checkbox" name="newcommercial"  [(ngModel)]="user.commercial" value="usercommercial"> Subscribe to commercial emails
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Country*</span>
+                  <show-errors [control]="newcountry"></show-errors>
+                  <select name="newcountry" class="form-control" [(ngModel)]="user['country']" ngModel #newcountry="ngModel" required>
+                    <option value="">Select country</option>
+                    <option *ngFor='let c of country' [value]="c.id">{{c.name}}</option>
+                  </select>
+                </div>
               </div>
-              <div class="col-lg-4 col-lg-offset-4" *ngIf="page === '/register'">
-                  <input type="checkbox" name="newcgv" value="user.cgv" [(ngModel)]="user.cgv" #newcgv="ngModel" ngModel required>
-                  <a (click)="cgv()">I agree to QH’s term & services, and cookie policy</a><br>
-                  <input type="checkbox" name="newcommercial"  [(ngModel)]="user.commercial" value="usercommercial"> Subscribe to commercial emails
+              <div [class]="colg">
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Address</span>
+                  <input type="text" name="newAddress" class="form-control" placeholder="Address" [(ngModel)]="user['address']">
+                </div>
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Postal Code</span>
+                  <input type="text" name="newPostalCode" class="form-control" [(ngModel)]="user['postalCode']" placeholder="Postal Code">
+                </div>
+                <div class="form-group input-group">
+                  <span class="input-group-addon">City</span>
+                  <input type="text" name="newCity" class="form-control" [(ngModel)]="user['city']" placeholder="City">
+                </div>
+                <div class="form-group input-group">
+                  <span class="input-group-addon">State/Province/Region</span>
+                  <input type="text" name="newRegion" class="form-control" [(ngModel)]="user['region']" placeholder="State/Province/Region">
+                </div>
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Primary Phone Number</span>
+                  <input type="tel" name="newPhone" class="form-control" [(ngModel)]="user['phone']" placeholder="Phone">
+                </div>
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Website</span>
+                  <input type="tel" name="newWebsite" class="form-control" [(ngModel)]="user['website']" placeholder="Website">
+                </div>
               </div>
-              <div class="col-lg-12 col-lg-offset-5" *ngIf="page === '/register' ">
-                <re-captcha 
-                  (resolved)="resolved($event)"
-                  [siteKey]="key"
-                ></re-captcha>
+            </fieldset>
+            <fieldset class="form-group">
+              <legend>Login Information</legend>
+              <div class="col-lg-4 col-lg-offset-4">
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Email*</span>
+                  <div class="alert alert-danger" *ngIf="exist && user['email'] !== '' && page === '/register'"><span>This email already exists</span></div>
+                  <show-errors [control]="newemail"></show-errors>
+                  <input type="email" name="newemail" class="form-control" placeholder="Email" emailString [(ngModel)]="user['email']" (change)="verifMail()" #newemail="ngModel" ngModel required>
+                </div>
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Password*</span>
+                  <div class="alert alert-danger" *ngIf="isValidPwd">
+                    <span>Password does not match the confirm password</span>
+                  </div>
+                  <show-errors [control]="newpassword"></show-errors>
+                  <input type="password" name="newpassword"  class="form-control" [(ngModel)]="user['password']" #newpassword="ngModel" mdp ngModel [required]="page === '/register'" >
+                </div>
+                <div class="form-group input-group" *ngIf="page === '/register'">
+                  <span class="input-group-addon">Confirm password*</span>
+                  <div class="alert alert-danger" *ngIf="isValidPwd">
+                    <span>Password does not match the confirm password</span>
+                  </div>
+                  <show-errors [control]="newconfirmation"></show-errors>
+                  <input type="password" name="newconfirmation" class="form-control" [(ngModel)]="confirmation" #newconfirmation="ngModel" ngModel required>
+                </div>
               </div>
-              <div class="col-lg-12 col-lg-offset-5">
-                <a routerLink="/home" class="btn btn-default" *ngIf="page === '/account'">Cancel</a>
-                <a routerLink="/login" class="btn btn-default" *ngIf="page === '/register'">Cancel</a>
-                <button 
-                  (click)="register() "
-                  class="btn btn-success"
-                  *ngIf="page === '/register'"
-                  [disabled]="userForm.invalid || userForm.pending || checkrobot || exist"
-                >Register</button>
-                <button class="btn btn-success" *ngIf="page === '/account'" [disabled]="userForm.invalid || userForm.pending" (click)="update()">Update</button>
+            </fieldset>
+            <fieldset class="form-group" *ngIf="page === '/account'">
+              <legend>Billing Information</legend>
+              <div class="col-lg-6">
+                <div class="form-group input-group">
+                  <span class="input-group-addon">VAT Number<b class="valid" *ngIf="checkv && user.vat !==''">✓</b></span>
+                  <input type="text" name="newvat" [class]="loadvat" placeholder="VAT Number" (change)="checkVat()" [(ngModel)]="user.vat" #newvat="ngModel" ngModel>
+                  <div class="alert alert-danger" *ngIf="user.vat !== '' && (loadvat === 'form-control ko' || !user.checkvat)"><span>You have entered an invalid VAT Number</span></div>
+                </div>
+                <input type="checkbox" name="sameaddress" (change)="sameAddress()"  [(ngModel)]="user.sameAddress"> Same as Contact Address
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Address</span>
+                  <input type="text" name="addressBilling" class="form-control" placeholder="Billing Address" [(ngModel)]="user.addressBilling" ngModel>
+                </div>
+                <div class="form-group input-group">
+                  <span class="input-group-addon">City</span>
+                  <input type="text" name="cityBilling" class="form-control" placeholder="Billing City" [(ngModel)]="user.cityBilling" ngModel>
+                </div>
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Postal Code</span>
+                  <input type="text" name="postalCodeBilling" class="form-control" placeholder="Billing Postal Code" [(ngModel)]="user.postalCodeBilling"  ngModel>
+                </div>
+                <div class="form-group input-group">
+                  <span class="input-group-addon">Country</span>
+                  <show-errors [control]="newcountry"></show-errors>
+                  <select name="countryBilling" class="form-control" [(ngModel)]="user.countryBilling" ngModel #newcountry="ngModel">
+                    <option value="">Select country</option>
+                    <option *ngFor='let c of country' [value]="c.id">{{c.name}}</option>
+                  </select>
+                </div>
               </div>
-            </form>
-          </div>
-          <div class="panel-heading" *ngIf="message">
-            <h4 class="text-center">{{message}}</h4>
-          </div>
-          <div class="panel-body" *ngIf="!term">
-            <pdf-viewer [src]="termspdf" 
-            [render-text]="true"
-            style="display: block;"></pdf-viewer>
-            <button (click)="cgvClose()">Close</button>      
-          </div>
+              <div class="col-lg-6">
+                <div class="form-group input-group">
+                  <div class="col-lg-6 panel panel-primary">
+                    <h4>Please select your payment method</h4>
+                    <label class="radio" *ngFor="let payment of payments">
+                      <input type="radio" name="payment" [value]="payment.id" [(ngModel)]="user.payment"> {{ payment.name }}
+                    </label>
+                  </div>
+                  <div class="col-lg-6 panel panel-primary">
+                    <h4>Please select your billing currency</h4>
+                    <label class="radio" *ngFor="let currency of currencies">
+                      <input type="radio" name="currency" [value]="currency.id" [(ngModel)]="user.currency" [title]="currency.name"> {{ currency.device }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <div class="col-lg-4 col-lg-offset-4 text-center" *ngIf="page === '/account'">
+              <input type="checkbox" name="newcommercial"  [(ngModel)]="user.commercial" value="usercommercial"> Subscribe to commercial emails
+            </div>
+            <div class="col-lg-4 col-lg-offset-4 text-center" *ngIf="page === '/register'">
+              <input type="checkbox" name="newcgv" value="user.cgv" [(ngModel)]="user.cgv" #newcgv="ngModel" ngModel required>
+              <a (click)="cgv()">I agree to QH’s term & services, and cookie policy</a><br>
+              <input type="checkbox" name="newcommercial"  [(ngModel)]="user.commercial" value="usercommercial"> Subscribe to commercial emails
+            </div>
+            <div class="col-lg-4 col-lg-offset-4" *ngIf="page === '/register' ">
+              <re-captcha 
+                (resolved)="resolved($event)"
+                [siteKey]="key"
+              ></re-captcha>
+            </div>
+            <div class="col-lg-4 col-lg-offset-4 text-center">
+              <a routerLink="/home" class="btn btn-default" *ngIf="page === '/account'">Cancel</a>
+              <a routerLink="/login" class="btn btn-default" *ngIf="page === '/register'">Cancel</a>
+              <button 
+                (click)="register() "
+                class="btn btn-success"
+                *ngIf="page === '/register'"
+                [disabled]="userForm.invalid || userForm.pending || checkrobot || exist"
+              >Register</button>
+              <button class="btn btn-success" *ngIf="page === '/account'" [disabled]="userForm.invalid || userForm.pending" (click)="update()">Update</button>
+            </div>
+          </form>
+        </div>
+        <div class="panel-heading" *ngIf="message">
+          <h4 class="text-center">{{message}}</h4>
+        </div>
+        <div class="panel-body" *ngIf="!term">
+          <pdf-viewer [src]="termspdf" 
+          [render-text]="true"
+          style="display: block;"></pdf-viewer>
+          <button (click)="cgvClose()">Close</button>      
         </div>
       </div>
     </div>
-    <!-- End EditListes utilisateur -->
   </div>
+  <!-- End EditListes utilisateur -->
+</div>

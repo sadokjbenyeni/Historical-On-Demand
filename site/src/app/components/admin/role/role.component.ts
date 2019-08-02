@@ -12,9 +12,12 @@ import { RoleService } from '../../../services/role.service';
   templateUrl: './role.component.html',
   styleUrls: ['./role.component.css']
 })
+
 export class RoleComponent implements OnInit {
   roles: Array<object>;
   pages: Array<string>;
+  dtOptions: DataTables.Settings = {};
+  
   constructor(
     private http: Http,
     private roleService: RoleService,
@@ -26,6 +29,15 @@ export class RoleComponent implements OnInit {
   ngOnInit() {
     this.getRoles();
     this.getPages();
+    
+    this.dtOptions = {
+      searching: false,
+      info: false,
+      ordering: false,
+      processing: false,
+      paging: false,
+      lengthChange: false
+    };
   }
 
   getRoles() {

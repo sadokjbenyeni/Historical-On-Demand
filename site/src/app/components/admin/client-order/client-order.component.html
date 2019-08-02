@@ -10,52 +10,55 @@
 <div class="container page-content">
   <div class="row">
     <app-configuration></app-configuration>
-    <br>
-    <div class="col-md-10">
-      <table datatable [dtOptions]="dtOptions" class="row-border hover" width="100%">
-        <thead>
-          <tr>
-            <th><input type="text" placeholder="Company" name="search-client" class="input-border-color" (keyup)="onKey($event, 0)"></th>
-            <th><input type="number" placeholder="Order From" name="search-orderId" class="input-border-color" (keyup)="onKey($event, 1)"></th>
-            <!-- <th><input type="text" placeholder="Order Type" name="search-orderType" class="input-border-color" (keyup)="onKey($event, 2)"></th> -->
-            <th>
-              <select name="search" class="form-control input-border-color" [(ngModel)]="state" (ngModelChange)="changeState(2)">
-                <option value="">Select State</option>
-                <option *ngFor='let s of states' [value]="s.id">{{s.name}}</option>
-              </select>
-            </th>
-            <th>
-              <div class="form-group input-group" style="width: 150px; text-align: center; margin: auto">
-                <input class="form-control ng-untouched ng-pristine ng-valid" name="vat" placeholder="yyyy-mm-dd" type="text" name="search-date" ngbDatepicker #sd="ngbDatepicker" [(ngModel)]="dateSubmission" (ngModelChange)="changeDate(4)">
-                <span class="input-group-btn color clickable" (click)="sd.toggle()"><i class="fa fa-calendar"></i></span>
-              </div>
-            </th>
-            <th><input type="text" placeholder="Redistribution" name="search-redistribution" class="input-border-color" (keyup)="onKey($event, 4)"></th>
-            <th></th>
-          </tr>   
-          <tr>
-            <th>Client</th>
-            <th>Order Id</th>
-            <th>Order Status</th>
-            <th>Submission Date</th>
-            <th>Redistribution</th>
-            <th>Review</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let o of listorders">
-            <td>{{ o.companyName }}</td>
-            <td>{{ o.id }}</td>
-            <td class="text-center">{{ getStateName(o.state) }}</td>
-            <td>{{ o.submissionDate | date:'yyyy-MM-dd' }}</td>
-            <td class="text-center">
-              <span class="fa fa-check-circle text-success" *ngIf="o.survey[0] && o.survey[0]['dd'] === '1'"></span>
-              <span class="fa fa-times-circle text-danger" *ngIf="o.survey[0] && o.survey[0]['dd'] === '0'"></span>
-            </td>
-            <td class="text-center"><span class="btn btn-success" [routerLink]="'/admin/clientorderdetails/' + o._id"><i class="fa fa-eye"></i></span></td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="col-md-11">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <table datatable [dtOptions]="dtOptions" class="row-border hover" width="100%">
+            <thead>
+              <tr class='searchRow'>
+                <th><input type="text" placeholder="Client" name="search-client" class="form-control input-border-color" (keyup)="onKey($event, 0)"></th>
+                <th><input type="number" min="0" placeholder="Order Id" name="search-orderId" class="form-control input-border-color" (keyup)="onKey($event, 1)"></th>
+                <!-- <th><input type="text" placeholder="Order Type" name="search-orderType" class="form-control input-border-color" (keyup)="onKey($event, 2)"></th> -->
+                <th>
+                  <select name="search" class="form-control input-border-color" [(ngModel)]="state" (ngModelChange)="changeState(2)">
+                    <option value="">Select State</option>
+                    <option *ngFor='let s of states' [value]="s.id">{{s.name}}</option>
+                  </select>
+                </th>
+                <th>
+                  <div class="form-group input-group" style="width: 150px; text-align: center; margin: auto">
+                    <input class="form-control input-border-color ng-untouched ng-pristine ng-valid" name="vat" placeholder="yyyy-mm-dd" type="text" name="search-date" ngbDatepicker #sd="ngbDatepicker" [(ngModel)]="dateSubmission" (ngModelChange)="changeDate(3)">
+                    <span class="input-group-btn color clickable" (click)="sd.toggle()"><i class="fa fa-calendar"></i></span>
+                  </div>
+                </th>
+                <th><input type="text" placeholder="Redistribution" name="search-redistribution" class="form-control input-border-color" (keyup)="onKey($event, 4)"></th>
+                <th></th>
+              </tr>   
+              <tr>
+                <th>Client</th>
+                <th>Order Id</th>
+                <th>Order Status</th>
+                <th>Submission Date</th>
+                <th>Redistribution</th>
+                <th>Review</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let o of listorders">
+                <td>{{ o.companyName }}</td>
+                <td>{{ o.id }}</td>
+                <td class="text-center">{{ getStateName(o.state) }}</td>
+                <td>{{ o.submissionDate | date:'yyyy-MM-dd' }}</td>
+                <td class="text-center">
+                  <span class="fa fa-check-circle text-success" *ngIf="o.survey[0] && o.survey[0]['dd'] === '1'"></span>
+                  <span class="fa fa-times-circle text-danger" *ngIf="o.survey[0] && o.survey[0]['dd'] === '0'"></span>
+                </td>
+                <td class="text-center"><span class="btn btn-success" [routerLink]="'/admin/clientorderdetails/' + o._id"><i class="fa fa-eye"></i></span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -407,6 +407,33 @@ router.put('/mdpmodif/', (req, res) => {
     // }   
 });
 
+router.post('/list', (req, res) => {
+  let sort = {};
+  for (var i = 0; i < req.body.order.length; i++) {
+    sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
+  }
+  User.count({state: {$ne:''}, state: {$exists:true}}).then((c) => {
+      let search = {};
+      if (req.body.search.value !== '') {
+        search['$or'] = [
+          { firstname: new RegExp(req.body.search.value, "i") },
+          { lastname: new RegExp(req.body.search.value, "i") },
+          { roleName: new RegExp(req.body.search.value, "i") }
+        ];
+      }
+      User.count(search).then((cf) => {
+        User.find(search)
+          .skip(req.body.start)
+          .limit(req.body.length)
+          .sort(sort)
+          .then((users) => {
+              if (!users) { return res.status(404); }
+              return res.status(200).json({recordsFiltered: cf, recordsTotal: c, draw:req.body.draw, listusers: users});
+          });
+      });
+  });
+});
+
 function download(url, dest, cb) {
     // on créé un stream d'écriture qui nous permettra
     // d'écrire au fur et à mesure que les données sont téléchargées

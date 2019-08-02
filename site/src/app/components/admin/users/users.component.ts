@@ -3,13 +3,16 @@ import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { Http, Response } from '@angular/http';
 import { Subject } from 'rxjs/Subject';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
 import 'rxjs/add/operator/map';
 
 import { UserService } from '../../../services/user.service';
 
+import { environment } from '../../../../environments/environment';
+
 class DataTablesResponse {
-  data: any[];
+  listusers: any[];
   draw: number;
   recordsFiltered: number;
   recordsTotal: number;
@@ -30,6 +33,7 @@ export class UsersComponent implements OnInit, AfterViewChecked {
   constructor(
     private http: Http,
     private router: Router,
+    private httpc: HttpClient,
     private userService: UserService
   ) { }
 
@@ -39,18 +43,29 @@ export class UsersComponent implements OnInit, AfterViewChecked {
   ngOnInit() {
     this.message = '';
 
+    const that = this;
     this.dtOptions = {
       pagingType: 'full_numbers',
-      pageLength: 10
+      pageLength: 10,
+      serverSide: true,
+      ajax: (dataTablesParameters: any, callback) => {
+        that.httpc
+        .post<DataTablesResponse>(environment.api + '/user/list', dataTablesParameters, {})
+        .subscribe(res => {
+          that.users = res.listusers;
+          callback({
+            recordsTotal: res.recordsTotal,
+            recordsFiltered: res.recordsFiltered,
+            data: [],
+          });
+        });
+      },
+      columns: [
+        { data: 'lastname' },
+        { data: 'firstname' },
+        { data: 'roleName', orderable: false },
+      ]
     };
-
-    this.userService.getUsers().subscribe(res => {
-      this.users = res.users;
-      // console.dir(res.users);
-      // console.log(typeof res.users['roleName']);
-      // this.users['roleName'] = res.users['roleName'].join(', ');
-      this.dtTrigger.next();
-    });
   }
 
   ngAfterViewChecked() {

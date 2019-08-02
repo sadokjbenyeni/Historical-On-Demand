@@ -18,15 +18,15 @@
       </div>
       <!-- <pre *ngIf="uuu.token==='265a6952787e320c0ba55fefeec470f88f74c9313ed1eb689f3f1988329c5015d06537101ff99806f2c38d8d459ad53b'">{{ exchanges | json }}</pre> -->
       <!-- <pre>{{ user.token | json }}</pre> -->
-      <div class="col-lg-9 col-md-9">
-        <br>
+      <div class="col-lg-9 col-md-9 mg-down-15">
         <button
-          class="text-color btn btn-default"
+          class="text-color btn btn-default add-product"
           title="Add Products"
           alt="Add Products"
           (click)="open(popProducts)"
           [disabled]="addCart.products.length === 0">
-          Add Selected and Continue <i class="fa fa-cart-plus align-right fa-2x text-color" aria-hidden="true"></i>
+          Add Selected and Continue
+          <i class="fa fa-cart-plus fa-2x text-color pull-right" aria-hidden="true"></i>
         </button>
       </div>
       <div class="col-lg-3 col-md-3 filter">
@@ -36,38 +36,39 @@
               <div (click)="reset()">Per Instrument</div>
             </ng-template>
             <ng-template ngbTabContent>
-              <br>
+              <br/>
               <div class="form-group input-group">
-                <div class="form-group input-group">
-                  <span class="input-group-addon">Search all instruments</span>
-                  <input type="text" class="form-control" [(ngModel)]="all" name="all" placeholder="Search all instruments" (keyup.enter)="rSearch()">
-                </div>
-                <div class="form-group input-group">
-                  <span class="input-group-addon">Symbol</span>
-                  <input type="text" class="form-control" [(ngModel)]="symbol" name="symbol" placeholder="Symbol" (keyup.enter)="rSearch()">
-                </div>
-                <div class="form-group input-group">
-                  <span class="input-group-addon">ISIN</span>
-                  <input type="text" class="form-control" [(ngModel)]="isin" name="isin" placeholder="ISIN" (keyup.enter)="rSearch()">
-                </div>
-                <b>Asset Class</b><br>
+                <label for="all" class="input-group-addon">Search all instruments</label>
+                <input type="text" class="form-control" [(ngModel)]="all" name="all" id="all" placeholder="Search all instruments" (keyup.enter)="rSearch()">
+              </div>
+              <div class="form-group input-group">
+                <label for="symbol" class="input-group-addon">Symbol</label>
+                <input type="text" class="form-control" [(ngModel)]="symbol" name="symbol" id="symbol" placeholder="Symbol" (keyup.enter)="rSearch()">
+              </div>
+              <div class="form-group input-group">
+                <label for="isin" class="input-group-addon">ISIN</label>
+                <input type="text" class="form-control" [(ngModel)]="isin" name="isin" id="isin" placeholder="ISIN" (keyup.enter)="rSearch()">
+              </div>
+              <div class="form-group">
+                <label for="newAssetClass">Asset Class</label><br/>
                 <div class="btn btn-info" *ngFor="let ass of assetsSearch">
-                    <span aria-hidden="true" (click)="delAs(ass)" class="text-danger ">&times;</span> {{ ass }}
+                    <span aria-hidden="true" (click)="delAs(ass)" class="text-danger fa fa-times"></span> {{ ass }}
                 </div>
-                <select name="newAssetClass" class="form-control" [(ngModel)]="nassc" (change)="addAsset($event.target.value)">
+                <select name="newAssetClass" id="newAssetClass" class="form-control" [(ngModel)]="nassc" (change)="addAsset($event.target.value)">
                   <option value="" disabled>Selected Assets Class</option>
                   <option *ngFor='let a of assets' [value]="a.id" [disabled]="assetsSearch.indexOf(a.id) !== -1 ">{{a.name}}</option>
                 </select>
-                <br><br><br>
-                <div class="form-group input-group">
-                  <span class="input-group-addon">MIC</span>
-                  <input type="text" class="form-control" [(ngModel)]="mics" name="mics" placeholder="Search MIC" (keyup.enter)="rSearch()">
-                </div>
-                <b>Exchange</b><br>
+              </div>
+              <div class="form-group input-group">
+                <label for="mics" class="input-group-addon">MIC</label>
+                <input type="text" class="form-control" [(ngModel)]="mics" name="mics" id="mics" placeholder="Search MIC" (keyup.enter)="rSearch()">
+              </div>
+              <div class="form-group">
+                <label for="newExchange">Exchange</label><br/>
                 <div class="btn btn-info" *ngFor="let ex of exchangesSearch">
-                  <span aria-hidden="true" (click)="delEx(ex)" class="text-danger ">&times;</span> {{ ex }}
+                  <span aria-hidden="true" (click)="delEx(ex)" class="text-danger fa fa-times"></span> {{ ex }}
                 </div>
-                <select name="newExchange" class="form-control" [(ngModel)]="exchange" (change)="addEchange($event.target.value)">
+                <select name="newExchange" id="newExchange" class="form-control" [(ngModel)]="exchange" (change)="addEchange($event.target.value)">
                   <option value="" disabled>Selected Exchange</option>
                   <option *ngFor='let e of exchanges' [value]="e.id"  [disabled]="exchangesSearch.indexOf(e.id) !== -1 ">{{e.name}}</option>
                 </select>
@@ -84,18 +85,20 @@
               <div (click)="reset()">Per Feed</div>
             </ng-template>
             <ng-template ngbTabContent>
-              <b>Exchange</b><br>
-              <div class="btn btn-info" *ngFor="let ex of exchangesSearch">
-                <span aria-hidden="true" (click)="delEx(ex)" class="text-danger ">&times;</span> {{ ex }}
+              <br/>
+              <div class="form-group">
+                <label for="newExchange">Exchange</label><br>
+                <div class="btn btn-info" *ngFor="let ex of exchangesSearch">
+                  <span aria-hidden="true" (click)="delEx(ex)" class="text-danger fa fa-times"></span> {{ ex }}
+                </div>
+                <select name="newExchange" id="newExchange" class="form-control" [(ngModel)]="exchange" (change)="addEchange($event.target.value)">
+                  <option value="" disabled>Selected Exchange</option>
+                  <option *ngFor='let e of exchanges' [value]="e.id"  [disabled]="exchangesSearch.indexOf(e.id) !== -1 ">{{e.name}}</option>
+                </select>
               </div>
-              <select name="newExchange" class="form-control" [(ngModel)]="exchange" (change)="addEchange($event.target.value)">
-                <option value="" disabled>Selected Exchange</option>
-                <option *ngFor='let e of exchanges' [value]="e.id"  [disabled]="exchangesSearch.indexOf(e.id) !== -1 ">{{e.name}}</option>
-              </select>
-              <br>
               <div class="form-group input-group">
-                <span class="input-group-addon">MIC</span>
-                <input type="text" class="form-control" [(ngModel)]="mics" name="mics" placeholder="Search MIC" (keyup.enter)="rSearch()">
+                <label for="mics" class="input-group-addon">MIC</label>
+                <input type="text" class="form-control" [(ngModel)]="mics" name="mics" id="mics" placeholder="Search MIC" (keyup.enter)="rSearch()">
               </div>
               <p class="text-center">
                 <button class="btn btn-default" (click)="reset()">Reset</button>

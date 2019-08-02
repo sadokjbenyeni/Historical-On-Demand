@@ -1,51 +1,54 @@
-<p *ngIf="message !== ''">
-    <ngb-alert type="success" (close)="message = ''">{{ message }}</ngb-alert>
-  </p>
-  
-  <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0" [closeOthers]="true" (panelChange)="resetMessage()">
-    <ngb-panel [title]="c.name" *ngFor="let c of currencies">
-      <ng-template ngbPanelContent>
-        <div class="form-group input-group rib">
-          <span class="input-group-addon">Minimum amount to accept a payment via Bank Transfer</span>
-          <input type="number" class="form-control" placeholder="2000 €" [(ngModel)]="c.maxrib">
-        </div>
-        <!-- <table class="rib"> -->
-          <!-- <thead> -->
-            <!-- <th>Code Banque</th> -->
-            <!-- <th>Code Guichet</th> -->
-            <!-- <th>Numéro de compte</th> -->
-            <!-- <th>Clé RIB</th> -->
-            <!-- <th>Domiciliation</th> -->
-          <!-- </thead> -->
-          <!-- <tbody> -->
-            <!-- <tr> -->
-              <!-- <td><input type="text" size="5" maxlength="5" placeholder="xxxxx" class="tdrib" [(ngModel)]="c.rib['cb']"></td> -->
-              <!-- <td><input type="text" size="5" maxlength="5" placeholder="xxxxx" class="tdrib" [(ngModel)]="c.rib.cg"></td> -->
-              <!-- <td><input type="text" size="11" maxlength="11" placeholder="xxxxxxxxxxx" class="tdrib" [(ngModel)]="c.rib.nc"></td> -->
-              <!-- <td><input type="text" size="2" maxlength="2" placeholder="xx" class="tdrib" [(ngModel)]="c.rib.cr"></td> -->
-              <!-- <td><input type="text" placeholder="Nom du titulaire" class="tdrib" [(ngModel)]="c.rib.domiciliation"></td> -->
-            <!-- </tr> -->
-          <!-- </tbody> -->
-        <!-- </table> -->
-        <h4>IBAN</h4>
-        <table class="rib">
-          <tr>
-            <td><input type="text" size="4" maxlength="4" placeholder="xxxx" class="tdrib" [(ngModel)]="c.iban.ib1"></td>
-            <td><input type="text" size="4" maxlength="4" placeholder="xxxx" class="tdrib" [(ngModel)]="c.iban.ib2"></td>
-            <td><input type="text" size="4" maxlength="4" placeholder="xxxx" class="tdrib" [(ngModel)]="c.iban.ib3"></td>
-            <td><input type="text" size="4" maxlength="4" placeholder="xxxx" class="tdrib" [(ngModel)]="c.iban.ib4"></td>
-            <td><input type="text" size="4" maxlength="4" placeholder="xxxx" class="tdrib" [(ngModel)]="c.iban.ib5"></td>
-            <td><input type="text" size="4" maxlength="4" placeholder="xxxx" class="tdrib" [(ngModel)]="c.iban.ib6"></td>
-            <td><input type="text" size="3" maxlength="3" placeholder="xxx" class="tdrib" [(ngModel)]="c.iban.ib7"></td>
-          </tr>
-        </table>
-        <h4>BIC</h4>
-        <table class="rib"><tr><td><input type="text" placeholder="8 à 11 caractères" size="11" maxlength="11" class="tdrib" [(ngModel)]="c.bic"></td></tr></table>
-        <br>
-        <div>
-          <button class="color btn btn-default" (click)="saveRib(c)">Save</button>
-        </div>
-        <br>
-      </ng-template>
-    </ngb-panel>
-  </ngb-accordion>
+<div class="panel panel-default">
+  <div class="panel-body">
+    <p *ngIf="message !== ''">
+      <ngb-alert type="success" (close)="message = ''">{{ message }}</ngb-alert>
+    </p>
+    <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0" [closeOthers]="true" (panelChange)="resetMessage()">
+      <ngb-panel [title]="c.name" *ngFor="let c of currencies">
+        <ng-template ngbPanelContent>
+          <div class="form-group input-group rib">
+            <span class="input-group-addon">Minimum amount to accept a payment via Bank Transfer</span>
+            <input type="number" class="form-control" placeholder="2000 €" [(ngModel)]="c.maxrib">
+          </div>
+          <!-- <table class="rib"> -->
+            <!-- <thead> -->
+              <!-- <th>Code Banque</th> -->
+              <!-- <th>Code Guichet</th> -->
+              <!-- <th>Numéro de compte</th> -->
+              <!-- <th>Clé RIB</th> -->
+              <!-- <th>Domiciliation</th> -->
+            <!-- </thead> -->
+            <!-- <tbody> -->
+              <!-- <tr> -->
+                <!-- <td><input type="text" size="5" maxlength="5" placeholder="xxxxx" class="tdrib" [(ngModel)]="c.rib['cb']"></td> -->
+                <!-- <td><input type="text" size="5" maxlength="5" placeholder="xxxxx" class="tdrib" [(ngModel)]="c.rib.cg"></td> -->
+                <!-- <td><input type="text" size="11" maxlength="11" placeholder="xxxxxxxxxxx" class="tdrib" [(ngModel)]="c.rib.nc"></td> -->
+                <!-- <td><input type="text" size="2" maxlength="2" placeholder="xx" class="tdrib" [(ngModel)]="c.rib.cr"></td> -->
+                <!-- <td><input type="text" placeholder="Nom du titulaire" class="tdrib" [(ngModel)]="c.rib.domiciliation"></td> -->
+              <!-- </tr> -->
+            <!-- </tbody> -->
+          <!-- </table> -->
+          <h4>IBAN</h4>
+          <table class="rib">
+            <tr>
+              <td><input type="text" size="4" maxlength="4" placeholder="xxxx" class="tdrib" [(ngModel)]="c.iban.ib1"></td>
+              <td><input type="text" size="4" maxlength="4" placeholder="xxxx" class="tdrib" [(ngModel)]="c.iban.ib2"></td>
+              <td><input type="text" size="4" maxlength="4" placeholder="xxxx" class="tdrib" [(ngModel)]="c.iban.ib3"></td>
+              <td><input type="text" size="4" maxlength="4" placeholder="xxxx" class="tdrib" [(ngModel)]="c.iban.ib4"></td>
+              <td><input type="text" size="4" maxlength="4" placeholder="xxxx" class="tdrib" [(ngModel)]="c.iban.ib5"></td>
+              <td><input type="text" size="4" maxlength="4" placeholder="xxxx" class="tdrib" [(ngModel)]="c.iban.ib6"></td>
+              <td><input type="text" size="3" maxlength="3" placeholder="xxx" class="tdrib" [(ngModel)]="c.iban.ib7"></td>
+            </tr>
+          </table>
+          <h4>BIC</h4>
+          <table class="rib"><tr><td><input type="text" placeholder="8 à 11 caractères" size="11" maxlength="11" class="tdrib" [(ngModel)]="c.bic"></td></tr></table>
+          <br>
+          <div>
+            <button class="color btn btn-default" (click)="saveRib(c)">Save</button>
+          </div>
+          <br>
+        </ng-template>
+      </ngb-panel>
+    </ngb-accordion>
+  </div>
+</div>

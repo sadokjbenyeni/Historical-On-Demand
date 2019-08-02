@@ -10,19 +10,27 @@
 <div class="container page-content">
   <div class="row">
     <app-configuration></app-configuration>
-    <div class="col-md-10">
-      <table class="table">
-          <thead>
-              <th>Pages</th>
-              <th *ngFor="let role of roles">{{ role.name }}</th>
-          </thead>
-          <tbody>
-              <tr *ngFor="let page of pages">
+    <div class="col-md-11">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="table-responsive">
+            <table datatable [dtOptions]="dtOptions" class="row-border hover">
+              <thead>
+                <tr>
+                  <th>Pages</th>
+                  <th *ngFor="let role of roles">{{ role.name }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let page of pages">
                   <td>{{ page }}</td>
                   <td *ngFor="let r of roles"> <input type="checkbox" name="" id="" [checked]="r.pages.indexOf(page) !== -1" ></td>
-              </tr>
-          </tbody>
-      </table>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

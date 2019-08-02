@@ -10,65 +10,79 @@
 <div class="container page-content">
   <div class="row">
     <app-menu-product></app-menu-product>
-    <div class="col-md-10 table-responsive text-center">
-      <ngb-tabset>
-        <ngb-tab title="List of EEA Countries">
-          <ng-template ngbTabContent>
-            <app-com-countries></app-com-countries>
-          </ng-template>
-        </ngb-tab>
-        <ngb-tab title="French VAT Rate">
-          <ng-template ngbTabContent>
-            <app-vat></app-vat>
-          </ng-template>
-        </ngb-tab>
-        <ngb-tab title="Default FX Rates">
-          <ng-template ngbTabContent>
-            <table class="table">
-                <thead>
-                  <th class="text-center">Last Update</th>
-                  <th class="text-center">Currency</th>
-                  <th class="text-center">Exchange Rates (EUR)</th>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let c of currencies">
-                    <td>{{ c.updatedAt | date:'yyyy-MM-dd HH:mm' }}</td>
-                    <td>{{ c.device }} ( {{ c.symbol }} )</td>
-                    <td>{{ c.taux }}</td>
-                  </tr>
-                </tbody>
-              </table>
-          </ng-template>
-        </ngb-tab>
-        <ngb-tab title="File Download Setting">
-          <ng-template ngbTabContent>
-            <app-download-setting></app-download-setting>
-          </ng-template>
-        </ngb-tab>
-        <ngb-tab title="send delay email of the command failed">
-          <ng-template ngbTabContent>
-            <app-mail-failed></app-mail-failed>
-          </ng-template>
-        </ngb-tab>
-        <ngb-tab title="Billing Currencies">
-          <ng-template ngbTabContent>
-          </ng-template>
-        </ngb-tab>
-        <ngb-tab title="ADTV / Pricing Tier bands">
-          <ng-template ngbTabContent>
-            <app-adtv></app-adtv>
-          </ng-template>
-        </ngb-tab>
-        <ngb-tab title="Auto-Validation">
-          <ng-template ngbTabContent>
-            <app-payments></app-payments>
-          </ng-template>
-        </ngb-tab>
-        <!-- <ngb-tab title="Product auto-validation threshold">
-          <ng-template ngbTabContent>
-          </ng-template>
-        </ngb-tab> -->
-      </ngb-tabset>
+    <div class="col-md-11 table-responsive text-center">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <ngb-tabset>
+            <ngb-tab title="List of EEA Countries">
+              <ng-template ngbTabContent>
+                <app-com-countries></app-com-countries>
+              </ng-template>
+            </ngb-tab>
+            <ngb-tab title="French VAT Rate">
+              <ng-template ngbTabContent>
+                <app-vat></app-vat>
+              </ng-template>
+            </ngb-tab>
+            <ngb-tab title="Default FX Rates">
+              <ng-template ngbTabContent>
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <table datatable [dtOptions]="dtOptions" class="table row-border hover">
+                        <thead>
+                          <tr>
+                            <th class="text-center">Last Update</th>
+                            <th class="text-center">Currency</th>
+                            <th class="text-center">Exchange Rates (EUR)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let c of currencies">
+                            <td>{{ c.updatedAt | date:'yyyy-MM-dd HH:mm' }}</td>
+                            <td>{{ c.device }} ( {{ c.symbol }} )</td>
+                            <td>{{ c.taux }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                  </div>
+                </div>
+              </ng-template>
+            </ngb-tab>
+            <ngb-tab title="File Download Setting">
+              <ng-template ngbTabContent>
+                <app-download-setting></app-download-setting>
+              </ng-template>
+            </ngb-tab>
+            <ngb-tab title="send delay email of the command failed">
+              <ng-template ngbTabContent>
+                <app-mail-failed></app-mail-failed>
+              </ng-template>
+            </ngb-tab>
+            <ngb-tab title="Billing Currencies">
+              <ng-template ngbTabContent>
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                  </div>
+                </div>
+              </ng-template>
+            </ngb-tab>
+            <ngb-tab title="ADTV / Pricing Tier bands">
+              <ng-template ngbTabContent>
+                <app-adtv></app-adtv>
+              </ng-template>
+            </ngb-tab>
+            <ngb-tab title="Auto-Validation">
+              <ng-template ngbTabContent>
+                <app-payments></app-payments>
+              </ng-template>
+            </ngb-tab>
+            <!-- <ngb-tab title="Product auto-validation threshold">
+              <ng-template ngbTabContent>
+              </ng-template>
+            </ngb-tab> -->
+          </ngb-tabset>
+        </div>
+      </div>
     </div>
   </div>
 </div>

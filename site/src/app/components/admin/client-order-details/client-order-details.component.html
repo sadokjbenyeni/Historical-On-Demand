@@ -4,14 +4,14 @@
     <ol class="breadcrumb custom-breadcrumb">
       <li class="active">Administration</li>
       <li class="active">Client Orders</li>
-      <li class="active">Order : {{ id }}</li>
+      <li class="active">Order Details : {{ id }}</li>
     </ol>
   </div>
 </div>
 <div class="container page-content">
   <div class="row">
       <app-configuration></app-configuration>
-    <div class="col-md-10">
+    <div class="col-md-11">
       <div class="table-responsive">
         <div class="panel panel-primary" *ngIf="message">
           <div class="panel-heading">
@@ -79,7 +79,7 @@
                 <td *ngIf="(c.backfill_fee || c.ongoing_fee)">{{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }} {{ symbols[currency] }}</td>
                 <td>{{ c.status }}</td>
                 <!-- <td><button class="btn btn-success" (click)="retry(c)">Retry</button></td> -->
-                <td><button class="btn btn-success" (click)="openModal(retrymodal);" *ngIf="c.onetime === 1">Retry</button></td>
+                <td><button class="btn btn-success fa" (click)="openModal(retrymodal);" *ngIf="c.onetime === 1">Retry</button></td>
               </tr>
               <tr *ngIf="cart?.length === 0">
                 <td colspan="11" class="no-data-available">Empty !</td>
@@ -134,11 +134,11 @@
           </div>
           <div class="table-responsive text-center">
             <div class="btn-action">
-              <span class="btn btn-success fa fa-handshake-o" *ngIf="verifState()" (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
+              <span class="btn btn-success fa fa-handshake" *ngIf="verifState()" (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
             </div>
           </div>
         </div>
-        <span class="btn btn-danger fa fa-power-off" [routerLink]='["/admin/clientorder"]'> Close</span>
+        <div class="text-center"><span class="btn btn-danger fa fa-power-off" [routerLink]='["/admin/clientorder"]'> Close</span></div>
       </div>
     </div>
   </div>

@@ -184,7 +184,7 @@ export class CaddiesComponent implements OnInit {
       { name: "Order Review", icon: "fa fa-eye", link:'/order/review', active:this.reviewactive },
       { name: "Licensing", icon: "fa fa-briefcase", link:'/order/licensing', active:this.licensingactive },
       { name: "Billing", icon: "fa fa-clipboard", link:'/order/billing', active:this.billingactive },
-      { name: "Order Confirmation", icon: "fa fa-handshake-o", link:'/order/orderconfirm', active:this.confirmactive },
+      { name: "Order Confirmation", icon: "fa fa-handshake", link:'/order/orderconfirm', active:this.confirmactive },
       { name: "Payment", icon: "fa fa-credit-card", link:'/order/payment', active:this.paymentactive }
     ];
   }

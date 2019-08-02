@@ -56,7 +56,8 @@ export class UserDetailComponent implements OnInit {
   }
   
   addRole(e) {
-    this.user['roleName'].push(e);
+    if( e )
+      this.user['roleName'].push(e);
   }
   delRole(e) {
     this.user['roleName'].splice(this.user['roleName'].indexOf(e), 1);

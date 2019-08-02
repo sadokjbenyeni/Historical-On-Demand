@@ -11,12 +11,22 @@ import { CurrencyService } from '../../../services/currency.service';
 export class ConfigpComponent implements OnInit {
 
   currencies: any;
+  dtOptions: DataTables.Settings = {};
+
   constructor(
     private currencyService: CurrencyService
   ) { }
 
   ngOnInit() {
     this.getListCurrency();
+    this.dtOptions = {
+      searching: false,
+      info: false,
+      ordering: false,
+      processing: false,
+      paging: false,
+      lengthChange: false
+    };
   }
 
   getListCurrency(){

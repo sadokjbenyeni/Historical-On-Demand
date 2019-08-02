@@ -4,7 +4,7 @@
     <ol class="breadcrumb custom-breadcrumb">
       <li class="active">Product</li>
       <li class="active">Client Orders</li>
-      <li class="active">Order : {{ id }}</li>
+      <li class="active">Order Details : {{ id }}</li>
     </ol>
   </div>
 </div>
@@ -79,47 +79,45 @@
             </tbody>
           </table>
         </div>
-        <div class="panel panel-primary">
-            <div class="table-responsive container">
-              <div class="col-md-9"></div>
-              <div class="col-md-3">
-                <table class="border-color-sum">
-                  <tr>
-                    <td>Exchange Fees</td>
-                    <td>{{ totalFees | number:'1.2-2' }} {{ symbols[currency] }}</td>
-                  </tr>
-                  <tr>
-                    <td>Order Amount</td>
-                    <td>{{ totalHT | number:'1.2-2' }} {{symbols[currency] }}</td>
-                  </tr>
-                  <tr>
-                    <td>Discount (%)</td>
-                    <td *ngIf="verifState()"><input type="number" [(ngModel)]="discount" (change)="verifDiscount()" min="0" max="100" style="width:100%"></td>
-                    <td *ngIf="!verifState()">{{ discount }}</td>
-                  </tr>
-                  <tr>
-                    <td>VAT ({{vat*100}}%)</td>
-                    <td>{{ totalVat | number:'1.2-2' }} {{ symbols[currency] }}</td>
-                  </tr>
-                  <tr>
-                    <td>TOTAL Order Amount</td>
-                    <!-- <td>{{ (vat * (cmd?.totalHT + cmd?.totalExchangeFees)) + (cmd?.totalHT + cmd?.totalExchangeFees) | number:'1.2-2' }} {{ symbol }}</td> -->
-                    <td>{{ totalTTC | number:'1.2-2' }} {{symbols[currency] }}</td>
-                  </tr>
-                </table>
-              </div>
-            </div>
-            <div class="table-responsive text-center">
-              <div class="btn-action">
-                <span class="btn btn-info fa fa-save" *ngIf="existSubscribe && verifState()" (click)="openModal(content); actions('Confirm Engagement Period Modification')"> Update Engagement Period</span>
-                <span class="btn btn-info fa fa-save" *ngIf="verifState()" (click)="openModal(content); actions('Confirm Discount Application')"> Apply Discount</span>
-                <span class="btn btn-success fa fa-handshake-o" *ngIf="verifStatePVP()" (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
-                <span class="btn btn-danger fa fa-power-off" [routerLink]='["/product/orders"]'> Close</span>
-                <span class="btn btn-danger fa fa-times" *ngIf="verifStatePVP()" (click)="openModal(content); actions('Confirm Client Order Rejection')"> Reject</span>
-                <span class="btn btn-warning fa fa-trash" *ngIf="verifStateForCancel()" (click)="openModal(content); actions('Confirm Client Order Cancelation')"> Cancel Order</span>
-              </div>
-            </div>
+        <div class="table-responsive container">
+          <div class="col-md-9"></div>
+          <div class="col-md-3">
+            <table class="border-color-sum">
+              <tr>
+                <td>Exchange Fees</td>
+                <td>{{ totalFees | number:'1.2-2' }} {{ symbols[currency] }}</td>
+              </tr>
+              <tr>
+                <td>Order Amount</td>
+                <td>{{ totalHT | number:'1.2-2' }} {{symbols[currency] }}</td>
+              </tr>
+              <tr>
+                <td>Discount (%)</td>
+                <td *ngIf="verifState()"><input type="number" [(ngModel)]="discount" (change)="verifDiscount()" min="0" max="100" style="width:100%"></td>
+                <td *ngIf="!verifState()">{{ discount }}</td>
+              </tr>
+              <tr>
+                <td>VAT ({{vat*100}}%)</td>
+                <td>{{ totalVat | number:'1.2-2' }} {{ symbols[currency] }}</td>
+              </tr>
+              <tr>
+                <td>TOTAL Order Amount</td>
+                <!-- <td>{{ (vat * (cmd?.totalHT + cmd?.totalExchangeFees)) + (cmd?.totalHT + cmd?.totalExchangeFees) | number:'1.2-2' }} {{ symbol }}</td> -->
+                <td>{{ totalTTC | number:'1.2-2' }} {{symbols[currency] }}</td>
+              </tr>
+            </table>
           </div>
+        </div>
+        <div class="table-responsive text-center">
+          <div class="btn-action">
+            <span class="btn btn-info fa fa-save" *ngIf="existSubscribe && verifState()" (click)="openModal(content); actions('Confirm Engagement Period Modification')"> Update Engagement Period</span>
+            <span class="btn btn-info fa fa-save" *ngIf="verifState()" (click)="openModal(content); actions('Confirm Discount Application')"> Apply Discount</span>
+            <span class="btn btn-success fa fa-handshake" *ngIf="verifStatePVP()" (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
+            <span class="btn btn-danger fa fa-power-off" [routerLink]='["/product/orders"]'> Close</span>
+            <span class="btn btn-danger fa fa-times" *ngIf="verifStatePVP()" (click)="openModal(content); actions('Confirm Client Order Rejection')"> Reject</span>
+            <span class="btn btn-warning fa fa-trash" *ngIf="verifStateForCancel()" (click)="openModal(content); actions('Confirm Client Order Cancelation')"> Cancel Order</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

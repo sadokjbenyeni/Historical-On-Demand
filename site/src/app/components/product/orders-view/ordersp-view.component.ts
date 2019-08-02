@@ -183,7 +183,7 @@ export class OrderspViewComponent implements OnInit {
   confirm(){
     if(this.action === 'Confirm Engagement Period Modification') {
       this.orderService.updtCaddy({ idCmd: this.idCmd, cart : this.cart, ht: this.ht, action: "periodupdt" }).subscribe(res=>{
-        this.message = 'apply period';
+        this.message = 'Period Applied';
       });
     }
     if(this.action === 'Confirm Discount Application') {

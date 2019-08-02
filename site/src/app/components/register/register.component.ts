@@ -66,7 +66,7 @@ export class RegisterComponent implements OnInit {
     this.termspdf = '/files/historical_data_tc.pdf';
     this.page = this.router.url;
     this.key = '6LcQ80cUAAAAANfU8xFYxntN36rEdS5X5H7bjv3_'; //key reCaptcha
-    this.pnl = 'panel panel-primary';
+    this.pnl = ''; //'panel panel-primary';
     this.confirmation = '';
     this.isValidPwd = false;
     this.message = '';

@@ -65,6 +65,7 @@ export class OrderspComponent implements OnInit {
       pageLength: 10,
       serverSide: true,
       processing: true,
+      order: [[ 1, 'desc' ]],
       ajax: (dataTablesParameters: any, callback) => {
         dataTablesParameters.state = this.state;
         that.httpc
@@ -112,7 +113,7 @@ export class OrderspComponent implements OnInit {
 
   changeDate(col){
     let val = "";
-    if(this.dateSubmission){
+    if(this.dateSubmission && this.dateSubmission['year']){
       val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + this.dateSubmission['day']
       val += '|';
       val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + (this.dateSubmission['day']+1);

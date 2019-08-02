@@ -10,12 +10,13 @@
 <div class="container page-content">
     <!-- Listes des utilisateurs -->
     <div class="row">
-      <div class="col-lg-12">
+      <app-configuration></app-configuration>
+      <div class="col-lg-11">
         <!-- Advanced Tables -->
         <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4><div class="pull-left alert">{{message}}</div></h4>
-          </div>
+          <!-- <div class="panel-heading"> -->
+            <!-- <h4><div class="pull-left alert">{{message}}</div></h4> -->
+          <!-- </div> -->
           <div class="panel-body">
             <div class="col-lg-12">
               <form>
@@ -33,7 +34,7 @@
                   <div class="form-group input-group">
                     <span class="input-group-addon">Roles</span>
                     <div class="btn btn-info" *ngFor="let r of user['roleName']">
-                      <span aria-hidden="true" (click)="delRole(r)" class="text-danger ">&times;</span> {{ r }}
+                      <span aria-hidden="true" (click)="delRole(r)" class="text-danger fa fa-times"></span> {{ r }}
                     </div>
                     <select name="newRole" class="form-control" [(ngModel)]="role" (change)="addRole($event.target.value)" required>
                       <option value="">Selected Role</option>
@@ -44,12 +45,12 @@
               </form>
             </div>
           </div>
-          <div class="panel-footer">
-            <button (click)="save()">Update</button>
-            <button routerLink="/admin/users">Cancel</button>
-          </div>
         </div>
       <!--End Advanced Tables -->
+        <div class="text-center">
+          <button class="btn btn-success fa fa-save" (click)="save()"> Update</button>
+          <button class="btn btn-danger fa fa-power-off" routerLink="/admin/users"> Cancel</button>
+        </div>
       </div>
     </div>
     <!-- End listes des utilisateurs -->

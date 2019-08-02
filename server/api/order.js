@@ -855,6 +855,30 @@ router.post('/list', (req, res) => {
   });
 });
 
+router.post('/history', (req, res) => {
+  let sort = {};
+  for (var i = 0; i < req.body.order.length; i++) {
+    sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
+  }
+  Order.count({idUser: req.body.idUser}).then((c) => {
+      let search = {};
+      if(req.body.idUser){
+        search['idUser'] = req.body.idUser;
+      }
+      Order.count(search).then((cf) => {
+        Order.find(search)
+          .skip(req.body.start)
+          .limit(req.body.length)
+          .collation({ locale: "en" })
+          .sort(sort)
+          .then((orders) => {
+              if (!orders) { return res.status(404); }
+              return res.status(200).json({recordsFiltered: cf, recordsTotal: c, draw:req.body.draw, listorders: orders});
+          });
+      });
+  });
+});
+
 router.post('/caddies', (req, res) => {
     Order.find({idUser: req.body.id, state: { $in: ['CART', 'PLI', 'PBI', 'PSC'] }})
     .then((cmd)=>{

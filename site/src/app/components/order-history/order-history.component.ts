@@ -11,6 +11,14 @@ import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 
 import * as crypto from 'crypto-js';
 
+                                                        
+
+class DataTablesResponse {
+  listorders: any[];
+  draw: number;
+  recordsFiltered: number;
+  recordsTotal: number;
+}
 
 @Component({
   selector: 'app-order-history',
@@ -54,6 +62,7 @@ export class OrderHistoryComponent implements OnInit {
   job: any;
   country: any;
   datasetsLink: { L1: string; L1TRADEONLY: string; L2: string; };
+  dtOptions: DataTables.Settings = {};
 
   constructor(
     private http: HttpClient,
@@ -90,9 +99,40 @@ export class OrderHistoryComponent implements OnInit {
     // };
     this.idUser = JSON.parse(sessionStorage.getItem('user'))._id;
     this.token = JSON.parse(sessionStorage.getItem('user')).token;
-    this.getCmd();
+    this.getCurrencies();
     this.list = true;
     this.viewdetail = false;
+    
+    const that = this;
+    this.dtOptions = {
+      pagingType: 'full_numbers',
+      pageLength: 10,
+      serverSide: true,
+      processing: true,
+      searching: false,
+      order: [[ 0, 'desc' ]],
+      ajax: (dataTablesParameters: any, callback) => {
+        dataTablesParameters.idUser = this.idUser;
+        this.http
+        .post<DataTablesResponse>(environment.api + '/order/history', dataTablesParameters, {})
+        .subscribe(res => {
+          this.cmd = res.listorders;
+          callback({
+            recordsTotal: res.recordsTotal,
+            recordsFiltered: res.recordsFiltered,
+            data: [],
+          });
+        });
+      },
+      columns: [ 
+        { data: 'id' },
+        { data: 'submissionDate' },
+        { data: 'state' },
+        { data: 'total' },
+        { data: 'invoice' },
+        { data: 'details', orderable: false },
+      ]
+    };
   }
 
   filterUser(link) {
@@ -118,7 +158,7 @@ export class OrderHistoryComponent implements OnInit {
     this.details = [];
     this.list = false;
     this.viewdetail = true;
-    this.title = 'Order : ' + c.id;
+    this.title = 'Order Details : ' + c.id;
     this.idCmd = c.id_cmd;
     this.invoice = c.idCommande;
     this.state = c.state;
@@ -225,20 +265,14 @@ export class OrderHistoryComponent implements OnInit {
     this.details = [];
   }
 
-  getCmd() {
+  getCurrencies() {
     this.currencyService.getCurrencies().subscribe(r=>{
       this.symbols = [];
       r.currencies.forEach(s => {
         this.symbols[s.id] = s.symbol;
       });
-      this.orderService.postOrder(this.idUser, -1).subscribe(resp => {
-        this.cmd = [];
-        if(resp.cmd.length > 0){
-          this.cmd = resp.cmd;
-        }
-      });
     });
-  }
+ }
   
   encrypt(link) {
     return crypto.AES.encrypt(link, this.phrase);

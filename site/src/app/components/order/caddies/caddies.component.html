@@ -160,26 +160,26 @@
                   </div>
                   <div class="form-group input-group">
                     <span class="input-group-addon">Address*</span>
-                    <input type="text" name="addressBilling" class="form-control" placeholder="Billing Address" [(ngModel)]="user.addressBilling" ngModel #newaddress="ngModel" required>
                     <show-errors [control]="newaddress"></show-errors>
+                    <input type="text" name="addressBilling" class="form-control" placeholder="Billing Address" [(ngModel)]="user.addressBilling" ngModel #newaddress="ngModel" required>
                   </div>
                   <div class="form-group input-group">
                     <span class="input-group-addon">City*</span>
-                    <input type="text" name="cityBilling" class="form-control" placeholder="Billing City" [(ngModel)]="user.cityBilling" ngModel #newcity="ngModel" required>
                     <show-errors [control]="newcity"></show-errors>
+                    <input type="text" name="cityBilling" class="form-control" placeholder="Billing City" [(ngModel)]="user.cityBilling" ngModel #newcity="ngModel" required>
                   </div>
                   <div class="form-group input-group">
                     <span class="input-group-addon">Postal Code*</span>
-                    <input type="text" name="postalCodeBilling" class="form-control" placeholder="Billing Postal Code" [(ngModel)]="user.postalCodeBilling"  ngModel #newcp="ngModel" required>
                     <show-errors [control]="newcp"></show-errors>
+                    <input type="text" name="postalCodeBilling" class="form-control" placeholder="Billing Postal Code" [(ngModel)]="user.postalCodeBilling"  ngModel #newcp="ngModel" required>
                   </div>
                   <div class="form-group input-group">
                     <span class="input-group-addon">Country*</span>
+                    <show-errors [control]="newcountry"></show-errors>
                     <select name="countryBilling" class="form-control" [(ngModel)]="user.countryBilling" ngModel #newcountry="ngModel" required>
                       <option value="">Select country</option>
                       <option *ngFor='let c of country' [value]="c.id">{{c.name}}</option>
                     </select>
-                    <show-errors [control]="newcountry"></show-errors>
                   </div>
                   <label class="checkbox text-color">
                     <input type="checkbox" name="sameaddress" (change)="sameAddress()"  [(ngModel)]="user.sameAddress"> Use contact address as billing address ?
@@ -248,7 +248,7 @@
               <h4>BIC</h4>
               <table class="rib"><tr><td>{{ rib.bic }}</td></tr></table>
               <br><br>
-              <H4 class="text-danger">Please do not forget to include, as a payment reference, your Order ID "HoD-{{ id }}" with your bank transfer to QuantHouse</H4>
+              <h4 class="text-danger">Please do not forget to include, as a payment reference, your Order ID "HoD-{{ id }}" with your bank transfer to QuantHouse</h4>
             </fieldset>
           </div>
           <div *ngIf="payment === 'creditcard'">
