@@ -16,7 +16,7 @@ import { RoleService } from '../../../services/role.service';
 export class RoleComponent implements OnInit {
   roles: Array<object>;
   pages: Array<string>;
-  dtOptions: DataTables.Settings = {};
+  // dtOptions: DataTables.Settings = {};
   
   constructor(
     private http: Http,
@@ -30,6 +30,7 @@ export class RoleComponent implements OnInit {
     this.getRoles();
     this.getPages();
     
+    /*
     this.dtOptions = {
       searching: false,
       info: false,
@@ -37,7 +38,7 @@ export class RoleComponent implements OnInit {
       processing: false,
       paging: false,
       lengthChange: false
-    };
+    }; */
   }
 
   getRoles() {
