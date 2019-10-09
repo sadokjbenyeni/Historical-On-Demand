@@ -676,6 +676,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       subscription: 0,
       products: []
     };
+    this.avaibility = false;
     // this.btnFocus();
   };
 

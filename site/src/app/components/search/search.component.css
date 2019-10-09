@@ -43,6 +43,7 @@ ngb-datepicker {
   width: 620px;
   left: 40%;
   background: white;
+  z-index: 1040;
 }
 .datemodal {
   display: inline-table;
