@@ -156,7 +156,7 @@
                       <b class="unvalid" *ngIf="!checkv && user.vat !==''">X</b>
                     </span>
                     <input type="text" name="newvat" [class]="loadvat" placeholder="VAT Number" (change)="checkVat()" [(ngModel)]="user.vat" #newvat="ngModel" ngModel>
-                    <div class="alert alert-danger" *ngIf="!checkv && user.vat && loadvat === 'form-control' "><span>You have entered an invalid VAT Number</span></div>
+                    <div class="alert alert-danger" *ngIf="!checkv && user.vat !=='' && loadvat === 'form-control' "><span>You have entered an invalid VAT Number</span></div>
                   </div>
                   <div class="form-group input-group">
                     <span class="input-group-addon">Address*</span>
@@ -190,9 +190,11 @@
                     <div class="col-lg-6 panel panel-primary">
                       <h4>Please select your payment method</h4>
                       <label class="radio" *ngFor="let payment of payments">
-                        <input type="radio" name="payment" [value]="payment.id" [(ngModel)]="user.payment" [disabled]="this.minRib && payment.id === 'banktransfer'"> {{ payment.name }} 
-                        <small class="text-color" *ngIf="this.minRib && payment.id === 'banktransfer'">(Amount < {{currencyObj['maxrib']}} {{currencyObj['symbol']}})</small>
+                        <input type="radio" name="payment" [value]="payment.id" [(ngModel)]="user.payment"> {{ payment.name }} 
+                        <!-- <input type="radio" name="payment" [value]="payment.id" [(ngModel)]="user.payment" [disabled]="this.minRib && payment.id === 'banktransfer'"> {{ payment.name }}  -->
+                        <!-- <small class="text-color" *ngIf="this.minRib && payment.id === 'banktransfer'">(Amount < {{currencyObj['maxrib']}} {{currencyObj['symbol']}})</small> -->
                       </label>
+                      <label class="checkbox text-color small">Credit Card is currently not supported as a payment method</label>
                       <label class="checkbox text-color" *ngIf="user.payment != payment">
                         <input type="checkbox" name="paymentchange" [(ngModel)]="paymentchange"> Select as default payment method ?
                       </label>
@@ -251,7 +253,7 @@
               <h4 class="text-danger">Please do not forget to include, as a payment reference, your Order ID "HoD-{{ id }}" with your bank transfer to QuantHouse</h4>
             </fieldset>
           </div>
-          <div *ngIf="payment === 'creditcard'">
+          <div *ngIf="payment === 'creditcard' && false">
             <fieldset>
               <legend>Payment</legend>
               <div id="paymentcard"></div>
@@ -302,5 +304,9 @@
   </div>
 </div>
 <pre *ngIf="user['token']==='265a6952787e320c0ba55fefeec470f88f74c9313ed1eb689f3f1988329c5015d06537101ff99806f2c38d8d459ad53b'">
+  {{ checkv }}
+  {{ user.vat }}
+  {{ loadvat }}
   {{ cart | json }}
+  {{ user | json }}
 </pre>

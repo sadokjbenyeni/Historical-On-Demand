@@ -152,7 +152,7 @@ router.post('/verifFailed', (req,res)=>{
     cmd.forEach((c) => {
       sendMail('/api/mail/orderFailed', 
       {
-        idCmd: c.id_cmd.spli("-")[0],
+        idCmd: c.id_cmd.split("-")[0],
         email: c.email
       });
     });
@@ -186,7 +186,7 @@ router.put('/torun', (req, res) => {
   )
   .then((p)=>{
     if(p.nModified === 1){
-      updatePool(req.body.id_cmd, req.body.status);
+      updatePool(req.body.id_cmd, req.body.status, req.body.begin_date);
       res.status(201).json({"ok":"ok"});
     }
     else {
@@ -249,6 +249,13 @@ router.put('/finish', (req, res) => {
       if(recup.status === "failed") {
         updt = { 'products.$.status' : recup.status, "state": recup.status };
       } else if(recup.status === "active") {
+        if(recup.mailActive) {
+          sendMail('/api/mail/orderExecuted', 
+          {
+            idCmd: recup.id,
+            email: recup.email
+          });
+        }
         updt = { 'products.$.status' : recup.status, "state": recup.status, "mailActive": false };
       } else {
         updt = { 'products.$.status' : recup.status };
@@ -268,6 +275,7 @@ router.put('/finish', (req, res) => {
             "products.$.logs" : {
               referer: 'job',
               ref: req.body.id_cmd,
+              extract: req.body.link,
               status: recup.req.status,
               state_description: recup.req.state_description,
               log: recup.req.log,
@@ -277,19 +285,25 @@ router.put('/finish', (req, res) => {
         }
       )
       .then(()=>{
+        let lks = "";
         if(recup.req.status === 'active') {
           // if(recup.onetime === 1 || (recup.subscription === 1 && req.body.id_cmd.split('|')[1] === 0)) {
-          if(recup.mailActive) {
-            sendMail('/api/mail/orderExecuted', 
-            {
-              idCmd: recup.id,
-              email: recup.email
-            });
+          // if(recup.mailActive) {
+          //   sendMail('/api/mail/orderExecuted', 
+          //   {
+          //     idCmd: recup.id,
+          //     email: recup.email
+          //   });
+          // }
+          if(recup.subscription == 1) {
+            lks = recup.req.link[0].link.split("|")[0].split("_")[0];
+            removePool(recup.req.id_cmd, lks, recup.onetime, recup.subscription);
+          } else {
+            removePool(recup.req.id_cmd, lks, recup.onetime, recup.subscription);
           }
-          removePool(recup.req.id_cmd);
         }
         if(recup.req.status === 'failed'&& recup.onetime === 1) {
-          updatePool(req.body.id_cmd, recup.req.status);
+          updatePool(req.body.id_cmd, recup.req.status, req.body.begin_date);
           User.find({roleName:"Product"},{email:true, _id:false})
           .then((users)=>{
             users.forEach(user => {
@@ -305,7 +319,7 @@ router.put('/finish', (req, res) => {
           });
         }
         if(recup.req.status === 'failed' && recup.onetime === 0) {
-          removePool(recup.req.id_cmd);
+          removePool(recup.req.id_cmd, lks, recup.onetime, recup.subscription);
         }
         res.status(201).json({"ok":"ok"});
       })
@@ -343,12 +357,16 @@ addPool = (data => {
   });
 });
 
-updatePool = ((id, status) => {
-  Pool.updateOne({id_cmd: id},{ $set: { status: status } }).then(p=>{ return true;});
+updatePool = ((id, status, date) => {
+  Pool.updateOne({id_cmd: id, begin_date: date},{ $set: { status: status } }).then(p=>{ return true;});
 });
 
-removePool = (id => {
-  Pool.remove({id_cmd: id}).then(p=>{ return true;});
+removePool = ((id, lks, onetime, subscription) => {
+  if(subscription == 1){
+    Pool.remove({id_cmd: id, begin_date: lks}).then(p=>{ return true;});  
+  } else {
+    Pool.remove({id_cmd: id}).then(p=>{ return true;});
+  }
 });
 
 Date.prototype.previousDay = function() {

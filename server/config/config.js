@@ -5,7 +5,7 @@ const User = mongoose.model('User');
 exports.rtconfig = () => { const urls = [ "192.168.10.10" ]; }
 
 // Domain of site
-exports.domain = () => { return "http://hod-lab.quanthouse.com"; }
+exports.domain = () => { return "https://hod-lab.quanthouse.com"; }
 
 // IPs ElastcSearch
 exports.hostsES = () => { return ['10.0.10.100:9200', '10.0.10.101:9200', '10.0.10.102:9200']; }

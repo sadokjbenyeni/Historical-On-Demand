@@ -11,18 +11,21 @@ const Config = mongoose.model('Config');
 const Order = mongoose.model('Order');
 const User = mongoose.model('User');
 const Currency = mongoose.model('Currency');
+const Countrie = mongoose.model('Countrie');
 
 const config = require('../config/config.js');
 const URLS = config.config();
 const DOMAIN = config.domain();
 
 router.post('/', (req, res) => {
-    Order.findOne({id: 227 }).then( cmd =>{
-      User.findOne({_id: cmd.idUser}, {id: true}).then(u => {
-        Currency.findOne({id: cmd.currency}).then(c => {
-          pdf(cmd, c, u);
-          // testoo(cmd);
-          return res.status(200).json(cmd.idCommande);
+    Order.findOne({id: req.body.id }).then( cmd =>{
+      User.findOne({_id: cmd.idUser}, {id: true, vat: true, countryBilling: true, checkvat: true}).then(u => {
+        Countrie.findOne({id: cmd.countryBilling}).then(cnt => {
+          Currency.findOne({id: cmd.currency}).then(c => {
+            pdf(cmd, c, u, cnt);
+            testoo(u);
+            return res.status(200).json(cmd.idCommande);
+          });
         });
       });
     });
@@ -33,7 +36,7 @@ testoo = function(c){
 }
 
 /*** Fonctions PDF */
-pdf = function  (cmd, currency, user){
+pdf = function  (cmd, currency, user, country){
   let fonts = {
     Roboto: {
       normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Regular.ttf'], 'base64'),
@@ -93,7 +96,6 @@ pdf = function  (cmd, currency, user){
   };
   let content = [];
   let defaultStyle = {};
-
   // Header
   content.push(
     adresse(cmd.idCommande, user.id, cmd.vat, new Date(), cmd.logsPayment[0].date.yyyymmdd(), cmd.id, currency.name),
@@ -123,7 +125,7 @@ pdf = function  (cmd, currency, user){
         headerRows: 0,
         widths: [ 200, 30, 65, 65, 100, 50 ],
         margin: [0,0,0,0],
-        body: getOrders(cmd.products, cmd.vatValue, style, cmd.currency, cmd.currencyTxUsd, cmd.currencyTx)
+        body: getOrders(cmd.products, cmd.vatValue, style, cmd.currency, cmd.currencyTxUsd, cmd.currencyTx, country, user)
       },
       layout: { defaultBorder: false }
     }
@@ -136,7 +138,7 @@ pdf = function  (cmd, currency, user){
   invoice['content'] = content;
   let totalHT = priceCurrency(cmd.totalHT, cmd.currency, cmd.currencyTxUsd, cmd.currencyTx)
   let total = priceCurrency(cmd.total, cmd.currency, cmd.currencyTxUsd, cmd.currencyTx)
-  invoice['footer'] = footer(totalHT, (totalHT * cmd.vatValue), total, currency, cmd.reason);
+  invoice['footer'] = footer(totalHT, (totalHT * cmd.vatValue), total, currency, cmd.reason, cmd.vat, country, cmd.vatValide, user);
 
 
   //Création du document PDF
@@ -153,7 +155,12 @@ qhAddress = function (address, cp, city, country, sasu, rcs, vat, invoiceBilling
   };
 }
 
-getOrders = function (orders, vatValue, styl, currency, txUsd, tx) {
+getOrders = function (orders, vatValue, styl, currency, txUsd, tx, country) {
+  let pervat = 0;
+  if(country.ue === "1") {
+    pervat = vatValue * 100;
+  }
+
   let listOrders = [];
   let border = [false, false, false, true];
   let typeOrder = "";
@@ -193,7 +200,8 @@ getOrders = function (orders, vatValue, styl, currency, txUsd, tx) {
         { border: border, text: dateDebut, margin: [0,5,0,5], alignment: 'center', fontSize: 10 }, 
         { border: border, text: dateFin, margin: [0,5,0,5], alignment: 'center', fontSize: 10 }, 
         { border: border, text: priceCurrency(order.ht, currency, txUsd, tx), margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
-        { border: border, text: (priceCurrency(order.ht, currency, txUsd, tx) * vatValue).toFixed(2), margin: [0,5,0,5], bold: true, alignment: 'center', fontSize: 10 } 
+        { border: border, text: pervat + '%', margin: [0,5,0,5], bold: true, alignment: 'center', fontSize: 10 } 
+        // { border: border, text: (priceCurrency(order.ht, currency, txUsd, tx) * vatValue).toFixed(2), margin: [0,5,0,5], bold: true, alignment: 'center', fontSize: 10 } 
       ]);
     });
   }
@@ -207,11 +215,11 @@ adresse = function(numInvoice, numAccount, idTax, invoiceDate, paymentDate, numC
       [{ image: logo(), width: 200, height: 60 },
       qhAddress(
         '86 boulevard Haussmann',
-        '75009',
+        '75008',
         'PARIS',
         'FRANCE',
-        'SASU au capital de 48 782 296 €',
-        'RCS Paris 44970324800053',
+        'SASU au capital de 14.108.818 €',
+        'RCS Paris 449703248',
         'VAT : FR00449703248'
         )],
       { text:'', width: 105 },
@@ -336,7 +344,21 @@ head = function(numInvoice, numAccount, idTax, invoiceDate, paymentDate, numCmd,
   };
 }
 
-footer = function(totalHt, totalVat, totalTTC, currency, message){
+footer = function(totalHt, totalVat, totalTTC, currency, message, vat, country, vatok, user){
+  console.log(country);
+  let mentionvat = "";
+  // Facture avec TVA : (client en France ou client en EU sans n° de TVA)
+  if(country.id === 'FR' || (country.ue === '1' && !vatok)) {
+    mentionvat = "VAT payment based on invoicing";
+  }
+  // Facture sans TVA et client en EU avec n° de TVA valide
+  if(country.ue === '1' && vatok) {
+    mentionvat = "Reverse-charge";
+  }
+  //Facture sans TVA, client hors EU
+  if(country.ue === '0') {
+    mentionvat = "Outside the territorial scope – Article 44 of Directive 2006/112/EC";
+  }
   return {
     table: {
       alignment: 'center',
@@ -354,7 +376,7 @@ footer = function(totalHt, totalVat, totalTTC, currency, message){
                     { text: 'For enquiries contact :', fontSize: 8 },
                     contact('+ 33 1 73 02 32 15', 'accounts-receivable@quanthouse.com'),
                     { text:'\n', fontSize: 10 },
-                    { text: 'Reverse-charge', fontSize: 8 },
+                    { text: mentionvat, fontSize: 8 },
                     { text:'\n', fontSize: 16 },
                     {
                       widths: ['100%'],
@@ -374,7 +396,7 @@ footer = function(totalHt, totalVat, totalTTC, currency, message){
               body: [ [ [ 
                 tabSum(totalHt, totalVat, totalTTC, currency.symbol),
                 {text:'\n', fontSize: 8},
-                wireTransfer("vat", "delay", currency)
+                wireTransfer("VAT", "delay", currency)
               ] ] ]
             },
             layout: { defaultBorder: false }

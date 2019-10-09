@@ -362,7 +362,7 @@ router.put('/updtCaddy', (req, res) => {
     updt.currency = req.body.billing.currency;
     updt.currencyTx = req.body.billing.currencyTx;
     updt.currencyTxUsd = req.body.billing.currencyTxUsd;
-    updt.vatValide = req.body.billing.checkvat;
+    updt.vatValide = req.body.billing.vatValide;
     updt.vatValue = req.body.billing.vatValue;
     updt.payment = req.body.billing.payment;
     updt.addressBilling = req.body.billing.addressBilling;
@@ -523,7 +523,9 @@ router.put('/state', (req, res) => {
           addPool({
             index: p.index,
             id: req.body.id,
-            id_cmd: p.id_undercmd + '|' + c++,
+            // id_cmd: id + "§" + suffixe,
+            // id_cmd: p.id_undercmd + '|' + c++,
+            id_cmd: p.id_undercmd,
             onetime: p.onetime,
             subscription: p.subscription,
             eid: p.eid,
@@ -545,9 +547,10 @@ router.put('/state', (req, res) => {
           qhid = p.qhid.toString();
         }
         addPool({
-          // index: p.index,
+          index: p.index,
           id: req.body.id,
           id_cmd: p.id_undercmd,
+          // id_cmd: p.id_undercmd + '|' + c++,
           onetime: p.onetime,
           subscription: p.subscription,
           eid: p.eid,
@@ -568,8 +571,8 @@ router.put('/state', (req, res) => {
       "idCmd": req.body.id
     };
     sendMail('/api/mail/orderValidated', corp);
-  // }
-  // if(req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance"){
+  }
+  if(req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance"){
     Config.findOne({id:"counter"}).then( (cnt) => {
       let id = cnt.value;
       let prefix = "QH_HISTO_";
@@ -597,19 +600,10 @@ router.put('/state', (req, res) => {
   }
 })
 
-too = function(d){
-  Pool.findOne({ id_cmd: d.id_cmd, begin_date: d.begin_date }).then(p=>{
-    console.dir(p.isNew);
-    // if(!p){
-      Pool.create(d).then(pa=>{ return true;});
-    // }
-  });
-}
 router.put('/update', (req, res) => {
   Order.findOne({_id: req.body.idcmd.id_cmd})
   .then((updt)=>{
     updt.id_cmd=  updt.id + "-" + req.body.u.user.companyName.replace(' ','').toLowerCase() + "-" + new Date().yyyymmdd().replace(/-/g,'');
-    // updt.id_cmd=  "cmd-" + req.body.idcmd.id_cmd;
     if(req.body.state){
       updt.state = req.body.state;
     }
@@ -625,7 +619,7 @@ router.put('/update', (req, res) => {
         updt.products.push({
           "idx" : elem.idx,
           "index" : elem.index,
-          "id_undercmd" : updt.id_cmd + "§" + idx++,
+          "id_undercmd" : updt.id + "§" + idx++,
           // "id_undercmd" : "cmd-" + req.body.idcmd.id_cmd + "-" + idx++,
           "dataset" : elem.quotation_level,
           "description" : elem.description,
@@ -807,12 +801,8 @@ router.post('/listExport', (req, res) => {
 });
 router.post('/list', (req, res) => {
   let sort = {};
-  for (var i = 0; i < req.body.order.length; i++) {
-    if( req.body.columns[req.body.order[i].column].data === 'redistribution' )
-      sort['survey.dd'] = req.body.order[i].dir;
-    else
-      sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
-  }
+  sort.createdAt = -1;
+  sort[req.body.columns[req.body.order[0].column].data] = req.body.order[0].dir;
   Order.count({state: {$ne:''}, state: {$exists:true}}).then((c) => {
       let search = {};
       search['state'] = { $ne: '' };

@@ -594,7 +594,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.reqSearch.query.bool.must.push({
         'wildcard': {
           'MICs': {
-            'value': this.mics.toUpperCase() + '*'
+            'value': this.mics + '*'
           }
         }
       });

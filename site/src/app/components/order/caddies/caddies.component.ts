@@ -232,6 +232,9 @@ export class CaddiesComponent implements OnInit {
         } else {
           this.payment = '';
         }
+        //à retirer lors de l'implémentation du paiement par CB
+        this.user["payment"] = 'banktransfer';
+        this.payment = 'banktransfer';
       }  
       if(res.user.currency) {
         this.currency = res.user.currency;
@@ -257,6 +260,9 @@ export class CaddiesComponent implements OnInit {
         this.fluxService.rate({currency:c.cmd[0].currency}).subscribe(res=>{
           this.currency = c.cmd[0].currency;
           this.numVat = c.cmd[0].vat;
+          if(c.cmd[0].vatValide !== null) {
+            this.checkv = c.cmd[0].vatValide; 
+          }
           this.currencyObj = this.searchCurrency(this.currency, this.currencies);
           this.rate = parseFloat(res.rate);
           let usd = 0;
@@ -329,10 +335,10 @@ export class CaddiesComponent implements OnInit {
                 this.totalHT = c.cmd[0].totalHT;
               }
               this.totalAmount = (this.totalHT - (this.totalHT * c.cmd[0].discount / 100) ) + this.totalFees;
-              if(this.totalAmount < this.currencyObj.maxrib) {
-                this.minRib = true;
-                this.user['payment'] = 'creditcard';
-              }
+              // if(this.totalAmount < this.currencyObj.maxrib) {
+              //   this.minRib = true;
+              //   this.user['payment'] = 'creditcard';
+              // }
               this.totalVat = this.totalAmount * this.vat;
               this.totalTTC = this.precisionRound(this.totalAmount + this.totalVat, 2);
               c.cmd.forEach((cmd) => {
@@ -570,6 +576,7 @@ export class CaddiesComponent implements OnInit {
     if(this.user['postalCodeBilling'] !== this.oldAddressBilling['postalCodeBilling']){
       modify['postalCodeBilling'] = this.user['postalCodeBilling'];
     }
+    billingCart['vatValide'] = this.checkv;
     // if(this.currencychange || this.paymentchange){
       modify['token'] = this.user['token'];
       modify['checkvat'] = this.checkv;
