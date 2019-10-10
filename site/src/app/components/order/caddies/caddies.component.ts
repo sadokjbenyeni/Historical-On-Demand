@@ -224,6 +224,13 @@ export class CaddiesComponent implements OnInit {
     ];
     this.userService.info({token: token, field: field}).subscribe(res=>{
       this.user = res.user;
+
+      // a retirer lors de l'implementation CB
+      res.user.payment = 'banktransfer';
+      this.user["payment"] = 'banktransfer';
+      this.payment = 'banktransfer';
+// fin a retirer
+
       this.checkv = res.user.checkvat;
       if (res.user.checkvat) { this.loadvat = 'form-control'; }
       if (this.router.url === '/order/orderconfirm') {
@@ -233,8 +240,7 @@ export class CaddiesComponent implements OnInit {
           this.payment = '';
         }
         //à retirer lors de l'implémentation du paiement par CB
-        this.user["payment"] = 'banktransfer';
-        this.payment = 'banktransfer';
+
       }  
       if(res.user.currency) {
         this.currency = res.user.currency;
@@ -281,7 +287,8 @@ export class CaddiesComponent implements OnInit {
               this.cmd = c.cmd[0];
               this.idCmd = c.cmd[0].id_cmd;
               this.id = c.cmd[0].id;
-              this.payment = c.cmd[0].payment;
+              // this.payment = c.cmd[0].payment;
+              this.payment = 'banktransfer';
               let index = 0;
               if(c.cmd[0].products.length === 0){
                 this.breadcrumbs[1]['active'] = '';
@@ -394,10 +401,10 @@ export class CaddiesComponent implements OnInit {
               });
               if (this.router.url === '/order/payment') {
                 this.page = 'payment';
-                if(this.payment === 'creditcard'){
-                  this.idCmd = this.cmd['id_cmd'];
-                  this.submitPayment();
-                }
+                // if(this.payment === 'creditcard'){
+                //   this.idCmd = this.cmd['id_cmd'];
+                //   this.submitPayment();
+                // }
                 if(this.payment === 'banktransfer'){
                   this.getRib();
                 }
