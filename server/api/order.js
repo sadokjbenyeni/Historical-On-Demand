@@ -6,7 +6,10 @@ const mongoose = require('mongoose');
 var tar = require('tar-fs')
 var fs = require('fs')
 
+const Config = mongoose.model('Config');
 const Order = mongoose.model('Order');
+const Pool = mongoose.model('Pool');
+const User = mongoose.model('User');
 
 const config = require('../config/config.js');
 const URLS = config.config();
@@ -115,7 +118,9 @@ autoValidation = function(idCmd, logsPayment, r, res) {
 Order.findOne({ id_cmd: idCmd})
   .then(o => { // Autovalidation Compliance
     log.date = new Date();
+    let eids = [];
     o.products.forEach(product=>{
+      eids.push(product.eid);
       if(o.state === 'PSC') {
         corp = { 
           "email": o.email,
@@ -137,29 +142,70 @@ Order.findOne({ id_cmd: idCmd})
           log.referer = 'Autovalidation';
           o.state = 'PVP';
           log.status = 'PVP';
+          // Envoi email aux products
         }
-        // if(o.state === 'PSC') {
-        //   if( ( product.historical_data && (product.historical_data.ongoing_agreement || 
-        //     product.historical_data.ongoing_applyfee ) || 
-        //     o.survey[0].dd === "1") && 
-        //     product.subscription === 1) {
-        //       o.state = 'PVC';
-        //       log.status = 'PVC';
-        //       log.referer = 'Client';
-        //     } else {
-        //     o.validationCompliance = true;
-        //     log.referer = 'Autovalidation';
-        //     log.status = 'PVP';
-        //     o.state = 'PVP';
-        //   }
-        // }
       }
     })
+    o.eid = eids;
     return o;
   })
   .then(o => {
     let url = '/api/mail/newOrder';
     let corp = {};
+    if(o.state === "PVC") {
+      // Envoi email aux compliances
+      User.find({roleName:"Compliance"},{email:true, _id:false})
+      .then((users)=>{ users.forEach(user => {
+        sendMail('/api/mail/newOrderHoD', 
+          {
+            idCmd: corp.idCmd,
+            email: user.email,
+            lastname: o.lastname,
+            firstname: o.firstname,
+            eid: o.eid.join(),
+            date: logsPayment.date,
+            total : totalttc(o),
+            service: "Compliance"
+          });
+        });
+      });
+    }
+    if(o.state === "PVP") {
+      // Envoi email aux products
+      User.find({roleName:"Product"},{email:true, _id:false})
+      .then((users)=>{ users.forEach(user => {
+        sendMail('/api/mail/newOrderHoD', 
+          {
+            idCmd: corp.idCmd,
+            email: user.email,
+            lastname: o.lastname,
+            firstname: o.firstname,
+            eid: o.eid.join(),
+            date: logsPayment.date,
+            total : totalttc(o),
+            service: "Product"
+          });
+        });
+      });
+    }
+    if(o.state === "PVF") {
+      // Envoi email aux finances
+      User.find({roleName:"Finance"},{email:true, _id:false})
+      .then((users)=>{ users.forEach(user => {
+        sendMail('/api/mail/newOrderHoD', 
+          {
+            idCmd: corp.idCmd,
+            email: user.email,
+            lastname: o.lastname,
+            firstname: o.firstname,
+            eid: o.eid.join(),
+            date: logsPayment.date,
+            total : totalttc(o),
+            service: "Finance"
+          });
+        });
+      });
+    }
     if(o.validationCompliance) {
       corp = { 
         "email": o.email,
@@ -316,7 +362,7 @@ router.put('/updtCaddy', (req, res) => {
     updt.currency = req.body.billing.currency;
     updt.currencyTx = req.body.billing.currencyTx;
     updt.currencyTxUsd = req.body.billing.currencyTxUsd;
-    updt.vatValide = req.body.billing.checkvat;
+    updt.vatValide = req.body.billing.vatValide;
     updt.vatValue = req.body.billing.vatValue;
     updt.payment = req.body.billing.payment;
     updt.addressBilling = req.body.billing.addressBilling;
@@ -353,6 +399,8 @@ router.put('/state', (req, res) => {
   let updt = {};
   let log = {};
   let corp = {};
+  let prefixe = "QH_HISTO_";
+  let nbcar = 7;
   updt.state = req.body.status;
   log.status = req.body.status;
   log.referer = req.body.referer;
@@ -368,7 +416,30 @@ router.put('/state', (req, res) => {
       "paymentdate": new Date(),
       "service": 'Product'
     };
-    sendMail('/api/mail/newOrder', corp);
+    // sendMail('/api/mail/newOrder', corp);
+    // Email validation au pvp
+    Order.findOne({ id_cmd : req.body.idCmd})
+    .then(o => {
+      let eids = [];
+      o.products.forEach(p => {
+        eids.push(p.eid);
+      });
+      User.find({roleName:"Product"},{email:true, _id:false})
+      .then((users)=>{ users.forEach(user => {
+        sendMail('/api/mail/newOrderHoD', 
+          {
+            idCmd: o.id,
+            email: user.email,
+            lastname: o.lastname,
+            firstname: o.firstname,
+            eid: eids.join(),
+            date: o.submissionDate,
+            total : totalttc(o),
+            service: "Product"
+          });
+        });
+      });
+    });
   }
   if(req.body.referer === 'Product'){
     updt.validationProduct = true;
@@ -380,9 +451,50 @@ router.put('/state', (req, res) => {
       "paymentdate": new Date(),
       "service": 'Finance'
     };
+    // Email validation au pvf
+    Order.findOne({ id_cmd : req.body.idCmd})
+    .then(o => {
+      let eids = [];
+
+      if (req.body.status === "cancelled") {
+        Pool.remove({ id: req.body.idCmd.split("-")[0] }).then(()=>{ 
+          return true;
+        });
+      }
+
+      if( req.body.status === 'rejected' ) {
+        sendMail('/api/mail/orderRejected', corp);
+        return true;
+      }
+      if( req.body.status === 'cancelled' ) {
+        sendMail('/api/mail/orderCancelled', corp);
+        return true;
+      }
+
+      o.products.forEach(p => {
+        eids.push(p.eid);
+      });
+      if(req.body.status !== "cancelled"){
+        User.find({roleName:"Product"},{email:true, _id:false})
+        .then((users)=>{ users.forEach(user => {
+          sendMail('/api/mail/newOrderHoD', 
+            {
+              idCmd: o.id,
+              email: user.email,
+              lastname: o.lastname,
+              firstname: o.firstname,
+              eid: eids.join(),
+              date: o.submissionDate,
+              total : totalttc(o),
+              service: "Finance"
+            });
+          });
+        });
+      }
+    });
     // sendMail('/api/mail/newOrder', corp);
   }
-  if(req.body.referer === 'Finance'){
+  if(req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance"){
     updt.validationFinance = true;
     updt.reason = req.body.reason;
     let deb = datedebref;
@@ -390,6 +502,8 @@ router.put('/state', (req, res) => {
     let debut = new Date(clone(deb));
     let end = dateFinref;
     let cart = [];
+    let id = "";
+    let item = "";
     req.body.product.forEach(p=>{
       p.dataset = p.quotation_level;
       p.exchangeName = p.exchange;
@@ -398,16 +512,25 @@ router.put('/state', (req, res) => {
         end = verifWeekNext(end);
         p.begin_date = deb;
         p.end_date = end;
+        let qhid = "";
+        if (p.qhid !== null || p.qhid !== "") {
+          qhid = p.qhid.toString();
+        }
         let c = 0;
         for(let d= debut; d<= end; d.setDate(d.getDate() + 1)){ 
+          id = p.id_undercmd.split("-")[0];
+          suffixe = p.id_undercmd.split("§")[1];
           addPool({
             index: p.index,
-            id_cmd: p.id_undercmd + '|' + c++,
+            id: req.body.id,
+            // id_cmd: id + "§" + suffixe,
+            // id_cmd: p.id_undercmd + '|' + c++,
+            id_cmd: p.id_undercmd,
             onetime: p.onetime,
             subscription: p.subscription,
             eid: p.eid,
             contractID: p.contractid,
-            qhid: p.qhid,
+            qhid: qhid,
             quotation_level: p.dataset,
             searchdate: new Date(d.yyyymmdd()),
             begin_date: d.yyyymmdd(),
@@ -415,24 +538,30 @@ router.put('/state', (req, res) => {
             status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
           });
         }
+        debut = new Date(clone(deb));
       } else {
         p.begin_date = p.begin_date_select;
         p.end_date = p.end_date_select;
+        let qhid = "";
+        if (p.qhid !== null || p.qhid !== "") {
+          qhid = p.qhid.toString();
+        }
         addPool({
           index: p.index,
+          id: req.body.id,
           id_cmd: p.id_undercmd,
+          // id_cmd: p.id_undercmd + '|' + c++,
           onetime: p.onetime,
           subscription: p.subscription,
           eid: p.eid,
           contractID: p.contractid,
-          qhid: p.qhid,
+          qhid: qhid,
           quotation_level: p.dataset,
           searchdate: p.begin_date,
           begin_date: yyyymmdd(p.begin_date),
           end_date: yyyymmdd(p.end_date),
           status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
         });
-  
       }
       cart.push(p);
       updt.products = cart;
@@ -443,19 +572,38 @@ router.put('/state', (req, res) => {
     };
     sendMail('/api/mail/orderValidated', corp);
   }
-  // if(req.body.referer !== 'Finance'){
+  if(req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance"){
+    Config.findOne({id:"counter"}).then( (cnt) => {
+      let id = cnt.value;
+      let prefix = "QH_HISTO_";
+      let nbcar = 7;
+      let nbid = nbcar - id.toString().length;
+      for (let i = 0; i < nbid; i++){
+        prefix+= "0";
+      }
+      idnew =  id + 1;
+      updt.idCommande = prefix + idnew.toString();
+      Config.updateOne({id:"counter"}, {$inc:{value:1}}).then(()=>{
+        Order.updateOne( { id_cmd: req.body.idCmd }, { $set: updt, $push: {logs: log} } )
+        .then((r)=>{
+          pdfpost(req.body.id);
+          res.status(201).json({ok:true});
+        });
+      })
+    });
+  }
+  else {
     Order.updateOne( { id_cmd: req.body.idCmd }, { $set: updt, $push: {logs: log} } )
     .then((r)=>{
       res.status(201).json({ok:true});
     });
-  // }
+  }
 })
 
 router.put('/update', (req, res) => {
   Order.findOne({_id: req.body.idcmd.id_cmd})
   .then((updt)=>{
     updt.id_cmd=  updt.id + "-" + req.body.u.user.companyName.replace(' ','').toLowerCase() + "-" + new Date().yyyymmdd().replace(/-/g,'');
-    // updt.id_cmd=  "cmd-" + req.body.idcmd.id_cmd;
     if(req.body.state){
       updt.state = req.body.state;
     }
@@ -471,7 +619,7 @@ router.put('/update', (req, res) => {
         updt.products.push({
           "idx" : elem.idx,
           "index" : elem.index,
-          "id_undercmd" : updt.id_cmd + "§" + idx++,
+          "id_undercmd" : updt.id + "§" + idx++,
           // "id_undercmd" : "cmd-" + req.body.idcmd.id_cmd + "-" + idx++,
           "dataset" : elem.quotation_level,
           "description" : elem.description,
@@ -598,6 +746,13 @@ router.get('/idCmd/:id', (req, res) => {
   });
 });
 
+router.get('/retry/:id', (req, res) => {
+  Pool.updateOne({id_cmd: req.params.id},{ $set: { status: "validated" } }).then(p=>{ return true;})
+  .then(()=>{
+    return res.status(200).json({ok: "ok"});
+  });
+});
+
 
 router.post('/listExport', (req, res) => {
   let sort = {};
@@ -631,12 +786,13 @@ router.post('/listExport', (req, res) => {
               if(order.logsPayment){
                 order.logsPayment.forEach(ord=>{
                   if(ord && ord.authResponse === 'Authorised'){
-                    pay = " - ref : " + ord.pspReference;
+                    pay = ord.pspReference;
                   }
                 })
               }
             }
-            o["Payment_Method"] =  order.payment + pay;
+            o["Payment_Method"] =  order.payment;
+            o["Payment_Reference"] =  pay;
             o["TOTAL_Order_Amount"] =  order.total;// CB : mettre la référence Adyen
             list.push(o);
           });
@@ -657,9 +813,9 @@ router.post('/list', (req, res) => {
       req.body.columns.forEach(s => {
         if(s.data === 'redistribution' && s.search.value !== '') {
           search['survey.dd'] =  s.search.value;
-        } else if(s.data === 'updatedAt' && s.search.value !== '') {
+        } else if(s.data === 'submissionDate' && s.search.value !== '') {
           let d = s.search.value.split('|');
-          search['updatedAt'] =  { $gte: new Date(d[0]), $lt: new Date(d[1]) };
+          search['submissionDate'] =  { $gte: new Date(d[0]), $lt: new Date(d[1]) };
         } else if(s.data === 'id' && s.search.value !== '') {
           search[s.data] =  parseInt(s.search.value);
         } else if ((s.data === 'total' || s.data === 'discount') && s.search.value !== '') {
@@ -668,20 +824,18 @@ router.post('/list', (req, res) => {
           search[s.data] = new RegExp(s.search.value, "i");
         }
       });
-      
       if (req.body.search.value !== '') {
-          search = { 
-            '$or': [
+        search['$or'] = [
               { state: new RegExp(req.body.search.value, "i") },
               { companyName: new RegExp(req.body.search.value, "i") },
               { id_cmd: new RegExp(req.body.search.value, "i") }
-            ]
-          };
+          ];
       }
       Order.count(search).then((cf) => {
         Order.find(search)
           .skip(req.body.start)
           .limit(req.body.length)
+          .collation({ locale: "en" })
           .sort(sort)
           .then((orders) => {
               if (!orders) { return res.status(404); }
@@ -689,7 +843,30 @@ router.post('/list', (req, res) => {
           });
       });
   });
+});
 
+router.post('/history', (req, res) => {
+  let sort = {};
+  for (var i = 0; i < req.body.order.length; i++) {
+    sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
+  }
+  Order.count({idUser: req.body.idUser}).then((c) => {
+      let search = {};
+      if(req.body.idUser){
+        search['idUser'] = req.body.idUser;
+      }
+      Order.count(search).then((cf) => {
+        Order.find(search)
+          .skip(req.body.start)
+          .limit(req.body.length)
+          .collation({ locale: "en" })
+          .sort(sort)
+          .then((orders) => {
+              if (!orders) { return res.status(404); }
+              return res.status(200).json({recordsFiltered: cf, recordsTotal: c, draw:req.body.draw, listorders: orders});
+          });
+      });
+  });
 });
 
 router.post('/caddies', (req, res) => {
@@ -698,6 +875,41 @@ router.post('/caddies', (req, res) => {
       return res.status(200).json({cmd: cmd});
     });
 });
+
+router.post('/listStates', (req, res) => {
+    let states = [
+      {id:'CART', name: 'Cart' },
+      {id:'PLI', name: 'Pending Licensing Information' },
+      {id:'PBI', name: 'Pending Billing Information' },
+      {id:'PSC', name: 'Pending Submission by Client' },
+      {id:'PVP', name: 'Pending Validation by Product' },
+      {id:'PVC', name: 'Pending Validation by Compliance' },
+      {id:'PVF', name: 'Pending Validation by Finance' },
+      {id:'validated', name: 'Validated' },
+      {id:'active', name: 'Active' },
+      {id:'inactive', name: 'Inactive' },
+      {id:'cancelled', name: 'Cancelled' },
+      {id:'rejected', name: 'Rejected' },
+      {id:'failed', name: 'Failed' },
+    ];
+    return res.status(200).json({states: states});
+});
+
+pdfpost = function(id){
+  let options = {
+    url: DOMAIN + '/api/pdf',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: {
+      id: id
+    },
+    json: true
+  };
+  request.post(options, function (error, response, body) {
+    if (error) throw new Error(error);
+  });
+}
 
 sendMail = function(url, corp) {
   let options = {
@@ -762,16 +974,19 @@ yyyymmdd = function(d) {
 };
 
 
-idcommande = function(prefix, id, nbcar) {
-	idf = prefix;
+idcommande = function(prefix, nbcar) {
+  Config.findOne({id:"counter"}).then( (cnt) => {
+    let id = cnt.value;
     let nbid = nbcar - id.toString().length;
-
     for (let i = 0; i < nbid; i++){
-        idf+= "0";
+      prefix+= "0";
     }
     idnew =  id + 1;
-    idf += idnew;
-    return idf;
+    prefix += idnew;
+    Config.updateOne({id:"counter"}, {$inc:{value:1}}).then(()=>{
+      return prefix;
+    })
+  });
 }
 
 endperiod = function(data, periode){
@@ -782,6 +997,35 @@ endperiod = function(data, periode){
 precisionRound = function(number, precision) {
   var factor = Math.pow(10, precision);
   return Math.round(number * factor) / factor;
+}
+
+totalttc = function(o) {
+  let totalExchangeFees = 0;
+  let discount = 0;
+  let totalVat = 0;
+  let totalHT = 0;
+  let totalTTC = 0;
+
+  if (o.currency !== 'usd') {
+    totalExchangeFees = (o.totalExchangeFees / o.currencyTxUsd) * o.currencyTx;
+    discount = o.discount;
+    totalHT = ( (o.totalHT + o.totalExchangeFees) / o.currencyTxUsd) * o.currencyTx;
+    if(discount>0){
+      totalHT = totalHT - ( totalHT * (discount / 100) );
+    }
+    totalVat = totalHT * o.vatValue;
+    totalTTC = precisionRound((totalHT * (1 + o.vatValue)), 2);
+  } else{
+    totalExchangeFees = o.totalExchangeFees;
+    discount = o.discount;
+    totalHT = o.totalHT + o.totalExchangeFees;
+    if(discount>0){
+      totalHT = totalHT - ( totalHT * (discount / 100) );
+    }
+    totalVat = totalHT * o.vatValue;
+    totalTTC = precisionRound((totalHT * (1 + o.vatValue)), 2);
+  }
+  return totalTTC;
 }
 
 addPool = function(data) {

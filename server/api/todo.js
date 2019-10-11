@@ -130,10 +130,54 @@ router.get('/test2', (req,res)=>{
 });
 
 router.post('/test', (req,res)=>{
-  Pool.find({'status': { $in: [ 'validated', 'exporting' ] }})
-  .then(items=>{
-    res.status(200).json(items);
+  // Pool.find({'status': { $in: [ 'validated', 'exporting' ] }})
+  // .then(items=>{
+    // res.status(200).json(items);
+  // });
+    res.status(200).json({ok:"ok"});
+});
+
+router.post('/retry', (req,res)=>{
+  updatePool(req.body.id_cmd, "validated");
+    res.status(200).json({ok:"ok"});
+});
+router.put('/retryrunning', (req,res)=>{
+  Pool.updateOne({id_cmd: req.body.id_cmd, begin_date: req.body.begin_date, status: "running"},{ $set: { status: "validated" } }).then(p=>{ return true;});
+  res.status(200).json({ok:"ok"});
+});
+
+router.post('/verifFailed', (req,res)=>{
+  let d = new Date();
+  d.setHours(d.getHours() - 48);
+  Pool.find({
+    status: "failed", updatedAt: { $lte: d }
+  })
+  .then((cmd)=>{
+    cmd.forEach((c) => {
+      sendMail('/api/mail/orderFailed', 
+      {
+        idCmd: c.id_cmd.split("-")[0],
+        email: c.email
+      });
+    });
   });
+});
+
+router.post('/verifInactive', (req,res)=>{
+  // let d = new Date();
+  // d.setHours(d.getHours() - 48);
+  // Pool.find({
+  //   status: "failed", updatedAt: { $lte: d }
+  // })
+  // .then((cmd)=>{
+  //   cmd.forEach((c) => {
+  //     sendMail('/api/mail/orderFailed', 
+  //     {
+  //       idCmd: c.id_cmd.spli("-")[0],
+  //       email: c.email
+  //     });
+  //   });
+  // });
 });
 
 // API Permettant au JOB de changer le status du pool qu'il souhaite traiter : running, exporting
@@ -146,7 +190,7 @@ router.put('/torun', (req, res) => {
   )
   .then((p)=>{
     if(p.nModified === 1){
-      updatePool(req.body.id_cmd, req.body.status);
+      updatePool(req.body.id_cmd, req.body.status, req.body.begin_date);
       res.status(201).json({"ok":"ok"});
     }
     else {
@@ -189,7 +233,7 @@ router.put('/finish', (req, res) => {
   //   return items;
   // })
   // .then(()=>{
-    Order.findOne( { products: { $elemMatch: { "id_undercmd": req.body.id_cmd.split('|')[0] } } }, { 'products.$': true, _id:false  })
+    Order.findOne( { products: { $elemMatch: { "id_undercmd": req.body.id_cmd.split('|')[0] } } }, { "id":true, "email": true, 'products.$': true, _id:false  })
     .then((result)=>{
       if(!result || result.products.length === 0){
         res.status(404).json({"error":"NOT FOUND"});
@@ -197,18 +241,33 @@ router.put('/finish', (req, res) => {
       else {
         let products = result.products[0];
         if(products.subscription === 1){
-          status = 'validated';
+          status = 'active';
         } else {
           status = req.body.status;
         }
-        return {status: status, req: req.body};
+        return {status: status, req: req.body, email: result.email, id: result.id, onetime: products.onetime, subscription: products.subscription};
       }
     })
     .then(recup => {
+      let updt = {};
+      if(recup.status === "failed") {
+        updt = { 'products.$.status' : recup.status, "state": recup.status };
+      } else if(recup.status === "active") {
+        if(recup.mailActive) {
+          sendMail('/api/mail/orderExecuted', 
+          {
+            idCmd: recup.id,
+            email: recup.email
+          });
+        }
+        updt = { 'products.$.status' : recup.status, "state": recup.status, "mailActive": false };
+      } else {
+        updt = { 'products.$.status' : recup.status };
+      }
       Order.updateOne(
         { 'products.id_undercmd'  : req.body.id_cmd.split('|')[0] },
         {
-          $set: { 'products.$.status' : recup.status },
+          $set: updt,
           $push: {
             "products.$.links": {
               createLinkDate: new Date(),
@@ -220,6 +279,7 @@ router.put('/finish', (req, res) => {
             "products.$.logs" : {
               referer: 'job',
               ref: req.body.id_cmd,
+              extract: req.body.link,
               status: recup.req.status,
               state_description: recup.req.state_description,
               log: recup.req.log,
@@ -229,7 +289,42 @@ router.put('/finish', (req, res) => {
         }
       )
       .then(()=>{
-        removePool(recup.req.id_cmd);
+        let lks = "";
+        if(recup.req.status === 'active') {
+          // if(recup.onetime === 1 || (recup.subscription === 1 && req.body.id_cmd.split('|')[1] === 0)) {
+          // if(recup.mailActive) {
+          //   sendMail('/api/mail/orderExecuted', 
+          //   {
+          //     idCmd: recup.id,
+          //     email: recup.email
+          //   });
+          // }
+          if(recup.subscription == 1) {
+            lks = recup.req.link[0].link.split("|")[0].split("_")[0];
+            removePool(recup.req.id_cmd, lks, recup.onetime, recup.subscription);
+          } else {
+            removePool(recup.req.id_cmd, lks, recup.onetime, recup.subscription);
+          }
+        }
+        if(recup.req.status === 'failed'&& recup.onetime === 1) {
+          updatePool(req.body.id_cmd, recup.req.status, req.body.begin_date);
+          User.find({roleName:"Product"},{email:true, _id:false})
+          .then((users)=>{
+            users.forEach(user => {
+              sendMail('/api/mail/orderFailedJob', 
+              {
+                idCmd: req.body.id_cmd,
+                email: user.email,
+                description: recup.req.state_description,
+                date: new Date(),
+                logs: recup.req.log
+              });
+            });
+          });
+        }
+        if(recup.req.status === 'failed' && recup.onetime === 0) {
+          removePool(recup.req.id_cmd, lks, recup.onetime, recup.subscription);
+        }
         res.status(201).json({"ok":"ok"});
       })
       .catch( (err)=>{
@@ -243,7 +338,6 @@ router.put('/finish', (req, res) => {
   //   res.json(err);
   // });
 });
-
 
 // Fonctions utiles
 sendMail = (url, corp) => {
@@ -267,12 +361,16 @@ addPool = (data => {
   });
 });
 
-updatePool = ((id, status) => {
-  Pool.updateOne({id_cmd: id},{ $set: { status: status } }).then(p=>{ return true;});
+updatePool = ((id, status, date) => {
+  Pool.updateOne({id_cmd: id, begin_date: date},{ $set: { status: status } }).then(p=>{ return true;});
 });
 
-removePool = (id => {
-  Pool.remove({id_cmd: id}).then(p=>{ return true;});
+removePool = ((id, lks, onetime, subscription) => {
+  if(subscription == 1){
+    Pool.remove({id_cmd: id, begin_date: lks}).then(p=>{ return true;});  
+  } else {
+    Pool.remove({id_cmd: id}).then(p=>{ return true;});
+  }
 });
 
 Date.prototype.previousDay = function() {

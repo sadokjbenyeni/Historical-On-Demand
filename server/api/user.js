@@ -3,6 +3,7 @@ const router = require('express').Router();
 const mongoose = require('mongoose');
 const crypto = require("crypto");
 const request = require('request');
+const fs = require('fs');
 
 const User = mongoose.model('User');
 const Order = mongoose.model('Order');
@@ -10,7 +11,6 @@ const Role = mongoose.model('Role');
 
 const config = require('../config/config.js');
 const mailer = require('./mailer.js');
-const Request = require('request');
 const URLS = config.config();
 const admin = config.admin();
 const domain = config.domain();
@@ -32,12 +32,11 @@ router.get('/', (req, res) => {
         User.find().sort({"firstname":1, "lastname":1})
        .then((users) => {
            if (!users) { return res.sendStatus(404); }
-           return res.json({users: users})
-           .statusCode(200);
+           return res.status(200).json({users: users});
        });
     }
     else{
-        return res.sendStatus(404);
+        return res.status(404).end();
     }
 });
 
@@ -45,7 +44,7 @@ router.get('/count/', (req, res) => {
     if(URLS.indexOf(req.headers.referer) !== -1){
         User.count()
        .then((count) => {
-           return res.json({nb: count}).statusCode(200);
+           return res.status(200).json({nb: count});
        });
     }
     else{
@@ -55,12 +54,10 @@ router.get('/count/', (req, res) => {
 
 router.get('/test/:token/:id/:file', (req, res) => {
     let valid = false;
-    // http://10.1.0.5:3000/loadfile/3-qh-20180522-1/2017-1-10_1027_L1.csv.gz
     User.findOne({token: req.params.token}, {_id:true})
     .then((u)=>{
         if(u) {
             let idUser = JSON.parse(JSON.stringify(u._id));
-            // Order.findOne({idUser: idUser, 'products.id_undercmd': req.params.id}, {'products.$.id_undercmd':true, _id:false})
             Order.findOne({idUser: idUser, 'products.id_undercmd': req.params.id.split('|')[0]})
             .select({'products.$.id_undercmd':1, '_id': false})
             .then(o=>{
@@ -96,7 +93,7 @@ router.get('/test/:token/:id/:file', (req, res) => {
 router.get('/cpt/', (req,res)=>{
     User.findOne({nbSession:1},{_id:false, count:true})
     .then((nb) => {
-        return res.json(nb).statusCode(200);
+        return res.status(200).json(nb);
     });
 });
 
@@ -265,8 +262,8 @@ router.post('/activation/', (req, res) => {
 router.post('/suspendre/', (req, res) => {  
     User.update( { token: req.body.token }, { $set:{ actif: -1 } } )
     .then((user) => {
-        if (!user) { res.json({}).statusCode(200) }
-        return res.json({valid:true}).statusCode(200);
+        if (!user) { res.status(200).json({}) }
+        return res.status(200).json({valid:true});
     });    
 });
             
@@ -409,5 +406,76 @@ router.put('/mdpmodif/', (req, res) => {
     //     return res.sendStatus(404);
     // }   
 });
+
+router.post('/list', (req, res) => {
+  let sort = {};
+  for (var i = 0; i < req.body.order.length; i++) {
+    sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
+  }
+  User.count({state: {$ne:''}, state: {$exists:true}}).then((c) => {
+      let search = {};
+      if (req.body.search.value !== '') {
+        search['$or'] = [
+          { firstname: new RegExp(req.body.search.value, "i") },
+          { lastname: new RegExp(req.body.search.value, "i") },
+          { roleName: new RegExp(req.body.search.value, "i") }
+        ];
+      }
+      User.count(search).then((cf) => {
+        User.find(search)
+          .skip(req.body.start)
+          .limit(req.body.length)
+          .sort(sort)
+          .then((users) => {
+              if (!users) { return res.status(404); }
+              return res.status(200).json({recordsFiltered: cf, recordsTotal: c, draw:req.body.draw, listusers: users});
+          });
+      });
+  });
+});
+
+function download(url, dest, cb) {
+    // on créé un stream d'écriture qui nous permettra
+    // d'écrire au fur et à mesure que les données sont téléchargées
+    const file = fs.createWriteStream(dest);
+  
+    // on lance le téléchargement
+    const sendReq = request.get(url);
+  
+    // on vérifie la validité du code de réponse HTTP
+    sendReq.on('response', (response) => {
+      if (response.statusCode !== 200) {
+        return cb('Response status was ' + response.statusCode);
+      }
+    });
+  
+    // au cas où request rencontre une erreur
+    // on efface le fichier partiellement écrit
+    // puis on passe l'erreur au callback
+    sendReq.on('error', (err) => {
+      fs.unlink(dest);
+      cb(err.message);
+    });
+  
+    // écrit directement le fichier téléchargé
+    sendReq.pipe(file);
+  
+    // lorsque le téléchargement est terminé
+    // on appelle le callback
+    file.on('finish', () => {
+      // close étant asynchrone,
+      // le cb est appelé lorsque close a terminé
+      file.close(cb);
+    });
+  
+    // si on rencontre une erreur lors de l'écriture du fichier
+    // on efface le fichier puis on passe l'erreur au callback
+    file.on('error', (err) => {
+      // on efface le fichier sans attendre son effacement
+      // on ne vérifie pas non plus les erreur pour l'effacement
+      fs.unlink(dest);
+      cb(err.message);
+    });
+  };
 
 module.exports = router;
