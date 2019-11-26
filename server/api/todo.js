@@ -141,6 +141,10 @@ router.post('/retry', (req,res)=>{
   updatePool(req.body.id_cmd, "validated");
     res.status(200).json({ok:"ok"});
 });
+router.put('/retryrunning', (req,res)=>{
+  Pool.updateOne({id_cmd: req.body.id_cmd, begin_date: req.body.begin_date, status: "running"},{ $set: { status: "validated" } }).then(p=>{ return true;});
+  res.status(200).json({ok:"ok"});
+});
 
 router.post('/verifFailed', (req,res)=>{
   let d = new Date();

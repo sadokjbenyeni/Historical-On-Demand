@@ -42,7 +42,7 @@ router.post('/saverib', (req, res) => {
     )
     .then((Currencies) => {
         if (!Currencies) { return res.status(204).json({message: "Error : RIB hasn't been updated."}); }
-        return res.status(200).json({message: "RIB has been updated"});
+        return res.status(200).json({message: "Bank account information has been updated successfully"});
     });
 });
 
