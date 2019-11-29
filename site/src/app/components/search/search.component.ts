@@ -423,6 +423,15 @@ export class SearchComponent implements OnInit, AfterViewInit {
       // }
       this.exchanges.push({ id: key[0].replace('[','').replace(']',''), name: key[1].replace('[','').replace(']','') });
     });
+    this.exchanges.sort( function(a, b){
+      if(a['name'].toUpperCase() < b['name'].toUpperCase()) {
+        return -1;
+      }
+      if(a['name'].toUpperCase() > b['name'].toUpperCase()) {
+        return 1;
+      }
+      return 0;
+    });
   }
   getSearch() {
     if (this.tabsearch === 'instrument') {
