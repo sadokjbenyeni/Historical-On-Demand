@@ -64,7 +64,7 @@
                 <input type="text" class="form-control" [(ngModel)]="mics" name="mics" id="mics" placeholder="Search MIC" (keyup.enter)="rSearch()">
               </div>
               <div class="form-group">
-                <label for="newExchange">Exchange</label><br/>
+                <label for="newExchange">Exchange*</label><br/>
                 <div class="btn btn-info" *ngFor="let ex of exchangesSearch">
                   <span aria-hidden="true" (click)="delEx(ex)" class="text-danger fa fa-times"></span> {{ ex }}
                 </div>
@@ -78,6 +78,7 @@
                 <!-- <button #runsearch class="btn btn-primary" [disabled]="!((all !=='' || symbol !== '' || isin !== '' || mics !== '') || ( exchangesSearch.length > 0 || assetsSearch.length > 0 ))" (keyup.enter)="rSearch()" (click)="rSearch()" (change)="btnFocus();" >Search</button> -->
                 <button #runsearch class="btn btn-primary" [disabled]="false" (keyup.enter)="rSearch()" (click)="rSearch()" (change)="btnFocus();" >Search</button>
               </p>
+               <p class="small">(*) Do not find the exchange you are looking for? Please contact your local sales team. See <a target="_BLANK" href="https://www.quanthouse.com/GlobalExchangeCoverage.html">Global Exchange Coverage</a>.</p>
             </ng-template>
           </ngb-tab>
           <ngb-tab id="feed">
@@ -87,7 +88,7 @@
             <ng-template ngbTabContent>
               <br/>
               <div class="form-group">
-                <label for="newExchange">Exchange</label><br>
+                <label for="newExchange">Exchange*</label><br>
                 <div class="btn btn-info" *ngFor="let ex of exchangesSearch">
                   <span aria-hidden="true" (click)="delEx(ex)" class="text-danger fa fa-times"></span> {{ ex }}
                 </div>
@@ -105,6 +106,7 @@
                 <button #runsearch class="btn btn-primary" [disabled]="false" (click)="rSearch()">Search</button>
                 <!-- <button #runsearch class="btn btn-primary" [disabled]="!((exchangesSearch.length > 0) || mics !== '')" (click)="rSearch()">Search</button> -->
               </p>
+              <p class="small">(*) Do not find the exchange you are looking for? Please contact your local sales team. See <a target="_BLANK" href="https://www.quanthouse.com/GlobalExchangeCoverage.html">Global Exchange Coverage</a>.</p>
             </ng-template>
           </ngb-tab>
         </ngb-tabset>
