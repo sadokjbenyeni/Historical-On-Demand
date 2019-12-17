@@ -10,6 +10,7 @@ import 'rxjs/add/operator/map';
 
 
 import { OrderService } from '../../../services/order.service';
+import { CurrencyService } from '../../../services/currency.service';
 import { DataTableDirective } from 'angular-datatables';
 import { environment } from '../../../../environments/environment';
 
@@ -66,12 +67,14 @@ export class OrdersComponent implements OnInit {
   typeexport: string;
   beginID: any;
   endID: any;
+  symbols: any[];
 
   constructor(
     private http: Http,
     private router: Router,
     private httpc: HttpClient,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private currencyService: CurrencyService
   ) { }
 
   @ViewChild(DataTableDirective)
@@ -100,6 +103,7 @@ export class OrdersComponent implements OnInit {
       {id:'currency', name:'Order Currency'},
     ];
     this.getListStates();
+    this.getCurrencies();
 
     const that = this;
     this.dtOptions = {
@@ -121,7 +125,7 @@ export class OrdersComponent implements OnInit {
           });
         });
       },
-      columns: [ 
+      columns: [
         { data: 'companyName' },
         { data: 'id' },
         { data: 'state' },
@@ -149,7 +153,7 @@ export class OrdersComponent implements OnInit {
   changeState(col){
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(this.state).draw();
-    })    
+    })
   }
 
   changeDate(col){
@@ -207,7 +211,7 @@ export class OrdersComponent implements OnInit {
 
     if( this.typeexport === "csv"){
       this.orderService.getListExport(req).subscribe(data=>{
-        let options = { 
+        let options = {
           fieldSeparator: ',',
           quoteStrings: '"',
           decimalseparator: '.',
@@ -290,6 +294,15 @@ export class OrdersComponent implements OnInit {
     if( !this.states )
       return stateId;
     return this.states.filter( e => e.id === stateId )[0] ? this.states.filter( e => e.id === stateId )[0].name : stateId;
+  }
+
+  getCurrencies() {
+    this.currencyService.getCurrencies().subscribe(r=>{
+      this.symbols = [];
+      r.currencies.forEach(s => {
+        this.symbols[s.id] = s.symbol;
+      });
+    });
   }
 
 }

@@ -36,6 +36,7 @@ export class ClientOrderDetailsComponent implements OnInit {
   list: object;
   cmd: object;
   idCmd: string;
+  id_cmd: string;
   submissionDate: string;
   state: string;
   states: Array<any>;
@@ -107,7 +108,7 @@ export class ClientOrderDetailsComponent implements OnInit {
       });
       this.orderService.getIdOrder(this.idCmd).subscribe((c) => {
         this.list = c;
-        this.idCmd = c.cmd.id_cmd;
+        this.id_cmd = c.cmd.id_cmd;
         this.id = c.cmd.id;
         this.cmd = c.cmd;
         this.companyName = c.cmd.companyName;
@@ -115,7 +116,7 @@ export class ClientOrderDetailsComponent implements OnInit {
         this.firstname = c.cmd.firstname;
         this.lastname = c.cmd.lastname;
         this.job = c.cmd.job;
-        this.country = c.cmd.country;
+        this.country = c.cmd.countryBilling;
         this.currency = c.cmd.currency;
         this.discount = c.cmd.discount;
         this.currencyTx = c.cmd.currencyTx;
@@ -128,6 +129,7 @@ export class ClientOrderDetailsComponent implements OnInit {
         this.submissionDate = c.cmd.submissionDate;
         this.state = c.cmd.state;
         let index = 0;
+        this.cart = [];
         if(c.cmd.products.length > 0){
           this.list['cmd'].products.forEach((p) => {
             let diff = this.dateDiff(new Date(p.begin_date), new Date(p.end_date));
@@ -139,7 +141,7 @@ export class ClientOrderDetailsComponent implements OnInit {
             index++;
             let prod = {
               idx: index,
-              print: false, 
+              print: false,
               idCmd: c.cmd.id_cmd,
               idElem: p.id_undercmd,
               quotation_level: p.dataset,
@@ -190,7 +192,7 @@ export class ClientOrderDetailsComponent implements OnInit {
 
   confirm(){
     console.dir(this.cmd['email']);
-    this.orderService.state({idCmd: this.idCmd, status: 'PVP', referer: 'Compliance', email: this.cmd['email']}).subscribe(()=>{
+    this.orderService.state({idCmd: this.id_cmd, status: 'PVP', referer: 'Compliance', email: this.cmd['email']}).subscribe(()=>{
       this.router.navigate(['/compliance/orders']);
     });
   }
@@ -215,7 +217,7 @@ export class ClientOrderDetailsComponent implements OnInit {
     var factor = Math.pow(10, precision);
     return Math.round(number * factor) / factor;
   }
-    
+
   dateDiff(date1, date2){
     let diff = { sec: 0, min: 0, hour:0, day: 0 };  // Initialisation du retour
     let tmp = date2 - date1;

@@ -84,7 +84,7 @@
                 <th><input type="text" placeholder="Discount" name="search-discount" class="form-control input-border-color" (keyup)="onKey($event, 5)"></th>
                 <th><input type="text" placeholder="Redistribution" name="search-redistribution" class="form-control input-border-color" (keyup)="onKey($event, 6)"></th>
                 <th></th>
-              </tr>   
+              </tr>
               <tr>
                 <th>Client</th>
                 <th>Order Id</th>
@@ -104,7 +104,7 @@
                 <!-- <td>{{ o.idUser }}</td> -->
                 <td class="text-center">{{ getStateName(o.state) }}</td>
                 <td>{{ o.submissionDate | date:'yyyy-MM-dd' }}</td>
-                <td>{{ precisionRound(getHt(o.totalHT, o.currency, o.currencyTxUsd, o.currencyTx, o.discount, o.vatValue), 2)  | number:'1.2-2' }}</td>
+                <td>{{ precisionRound(getHt(o.totalHT, o.currency, o.currencyTxUsd, o.currencyTx, o.discount, o.vatValue), 2)  | number:'1.2-2' }} {{ symbols[o.currency] }}</td>
                 <td>{{ o.discount }}</td>
                 <td class="text-center">
                   <span class="fa fa-check-circle text-success" *ngIf="o.survey[0] && o.survey[0]['dd'] === '1'"></span>

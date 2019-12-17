@@ -93,7 +93,7 @@ export class OrdersViewComponent implements OnInit {
         this.firstname = c.cmd.firstname;
         this.lastname = c.cmd.lastname;
         this.job = c.cmd.job;
-        this.country = c.cmd.country;
+        this.country = c.cmd.countryBilling;
         this.discount = c.cmd.discount;
         this.currency = c.cmd.currency;
         this.currencyTx = c.cmd.currencyTx;
@@ -120,7 +120,7 @@ export class OrdersViewComponent implements OnInit {
             index++;
             let prod = {
               idx: index,
-              print: false, 
+              print: false,
               idCmd: c.cmd.id_cmd,
               id_undercmd: p.id_undercmd,
               status: 'validated',

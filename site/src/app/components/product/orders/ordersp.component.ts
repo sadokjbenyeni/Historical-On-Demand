@@ -9,6 +9,7 @@ import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 
 import { OrderService } from '../../../services/order.service';
+import { CurrencyService } from '../../../services/currency.service';
 
 import { DataTableDirective } from 'angular-datatables';
 
@@ -41,12 +42,14 @@ export class OrderspComponent implements OnInit {
   dtTrigger: Subject<any> = new Subject();
   dtOptions: DataTables.Settings = {};
   listorders: Orders[] = [];
+  symbols: any[];
 
   constructor(
     private http: Http,
     private router: Router,
     private httpc: HttpClient,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private currencyService: CurrencyService
   ) { }
 
   @ViewChild(DataTableDirective)
@@ -58,6 +61,7 @@ export class OrderspComponent implements OnInit {
     this.dtOptions = {};
     this.state = 'PVP';
     this.getListStates();
+    this.getCurrencies();
 
     const that = this;
     this.dtOptions = {
@@ -79,7 +83,7 @@ export class OrderspComponent implements OnInit {
           });
         });
       },
-      columns: [ 
+      columns: [
         { data: 'companyName' },
         { data: 'id' },
         { data: 'state' },
@@ -108,7 +112,7 @@ export class OrderspComponent implements OnInit {
   changeState(col){
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(this.state).draw();
-    })    
+    })
   }
 
   changeDate(col){
@@ -158,6 +162,15 @@ export class OrderspComponent implements OnInit {
     if( !this.states )
       return stateId;
     return this.states.filter( e => e.id === stateId )[0] ? this.states.filter( e => e.id === stateId )[0].name : stateId;
+  }
+
+  getCurrencies() {
+    this.currencyService.getCurrencies().subscribe(r=>{
+      this.symbols = [];
+      r.currencies.forEach(s => {
+        this.symbols[s.id] = s.symbol;
+      });
+    });
   }
 
 }

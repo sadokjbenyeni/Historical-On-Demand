@@ -90,7 +90,7 @@ export class OrderscViewComponent implements OnInit {
         this.firstname = c.cmd.firstname;
         this.lastname = c.cmd.lastname;
         this.job = c.cmd.job;
-        this.country = c.cmd.country;
+        this.country = c.cmd.countryBilling;
         this.currency = c.cmd.currency;
         this.discount = c.cmd.discount;
         this.currencyTx = c.cmd.currencyTx;
@@ -114,7 +114,7 @@ export class OrderscViewComponent implements OnInit {
             index++;
             let prod = {
               idx: index,
-              print: false, 
+              print: false,
               idCmd: c.cmd.id_cmd,
               idElem: p.id_undercmd,
               quotation_level: p.dataset,
@@ -188,7 +188,7 @@ export class OrderscViewComponent implements OnInit {
     var factor = Math.pow(10, precision);
     return Math.round(number * factor) / factor;
   }
-    
+
   dateDiff(date1, date2){
     let diff = { sec: 0, min: 0, hour:0, day: 0 };  // Initialisation du retour
     let tmp = date2 - date1;

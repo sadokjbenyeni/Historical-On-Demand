@@ -113,7 +113,7 @@ export class OrderspViewComponent implements OnInit {
         this.firstname = c.cmd.firstname;
         this.lastname = c.cmd.lastname;
         this.job = c.cmd.job;
-        this.country = c.cmd.country;
+        this.country = c.cmd.countryBilling;
         this.discount = c.cmd.discount;
         this.currency = c.cmd.currency;
         this.currencyTx = c.cmd.currencyTx;
@@ -140,7 +140,7 @@ export class OrderspViewComponent implements OnInit {
             index++;
             let prod = {
               idx:index,
-              print: false, 
+              print: false,
               idCmd: c.cmd.id_cmd,
               idElem: p.id_undercmd,
               id_undercmd: p.id_undercmd,
@@ -187,7 +187,7 @@ export class OrderspViewComponent implements OnInit {
       });
     }
     if(this.action === 'Confirm Discount Application') {
-      this.orderService.updtCaddy({ idCmd: this.idCmd, discount : this.discount }).subscribe(res=>{
+      this.orderService.updtCaddy({ idCmd: this.idCmd, discount : { percent : this.discount } }).subscribe(res=>{
         this.message = 'Applied Discount';
       });
     }
@@ -202,7 +202,7 @@ export class OrderspViewComponent implements OnInit {
       } else {
         s = 'PVF'; // cron pour l'auto-validation après délai des commandes n'excédant pas le montant max et payé par credit card ou paypal
       }
-      
+
       this.orderService.state({idCmd: this.idCmd, id: this.id, status: s, referer: referer, product: this.cart, email: this.cmd['email']}).subscribe(()=>{
         this.router.navigate(['/product/orders']);
       });
@@ -236,7 +236,7 @@ export class OrderspViewComponent implements OnInit {
   }
 
   verifDiscount() {
-    if(this.discount < 0 || this.discount > 100) {
+    if(this.discount < 0 || this.discount > 100 || this.discount == null ) {
       this.discount = 0;
     }
     this.totalHT = (this.totalHTOld - (this.totalHTOld * this.discount / 100) ) + this.totalFees;

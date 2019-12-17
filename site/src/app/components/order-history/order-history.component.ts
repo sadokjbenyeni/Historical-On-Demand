@@ -61,6 +61,7 @@ export class OrderHistoryComponent implements OnInit {
   lastname: any;
   job: any;
   country: any;
+  countryBilling: any;
   datasetsLink: { L1: string; L1TRADEONLY: string; L2: string; };
   dtOptions: DataTables.Settings = {};
 
@@ -168,6 +169,7 @@ export class OrderHistoryComponent implements OnInit {
     this.company = c.companyName;
     this.job = c.job;
     this.country = c.country;
+    this.countryBilling = c.countryBilling;
     if(this.state === 'active') {
       this.textcolor = 'text-success';
     } else if(this.state === 'rejected') {
