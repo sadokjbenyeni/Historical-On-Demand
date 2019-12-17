@@ -755,6 +755,7 @@ export class CaddiesComponent implements OnInit {
       // this.pdfService.header('', this.user['id'], this.numVat, '', '', this.id, this.currency);
       // this.pdfService.link('QH-CMD-'+ this.id);
     });
+    this.orderService.sortProducts({idCmd: this.idCmd}).subscribe(res=>{});
   }
 
   open() {

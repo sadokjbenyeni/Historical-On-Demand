@@ -892,7 +892,7 @@ router.post('/caddies', (req, res) => {
     });
 });
 
-router.post('/listStates', (req, res) => {
+router.get('/listStates', (req, res) => {
     let states = [
       {id:'CART', name: 'Cart' },
       {id:'PLI', name: 'Pending Licensing Information' },
@@ -909,6 +909,29 @@ router.post('/listStates', (req, res) => {
       {id:'failed', name: 'Failed' },
     ];
     return res.status(200).json({states: states});
+});
+
+router.post('/sortProducts', (req, res) => {
+  Order.findOne({id_cmd: req.body.idCmd})
+      .then(cmd => {
+        console.log();
+        let idx = 1;
+        let listProducts = [];
+        cmd.products.forEach(p => {
+          p.id_undercmd = cmd.id + "§" + idx++;
+          listProducts.push(p);
+        });
+
+        Order.updateOne(
+            { id_cmd: cmd.id_cmd },
+            {
+              $set: {
+                products: listProducts
+              }
+            }).then(u=>{return true;});
+
+        return res.status(200).json({'ok':true});
+      });
 });
 
 pdfpost = function(id){

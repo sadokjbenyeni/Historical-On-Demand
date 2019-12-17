@@ -35,7 +35,7 @@ export class OrderService {
   updtProductCaddy(order) {
     return this.http.put( environment.api + '/order/updtProductCaddy', order ).map( res => res.json() );
   }
-  
+
   updtCaddy(order) {
     return this.http.put( environment.api + '/order/updtCaddy', order ).map( res => res.json() );
   }
@@ -74,7 +74,11 @@ export class OrderService {
   }
 
   getListStates(requete) {
-    return this.http.post( environment.api + '/order/listStates', requete ).map( res => res.json() );
+    return this.http.get( environment.api + '/order/listStates', requete ).map( res => res.json() );
+  }
+
+  sortProducts(requete) {
+    return this.http.post( environment.api + '/order/sortProducts', requete ).map( res => res.json() );
   }
 
 }
