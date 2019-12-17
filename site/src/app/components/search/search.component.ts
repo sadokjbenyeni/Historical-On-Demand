@@ -183,7 +183,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.assets = [];
     this.tabsearch = 'instrument';
     this.formatfile = 'csv';
-    this.getCaddie();
+    // this.getCaddie();
     this.getShowEntries();
     this.getPeriod();
     this.getPricingTier();
@@ -299,11 +299,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getCaddie(){
-    this.orderService.getIdOrder(this.user['_id']).subscribe(p=>{
-      this.caddy = p;
-    });
-  }
+  // getCaddie(){
+  //   this.orderService.getIdOrder(this.user['_id']).subscribe(p=>{
+  //     this.caddy = p;
+  //   });
+  // }
 
   getPrice() {
     this.fluxService.pricingTier().subscribe(res => {
@@ -809,7 +809,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.addCart.onetimeFrom = this.onetimeFrom.year + '-' + this.onetimeFrom.month  + '-' + this.onetimeFrom.day;
     this.dateChangeBegin(this.onetimeFrom);
   }
-  
+
   dateChangeTo() {
     let convOneTimeFrom = new Date();
     let convOneTimeTo = new Date();
@@ -840,7 +840,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         if (option._index === environment.elastic.feed.productdb) { // FEED
           let av0 = new Date(option._source.AvailabilityStart);
           let av1 = new Date(option._source.AvailabilityEnd);
-  
+
           if (this.addCart.products.length === 0) {
             this.minDate = { year: av0.getFullYear(), month: (av0.getMonth()+1), day: av0.getDate() };
             this.config.minDate = this.minDate;
@@ -874,7 +874,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         if (option._index === environment.elastic.instrument.nonderivatives) { // Instrument non-deriv
           let av0 = new Date(option._source.AvailabilityStart);
           let av1 = new Date(option._source.AvailabilityEnd);
-          
+
           if (this.addCart.products.length === 0) {
             this.minDate = { year: av0.getFullYear(), month: (av0.getMonth()+1), day: av0.getDate() };
             this.config.minDate = this.minDate;
@@ -915,7 +915,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         if (option._index === environment.elastic.instrument.derivatives) { // Instrument deriv
           let av0 = new Date(option._source.AvailabilityStart);
           let av1 = new Date(option._source.AvailabilityEnd);
-  
+
           if (this.addCart.products.length === 0) {
             this.minDate = { year: av0.getFullYear(), month: (av0.getMonth()+1), day: av0.getDate() };
             this.config.minDate = this.minDate;
@@ -967,7 +967,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.addCart.products.splice(this.addCart.products.indexOf(option), 2);
     }
   }
-  
+
   getAvailability(db, ed) {
     this.avaibility = true;
 
@@ -1065,7 +1065,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
           p.price = this.tabPrice.feed.month[p.pricingtier][this.ds];
         }
         prod = this.product(p, 0, this.addCart.subscription);
-        if(!this.verifExist(prod)) { 
+        if(!this.verifExist(prod)) {
           prod['begin_date_select'] = '';
           prod['end_date_select'] = '';
           caddy.push(prod);
@@ -1221,7 +1221,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     }
     return t;
   }
-  
+
   searchDataset(nameKey, myArray){
     for (var i=0; i < myArray.length; i++) {
         if (myArray[i].id === nameKey) {

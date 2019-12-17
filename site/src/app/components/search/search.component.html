@@ -68,7 +68,7 @@
                 <div class="btn btn-info" *ngFor="let ex of exchangesSearch">
                   <span aria-hidden="true" (click)="delEx(ex)" class="text-danger fa fa-times"></span> {{ ex }}
                 </div>
-                <select name="newExchange" id="newExchange" class="form-control" [(ngModel)]="exchange" (change)="addEchange($event.target.value)">
+                <select name="newExchange" id="newExchange" class="form-control" [(ngModel)]="exchange" (change)="addEchange($event.target.value)" [disabled]="exchanges.length <= 0 ">
                   <option value="" disabled>Selected Exchange</option>
                   <option *ngFor='let e of exchanges' [value]="e.id"  [disabled]="exchangesSearch.indexOf(e.id) !== -1 ">{{e.name}}</option>
                 </select>
@@ -221,7 +221,9 @@
   <div class="modal-body">
       <!-- {{onetimeFrom | json}} - {{onetimeTo | json}}
     {{addCart | json}} -->
-    <div><input type="checkbox" value="onetime" #onetime (change)="onetimeCheckbox(onetime)" [checked]="addCart.onetime === 1"> One-time delivery</div>
+    <div>
+        <label><input type="checkbox" value="onetime" #onetime (change)="onetimeCheckbox(onetime)" [checked]="addCart.onetime === 1"> One-time delivery</label>
+    </div>
     <div [hidden]="addCart.onetime === 0">
         <label><input type="radio" [(ngModel)]="periodicite" name="do" value="1" (click)="datePeriod()"> Period</label>
         <label><input type="radio" [(ngModel)]="periodicite" name="do" value="0" (click)="dateComplete()"> Complete history</label>
@@ -240,7 +242,7 @@
         </div>
     </div>
     <div>
-      <input type="checkbox" value="subscription" #subscription (change)="subscriptionCheckbox(subscription)" [checked]="addCart.subscription === 1"> Subscription (yearly renewal)
+      <label><input type="checkbox" value="subscription" #subscription (change)="subscriptionCheckbox(subscription)" [checked]="addCart.subscription === 1"> Subscription (yearly renewal)</label>
     </div>
     <div [hidden]="addCart.subscription === 0" class="text-color">
       Minimum engagement period for any recurring delivery order is 12 months.
