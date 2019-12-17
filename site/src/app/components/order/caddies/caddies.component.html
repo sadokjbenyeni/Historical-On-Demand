@@ -131,7 +131,7 @@
                   <td class="bb">{{ discount }}</td>
                   <td *ngIf="page === 'caddies'"></td>
                 </tr>
-                <tr *ngIf="applyVAT">
+                <tr *ngIf="vatValueApply">
                     <td colspan="12"></td>
                     <td class="bb">Taxes (VAT - {{(vat * 100) | ceil }} %)</td>
                     <td class="bb">{{ totalVat | number:'1.2-2' }} {{ symbol }}</td>
@@ -181,9 +181,16 @@
                       <option *ngFor='let c of country' [value]="c.id">{{c.name}}</option>
                     </select>
                   </div>
-                  <label class="checkbox text-color">
-                    <input type="checkbox" name="sameaddress" (change)="sameAddress()"  [(ngModel)]="user.sameAddress"> Use contact address as billing address ?
-                  </label>
+                  <div class="col-lg-6">
+                    <label class="checkbox text-color">
+                      <input type="checkbox" name="sameaddress" (change)="sameAddress()" [(ngModel)]="user.sameAddress"> Use contact address as billing address ?
+                    </label>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="checkbox text-color" *ngIf="changedAddress()">
+                      <input type="checkbox" name="addresschange" [(ngModel)]="addresschange"> Save as default Billing Information ?
+                    </label>
+                  </div>
                 </div>
                 <div class="col-lg-6">
                   <div class="form-group input-group">
@@ -201,8 +208,8 @@
                     </div>
                     <div class="col-lg-6 panel panel-primary">
                       <h4>Please select your billing currency</h4>
-                      <label class="radio" *ngFor="let currency of currencies">
-                        <input type="radio" name="currency" [value]="currency.id" [(ngModel)]="user.currency" [title]="currency.name" (change)="changeCurrency($event, currency.id)"> {{ currency.device }}
+                      <label class="radio" *ngFor="let curr of currencies">
+                        <input type="radio" name="currency" [value]="curr.id" [(ngModel)]="currency" [title]="curr.name" (change)="changeCurrency($event, curr.id)"> {{ curr.device }}
                       </label>
                       <label class="checkbox text-color" *ngIf="user.currency != currency">
                         <input type="checkbox" name="currencychange" [(ngModel)]="currencychange"> Select as default billing currency ?
@@ -304,6 +311,8 @@
   </div>
 </div>
 <pre *ngIf="user['token']==='265a6952787e320c0ba55fefeec470f88f74c9313ed1eb689f3f1988329c5015d06537101ff99806f2c38d8d459ad53b'">
+  {{ user['countryBilling'] }}
+  {{ this.vatValueApply }}
   {{ checkv }}
   {{ user.vat }}
   {{ loadvat }}

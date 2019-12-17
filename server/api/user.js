@@ -290,9 +290,9 @@ router.post('/preferBilling/', (req, res) => {
     if(req.body.payment){
         modify.payment = req.body.payment;
     }
-    if(req.body.vat){
+    // if(req.body.vat){
         modify.vat = req.body.vat;
-    }
+    // }
     if(req.body.addressBilling){
         modify.addressBilling = req.body.addressBilling;
     }
@@ -365,6 +365,7 @@ router.put('/', (req, res) => {
         user.idCountryBilling = req.body.idCountryBilling;
         user.countryBilling = req.body.countryBilling;
         user.vat = req.body.vat;
+        user.checkvat = req.body.checkvat;
         user.currency = req.body.currency;
         user.payment = req.body.payment;
         user.islogin = req.body.islogin;

@@ -47,11 +47,13 @@ export class CaddiesComponent implements OnInit {
   framepayment: any;
   idCmd: string;
   status: string;
-  applyVAT: boolean;
+  // applyVAT: boolean;
+  vatValueApply: boolean;
   symbol: string;
   rate: number;
   currencychange: boolean;
   paymentchange: boolean;
+  addresschange: boolean;
   checkv: any;
   loadvat: string;
   country: any;
@@ -73,7 +75,7 @@ export class CaddiesComponent implements OnInit {
       ib6: string,
       ib7: string
     },
-    rib:{
+    rib: {
       cb: string,
       cg: string,
       nc: string,
@@ -106,7 +108,7 @@ export class CaddiesComponent implements OnInit {
   paymentactive: string;
   breadcrumbs: Array<object>;
   closeResult: string;
-  
+
   constructor(
     private router: Router,
     private configService: ConfigService,
@@ -143,8 +145,9 @@ export class CaddiesComponent implements OnInit {
       this.surveyForm = JSON.parse(sessionStorage.getItem('surveyForm'));
     }
 
-    this.currencychange= false;
-    this.paymentchange= false;
+    this.currencychange = false;
+    this.paymentchange = false;
+    this.addresschange = false;
     this.termspdf = '/files/historical_data_tc.pdf';
     this.checkv = false;
     this.loadvat = 'form-control';
@@ -170,7 +173,7 @@ export class CaddiesComponent implements OnInit {
     }
     if (this.router.url === '/order/billing') {
       this.page = 'billing';
-      this.getCountry()
+      this.getCountry();
       this.getPayments();
     }
     if (this.router.url === '/order/orderconfirm') {
@@ -229,7 +232,7 @@ export class CaddiesComponent implements OnInit {
       res.user.payment = 'banktransfer';
       this.user["payment"] = 'banktransfer';
       this.payment = 'banktransfer';
-// fin a retirer
+      // fin a retirer
 
       this.checkv = res.user.checkvat;
       if (res.user.checkvat) { this.loadvat = 'form-control'; }
@@ -241,7 +244,7 @@ export class CaddiesComponent implements OnInit {
         }
         //à retirer lors de l'implémentation du paiement par CB
 
-      }  
+      }
       if(res.user.currency) {
         this.currency = res.user.currency;
         this.getRate();
@@ -255,7 +258,7 @@ export class CaddiesComponent implements OnInit {
         postalCodeBilling: res.user.postalCodeBilling,
         countryBilling: res.user.countryBilling,
         vat: res.user.vat
-      }
+      };
       this.getCaddy(this.user['_id']);
     });
   }
@@ -265,9 +268,33 @@ export class CaddiesComponent implements OnInit {
       if(c.cmd.length > 0 ) {
         this.fluxService.rate({currency:c.cmd[0].currency}).subscribe(res=>{
           this.currency = c.cmd[0].currency;
-          this.numVat = c.cmd[0].vat;
-          if(c.cmd[0].vatValide !== null) {
-            this.checkv = c.cmd[0].vatValide; 
+          if( c.cmd[0].vat !== null &&c.cmd[0].vat ) {
+            this.user['vat'] = c.cmd[0].vat;
+          } else if( c.cmd[0].vatValide === null ) {
+            this.user['vat'] = this.oldAddressBilling['vat'];
+          }
+          if( c.cmd[0].vatValide !== null) {
+            this.checkv = c.cmd[0].vatValide;
+          }
+          if( c.cmd[0].addressBilling !== null && c.cmd[0].addressBilling ) {
+            this.user['addressBilling'] = c.cmd[0].addressBilling;
+          } else {
+            this.user['addressBilling'] = this.oldAddressBilling['addressBilling'];
+          }
+          if( c.cmd[0].cityBilling !== null && c.cmd[0].cityBilling ) {
+            this.user['cityBilling'] = c.cmd[0].cityBilling;
+          } else {
+            this.user['cityBilling'] = this.oldAddressBilling['cityBilling'];
+          }
+          if( c.cmd[0].postalCodeBilling !== null && c.cmd[0].postalCodeBilling ) {
+            this.user['postalCodeBilling'] = c.cmd[0].postalCodeBilling;
+          } else {
+            this.user['postalCodeBilling'] = this.oldAddressBilling['postalCodeBilling'];
+          }
+          if( c.cmd[0].countryBilling !== null && c.cmd[0].countryBilling ) {
+            this.user['countryBilling'] = c.cmd[0].countryBilling;
+          } else {
+            this.user['countryBilling'] = this.oldAddressBilling['countryBilling'];
           }
           this.currencyObj = this.searchCurrency(this.currency, this.currencies);
           this.rate = parseFloat(res.rate);
@@ -328,12 +355,12 @@ export class CaddiesComponent implements OnInit {
                 this.breadcrumbs[5]['active'] = this.paymentactive;
               }
               this.cart = [];
+
               this.totalHTUsd = c.cmd[0].totalHT;
               this.totalFeesUsd = c.cmd[0].totalExchangeFees;
               this.discount = c.cmd[0].discount;
               this.totalAmountUsd = (this.totalHTUsd - (this.totalHTUsd * c.cmd[0].discount / 100) ) + c.cmd[0].totalExchangeFees;
-              this.totalVatUsd = this.totalAmountUsd * this.vat;
-              this.totalTTCUsd = this.precisionRound(this.totalAmountUsd + this.totalVatUsd, 2);
+
               if (this.currency !== 'usd') {
                 this.totalFees = (c.cmd[0].totalExchangeFees / usd) * this.rate;
                 this.totalHT = (c.cmd[0].totalHT / usd) * this.rate;
@@ -346,8 +373,22 @@ export class CaddiesComponent implements OnInit {
               //   this.minRib = true;
               //   this.user['payment'] = 'creditcard';
               // }
-              this.totalVat = this.totalAmount * this.vat;
-              this.totalTTC = this.precisionRound(this.totalAmount + this.totalVat, 2);
+
+              this.countriesService.isUE({id:this.user['countryBilling']}).subscribe(res=>{
+                this.vatValueApply = ( this.user['countryBilling'] == 'FR' || ( res.ue == 1 && ( this.user['vat'] == '' || !this.checkv ) ) );
+
+                if( !this.vatValueApply ){
+                  // this.vat = null;
+                  this.totalVatUsd = 0;
+                  this.totalVat = 0;
+                } else {
+                  this.totalVatUsd = this.totalAmountUsd * this.vat;
+                  this.totalVat = this.totalAmount * this.vat;
+                }
+                this.totalTTCUsd = this.precisionRound(this.totalAmountUsd + this.totalVatUsd, 2);
+                this.totalTTC = this.precisionRound(this.totalAmount + this.totalVat, 2);
+              });
+
               c.cmd.forEach((cmd) => {
                 cmd.products.forEach((p) => {
                   index++;
@@ -364,7 +405,7 @@ export class CaddiesComponent implements OnInit {
                     ongoing_fee = p.ongoing_fee;
                   }
                   let prod = {
-                    print: false, 
+                    print: false,
                     id: index,
                     idCmd: cmd.id_cmd,
                     idElem: p.id_undercmd,
@@ -429,7 +470,6 @@ export class CaddiesComponent implements OnInit {
     this.cart.forEach(element => {
       this.ht += (parseFloat(element['price']) * this.rate );
     });
-    this.isUE();
   }
 
   getRib() {
@@ -491,18 +531,8 @@ export class CaddiesComponent implements OnInit {
     dm.day = parseInt(dsplit[2]);
     return dm;
   }
-  isUE(){
-    if(this.user['countryBilling']){
-      this.countriesService.isUE({id:this.user['countryBilling']}).subscribe(res=>{
-        this.applyVAT = res.ue;
-        if(this.applyVAT) {
-          this.total = this.ht * (this.vat + 1);
-        } else {
-          this.total = this.ht;
-        }  
-      });
-    }
-  }
+
+
   //Function Review
 
   // Function Licensing
@@ -550,49 +580,45 @@ export class CaddiesComponent implements OnInit {
     let modify = {};
     let billingCart = {};
     // sessionStorage.setItem('user', JSON.stringify(this.user));
-    
-    billingCart['currency'] = this.user['currency'];
-    if(this.currencychange){
-      modify['currency'] = this.user['currency'];
-    }
-    billingCart['currencyTx'] = this.taux[billingCart['currency']];
-    billingCart['currencyTxUsd'] = this.taux['usd'];
-    billingCart['vatValue'] = this.vat;
-    
-    billingCart['payment'] = this.user['payment'];
-    if(this.paymentchange){
-      modify['payment'] = this.user['payment'];
-    }
-    billingCart['vat'] = this.user['vat'];
-    if(this.user['vat'] !== this.oldAddressBilling['vat']){
-      modify['vat'] = this.user['vat'];
-    }
-    billingCart['addressBilling'] = this.user['addressBilling'];
-    if(this.user['addressBilling'] !== this.oldAddressBilling['addressBilling']){
-      modify['addressBilling'] = this.user['addressBilling'];
-    }
-    billingCart['cityBilling'] = this.user['cityBilling'];
-    if(this.user['cityBilling'] !== this.oldAddressBilling['cityBilling']){
-      modify['cityBilling'] = this.user['cityBilling'];
-    }
-    billingCart['countryBilling'] = this.user['countryBilling'];
-    if(this.user['countryBilling'] !== this.oldAddressBilling['countryBilling']){
-      modify['countryBilling'] = this.user['countryBilling'];
-    }
-    billingCart['postalCodeBilling'] = this.user['postalCodeBilling'];
-    if(this.user['postalCodeBilling'] !== this.oldAddressBilling['postalCodeBilling']){
-      modify['postalCodeBilling'] = this.user['postalCodeBilling'];
-    }
-    billingCart['vatValide'] = this.checkv;
-    // if(this.currencychange || this.paymentchange){
-      modify['token'] = this.user['token'];
-      modify['checkvat'] = this.checkv;
-      this.userService.preferBilling(modify).subscribe(res=>{});
-    // }
-    for (let index = 0; index < this.cart.length; index++) {
-      this.cart[index].status = 'PSC';
-    }
-    this.orderService.updtCaddy({idCmd: this.idCmd, state: 'PSC', billing: billingCart, cart: this.cart}).subscribe(res=>{});
+
+    this.countriesService.isUE({id:this.user['countryBilling']}).subscribe(res=>{
+      this.vatValueApply = ( this.user['countryBilling'] == 'FR' || ( res.ue == 1 && ( this.user['vat'] == '' || !this.checkv ) ) );
+
+      billingCart['currency'] = this.currency;
+      if(this.currencychange){
+        modify['currency'] = this.currency;
+      }
+      billingCart['currencyTx'] = this.taux[billingCart['currency']];
+      billingCart['currencyTxUsd'] = this.taux['usd'];
+      billingCart['vatValue'] = this.vatValueApply ? this.vat : null;
+
+      billingCart['payment'] = this.user['payment'];
+      if(this.paymentchange){
+        modify['payment'] = this.user['payment'];
+      }
+
+      billingCart['vatValide'] = this.checkv;
+      billingCart['vat'] = this.user['vat'];
+      billingCart['addressBilling'] = this.user['addressBilling'];
+      billingCart['cityBilling'] = this.user['cityBilling'];
+      billingCart['postalCodeBilling'] = this.user['postalCodeBilling'];
+      billingCart['countryBilling'] = this.user['countryBilling'];
+      if(this.addresschange){
+        modify['checkvat'] = this.checkv;
+        modify['vat'] = this.user['vat'];
+        modify['addressBilling'] = this.user['addressBilling'];
+        modify['cityBilling'] = this.user['cityBilling'];
+        modify['postalCodeBilling'] = this.user['postalCodeBilling'];
+        modify['countryBilling'] = this.user['countryBilling'];
+        modify['token'] = this.user['token'];
+        this.userService.preferBilling(modify).subscribe(res=>{});
+      }
+
+      for (let index = 0; index < this.cart.length; index++) {
+        this.cart[index].status = 'PSC';
+      }
+      this.orderService.updtCaddy({idCmd: this.idCmd, state: 'PSC', billing: billingCart, cart: this.cart}).subscribe(res=>{});
+    });
   }
 
   saveAmount() {
@@ -623,6 +649,21 @@ export class CaddiesComponent implements OnInit {
       this.user['postalCodeBilling'] = this.oldAddressBilling['postalCodeBilling'];
       this.user['countryBilling'] = this.oldAddressBilling['countryBilling'];
     }
+  }
+  changedAddress(){
+    if( this.oldAddressBilling ){
+      if( this.user['vat'] != this.oldAddressBilling['vat'] )
+        return true;
+      if( this.user['addressBilling'] != this.oldAddressBilling['addressBilling'] )
+        return true;
+      if( this.user['cityBilling'] != this.oldAddressBilling['cityBilling'] )
+        return true;
+      if( this.user['postalCodeBilling'] != this.oldAddressBilling['postalCodeBilling'] )
+        return true;
+      if( this.user['countryBilling'] != this.oldAddressBilling['countryBilling'] )
+        return true;
+    }
+    return false;
   }
   checkVat(){
     if (this.user['vat'] !== '' && this.user['vat']) {
@@ -685,7 +726,7 @@ export class CaddiesComponent implements OnInit {
       }
     });
   }
- 
+
   submitRib() {
     // this.pdfService.setPdf(this.cmd, this.user['id'], this.rib);
     // this.pdfService.setHeader('', this.user['id'], this.numVat, '', '', this.id, this.currency);
@@ -718,7 +759,7 @@ export class CaddiesComponent implements OnInit {
 
   open() {
     const message = [
-      'Thank you for your order','', 
+      'Thank you for your order','',
       'Your order has been submitted successfully and it is now pending validation.',
       'You will be notified by email once your order has been validated and when you can access your data. You could as well follow the progress of all your orders via your personal profile / order history section.'
     ];

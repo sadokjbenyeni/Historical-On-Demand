@@ -10,6 +10,7 @@ const Config = mongoose.model('Config');
 const Order = mongoose.model('Order');
 const Pool = mongoose.model('Pool');
 const User = mongoose.model('User');
+const Currency = mongoose.model('Currency');
 
 const config = require('../config/config.js');
 const URLS = config.config();
@@ -347,7 +348,7 @@ router.put('/updtCaddy', (req, res) => {
     updt.survey = req.body.survey;
   }
   if (req.body.discount) {
-    updt.discount = req.body.discount;
+    updt.discount = req.body.discount.percent;
   }
   if (req.body.totaux) {
     updt.totalExchangeFees = req.body.totaux.totalExchangeFees;
@@ -601,101 +602,116 @@ router.put('/state', (req, res) => {
 })
 
 router.put('/update', (req, res) => {
-  Order.findOne({_id: req.body.idcmd.id_cmd})
-  .then((updt)=>{
-    updt.id_cmd=  updt.id + "-" + req.body.u.user.companyName.replace(' ','').toLowerCase() + "-" + new Date().yyyymmdd().replace(/-/g,'');
-    if(req.body.state){
-      updt.state = req.body.state;
-    }
-    if(req.body.cart){
-      let idx = 1;
-      if (updt.products.length > 0) {
-        idx = parseInt(updt.products[updt.products.length - 1].id_undercmd.split('§')[1]) + 1;
-      }
-      req.body.cart.forEach((elem) => {
-        updt.totalExchangeFees += parseFloat(elem.backfill_fee);
-        updt.totalExchangeFees += parseFloat(elem.ongoing_fee);
-        updt.totalHT += parseFloat(elem.ht);
-        updt.products.push({
-          "idx" : elem.idx,
-          "index" : elem.index,
-          "id_undercmd" : updt.id + "§" + idx++,
-          // "id_undercmd" : "cmd-" + req.body.idcmd.id_cmd + "-" + idx++,
-          "dataset" : elem.quotation_level,
-          "description" : elem.description,
-          "pricingTier" : elem.pricingTier,
-          "price" : elem.price,
-          "backfill_fee" : parseFloat(elem.backfill_fee),
-          "ongoing_fee" : parseFloat(elem.ongoing_fee),
-          "ht" : parseFloat(elem.ht),
-          "onetime" : elem.onetime,
-          "subscription" : elem.subscription,
-          "period" : elem.period,
-          "contractid" : elem.contractid,
-          "eid" : elem.eid,
-          "qhid" : elem.qhid,
-          "symbol" : elem.symbol,
-          "historical_data" : elem.historical_data,
-          "exchangeName" : elem.exchange,
-          "assetClass" : elem.assetClass,
-          "mics" : elem.mics,
-          "begin_date_ref" : elem.begin_date,
-          "end_date_ref" : elem.end_date,
-          "begin_date" : elem.begin_date_select,
-          "end_date" : elem.end_date_select,
-          "status" : elem.status,
-          "logs" : [
+  var currencies = [];
+  Currency.find({})
+  .then((curs)=>{
+      currencies = curs;
+
+      Order.findOne({_id: req.body.idcmd.id_cmd})
+      .then((updt)=>{
+        updt.id_cmd=  updt.id + "-" + req.body.u.user.companyName.replace(' ','').toLowerCase() + "-" + new Date().yyyymmdd().replace(/-/g,'');
+        if(req.body.state){
+          updt.state = req.body.state;
+        }
+        if(req.body.cart){
+          let idx = 1;
+          if (updt.products.length > 0) {
+            idx = parseInt(updt.products[updt.products.length - 1].id_undercmd.split('§')[1]) + 1;
+          }
+          req.body.cart.forEach((elem) => {
+            updt.totalExchangeFees += parseFloat(elem.backfill_fee);
+            updt.totalExchangeFees += parseFloat(elem.ongoing_fee);
+            updt.totalHT += parseFloat(elem.ht);
+            updt.products.push({
+              "idx" : elem.idx,
+              "index" : elem.index,
+              "id_undercmd" : updt.id + "§" + idx++,
+              // "id_undercmd" : "cmd-" + req.body.idcmd.id_cmd + "-" + idx++,
+              "dataset" : elem.quotation_level,
+              "description" : elem.description,
+              "pricingTier" : elem.pricingTier,
+              "price" : elem.price,
+              "backfill_fee" : parseFloat(elem.backfill_fee),
+              "ongoing_fee" : parseFloat(elem.ongoing_fee),
+              "ht" : parseFloat(elem.ht),
+              "onetime" : elem.onetime,
+              "subscription" : elem.subscription,
+              "period" : elem.period,
+              "contractid" : elem.contractid,
+              "eid" : elem.eid,
+              "qhid" : elem.qhid,
+              "symbol" : elem.symbol,
+              "historical_data" : elem.historical_data,
+              "exchangeName" : elem.exchange,
+              "assetClass" : elem.assetClass,
+              "mics" : elem.mics,
+              "begin_date_ref" : elem.begin_date,
+              "end_date_ref" : elem.end_date,
+              "begin_date" : elem.begin_date_select,
+              "end_date" : elem.end_date_select,
+              "status" : elem.status,
+              "logs" : [
+                {
+                  referer: "client",
+                  status: elem.status,
+                  date: new Date()
+                }
+              ]
+            });
+          });
+        }
+        if(req.body.u.user && (updt.vatValide === null) ){
+          updt.companyName = req.body.u.user.companyName;
+          updt.companyType = req.body.u.user.companyType;
+          updt.region = req.body.u.user.region;
+          updt.job = req.body.u.user.job;
+          updt.firstname = req.body.u.user.firstname;
+          updt.lastname = req.body.u.user.lastname;
+          updt.email = req.body.u.user.email;
+          updt.phone = req.body.u.user.phone;
+          updt.website = req.body.u.user.website;
+          updt.address = req.body.u.user.address;
+          updt.city = req.body.u.user.city;
+          updt.country = req.body.u.user.country;
+          updt.postalCode = req.body.u.user.postalCode;
+          updt.addressBilling = req.body.u.user.addressBilling;
+          updt.cityBilling = req.body.u.user.cityBilling;
+          updt.countryBilling = req.body.u.user.countryBilling;
+          updt.postalCodeBilling = req.body.u.user.postalCodeBilling;
+          updt.vat = req.body.u.user.vat;
+          // updt.vatValide = req.body.u.user.vatValide;
+          updt.payment = req.body.u.user.payment;
+          updt.currency = req.body.u.user.currency;
+          // updt.currencyTx = req.body.user.currencyTx;
+          for (var i=0; i < currencies.length; i++) {
+            if( currencies[i]['id'] === updt.currency )
             {
-              referer: "client",
-              status: elem.status,
-              date: new Date()
+              updt.currencyTx = currencies[i]['taux'];
             }
-          ]
-        });
+            if( currencies[i]['id'] === 'usd' )
+            {
+              updt.currencyTxUsd = currencies[i]['taux'];
+            }
+          }
+        }
+        if(req.body.survey){
+          updt.survey = req.body.survey;
+        }
+        Order.update(
+          { _id: req.body.idcmd.id_cmd },
+          { $set : updt })
+          .then((r)=>{
+            return res.status(201).json({ok:true});
+          }
+        // Order.update(
+        //   { _id: req.body.idcmd.id_cmd },
+        //   { $set : updt },
+        //   { $inc: { id_cmd: 1 } } )
+        //   .then((r)=>{
+        //     return res.status(201).json({ok:true});
+        //   }
+        );
       });
-    }
-    if(req.body.u.user){
-      updt.companyName = req.body.u.user.companyName;
-      updt.companyType = req.body.u.user.companyType;
-      updt.region = req.body.u.user.region;
-      updt.job = req.body.u.user.job;
-      updt.firstname = req.body.u.user.firstname;
-      updt.lastname = req.body.u.user.lastname;
-      updt.email = req.body.u.user.email;
-      updt.phone = req.body.u.user.phone;
-      updt.website = req.body.u.user.website;
-      updt.address = req.body.u.user.address;
-      updt.city = req.body.u.user.city;
-      updt.country = req.body.u.user.country;
-      updt.postalCode = req.body.u.user.postalCode;
-      updt.addressBilling = req.body.u.user.addressBilling;
-      updt.cityBilling = req.body.u.user.cityBilling;
-      updt.countryBilling = req.body.u.user.countryBilling;
-      updt.postalCodeBilling = req.body.u.user.postalCodeBilling;
-      updt.vat = req.body.u.user.vat;
-      // updt.vatValide = req.body.u.user.vatValide;
-      updt.payment = req.body.u.user.payment;
-      updt.currency = req.body.u.user.currency;
-      // updt.currencyTx = req.body.user.currencyTx;
-    }
-    if(req.body.survey){
-      updt.survey = req.body.survey;
-    }
-  
-    Order.update(
-      { _id: req.body.idcmd.id_cmd },
-      { $set : updt })
-      .then((r)=>{
-        return res.status(201).json({ok:true});
-      }
-    // Order.update(
-    //   { _id: req.body.idcmd.id_cmd },
-    //   { $set : updt }, 
-    //   { $inc: { id_cmd: 1 } } )
-    //   .then((r)=>{
-    //     return res.status(201).json({ok:true});
-    //   }
-    );
   });
 });
 
@@ -909,7 +925,7 @@ pdfpost = function(id){
   request.post(options, function (error, response, body) {
     if (error) throw new Error(error);
   });
-}
+};
 
 sendMail = function(url, corp) {
   let options = {
@@ -922,7 +938,7 @@ sendMail = function(url, corp) {
   request.post(options, function (error, response, body) {
     if (error) throw new Error(error);
   });
-}
+};
 
 Date.prototype.previousDay = function() {
   this.setDate(this.getDate() - 1);
@@ -987,17 +1003,17 @@ idcommande = function(prefix, nbcar) {
       return prefix;
     })
   });
-}
+};
 
 endperiod = function(data, periode){
   let dateclone = new Date(clone(data));
   return dateclone.setMonth(dateclone.getMonth()+periode);
-}
+};
 
 precisionRound = function(number, precision) {
   var factor = Math.pow(10, precision);
   return Math.round(number * factor) / factor;
-}
+};
 
 totalttc = function(o) {
   let totalExchangeFees = 0;
@@ -1026,7 +1042,7 @@ totalttc = function(o) {
     totalTTC = precisionRound((totalHT * (1 + o.vatValue)), 2);
   }
   return totalTTC;
-}
+};
 
 addPool = function(data) {
   Pool.findOne({ id_cmd: data.id_cmd, begin_date: data.begin_date }).then(p=>{
@@ -1044,6 +1060,6 @@ clone = function(obj){
       alert("variable cloning error");
   }
   return copy;
-}
+};
 
 module.exports = router;

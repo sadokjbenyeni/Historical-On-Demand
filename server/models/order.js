@@ -29,11 +29,11 @@ let OrderSchema = new mongoose.Schema({
   countryBilling: { type: String, maxlength: 3 },
   postalCodeBilling: { type: String, maxlength: 10 },
   vat: { type: String, maxlength: 15 },
-  vatValide: { type: Boolean, default: false },
+  vatValide: { type: Boolean, default: null },
   //End Information User
   payment: { type: String, maxlength: 200 },
   paymentDate: { type: Date },
-  vatValue: { type: Number },
+  vatValue: { type: Number, default: null },
   currency: { type: String, maxlength: 5, default: 'usd' },
   currencyTx: { type: Number },
   currencyTxUsd: { type: Number },
