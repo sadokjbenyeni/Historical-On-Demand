@@ -628,17 +628,13 @@ router.put('/update', (req, res) => {
                 case 'USD':
                   elem.backfill_fee = parseFloat(a_backfillfee[0]);
                   break;
-                case 'EUR':
+                default:
+                  elem.backfill_fee = parseFloat(a_backfillfee[0]);
                   for (let i = 0; i < currencies.length; i++) {
                     if (currencies[i]['device'] === 'USD') {
-                      elem.backfill_fee = parseFloat(a_backfillfee[0]) * currencies[i]['taux'];
-                    }
-                  }
-                  break;
-                default:
-                  for (let i = 0; i < currencies.length; i++) {
-                    if (currencies[i]['device'] === a_backfillfee[1]) {
-                      elem.backfill_fee = parseFloat(a_backfillfee[0]) * currencies[i]['taux'];
+                      elem.backfill_fee = elem.backfill_fee * currencies[i]['taux'];
+                    } else if (currencies[i]['device'] === a_backfillfee[1]) {
+                      elem.backfill_fee = elem.backfill_fee / currencies[i]['taux'];
                     }
                   }
               }
@@ -649,17 +645,13 @@ router.put('/update', (req, res) => {
                 case 'USD':
                   elem.ongoing_fee = parseFloat(a_ongoingfee[0]);
                   break;
-                case 'EUR':
+                default:
+                  elem.ongoing_fee = parseFloat(a_ongoingfee[0]);
                   for (let i = 0; i < currencies.length; i++) {
                     if (currencies[i]['device'] === 'USD') {
-                      elem.ongoing_fee = parseFloat(a_ongoingfee[0]) * currencies[i]['taux'];
-                    }
-                  }
-                  break;
-                default:
-                  for (let i = 0; i < currencies.length; i++) {
-                    if (currencies[i]['device'] === a_ongoingfee[1]) {
-                      elem.ongoing_fee = parseFloat(a_ongoingfee[0]) * currencies[i]['taux'];
+                      elem.ongoing_fee = elem.ongoing_fee * currencies[i]['taux'];
+                    } else if (currencies[i]['device'] === a_ongoingfee[1]) {
+                      elem.ongoing_fee = elem.ongoing_fee / currencies[i]['taux'];
                     }
                   }
               }
