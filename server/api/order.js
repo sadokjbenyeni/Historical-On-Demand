@@ -506,66 +506,68 @@ router.put('/state', (req, res) => {
     let id = "";
     let item = "";
     req.body.product.forEach(p=>{
-      p.dataset = p.quotation_level;
-      p.exchangeName = p.exchange;
-      if(p.subscription === 1) {
-        end = new Date(endperiod(deb, p.period));
-        end = verifWeekNext(end);
-        p.begin_date = deb;
-        p.end_date = end;
-        let qhid = "";
-        if (p.qhid !== null || p.qhid !== "") {
-          qhid = p.qhid.toString();
-        }
-        let c = 0;
-        for(let d= debut; d<= end; d.setDate(d.getDate() + 1)){ 
-          id = p.id_undercmd.split("-")[0];
-          suffixe = p.id_undercmd.split("§")[1];
+      if( !p.print ){ //actual product lines without Exchange fees
+        p.dataset = p.quotation_level;
+        p.exchangeName = p.exchange;
+        if(p.subscription === 1) {
+          end = new Date(endperiod(deb, p.period));
+          end = verifWeekNext(end);
+          p.begin_date = deb;
+          p.end_date = end;
+          let qhid = "";
+          if (p.qhid !== null || p.qhid !== "") {
+            qhid = p.qhid.toString();
+          }
+          let c = 0;
+          for(let d= debut; d<= end; d.setDate(d.getDate() + 1)){
+            id = p.id_undercmd.split("-")[0];
+            suffixe = p.id_undercmd.split("§")[1];
+            addPool({
+              index: p.index,
+              id: req.body.id,
+              // id_cmd: id + "§" + suffixe,
+              // id_cmd: p.id_undercmd + '|' + c++,
+              id_cmd: p.id_undercmd,
+              onetime: p.onetime,
+              subscription: p.subscription,
+              eid: p.eid,
+              contractID: p.contractid,
+              qhid: qhid,
+              quotation_level: p.dataset,
+              searchdate: new Date(d.yyyymmdd()),
+              begin_date: d.yyyymmdd(),
+              end_date: d.yyyymmdd(),
+              status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
+            });
+          }
+          debut = new Date(clone(deb));
+        } else {
+          p.begin_date = p.begin_date_select;
+          p.end_date = p.end_date_select;
+          let qhid = "";
+          if (p.qhid !== null || p.qhid !== "") {
+            qhid = p.qhid.toString();
+          }
           addPool({
             index: p.index,
             id: req.body.id,
-            // id_cmd: id + "§" + suffixe,
-            // id_cmd: p.id_undercmd + '|' + c++,
             id_cmd: p.id_undercmd,
+            // id_cmd: p.id_undercmd + '|' + c++,
             onetime: p.onetime,
             subscription: p.subscription,
             eid: p.eid,
             contractID: p.contractid,
             qhid: qhid,
             quotation_level: p.dataset,
-            searchdate: new Date(d.yyyymmdd()),
-            begin_date: d.yyyymmdd(),
-            end_date: d.yyyymmdd(),
+            searchdate: p.begin_date,
+            begin_date: yyyymmdd(p.begin_date),
+            end_date: yyyymmdd(p.end_date),
             status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
           });
         }
-        debut = new Date(clone(deb));
-      } else {
-        p.begin_date = p.begin_date_select;
-        p.end_date = p.end_date_select;
-        let qhid = "";
-        if (p.qhid !== null || p.qhid !== "") {
-          qhid = p.qhid.toString();
-        }
-        addPool({
-          index: p.index,
-          id: req.body.id,
-          id_cmd: p.id_undercmd,
-          // id_cmd: p.id_undercmd + '|' + c++,
-          onetime: p.onetime,
-          subscription: p.subscription,
-          eid: p.eid,
-          contractID: p.contractid,
-          qhid: qhid,
-          quotation_level: p.dataset,
-          searchdate: p.begin_date,
-          begin_date: yyyymmdd(p.begin_date),
-          end_date: yyyymmdd(p.end_date),
-          status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
-        });
+        cart.push(p);
+        updt.products = cart;
       }
-      cart.push(p);
-      updt.products = cart;
     });
     corp = { 
       "email": req.body.email,
@@ -619,6 +621,50 @@ router.put('/update', (req, res) => {
             idx = parseInt(updt.products[updt.products.length - 1].id_undercmd.split('§')[1]) + 1;
           }
           req.body.cart.forEach((elem) => {
+
+            if( elem.backfill_fee !== 0 ) {
+              let a_backfillfee = (elem.backfill_fee).split(' ');
+              switch (a_backfillfee[1]) {
+                case 'USD':
+                  elem.backfill_fee = parseFloat(a_backfillfee[0]);
+                  break;
+                case 'EUR':
+                  for (var i = 0; i < currencies.length; i++) {
+                    if (currencies[i]['device'] === 'USD') {
+                      elem.backfill_fee = parseFloat(a_backfillfee[0]) * currencies[i]['taux'];
+                    }
+                  }
+                  break;
+                default:
+                  for (var i = 0; i < currencies.length; i++) {
+                    if (currencies[i]['device'] === a_backfillfee[1]) {
+                      elem.backfill_fee = parseFloat(a_backfillfee[0]) * currencies[i]['taux'];
+                    }
+                  }
+              }
+            }
+            if( elem.ongoing_fee !== 0 ) {
+              let a_ongoingfee = (elem.ongoing_fee).split(' ');
+              switch (a_ongoingfee[1]) {
+                case 'USD':
+                  elem.ongoing_fee = parseFloat(a_ongoingfee[0]);
+                  break;
+                case 'EUR':
+                  for (var i = 0; i < currencies.length; i++) {
+                    if (currencies[i]['device'] === 'USD') {
+                      elem.ongoing_fee = parseFloat(a_ongoingfee[0]) * currencies[i]['taux'];
+                    }
+                  }
+                  break;
+                default:
+                  for (var i = 0; i < currencies.length; i++) {
+                    if (currencies[i]['device'] === a_ongoingfee[1]) {
+                      elem.ongoing_fee = parseFloat(a_ongoingfee[0]) * currencies[i]['taux'];
+                    }
+                  }
+              }
+            }
+
             updt.totalExchangeFees += parseFloat(elem.backfill_fee);
             updt.totalExchangeFees += parseFloat(elem.ongoing_fee);
             updt.totalHT += parseFloat(elem.ht);
@@ -862,6 +908,7 @@ router.post('/list', (req, res) => {
 });
 
 router.post('/history', (req, res) => {
+  console.dir(req.headers.token);
   let sort = {};
   for (var i = 0; i < req.body.order.length; i++) {
     sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;

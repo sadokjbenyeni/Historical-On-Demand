@@ -104,9 +104,9 @@
                   <td *ngIf="!c.print">{{ c.pricingTier }}</td>
                   <td *ngIf="!c.print">{{ (c.ht ) | number:'1.2-2' }} {{symbol}}</td>
                   <td *ngIf="!c.print && page === 'caddies'"><span class="btn btn-danger fa fa-trash" (click)="delCaddies(c.idCmd, c.idElem, c.ht, c.backfill_fee, c.ongoing_fee)"></span></td>
-                  <td class="bg-grey" colspan="12" *ngIf="page === 'orderconfirm' && c.print"></td>
+                  <td class="bg-grey" colspan="13" *ngIf="page === 'orderconfirm' && c.print"></td>
                   <td *ngIf="(c.backfill_fee || c.ongoing_fee) && page === 'orderconfirm' && c.print"><b>Exchange Fees</b></td>
-                  <td *ngIf="(c.backfill_fee || c.ongoing_fee) && page === 'orderconfirm' && c.print">{{ (c.backfill_fee ? c.backfill_fee : c.ongoing_fee) | number:'1.2-2' }}</td>
+                  <td *ngIf="(c.backfill_fee || c.ongoing_fee) && page === 'orderconfirm' && c.print">{{ (c.backfill_fee ? c.backfill_fee : c.ongoing_fee) | number:'1.2-2' }} {{symbol}}</td>
                 </tr>
                 <tr *ngIf="cart?.length === 0">
                   <td colspan="14" class="no-data-available">Empty !</td>
@@ -197,7 +197,7 @@
                     <div class="col-lg-6 panel panel-primary">
                       <h4>Please select your payment method</h4>
                       <label class="radio" *ngFor="let payment of payments">
-                        <input type="radio" name="payment" [value]="payment.id" [(ngModel)]="user.payment"> {{ payment.name }} 
+                        <input type="radio" name="payment" [value]="payment.id" [(ngModel)]="user.payment"> {{ payment.name }}
                         <!-- <input type="radio" name="payment" [value]="payment.id" [(ngModel)]="user.payment" [disabled]="this.minRib && payment.id === 'banktransfer'"> {{ payment.name }}  -->
                         <!-- <small class="text-color" *ngIf="this.minRib && payment.id === 'banktransfer'">(Amount < {{currencyObj['maxrib']}} {{currencyObj['symbol']}})</small> -->
                       </label>
@@ -272,7 +272,7 @@
       <br><br>
       <div class="panel-footer text-center">
         <!-- Shopping Cart -->
-        <button class="btn btn-primary" routerLink="/home" *ngIf="page === 'caddies'">Continue shopping</button>  
+        <button class="btn btn-primary" routerLink="/home" *ngIf="page === 'caddies'">Continue shopping</button>
         <button class="color btn btn-default" routerLink="/order/review" *ngIf="page === 'caddies' && cart?.length > 0">Next</button>
         <!-- Order Review -->
         <button class="color btn btn-default" routerLink="/order/caddies" *ngIf="page === 'review'">Previous</button>
@@ -287,17 +287,17 @@
         <button class="color btn btn-default" (click)="saveSurvey()" routerLink="/order/billing" *ngIf="page === 'licensing' && survey === 2" [disabled]="surveyForm.du.cb.length === 0">Next</button>
         <!-- Billing -->
         <button class="color btn btn-default" routerLink="/order/licensing" *ngIf="page === 'billing'">Previous</button>
-        <button 
-          class="color btn btn-default" 
-          (click)="saveBilling()" 
-          routerLink="/order/orderconfirm" 
-          *ngIf="page === 'billing'" 
+        <button
+          class="color btn btn-default"
+          (click)="saveBilling()"
+          routerLink="/order/orderconfirm"
+          *ngIf="page === 'billing'"
           [disabled]="
-            !user.countryBilling || 
-            !user.addressBilling || 
-            !user.postalCodeBilling || 
-            !user.cityBilling || 
-            !user.payment || 
+            !user.countryBilling ||
+            !user.addressBilling ||
+            !user.postalCodeBilling ||
+            !user.cityBilling ||
+            !user.payment ||
             !user.currency">Next
           </button>
         <!-- Order Confirmation -->

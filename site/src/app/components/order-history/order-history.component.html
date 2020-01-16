@@ -147,7 +147,7 @@
                           <!-- </span> -->
                         </span>
                       </td>
-                      <td class="bg-grey" colspan="11" *ngIf="detail.print"></td>
+                      <td class="bg-grey" colspan="12" *ngIf="detail.print"></td>
                       <td  colspan="2" *ngIf="(detail.backfill_fee || detail.ongoing_fee)"><b>Exchange Fees</b></td>
                       <td *ngIf="(detail.backfill_fee || detail.ongoing_fee)">{{ getHt((detail.backfill_fee ? detail.backfill_fee : detail.ongoing_fee)) | number:'1.2-2' }} {{ symbols[currency] }}</td>
                       <td class="bg-grey" colspan="4" *ngIf="detail.print"></td>

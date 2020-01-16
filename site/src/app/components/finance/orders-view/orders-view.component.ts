@@ -142,7 +142,9 @@ export class OrdersViewComponent implements OnInit {
               begin_date_select: p.begin_date,
               begin_date_ref: p.begin_date_ref,
               end_date_select : p.end_date,
-              end_date_ref : p.end_date_ref
+              end_date_ref : p.end_date_ref,
+              backfill_fee: p.backfill_fee,
+              ongoing_fee: p.ongoing_fee
             };
             this.ht += p.price;
             this.cart.push(prod);
