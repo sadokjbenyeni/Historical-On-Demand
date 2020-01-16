@@ -245,7 +245,7 @@ router.put('/finish', (req, res) => {
         } else {
           status = req.body.status;
         }
-        return {status: status, req: req.body, email: result.email, id: result.id, onetime: products.onetime, subscription: products.subscription};
+        return {status: status, req: req.body, email: result.email, id: result.id, onetime: products.onetime, subscription: products.subscription, mailActive: result.mailActive};
       }
     })
     .then(recup => {

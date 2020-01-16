@@ -8,6 +8,7 @@ let UserSchema = new mongoose.Schema({
   lastname: { type: String, maxlength: 200 },
   email: { type: String, maxlength: 200 },
   password: { type: String },
+  checktk: { type: String }, //token de connexion
   job: { type: String, maxlength: 200 },
   companyName: { type: String, maxlength: 200 },
   companyType: { type: String, maxlength: 200 },

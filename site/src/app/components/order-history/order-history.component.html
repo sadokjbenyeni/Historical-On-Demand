@@ -100,12 +100,12 @@
                       <td *ngIf="!detail.print">{{ detail.pricingTier }}</td>
                       <td *ngIf="!detail.print">{{ getHt(detail.ht) | number:'1.2-2' }}&nbsp;{{ symbols[currency] }}</td>
                       <td *ngIf="!detail.print">
-                        <span *ngFor="let lk of detail.links | callback: filterUser" [class]="lk.subscription === 1 ? 'cap souscription' : 'cap'">
+                        <span *ngFor="let lk of detail.links | callback: filterUser" [class]="detail.subscription === 1 ? 'cap souscription' : 'cap'">
                           {{ limitDownLoad(detail.onetime, detail.subscription, lk.createLinkDate) | date:'yyyy-MM-dd' }}
                         </span>
                       </td>
                       <td *ngIf="!detail.print">
-                        <span *ngFor="let lk of detail.links | callback: filterUser" [class]="lk.subscription === 1 ? 'cap souscription' : 'cap'">
+                        <span *ngFor="let lk of detail.links | callback: filterUser" [class]="detail.subscription === 1 ? 'cap souscription' : 'cap'">
                           <span>{{ dateDiff(today, limitDownLoad(detail.onetime, detail.subscription, lk.createLinkDate)).day>0?dateDiff(today, limitDownLoad(detail.onetime, detail.subscription, lk.createLinkDate)).day + 1:0 }}</span>
                         </span>
                       </td>
@@ -114,7 +114,7 @@
                         <!-- <a (click)="bulkdownload()">test</a><br> -->
                         <span *ngFor="let lk of detail.links | callback: filterUser">
                           <!-- <span *ngIf="dateDiff(today, limitDownLoad(detail.onetime, detail.subscription, lk.createLinkDate)).day > 0 && lk.status === 'active'"> -->
-                            <span *ngIf="lk.subscription === 1" class="cap souscription">
+                            <span *ngIf="detail.subscription === 1" class="cap souscription">
                               <span *ngFor="let links of lk.links">
                                 <div *ngFor="let link of links.link.split('|')">
                                     <a href="{{gateway}}/api/user/test/{{token}}/{{ lk.path }}/{{ link }}"
@@ -127,11 +127,11 @@
                               </span>
                             </span>
                             <!-- <span *ngIf="lk.onetime === 1 && lk.links[0].link.split('|').length > period[0].linkPerFile"> -->
-                            <span *ngIf="lk.onetime === 1 && countLink(lk.links) > period[0].linkPerFile" class="cap">
-                              <i class="fa fa-upload text-color fa-3x clickable" (click)="dyanmicDownloadByHtmlTag(detail.idC, detail.quotation_level, detail.eid, detail.symbol, detail.assetClass, 'One-Off', detail.begin_date_select, detail.end_date_select, lk.links, lk.path)" ></i>
-                              <!-- <i class="fa fa-upload text-color fa-3x clickable" (click)="dyanmicDownloadByHtmlTag(detail.idC+'_'+datasetsLink[detail.quotation_level]+'_'+detail.eid+'_one-off-¤'+detail.begin_date_select+'¤'+detail.end_date_select, lk.links, lk.path, detail.assetClass)" ></i> -->
+                            <span *ngIf="detail.onetime === 1 && countLink(lk.links) > period[0].linkPerFile" class="cap">
+                              <i class="fa fa-upload text-color fa-3x clickable" (click)="dynamicDownloadByHtmlTag(detail.idC, detail.quotation_level, detail.eid, detail.symbol, detail.assetClass, 'One-Off', detail.begin_date_select, detail.end_date_select, lk.links, lk.path)" ></i>
+                              <!-- <i class="fa fa-upload text-color fa-3x clickable" (click)="dynamicDownloadByHtmlTag(detail.idC+'_'+datasetsLink[detail.quotation_level]+'_'+detail.eid+'_one-off-¤'+detail.begin_date_select+'¤'+detail.end_date_select, lk.links, lk.path, detail.assetClass)" ></i> -->
                             </span>
-                            <span *ngIf="lk.onetime === 1 && countLink(lk.links) < period[0].linkPerFile" class="cap">
+                            <span *ngIf="detail.onetime === 1 && countLink(lk.links) < period[0].linkPerFile" class="cap">
                             <!-- <span *ngIf="lk.onetime === 1 && lk.links[0].link.split('|').length < period[0].linkPerFile"> -->
                               <span *ngFor="let links of lk.links">
                                 <div *ngFor="let link of links.link.split('|')">

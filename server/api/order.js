@@ -629,14 +629,14 @@ router.put('/update', (req, res) => {
                   elem.backfill_fee = parseFloat(a_backfillfee[0]);
                   break;
                 case 'EUR':
-                  for (var i = 0; i < currencies.length; i++) {
+                  for (let i = 0; i < currencies.length; i++) {
                     if (currencies[i]['device'] === 'USD') {
                       elem.backfill_fee = parseFloat(a_backfillfee[0]) * currencies[i]['taux'];
                     }
                   }
                   break;
                 default:
-                  for (var i = 0; i < currencies.length; i++) {
+                  for (let i = 0; i < currencies.length; i++) {
                     if (currencies[i]['device'] === a_backfillfee[1]) {
                       elem.backfill_fee = parseFloat(a_backfillfee[0]) * currencies[i]['taux'];
                     }
@@ -650,14 +650,14 @@ router.put('/update', (req, res) => {
                   elem.ongoing_fee = parseFloat(a_ongoingfee[0]);
                   break;
                 case 'EUR':
-                  for (var i = 0; i < currencies.length; i++) {
+                  for (let i = 0; i < currencies.length; i++) {
                     if (currencies[i]['device'] === 'USD') {
                       elem.ongoing_fee = parseFloat(a_ongoingfee[0]) * currencies[i]['taux'];
                     }
                   }
                   break;
                 default:
-                  for (var i = 0; i < currencies.length; i++) {
+                  for (let i = 0; i < currencies.length; i++) {
                     if (currencies[i]['device'] === a_ongoingfee[1]) {
                       elem.ongoing_fee = parseFloat(a_ongoingfee[0]) * currencies[i]['taux'];
                     }
@@ -908,28 +908,35 @@ router.post('/list', (req, res) => {
 });
 
 router.post('/history', (req, res) => {
-  console.dir(req.headers.token);
-  let sort = {};
-  for (var i = 0; i < req.body.order.length; i++) {
-    sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
-  }
-  Order.count({idUser: req.body.idUser}).then((c) => {
-      let search = {};
-      if(req.body.idUser){
-        search['idUser'] = req.body.idUser;
+  if(req.headers.token) {
+    User.findOne({token: req.headers.token}, {_id:true})
+    .then((result) => {
+      let sort = {};
+      let idUser = result._id;
+      for (var i = 0; i < req.body.order.length; i++) {
+        sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
       }
-      Order.count(search).then((cf) => {
-        Order.find(search)
-          .skip(req.body.start)
-          .limit(req.body.length)
-          .collation({ locale: "en" })
-          .sort(sort)
-          .then((orders) => {
-              if (!orders) { return res.status(404); }
-              return res.status(200).json({recordsFiltered: cf, recordsTotal: c, draw:req.body.draw, listorders: orders});
+      Order.count({idUser: idUser}).then((c) => {
+          let search = {};
+          if(idUser){
+            search['idUser'] = idUser;
+          }
+          Order.count(search).then((cf) => {
+            Order.find(search)
+              .skip(req.body.start)
+              .limit(req.body.length)
+              .collation({ locale: "en" })
+              .sort(sort)
+              .then((orders) => {
+                  if (!orders) { return res.status(404); }
+                  return res.status(200).json({recordsFiltered: cf, recordsTotal: c, draw:req.body.draw, listorders: orders});
+              });
           });
       });
-  });
+    });
+  } else {
+    return res.status(404);
+  }
 });
 
 router.post('/caddies', (req, res) => {

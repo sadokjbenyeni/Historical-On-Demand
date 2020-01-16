@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders,  HttpResponse } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 import { OrderService } from '../../services/order.service';
@@ -11,7 +11,13 @@ import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 
 import * as crypto from 'crypto-js';
 
-                                                        
+const httpOptions = {
+  headers: new HttpHeaders({
+    'Content-Type':  'application/json',
+    'Authorization': 'my-auth-token',
+    'token': ''
+  })
+};
 
 class DataTablesResponse {
   listorders: any[];
@@ -86,24 +92,24 @@ export class OrderHistoryComponent implements OnInit {
     this.datasets = {
       L1: 'L1 - Full',
       L1TRADEONLY: 'L1 - Trades',
-      L2: 'L2' 
+      L2: 'L2'
     };
     this.datasetsLink = {
       L1: 'L1-Full',
       L1TRADEONLY: 'L1-Trades',
-      L2: 'L2' 
+      L2: 'L2'
     };
     // this.datasets = {
     //   L1: 'Top of Book',
     //   L1TRADEONLY: 'Times & Sales',
-    //   L2: 'Market Depth' 
+    //   L2: 'Market Depth'
     // };
     this.idUser = JSON.parse(sessionStorage.getItem('user'))._id;
     this.token = JSON.parse(sessionStorage.getItem('user')).token;
     this.getCurrencies();
     this.list = true;
     this.viewdetail = false;
-    
+
     const that = this;
     this.dtOptions = {
       pagingType: 'full_numbers',
@@ -113,9 +119,10 @@ export class OrderHistoryComponent implements OnInit {
       searching: false,
       order: [[ 0, 'desc' ]],
       ajax: (dataTablesParameters: any, callback) => {
-        dataTablesParameters.idUser = this.idUser;
+        // dataTablesParameters.token = this.token;
+        httpOptions.headers = httpOptions.headers.set('token', this.token);
         this.http
-        .post<DataTablesResponse>(environment.api + '/order/history', dataTablesParameters, {})
+        .post<DataTablesResponse>(environment.api + '/order/history', dataTablesParameters, httpOptions)
         .subscribe(res => {
           this.cmd = res.listorders;
           callback({
@@ -125,7 +132,7 @@ export class OrderHistoryComponent implements OnInit {
           });
         });
       },
-      columns: [ 
+      columns: [
         { data: 'id' },
         { data: 'submissionDate' },
         { data: 'state' },
@@ -190,12 +197,12 @@ export class OrderHistoryComponent implements OnInit {
         if(!p.links){ p['links'] = []; }
         p.links.forEach(pl => {
           pl.onetime = p.onetime;
-          pl.subscription = p.subscription;  
+          pl.subscription = p.subscription;
           l.push(pl);
         });
         let prod = {
           id: index,
-          print: false, 
+          print: false,
           idC: c.id,
           idCmd: c.id_cmd,
           idElem: p.id_undercmd,
@@ -275,14 +282,14 @@ export class OrderHistoryComponent implements OnInit {
       });
     });
  }
-  
+
   encrypt(link) {
     return crypto.AES.encrypt(link, this.phrase);
   }
   decrypt(link) {
     return crypto.AES.decrypt(link, this.phrase).toString(crypto.enc.Utf8);
   }
-  
+
   bulkdownload(){
     this.uploadService.upd().subscribe(resp => {
     });
@@ -297,17 +304,17 @@ export class OrderHistoryComponent implements OnInit {
     }
   }
 
-  getTTC(val){
+  getTTC(val) {
     let ttc = 0;
     if (val.currency !== 'usd') {
-      ttc = ((val.totalHT / val.currencyTxUsd) * val.currencyTx);
+      ttc = (((val.totalHT + val.totalExchangeFees) / val.currencyTxUsd) * val.currencyTx);
       if(val.discount>0){
         ttc = ttc - ( ttc * (val.discount / 100) );
       }
-    } else{
-      ttc = val.totalHT;
-      if(val.discount>0){
-        ttc = ttc - ( ttc * (val.discount / 100) );
+    } else {
+      ttc = val.totalHT + val.totalExchangeFees;
+      if (val.discount > 0) {
+        ttc = ttc - (ttc * (val.discount / 100));
       }
     }
     return this.precisionRound((ttc * (1 + val.vatValue)), 2);
@@ -364,7 +371,7 @@ export class OrderHistoryComponent implements OnInit {
     var factor = Math.pow(10, precision);
     return Math.round(number * factor) / factor;
   }
-  
+
   setting = {
     element: {
       dynamicDownload: null as HTMLElement
@@ -374,7 +381,7 @@ export class OrderHistoryComponent implements OnInit {
 //lk.links
 //lk.path
 //detail.assetClass
-  dyanmicDownloadByHtmlTag(id: number, dataset: string, eid: string, symbol: string, asset: string, type: string, debut: string, fin: string, text: Array<any>, path: string) {
+  dynamicDownloadByHtmlTag(id: number, dataset: string, eid: string, symbol: string, asset: string, type: string, debut: string, fin: string, text: Array<any>, path: string) {
     let fileName = "";
     fileName += id;
     fileName += "_"+ this.datasetsLink[dataset];
@@ -417,7 +424,7 @@ export class OrderHistoryComponent implements OnInit {
     let dat = d.split('-');
     let mm = parseInt(dat[1]);
     let dd = parseInt(dat[2]);
-  
+
     return [
       dat[0],
       (mm>9 ? '-' : '-0') + mm,

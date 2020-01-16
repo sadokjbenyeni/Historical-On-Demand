@@ -180,6 +180,7 @@ router.post('/', (req, res) => {
 });
 
 router.post('/logout/', (req, res) => {
+
     User.updateOne({token:req.body.token}, {$set:{islogin:false}})
     .then((val)=> {
         res.status(200).json({});
@@ -190,7 +191,7 @@ router.post('/logout/', (req, res) => {
 });
 
 router.post('/islogin/', (req, res) => {
-    User.findOne({token:req.body.token},{_id:false, islogin:true, roleName:true})
+    User.findOne({token:req.body.token, islogin:true},{_id:false, islogin:true, roleName:true})
     .then((val)=> {
         if(val){
             const pattern = /\/[0-9a-fA-F]{24}$/;
