@@ -14,7 +14,7 @@ import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./ordersc-view.component.css']
 })
 export class OrderscViewComponent implements OnInit {
-  id: any;
+  idOrder: any;
   currencyTxUsd: any;
   currencyTx: any;
   companyName: any;
@@ -44,6 +44,7 @@ export class OrderscViewComponent implements OnInit {
   total: number;
   fees: number;
   cart: Array<any>;
+  invoice: string;
 
   constructor(
     private http: Http,
@@ -83,7 +84,8 @@ export class OrderscViewComponent implements OnInit {
       this.orderService.getIdOrder(this.idCmd).subscribe((c) => {
         this.list = c;
         this.idCmd = c.cmd.id_cmd;
-        this.id = c.cmd.id;
+        this.invoice = c.cmd.idCommande;
+        this.idOrder = c.cmd.id;
         this.cmd = c.cmd;
         this.companyName = c.cmd.companyName;
         this.payment = c.cmd.payment;

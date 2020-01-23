@@ -40,9 +40,9 @@
               <div class="table-responsive container row">
                 <div class="col-md-6">
                   <p><b>Submission Date and Time : </b> {{ submissionDate | date:'medium' }}</p>
-                  <p><b>Order Form : </b> </p>
+                  <p><b>Order Form : </b> {{ idOrder }}</p>
                   <p><b>Payment method : </b>{{ payment }}</p>
-                  <p><b>Invoice : </b><a target="_blank" [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}}</a></p>
+                  <p><b>Invoice : </b><a *ngIf="invoice!=undefined"  target="_blank" [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}}</a></p>
                   <p><b>Order Status : <span [class]="textcolor">{{ getStateName(state) }}</span></b>
                   </div>
                 <div class="col-md-6">

@@ -110,12 +110,12 @@ pdf = function  (cmd, currency, user, country){
         margin: [0,0,0,0],
         body: [
           [
-            { text: 'Description', margin: [0,5,0,5], bold: true, alignment: 'center' }, 
-            { text: 'Units', margin: [0,5,0,5], bold: true, alignment: 'center' }, 
-            { text: 'From', margin: [0,5,0,5], bold: true, alignment: 'center' }, 
-            { text: 'To', margin: [0,5,0,5], bold: true, alignment: 'center' }, 
-            { text: 'Services total', margin: [0,5,0,5], bold: true, alignment: 'center' }, 
-            { text: 'VAT Rate', margin: [0,5,0,5], bold: true, alignment: 'center' } 
+            { text: 'Description', margin: [0,5,0,5], bold: true, alignment: 'center' },
+            { text: 'Units', margin: [0,5,0,5], bold: true, alignment: 'center' },
+            { text: 'From', margin: [0,5,0,5], bold: true, alignment: 'center' },
+            { text: 'To', margin: [0,5,0,5], bold: true, alignment: 'center' },
+            { text: 'Services total', margin: [0,5,0,5], bold: true, alignment: 'center' },
+            { text: 'VAT Rate', margin: [0,5,0,5], bold: true, alignment: 'center' }
           ],
         ]
       },
@@ -136,10 +136,9 @@ pdf = function  (cmd, currency, user, country){
   invoice['defaultStyle'] = defaultStyle;
   invoice['header'] = header;
   invoice['content'] = content;
-  let totalHT = priceCurrency(cmd.totalHT, cmd.currency, cmd.currencyTxUsd, cmd.currencyTx);
+  let totalHT = priceCurrency(cmd.totalHT + cmd.totalExchangeFees, cmd.currency, cmd.currencyTxUsd, cmd.currencyTx);
   let total = priceCurrency(cmd.total, cmd.currency, cmd.currencyTxUsd, cmd.currencyTx);
   invoice['footer'] = footer(totalHT, (totalHT * cmd.vatValue), total, currency, cmd.reason, cmd.vat, country, cmd.vatValide, user);
-
 
   //Création du document PDF
   let pdfDoc = printer.createPdfKitDocument(invoice);
@@ -190,19 +189,30 @@ getOrders = function (orders, vatValue, styl, currency, txUsd, tx, country) {
         dataset = order.quotation_level;
       }
       listOrders.push([
-        { 
+        {
           border: border,
           text: order.idx + '\t' + typeOrder + " " + dataset + "\n" + description,
           fontSize: 10
-        }, 
-        { border: border, text: "1", margin: [0,5,0,5], alignment: 'center', fontSize: 10 }, 
-        // { border: border, text: order.period, margin: [0,5,0,5], alignment: 'center', fontSize: 10 }, 
-        { border: border, text: dateDebut, margin: [0,5,0,5], alignment: 'center', fontSize: 10 }, 
-        { border: border, text: dateFin, margin: [0,5,0,5], alignment: 'center', fontSize: 10 }, 
+        },
+        { border: border, text: "1", margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
+        // { border: border, text: order.period, margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
+        { border: border, text: dateDebut, margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
+        { border: border, text: dateFin, margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
         { border: border, text: priceCurrency(order.ht, currency, txUsd, tx), margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
-        { border: border, text: pervat + '%', margin: [0,5,0,5], bold: true, alignment: 'center', fontSize: 10 } 
-        // { border: border, text: (priceCurrency(order.ht, currency, txUsd, tx) * vatValue).toFixed(2), margin: [0,5,0,5], bold: true, alignment: 'center', fontSize: 10 } 
+        { border: border, text: pervat + '%', margin: [0,5,0,5], bold: true, alignment: 'center', fontSize: 10 }
+        // { border: border, text: (priceCurrency(order.ht, currency, txUsd, tx) * vatValue).toFixed(2), margin: [0,5,0,5], bold: true, alignment: 'center', fontSize: 10 }
       ]);
+
+      if(order.backfill_fee > 0 || order.ongoing_fee > 0) {
+        listOrders.push([
+          { border: border, text: "\tExchanges fees", margin: [0,5,0,5], fontSize: 10 },
+          { border: border, text: "", margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
+          { border: border, text: "", margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
+          { border: border, text: "", margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
+          { border: border, text: priceCurrency( ( order.backfill_fee ? order.backfill_fee : order.ongoing_fee ), currency, txUsd, tx), margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
+          { border: border, text: pervat + '%', margin: [0,5,0,5], bold: true, alignment: 'center', fontSize: 10 }
+        ]);
+      }
     });
   }
   return listOrders;
@@ -242,7 +252,7 @@ tabSum = function(serviceTotal, vatTotal, invoiceTotal, currency){
       widths: ['33%', '55%', '10%'],
       body: [
         [
-          { text: 'Services total', style:'itemsFooterSubTitle' }, 
+          { text: 'Services total', style:'itemsFooterSubTitle' },
           { text: serviceTotal.toFixed(2), style:'itemsFooterSubValue', alignment: 'right' },
           { text: currency, style:'itemsFooterSubValue' }
         ],
@@ -252,7 +262,7 @@ tabSum = function(serviceTotal, vatTotal, invoiceTotal, currency){
           { text: currency, style:'itemsFooterSubValue' }
         ],
         [
-          { text: 'Invoice total', style:'itemsFooterTotalTitle' }, 
+          { text: 'Invoice total', style:'itemsFooterTotalTitle' },
           { text: invoiceTotal.toFixed(2), style:'itemsFooterTotalValue', alignment: 'right' },
           { text: currency, style:'itemsFooterSubValue' }
         ],
@@ -316,27 +326,27 @@ head = function(numInvoice, numAccount, idTax, invoiceDate, paymentDate, numCmd,
           { text: numInvoice, style:'invoiceSubValue', width: width }
         ],
         [
-          { text:'Account n°', style:'invoiceSubTitle', width: width }, 
+          { text:'Account n°', style:'invoiceSubTitle', width: width },
           { text: numAccount, style:'invoiceSubValue', width: width }
         ],
         [
-          { text:'tax Id n°', style:'invoiceSubTitle', width: width }, 
+          { text:'tax Id n°', style:'invoiceSubTitle', width: width },
           { text: idTax, style:'invoiceSubValue', width: width }
         ],
         [
-          { text:'Invoice date', style:'invoiceSubTitle', width: width }, 
+          { text:'Invoice date', style:'invoiceSubTitle', width: width },
           { text: invoiceDate, style:'invoiceSubValue', width: width }
         ],
         [
-          { text:'Payment due date', style:'invoiceSubTitle', width: width }, 
+          { text:'Payment due date', style:'invoiceSubTitle', width: width },
           { text: paymentDate, style:'invoiceSubValue', width: width }
         ],
         [
-          { text:'Order form n°', style:'invoiceSubTitle', width: width }, 
+          { text:'Order form n°', style:'invoiceSubTitle', width: width },
           { text: numCmd, style:'invoiceSubValue', width: width }
         ],
         [
-          { text:'Currency', style:'invoiceSubTitle', width: width }, 
+          { text:'Currency', style:'invoiceSubTitle', width: width },
           { text: currency, style:'invoiceSubValue', width: width }
         ]
       ]
@@ -383,7 +393,7 @@ footer = function(totalHt, totalVat, totalTTC, currency, message, vat, country, 
                       table: { body: condition(['the amount must be paid in full without deducting any bank charges', 'no discount for early payment', 'late payment fee equal to 1.5 times the French legal rate of interest, form the due date until the date of payment', 'surchage of EUR 40 for collection costs in case of late payment', 'to ensure proper credit, please quote invoice # with your remittance or send remittance advice to accounts-receivable@quanthouse.com']) },
                       layout: { defaultBorder: false }
                     }
-                  ]                    
+                  ]
                 ]
               ]
             },
@@ -393,7 +403,7 @@ footer = function(totalHt, totalVat, totalTTC, currency, message, vat, country, 
             border: [false, true, false, true],
             table: {
               widths: ['98%'],
-              body: [ [ [ 
+              body: [ [ [
                 tabSum(totalHt, totalVat, totalTTC, currency.symbol),
                 {text:'\n', fontSize: 8},
                 wireTransfer("VAT", "delay", currency)

@@ -32,7 +32,7 @@ class DataTablesResponse {
   styleUrls: ['./order-history.component.css']
 })
 export class OrderHistoryComponent implements OnInit {
-
+  idOrder: any;
   token: any;
   gateway: string;
   idCmd: string;
@@ -168,6 +168,7 @@ export class OrderHistoryComponent implements OnInit {
     this.viewdetail = true;
     this.title = 'Order Details : ' + c.id;
     this.idCmd = c.id_cmd;
+    this.idOrder = c.id;
     this.invoice = c.idCommande;
     this.state = c.state;
     this.firstname = c.firstname;

@@ -14,7 +14,7 @@ import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./orders-view.component.css']
 })
 export class OrdersViewComponent implements OnInit {
-  id: any;
+  idOrder: any;
   existSubscribe: boolean;
   totalHTOld: number;
   currencyTxUsd: any;
@@ -46,6 +46,7 @@ export class OrdersViewComponent implements OnInit {
   total: number;
   fees: number;
   cart: Array<any>;
+  invoice: string;
 
   constructor(
     private http: Http,
@@ -86,7 +87,8 @@ export class OrdersViewComponent implements OnInit {
       this.orderService.getIdOrder(this.idCmd).subscribe((c) => {
         this.list = c;
         this.idCmd = c.cmd.id_cmd;
-        this.id = c.cmd.id;
+        this.invoice = c.cmd.idCommande;
+        this.idOrder = c.cmd.id;
         this.cmd = c.cmd;
         this.companyName = c.cmd.companyName;
         this.payment = c.cmd.payment;
@@ -159,7 +161,7 @@ export class OrdersViewComponent implements OnInit {
 
   confirm(){
     if(this.action === 'Confirm Client Order Validation') {
-      this.orderService.state({idCmd: this.idCmd, id: this.id, status: 'validated', referer: 'Finance', product: this.cart, email: this.cmd['email']}).subscribe(()=>{
+      this.orderService.state({idCmd: this.idCmd, id: this.idOrder, status: 'validated', referer: 'Finance', product: this.cart, email: this.cmd['email']}).subscribe(()=>{
         this.router.navigate(['/finance/orders']);
       });
     }

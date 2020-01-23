@@ -580,11 +580,11 @@ router.put('/state', (req, res) => {
       let id = cnt.value;
       let prefix = "QH_HISTO_";
       let nbcar = 7;
-      let nbid = nbcar - id.toString().length;
+      let idnew =  id + 1;
+      let nbid = nbcar - idnew.toString().length;
       for (let i = 0; i < nbid; i++){
         prefix+= "0";
       }
-      idnew =  id + 1;
       updt.idCommande = prefix + idnew.toString();
       Config.updateOne({id:"counter"}, {$inc:{value:1}}).then(()=>{
         Order.updateOne( { id_cmd: req.body.idCmd }, { $set: updt, $push: {logs: log} } )
@@ -601,7 +601,7 @@ router.put('/state', (req, res) => {
       res.status(201).json({ok:true});
     });
   }
-})
+});
 
 router.put('/update', (req, res) => {
   var currencies = [];

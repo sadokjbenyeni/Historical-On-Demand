@@ -4,7 +4,7 @@
     <ol class="breadcrumb custom-breadcrumb">
       <li class="active">Compliance</li>
       <li class="active">Client Orders</li>
-      <li class="active">Order Details : {{ id }}</li>
+      <li class="active">Order Details : {{ idOrder }}</li>
     </ol>
   </div>
 </div>
@@ -22,9 +22,12 @@
           <div class="table-responsive container row">
             <div class="col-md-6">
               <p><b>Submission Date and Time : </b> {{ submissionDate | date:'medium' }}</p>
-              <p><b>Order Form : </b> </p>
+              <p><b>Order Form : </b> {{ idOrder }}</p>
               <p><b>Payment method : </b>{{ payment }}</p>
-              <p><b>Invoice : </b> </p>
+              <p>
+                <!-- <b>Invoice : </b><a *ngIf="invoice!=undefined" target="_blank" [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}}</a> -->
+                <br/>
+              </p>
               <p><b>Order Status : <span>{{ getStateName(state) }}</span></b>
               </div>
             <div class="col-md-6">

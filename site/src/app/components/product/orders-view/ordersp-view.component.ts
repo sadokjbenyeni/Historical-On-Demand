@@ -15,7 +15,7 @@ import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./ordersp-view.component.css']
 })
 export class OrderspViewComponent implements OnInit {
-  id: any;
+  idOrder: any;
   existSubscribe: boolean;
   totalHTOld: number;
   currencyTxUsd: any;
@@ -48,6 +48,7 @@ export class OrderspViewComponent implements OnInit {
   fees: number;
   cart: Array<any>;
   reason: any;
+  invoice: string;
 
   constructor(
     private http: Http,
@@ -106,7 +107,8 @@ export class OrderspViewComponent implements OnInit {
       this.orderService.getIdOrder(this.idCmd).subscribe((c) => {
         this.list = c;
         this.idCmd = c.cmd.id_cmd;
-        this.id = c.cmd.id;
+        this.invoice = c.cmd.idCommande;
+        this.idOrder = c.cmd.id;
         this.cmd = c.cmd;
         this.companyName = c.cmd.companyName;
         this.payment = c.cmd.payment;
@@ -203,17 +205,17 @@ export class OrderspViewComponent implements OnInit {
         s = 'PVF'; // cron pour l'auto-validation après délai des commandes n'excédant pas le montant max et payé par credit card ou paypal
       }
 
-      this.orderService.state({idCmd: this.idCmd, id: this.id, status: s, referer: referer, product: this.cart, email: this.cmd['email']}).subscribe(()=>{
+      this.orderService.state({idCmd: this.idCmd, id: this.idOrder, status: s, referer: referer, product: this.cart, email: this.cmd['email']}).subscribe(()=>{
         this.router.navigate(['/product/orders']);
       });
     }
     if(this.action === 'Confirm Client Order Rejection') {
-      this.orderService.state({idCmd: this.idCmd, id: this.id, status: 'rejected', referer: 'Product', reason: this.reason}).subscribe(()=>{
+      this.orderService.state({idCmd: this.idCmd, id: this.idOrder, status: 'rejected', referer: 'Product', reason: this.reason}).subscribe(()=>{
         this.router.navigate(['/product/orders']);
       });
     }
     if(this.action === 'Confirm Client Order Cancelation') {
-      this.orderService.state({idCmd: this.idCmd, id: this.id, status: 'cancelled', referer: 'Product'}).subscribe(()=>{
+      this.orderService.state({idCmd: this.idCmd, id: this.idOrder, status: 'cancelled', referer: 'Product'}).subscribe(()=>{
         this.router.navigate(['/product/orders']);
       });
     }
