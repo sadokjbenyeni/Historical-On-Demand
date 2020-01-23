@@ -23,7 +23,7 @@ const fonts = {
       italics: '/var/www/histodataweb/node_modules/pdfmake/font/Roboto-Italic.ttf',
       bolditalics: '/var/www/histodataweb/node_modules/pdfmake/font/Roboto-MediumItalic.ttf'
     }
-  }
+  };
 const printer = new PdfPrinter(fonts);
 
 function billinAddress(companyName, address, cp, city, country) {
@@ -206,7 +206,7 @@ function link(cmd){
                       { text:'\n', fontSize: 16 },
                       {
                         widths: ['100%'],
-                        table: { body: condition(['the amoung must be paid in full without deducting any bank charges', 'no discount for early payment', 'late payment fee equal to 1.5 times the French legal rate of interest, form the due date until the date of payment', 'surchage of EUR 40 for collection costs in case of late payment', 'to ensure proper credit, please quote invoice # with your remittance or send remittance advice to accounts-receivable@quanthouse.com']) },
+                        table: { body: condition(['the amount must be paid in full without deducting any bank charges', 'no discount for early payment', 'late payment fee equal to 1.5 times the French legal rate of interest, form the due date until the date of payment', 'surchage of EUR 40 for collection costs in case of late payment', 'to ensure proper credit, please quote invoice # with your remittance or send remittance advice to accounts-receivable@quanthouse.com']) },
                         layout: { defaultBorder: false }
                       }
                     ]                    
