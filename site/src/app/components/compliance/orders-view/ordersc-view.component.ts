@@ -164,7 +164,6 @@ export class OrderscViewComponent implements OnInit {
   }
 
   confirm(){
-    console.dir(this.cmd['email']);
     this.orderService.state({idCmd: this.idCmd, status: 'PVP', referer: 'Compliance', email: this.cmd['email']}).subscribe(()=>{
       this.router.navigate(['/compliance/orders']);
     });

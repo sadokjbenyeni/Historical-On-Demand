@@ -80,12 +80,12 @@ export class ClientOrderComponent implements OnInit {
           });
         });
       },
-      columns: [ 
+      columns: [
         { data: 'companyName' },
         { data: 'id' },
         { data: 'state' },
         { data: 'submissionDate' },
-        // { data: 'period' },  
+        // { data: 'period' },
         { data: 'redistribution' },
         { data: 'review', searchable: false, orderable: false },
       ]
@@ -107,25 +107,25 @@ export class ClientOrderComponent implements OnInit {
   changeState(col){
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(this.state).draw();
-    })    
+    });
   }
 
   changeDate(col){
-    let val = "";
+    let val = '';
     if(this.dateSubmission && this.dateSubmission['year']){
-      val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + this.dateSubmission['day'];
+      val += this.dateSubmission['year'] + '-' + this.dateSubmission['month'] + '-' + this.dateSubmission['day'];
       val += '|';
-      val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + (this.dateSubmission['day']+1);
+      val += this.dateSubmission['year'] + '-' + this.dateSubmission['month'] + '-' + (this.dateSubmission['day'] + 1);
     }
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(val).draw();
-    })
+    });
   }
 
   onKey(event: any, col: number) {
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(event.target.value).draw();
-    })
+    });
   }
 
   private extractData(res: Response) {
