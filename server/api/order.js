@@ -146,7 +146,7 @@ Order.findOne({ id_cmd: idCmd})
           // Envoi email aux products
         }
       }
-    })
+    });
     o.eid = eids;
     return o;
   })
@@ -778,6 +778,25 @@ router.post('/usercaddy', (req, res) => {
   });
 });
 
+router.get('/listStates', (req, res) => {
+  let states = [
+    {id:'CART', name: 'Cart' },
+    {id:'PLI', name: 'Pending Licensing Information' },
+    {id:'PBI', name: 'Pending Billing Information' },
+    {id:'PSC', name: 'Pending Submission by Client' },
+    {id:'PVP', name: 'Pending Validation by Product' },
+    {id:'PVC', name: 'Pending Validation by Compliance' },
+    {id:'PVF', name: 'Pending Validation by Finance' },
+    {id:'validated', name: 'Validated' },
+    {id:'active', name: 'Active' },
+    {id:'inactive', name: 'Inactive' },
+    {id:'cancelled', name: 'Cancelled' },
+    {id:'rejected', name: 'Rejected' },
+    {id:'failed', name: 'Failed' },
+  ];
+  return res.status(200).json({states: states});
+});
+
 router.get('/:id', (req, res) => {
   Order.find({idUser: req.params.id})
   .then((cmd)=>{
@@ -938,25 +957,6 @@ router.post('/caddies', (req, res) => {
     });
 });
 
-router.get('/listStates', (req, res) => {
-    let states = [
-      {id:'CART', name: 'Cart' },
-      {id:'PLI', name: 'Pending Licensing Information' },
-      {id:'PBI', name: 'Pending Billing Information' },
-      {id:'PSC', name: 'Pending Submission by Client' },
-      {id:'PVP', name: 'Pending Validation by Product' },
-      {id:'PVC', name: 'Pending Validation by Compliance' },
-      {id:'PVF', name: 'Pending Validation by Finance' },
-      {id:'validated', name: 'Validated' },
-      {id:'active', name: 'Active' },
-      {id:'inactive', name: 'Inactive' },
-      {id:'cancelled', name: 'Cancelled' },
-      {id:'rejected', name: 'Rejected' },
-      {id:'failed', name: 'Failed' },
-    ];
-    return res.status(200).json({states: states});
-});
-
 router.post('/sortProducts', (req, res) => {
   Order.findOne({id_cmd: req.body.idCmd})
       .then(cmd => {
@@ -1066,7 +1066,7 @@ idcommande = function(prefix, nbcar) {
     for (let i = 0; i < nbid; i++){
       prefix+= "0";
     }
-    idnew =  id + 1;
+    let idnew =  id + 1;
     prefix += idnew;
     Config.updateOne({id:"counter"}, {$inc:{value:1}}).then(()=>{
       return prefix;
