@@ -48,6 +48,7 @@ export class ClientOrderDetailsComponent implements OnInit {
   cart: Array<any>;
   item: any;
   invoice: string;
+  retryMode: string;
 
   constructor(
     private http: Http,
@@ -95,7 +96,7 @@ export class ClientOrderDetailsComponent implements OnInit {
   }
 
   retry() {
-    this.orderService.getRetry(this.item.reference).subscribe((c) => {
+    this.orderService.getRetry(this.item.reference, this.retryMode).subscribe((c) => {
       this.getCmd();
     });
     // console.dir(this.item.reference);

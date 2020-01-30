@@ -74,12 +74,23 @@
                 <td *ngIf="c.subscription === 0 && !c.print">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
                 <td *ngIf="!c.print">{{ c.pricingTier }}</td>
                 <td *ngIf="!c.print">{{ getHt(c.ht) | number:'1.2-2' }} {{ symbols[currency] }}</td>
-                <td class="bg-grey" colspan="8" *ngIf="c.print"></td>
+                <td class="bg-grey" colspan="9" *ngIf="c.print"></td>
                 <td *ngIf="(c.backfill_fee || c.ongoing_fee)"><b>Exchange Fees</b></td>
                 <td *ngIf="(c.backfill_fee || c.ongoing_fee)">{{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }} {{ symbols[currency] }}</td>
                 <td>{{ c.status }}</td>
                 <!-- <td><button class="btn btn-success" (click)="retry(c)">Retry</button></td> -->
-                <td><button class="btn btn-success fa" (click)="openModal(retrymodal);" *ngIf="c.onetime === 1">Retry</button></td>
+                <td>
+                  <div class="btn-group" *ngIf="c.onetime === 1">
+                    <button type="button" class="btn btn-success fa" (click)="retryMode='delta';openModal(retrymodal);" >Retry Delta</button>
+                    <button type="button" class="btn btn-success fa dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="right">
+                      <span class="caret"></span>
+                      <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                      <li><a (click)="retryMode='full';openModal(retrymodal);" >Retry Full</a></li>
+                    </ul>
+                  </div>
+                </td>
               </tr>
               <tr *ngIf="cart?.length === 0">
                 <td colspan="11" class="no-data-available">Empty !</td>
@@ -143,6 +154,7 @@
     </div>
   </div>
 </div>
+
 <ng-template #content let-c="close" let-d="dismiss">
   <div class="modal-header">
     <h5 class="modal-title"><b>{{ action }}</b></h5>
@@ -163,7 +175,6 @@
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
-
   <div class="modal-body">
     <p>Please enter the reference of the item to be reinjected</p>
     <div class="form-group input-group">
@@ -172,7 +183,7 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-danger" (click)="retry(); c('')" [disabled]="item.reference ===''">Retry</button>
+    <button type="button" class="btn btn-danger" (click)="retry(retryMode); c('')" [disabled]="item.reference ===''">Retry</button>
     <button type="button" class="btn btn-light" (click)="c('')">Close</button>
   </div>
 </ng-template>

@@ -16,7 +16,8 @@ let PoolSchema = new mongoose.Schema({
     begin_date: { type: String },
     end_date: { type: String },
     searchdate: { type: Date },
-    status: { type: String }
+    status: { type: String },
+    export_mode: { type: String, default: 'full' }
 }, { timestamps: true });
 
 mongoose.model('Pool', PoolSchema);

@@ -819,10 +819,35 @@ router.get('/idCmd/:id', (req, res) => {
   });
 });
 
-router.get('/retry/:id', (req, res) => {
-  Pool.updateOne({id_cmd: req.params.id},{ $set: { status: "validated" } }).then(p=>{ return true;})
-  .then(()=>{
-    return res.status(200).json({ok: "ok"});
+router.get('/retry/:id/:export', (req, res) => {
+  var currentProduct;
+  Order.findOne(
+    { "products" : { $elemMatch: { id_undercmd: req.params.id } } }
+  ).then( (o) => {
+    o.products.forEach(p => {
+      if( p.id_undercmd === req.params.id)
+      {
+        p.id_undercmd = o.id + "§" + p.idx;
+        currentProduct = p;
+      }
+    });
+    Order.updateOne(
+      { id_cmd: o.id_cmd },
+      {
+        $set: { products: o.products }
+      }
+    ).then( () => {
+      return true;
+    }).then( () => {
+      Pool.updateOne(
+        { id_cmd: req.params.id },
+        {
+          $set: { status: "validated", id_cmd: currentProduct.id_undercmd, export_mode: req.params.export }
+        }
+      ).then( () => {
+        return res.status(200).json( { ok: "ok" } );
+      });
+    });
   });
 });
 
