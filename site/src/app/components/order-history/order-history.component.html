@@ -117,7 +117,7 @@
                             <span *ngIf="detail.subscription === 1" class="cap souscription">
                               <span *ngFor="let links of lk.links">
                                 <div *ngFor="let link of links.link.split('|')">
-                                    <a href="{{gateway}}/api/user/test/{{token}}/{{ lk.path }}/{{ link }}"
+                                    <a href="{{gateway}}/api/user/download/{{token}}/{{ lk.path }}/{{ link }}"
                                        target="_blank"
                                        *ngIf="dateDiff(today, limitDownLoad(detail.onetime, detail.subscription, lk.createLinkDate)).day>0 && link && lk.status === 'active'">{{ link }}</a>
                                   <span *ngIf="dateDiff(today, limitDownLoad(detail.onetime, detail.subscription, lk.createLinkDate)).day<=0">
@@ -135,7 +135,7 @@
                             <!-- <span *ngIf="lk.onetime === 1 && lk.links[0].link.split('|').length < period[0].linkPerFile"> -->
                               <span *ngFor="let links of lk.links">
                                 <div *ngFor="let link of links.link.split('|')">
-                                    <a href="{{gateway}}/api/user/test/{{token}}/{{ lk.path }}/{{ link }}"
+                                    <a href="{{gateway}}/api/user/download/{{token}}/{{ lk.path }}/{{ link }}"
                                        target="_blank"
                                        *ngIf="dateDiff(today, limitDownLoad(detail.onetime, detail.subscription, lk.createLinkDate)).day>0 && link && lk.status === 'active'">{{ link }}</a>
                                   <span *ngIf="dateDiff(today, limitDownLoad(detail.onetime, detail.subscription, lk.createLinkDate)).day<=0">

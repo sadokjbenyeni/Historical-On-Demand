@@ -404,7 +404,7 @@ export class OrderHistoryComponent implements OnInit {
     let liens = [];
     text.forEach(ll => {
       ll.link.split('|').forEach(lien => {
-        liens.push(environment.gateway + '/api/user/test/'+this.token+'/'+ path +'/'+ lien);
+        liens.push(environment.gateway + '/api/user/download/'+this.token+'/'+ path +'/'+ lien);
       });
     });
     const element = this.setting.element.dynamicDownload;

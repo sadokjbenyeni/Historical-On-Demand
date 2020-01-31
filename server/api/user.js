@@ -52,7 +52,7 @@ router.get('/count/', (req, res) => {
     }
 });
 
-router.get('/test/:token/:id/:file', (req, res) => {
+router.get('/download/:token/:id/:file', (req, res) => {
     let valid = false;
     User.findOne({token: req.params.token}, {_id:true})
     .then((u)=>{
