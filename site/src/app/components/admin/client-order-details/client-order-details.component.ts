@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Http, Response } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 
 import { OrderService } from '../../../services/order.service';
 import { ConfigService } from '../../../services/config.service';
@@ -51,7 +51,7 @@ export class ClientOrderDetailsComponent implements OnInit {
   retryMode: string;
 
   constructor(
-    private http: Http,
+    private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
     private modalService: NgbModal,

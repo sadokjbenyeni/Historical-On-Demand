@@ -1,12 +1,9 @@
 import { Injectable, Component, ViewChild, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
-import { Http, Response } from '@angular/http';
-import { HttpClient, HttpResponse } from '@angular/common/http';
 
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
-import 'rxjs/add/operator/map';
+
 
 
 import { OrderService } from '../../../services/order.service';
@@ -70,8 +67,7 @@ export class OrdersComponent implements OnInit {
   symbols: any[];
 
   constructor(
-    private http: Http,
-    private router: Router,
+
     private httpc: HttpClient,
     private orderService: OrderService,
     private currencyService: CurrencyService

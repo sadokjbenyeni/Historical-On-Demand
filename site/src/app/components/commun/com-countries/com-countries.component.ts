@@ -2,12 +2,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
-import { Http, Response } from '@angular/http';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
-import 'rxjs/add/operator/map';
+
 
 import { DataTableDirective } from 'angular-datatables';
 
@@ -46,7 +45,7 @@ export class ComCountriesComponent implements OnInit {
   countries: Countries[] = [];
 
   constructor(
-    private http: Http,
+    private http: HttpClient,
     private router: Router,
     private httpc: HttpClient,
     private countriesService: CountriesService

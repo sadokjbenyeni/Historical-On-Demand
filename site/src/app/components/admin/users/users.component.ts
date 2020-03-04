@@ -1,11 +1,10 @@
 import { Component, OnInit, AfterViewChecked, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
-import { Http, Response } from '@angular/http';
-import { Subject } from 'rxjs/Subject';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
-import 'rxjs/add/operator/map';
+
 
 import { UserService } from '../../../services/user.service';
 
@@ -31,7 +30,6 @@ export class UsersComponent implements OnInit, AfterViewChecked {
   dtTrigger: Subject<any> = new Subject();
 
   constructor(
-    private http: Http,
     private router: Router,
     private httpc: HttpClient,
     private userService: UserService

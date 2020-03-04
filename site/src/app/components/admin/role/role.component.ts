@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
-import { Http, Response } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 
-import 'rxjs/add/operator/map';
+
 
 import { RoleService } from '../../../services/role.service';
 
@@ -19,7 +19,7 @@ export class RoleComponent implements OnInit {
   // dtOptions: DataTables.Settings = {};
   
   constructor(
-    private http: Http,
+    private http: HttpClient,
     private roleService: RoleService,
     private route: ActivatedRoute,
     private router: Router

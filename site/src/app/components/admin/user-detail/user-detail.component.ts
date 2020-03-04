@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
-import { Http, Response } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 
-import 'rxjs/add/operator/map';
+
 
 import { UserService } from '../../../services/user.service';
 
@@ -22,7 +22,7 @@ export class UserDetailComponent implements OnInit {
   private id: string;
 
   constructor(
-    private http: Http,
+    private http: HttpClient,
     private userService: UserService,
     private route: ActivatedRoute,
     private router: Router
