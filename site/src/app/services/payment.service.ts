@@ -12,17 +12,17 @@ export class PaymentService {
   constructor(private http: HttpClient) { }
 
   getPayments(){
-    return this.http.get( environment.api + '/payment' );
+    return this.http.get<any>( environment.api + '/payment' );
     // .map( res => res.json() );
   }
 
   getPaymentsActive(){
-    return this.http.get( environment.api + '/payment/active' );
+    return this.http.get<any>( environment.api + '/payment/active' );
     // .map( res => res.json() );
   }
 
   save(p){
-    return this.http.put( environment.api + '/payment', p );
+    return this.http.put<any>( environment.api + '/payment', p );
     // .map( res => res.json() );
   }
 

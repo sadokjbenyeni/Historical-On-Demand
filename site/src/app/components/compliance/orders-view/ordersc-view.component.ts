@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, Route } from '@angular/router';
 
 import { OrderService } from '../../../services/order.service';
 import { ConfigService } from '../../../services/config.service';
@@ -46,6 +46,7 @@ export class OrderscViewComponent implements OnInit {
   invoice: string;
 
   constructor(
+    private route:ActivatedRoute,
     private router: Router,
     private modalService: NgbModal,
     private configService: ConfigService,
@@ -203,7 +204,7 @@ export class OrderscViewComponent implements OnInit {
 
   getListStates(){
     this.orderService.getListStates({}).subscribe(res=>{
-      this.states = res.states;
+      this.states = res['states'];
     });
   }
   getStateName(stateId) {

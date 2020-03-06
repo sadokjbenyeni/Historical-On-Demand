@@ -12,7 +12,7 @@ export class FinanceService {
   constructor(private http: HttpClient) { }
 
   getRoles() {
-    return this.http.get( environment.api + '/role' )
+    return this.http.get<any>( environment.api + '/role' )
     // .map( res => res.json() );
   }
 

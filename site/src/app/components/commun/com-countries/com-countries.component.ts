@@ -110,9 +110,6 @@ export class ComCountriesComponent implements OnInit {
     })
   }
 
-  private extractData(res: Response) {
-    const body = res.json();
-    return body.data || {};
-  }
+ 
 
 }

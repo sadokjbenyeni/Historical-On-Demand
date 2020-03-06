@@ -12,17 +12,17 @@ export class CurrencyService {
   constructor(private http: HttpClient) { }
 
   getCurrencies() {
-    return this.http.get( environment.api + '/currency')
+    return this.http.get<any>( environment.api + '/currency')
     // .map( res => res.json() );
   }
 
   getRib(rib) {
-    return this.http.get( environment.api + '/currency/rib/'+ rib)
+    return this.http.get<any>( environment.api + '/currency/rib/'+ rib)
     // .map( res => res.json() );
   }
 
   saverib(rib) {
-    return this.http.post( environment.api + '/currency/saverib', rib)
+    return this.http.post<any>( environment.api + '/currency/saverib', rib)
     // .map( res => res.json() );
   }
 

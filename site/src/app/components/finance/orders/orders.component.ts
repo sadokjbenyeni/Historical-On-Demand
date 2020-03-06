@@ -12,7 +12,8 @@ import { DataTableDirective } from 'angular-datatables';
 import { environment } from '../../../../environments/environment';
 
 import * as XLSX from 'xlsx';
-import { Angular5Csv } from 'angular5-csv/Angular5-csv';
+import { AngularCsv } from 'angular7-csv/dist/Angular-csv'
+import { HttpClient } from '@angular/common/http';
 
 class DataTablesResponse {
   listorders: any[];
@@ -229,7 +230,7 @@ export class OrdersComponent implements OnInit {
             "TOTAL_Order_Amount",
           ]
         };
-        new Angular5Csv(data, 'Invoices_export_'+ new Date().getTime(), options);
+        new AngularCsv(data, 'Invoices_export_'+ new Date().getTime(), options);
       });
     }
     if( this.typeexport === "xlsx"){
@@ -276,14 +277,11 @@ export class OrdersComponent implements OnInit {
   }
 
 
-  private extractData(res: Response) {
-    const body = res.json();
-    return body.data || {};
-  }
+
 
   getListStates(){
     this.orderService.getListStates({}).subscribe(res=>{
-      this.states = res.states;
+      this.states = res['states'];
     });
   }
   getStateName(stateId) {

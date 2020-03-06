@@ -1,7 +1,7 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 import { Subject } from 'rxjs';
 
@@ -131,7 +131,7 @@ export class ClientOrderComponent implements OnInit {
 
   getListStates(){
     this.orderService.getListStates({}).subscribe(res=>{
-      this.states = res.states;
+      this.states = res['states'];
     });
   }
   getStateName(stateId) {

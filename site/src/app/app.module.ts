@@ -17,9 +17,9 @@ import { MdpValidatorDirective } from './validators/mdp-validator.directive';
 import { DateValidatorDirective } from './validators/date-validator.directive';
 
 // Components
-  // All
+// All
 import { MenuComponent } from './components/menu/menu.component';
-  // Clients
+// Clients
 import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
@@ -93,7 +93,7 @@ import { CeilPipe } from './ceil.pipe';
 import { SafeHtmlPipePipe } from './safe-html-pipe.pipe';
 
 // Middleware
-import { RECAPTCHA_SETTINGS, RecaptchaSettings, RecaptchaModule } from 'ng-recaptcha';
+import { RecaptchaModule } from 'ng-recaptcha';
 import { DataTablesModule } from 'angular-datatables';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbdModalContent } from './modal-content';
@@ -166,14 +166,15 @@ import { ConfigElasticComponent } from './components/admin/config-elastic/config
     ConfigElasticComponent,
     MailFailedComponent
   ],
-  entryComponents:[NgbdModalContent],
+  entryComponents: [NgbdModalContent],
   imports: [
     BrowserModule,
     FormsModule,
     HttpClientModule,
     RouterModule.forRoot(routes),
     DataTablesModule,
-    NgbModule.forRoot(),
+    NgbModule,
+    NgModule,
     RecaptchaModule.forRoot(),
     PdfViewerModule
   ],

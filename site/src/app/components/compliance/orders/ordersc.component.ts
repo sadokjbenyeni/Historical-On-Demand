@@ -125,14 +125,11 @@ export class OrderscComponent implements OnInit {
     })
   }
 
-  private extractData(res: Response) {
-    const body = res.json();
-    return body.data || {};
-  }
+
 
   getListStates(){
     this.orderService.getListStates({}).subscribe(res=>{
-      this.states = res.states;
+      this.states = res['states'];
     });
   }
   getStateName(stateId) {

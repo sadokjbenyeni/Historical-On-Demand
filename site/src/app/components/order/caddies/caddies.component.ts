@@ -1,10 +1,9 @@
 declare var chckt: any;
 
-import { Component, OnInit, Pipe, PipeTransform } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
-import { NgbTabChangeEvent, NgbDatepickerConfig, NgbDateStruct, NgbCalendar, NgbModal, NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import { NgbCalendar, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgbdModalContent } from '../../../modal-content';
 
 import { OrderService } from '../../../services/order.service';
@@ -66,7 +65,7 @@ export class CaddiesComponent implements OnInit {
     name: string,
     symbol: string,
     bic: string,
-    iban:{
+    iban: {
       ib1: string,
       ib2: string,
       ib3: string,
@@ -123,7 +122,7 @@ export class CaddiesComponent implements OnInit {
     private countriesService: CountriesService,
     private modalService: NgbModal,
     private calenda: NgbCalendar,
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.minRib = false;
@@ -131,9 +130,9 @@ export class CaddiesComponent implements OnInit {
     this.cart = [];
     this.taux = [];
     this.idCmd = '';
-    this.surveyForm = {dd: '', dt: '', du: { cb: [], other: ''} };
+    this.surveyForm = { dd: '', dt: '', du: { cb: [], other: '' } };
     this.term = false;
-    this.dataset = {L1TRADEONLY: 'L1 - Trades', L1: 'L1 - Full', L2: 'L2 - MBL'};
+    this.dataset = { L1TRADEONLY: 'L1 - Trades', L1: 'L1 - Full', L2: 'L2 - MBL' };
     this.user = JSON.parse(sessionStorage.getItem('user'));
     this.getInfoUser(this.user['token']);
     this.status = 'Pending Licensing Information';
@@ -183,12 +182,12 @@ export class CaddiesComponent implements OnInit {
     }
 
     this.breadcrumbs = [
-      { name: "Shopping Cart", icon: "fa fa-shopping-cart", link:'/order/caddies', active:'active' },
-      { name: "Order Review", icon: "fa fa-eye", link:'/order/review', active:this.reviewactive },
-      { name: "Licensing", icon: "fa fa-briefcase", link:'/order/licensing', active:this.licensingactive },
-      { name: "Billing", icon: "fa fa-clipboard", link:'/order/billing', active:this.billingactive },
-      { name: "Order Confirmation", icon: "fa fa-handshake", link:'/order/orderconfirm', active:this.confirmactive },
-      { name: "Payment", icon: "fa fa-credit-card", link:'/order/payment', active:this.paymentactive }
+      { name: "Shopping Cart", icon: "fa fa-shopping-cart", link: '/order/caddies', active: 'active' },
+      { name: "Order Review", icon: "fa fa-eye", link: '/order/review', active: this.reviewactive },
+      { name: "Licensing", icon: "fa fa-briefcase", link: '/order/licensing', active: this.licensingactive },
+      { name: "Billing", icon: "fa fa-clipboard", link: '/order/billing', active: this.billingactive },
+      { name: "Order Confirmation", icon: "fa fa-handshake", link: '/order/orderconfirm', active: this.confirmactive },
+      { name: "Payment", icon: "fa fa-credit-card", link: '/order/payment', active: this.paymentactive }
     ];
   }
 
@@ -196,13 +195,13 @@ export class CaddiesComponent implements OnInit {
     this.currencyObj = this.searchCurrency(id, this.currencies);
   }
 
-  getPayments(){
-    this.paymentService.getPaymentsActive().subscribe(res=>{
+  getPayments() {
+    this.paymentService.getPaymentsActive().subscribe(res => {
       this.payments = res;
     });
   }
 
-  getInfoUser(token){
+  getInfoUser(token) {
     let field = [
       'id',
       'email',
@@ -225,7 +224,7 @@ export class CaddiesComponent implements OnInit {
       'payment',
       'currency'
     ];
-    this.userService.info({token: token, field: field}).subscribe(res=>{
+    this.userService.info({ token: token, field: field }).subscribe(res => {
       this.user = res.user;
 
       // a retirer lors de l'implementation CB
@@ -237,7 +236,7 @@ export class CaddiesComponent implements OnInit {
       this.checkv = res.user.checkvat;
       if (res.user.checkvat) { this.loadvat = 'form-control'; }
       if (this.router.url === '/order/orderconfirm') {
-        if(res.user.payment) {
+        if (res.user.payment) {
           this.payment = res.user.payment;
         } else {
           this.payment = '';
@@ -245,10 +244,10 @@ export class CaddiesComponent implements OnInit {
         //à retirer lors de l'implémentation du paiement par CB
 
       }
-      if(res.user.currency) {
+      if (res.user.currency) {
         this.currency = res.user.currency;
         this.getRate();
-      } else  {
+      } else {
         this.currency = '';
       }
       this.getCurrency();
@@ -263,35 +262,35 @@ export class CaddiesComponent implements OnInit {
     });
   }
 
-  getCaddy(iduser){
-    this.orderService.getCaddies({id: iduser}).subscribe((c) => {
-      if(c.cmd.length > 0 ) {
-        this.fluxService.rate({currency:c.cmd[0].currency}).subscribe(res=>{
+  getCaddy(iduser) {
+    this.orderService.getCaddies({ id: iduser }).subscribe((c) => {
+      if (c.cmd.length > 0) {
+        this.fluxService.rate({ currency: c.cmd[0].currency }).subscribe(res => {
           this.currency = c.cmd[0].currency;
-          if( c.cmd[0].vat !== null &&c.cmd[0].vat ) {
+          if (c.cmd[0].vat !== null && c.cmd[0].vat) {
             this.user['vat'] = c.cmd[0].vat;
-          } else if( c.cmd[0].vatValide === null ) {
+          } else if (c.cmd[0].vatValide === null) {
             this.user['vat'] = this.oldAddressBilling['vat'];
           }
-          if( c.cmd[0].vatValide !== null) {
+          if (c.cmd[0].vatValide !== null) {
             this.checkv = c.cmd[0].vatValide;
           }
-          if( c.cmd[0].addressBilling !== null && c.cmd[0].addressBilling ) {
+          if (c.cmd[0].addressBilling !== null && c.cmd[0].addressBilling) {
             this.user['addressBilling'] = c.cmd[0].addressBilling;
           } else {
             this.user['addressBilling'] = this.oldAddressBilling['addressBilling'];
           }
-          if( c.cmd[0].cityBilling !== null && c.cmd[0].cityBilling ) {
+          if (c.cmd[0].cityBilling !== null && c.cmd[0].cityBilling) {
             this.user['cityBilling'] = c.cmd[0].cityBilling;
           } else {
             this.user['cityBilling'] = this.oldAddressBilling['cityBilling'];
           }
-          if( c.cmd[0].postalCodeBilling !== null && c.cmd[0].postalCodeBilling ) {
+          if (c.cmd[0].postalCodeBilling !== null && c.cmd[0].postalCodeBilling) {
             this.user['postalCodeBilling'] = c.cmd[0].postalCodeBilling;
           } else {
             this.user['postalCodeBilling'] = this.oldAddressBilling['postalCodeBilling'];
           }
-          if( c.cmd[0].countryBilling !== null && c.cmd[0].countryBilling ) {
+          if (c.cmd[0].countryBilling !== null && c.cmd[0].countryBilling) {
             this.user['countryBilling'] = c.cmd[0].countryBilling;
           } else {
             this.user['countryBilling'] = this.oldAddressBilling['countryBilling'];
@@ -299,42 +298,42 @@ export class CaddiesComponent implements OnInit {
           this.currencyObj = this.searchCurrency(this.currency, this.currencies);
           this.rate = parseFloat(res.rate);
           let usd = 0;
-          for (var i=0; i < this.currencies.length; i++) {
+          for (var i = 0; i < this.currencies.length; i++) {
             if (this.currencies[i]['id'] === 'usd') {
               usd = this.currencies[i]['taux'];
               this.currencyTxUsd = usd;
             }
             if (this.currencies[i]['id'] === this.currency) {
-                this.symbol =  this.currencies[i]['symbol'];
+              this.symbol = this.currencies[i]['symbol'];
             }
           }
-          this.configService.getVat().subscribe(res=>{
+          this.configService.getVat().subscribe(res => {
             this.vat = res.valueVat / 100;
-            if(c.cmd.length > 0){
+            if (c.cmd.length > 0) {
               this.cmd = c.cmd[0];
               this.idCmd = c.cmd[0].id_cmd;
               this.id = c.cmd[0].id;
               // this.payment = c.cmd[0].payment;
               this.payment = 'banktransfer';
               let index = 0;
-              if(c.cmd[0].products.length === 0){
+              if (c.cmd[0].products.length === 0) {
                 this.breadcrumbs[1]['active'] = '';
                 this.breadcrumbs[2]['active'] = '';
                 this.breadcrumbs[3]['active'] = '';
                 this.breadcrumbs[4]['active'] = '';
                 this.breadcrumbs[5]['active'] = '';
               }
-              if(c.cmd[0].state ==='CART' && c.cmd[0].products.length > 0){
+              if (c.cmd[0].state === 'CART' && c.cmd[0].products.length > 0) {
                 this.reviewactive = 'active';
                 this.breadcrumbs[1]['active'] = this.reviewactive;
               }
-              if(c.cmd[0].state ==='PLI' && c.cmd[0].products.length > 0){
+              if (c.cmd[0].state === 'PLI' && c.cmd[0].products.length > 0) {
                 this.reviewactive = 'active';
                 this.licensingactive = 'active';
                 this.breadcrumbs[1]['active'] = this.reviewactive;
                 this.breadcrumbs[2]['active'] = this.licensingactive;
               }
-              if(c.cmd[0].state ==='PBI' && c.cmd[0].products.length > 0){
+              if (c.cmd[0].state === 'PBI' && c.cmd[0].products.length > 0) {
                 this.reviewactive = 'active';
                 this.licensingactive = 'active';
                 this.billingactive = 'active';
@@ -342,7 +341,7 @@ export class CaddiesComponent implements OnInit {
                 this.breadcrumbs[2]['active'] = this.licensingactive;
                 this.breadcrumbs[3]['active'] = this.billingactive;
               }
-              if(c.cmd[0].state ==='PSC' && c.cmd[0].products.length > 0){
+              if (c.cmd[0].state === 'PSC' && c.cmd[0].products.length > 0) {
                 this.reviewactive = 'active';
                 this.licensingactive = 'active';
                 this.billingactive = 'active';
@@ -359,7 +358,7 @@ export class CaddiesComponent implements OnInit {
               this.totalHTUsd = c.cmd[0].totalHT;
               this.totalFeesUsd = c.cmd[0].totalExchangeFees;
               this.discount = c.cmd[0].discount;
-              this.totalAmountUsd = (this.totalHTUsd - (this.totalHTUsd * c.cmd[0].discount / 100) ) + c.cmd[0].totalExchangeFees;
+              this.totalAmountUsd = (this.totalHTUsd - (this.totalHTUsd * c.cmd[0].discount / 100)) + c.cmd[0].totalExchangeFees;
 
               if (this.currency !== 'usd') {
                 this.totalFees = (c.cmd[0].totalExchangeFees / usd) * this.rate;
@@ -368,16 +367,16 @@ export class CaddiesComponent implements OnInit {
                 this.totalFees = c.cmd[0].totalExchangeFees;
                 this.totalHT = c.cmd[0].totalHT;
               }
-              this.totalAmount = (this.totalHT - (this.totalHT * c.cmd[0].discount / 100) ) + this.totalFees;
+              this.totalAmount = (this.totalHT - (this.totalHT * c.cmd[0].discount / 100)) + this.totalFees;
               // if(this.totalAmount < this.currencyObj.maxrib) {
               //   this.minRib = true;
               //   this.user['payment'] = 'creditcard';
               // }
 
-              this.countriesService.isUE({id:this.user['countryBilling']}).subscribe(res=>{
-                this.vatValueApply = ( this.user['countryBilling'] == 'FR' || ( res.ue == 1 && ( this.user['vat'] == '' || !this.checkv ) ) );
+              this.countriesService.isUE({ id: this.user['countryBilling'] }).subscribe(res => {
+                this.vatValueApply = (this.user['countryBilling'] == 'FR' || (res.ue == 1 && (this.user['vat'] == '' || !this.checkv)));
 
-                if( !this.vatValueApply ){
+                if (!this.vatValueApply) {
                   // this.vat = null;
                   this.totalVatUsd = 0;
                   this.totalVat = 0;
@@ -399,7 +398,7 @@ export class CaddiesComponent implements OnInit {
                     ht = (p.ht / usd) * this.rate;
                     backfill_fee = (p.backfill_fee / usd) * this.rate;
                     ongoing_fee = (p.ongoing_fee / usd) * this.rate;
-                  } else{
+                  } else {
                     ht = p.ht;
                     backfill_fee = p.backfill_fee;
                     ongoing_fee = p.ongoing_fee;
@@ -429,10 +428,10 @@ export class CaddiesComponent implements OnInit {
                     bdref: this.dateNGB(p.begin_date_ref),
                     begin_date: p.begin_date_ref,
                     bds: this.dateNGB(p.begin_date),
-                    end_date_select : p.end_date,
-                    end_date : p.end_date_ref,
-                    edref : this.dateNGB(p.end_date_ref),
-                    eds : this.dateNGB(p.end_date)
+                    end_date_select: p.end_date,
+                    end_date: p.end_date_ref,
+                    edref: this.dateNGB(p.end_date_ref),
+                    eds: this.dateNGB(p.end_date)
                   };
                   this.cart.push(prod);
                   if (p.backfill_fee > 0 || p.ongoing_fee > 0) {
@@ -446,7 +445,7 @@ export class CaddiesComponent implements OnInit {
                 //   this.idCmd = this.cmd['id_cmd'];
                 //   this.submitPayment();
                 // }
-                if(this.payment === 'banktransfer'){
+                if (this.payment === 'banktransfer') {
                   this.getRib();
                 }
               }
@@ -465,40 +464,40 @@ export class CaddiesComponent implements OnInit {
   }
 
   // Function Shopping Cart
-  getCart(){
+  getCart() {
     // this.cart[0]["price"] = 105;
     this.cart.forEach(element => {
-      this.ht += (parseFloat(element['price']) * this.rate );
+      this.ht += (parseFloat(element['price']) * this.rate);
     });
   }
 
   getRib() {
-    this.rib = { _id: '', id: '', device: '', name: '', symbol: '', bic: '', iban:{ ib1: '', ib2: '', ib3: '', ib4: '', ib5: '', ib6: '', ib7: '' }, rib:{ cb: '', cg: '', nc: '', cr: '', domiciliation: '' }, maxrib: '', taux: '' };
+    this.rib = { _id: '', id: '', device: '', name: '', symbol: '', bic: '', iban: { ib1: '', ib2: '', ib3: '', ib4: '', ib5: '', ib6: '', ib7: '' }, rib: { cb: '', cg: '', nc: '', cr: '', domiciliation: '' }, maxrib: '', taux: '' };
     this.currencyService.getRib(this.currency).subscribe(res => {
       this.rib = res.rib;
     });
   }
 
-  updateCaddies(idCmd, idElem, begin_date, end_date, begin_date_ref, end_date_ref, price, status = '' ) {
+  updateCaddies(idCmd, idElem, begin_date, end_date, begin_date_ref, end_date_ref, price, status = '') {
     let valid = false;
     let updt = {};
     updt['idCmd'] = idCmd;
     updt['idElem'] = idElem;
     updt['totalHT'] = 0;
-    if (new Date(this.yyyymmdd(begin_date)) >= new Date(begin_date_ref) && new Date(this.yyyymmdd(begin_date)) <= new Date(this.yyyymmdd(end_date)) ) {
+    if (new Date(this.yyyymmdd(begin_date)) >= new Date(begin_date_ref) && new Date(this.yyyymmdd(begin_date)) <= new Date(this.yyyymmdd(end_date))) {
       updt['begin_date'] = new Date(this.yyyymmdd(begin_date));
       valid = true;
     } else {
       valid = true;
     }
-    if (new Date(this.yyyymmdd(end_date)) <= new Date(end_date_ref) && new Date(this.yyyymmdd(begin_date)) <= new Date(this.yyyymmdd(end_date)) ) {
+    if (new Date(this.yyyymmdd(end_date)) <= new Date(end_date_ref) && new Date(this.yyyymmdd(begin_date)) <= new Date(this.yyyymmdd(end_date))) {
       updt['end_date'] = new Date(this.yyyymmdd(end_date));
       valid = true;
     } else {
       valid = true;
     }
     let diff = this.dateDiff(updt['begin_date'], updt['end_date']).day + 1;
-    if(diff < 20) {
+    if (diff < 20) {
       updt['period'] = 20;
       updt['ht'] = 20 * parseFloat(price);
     } else {
@@ -509,7 +508,7 @@ export class CaddiesComponent implements OnInit {
       updt['status'] = status;
     }
     if (valid) {
-      this.orderService.updtProductCaddy(updt).subscribe(()=>{
+      this.orderService.updtProductCaddy(updt).subscribe(() => {
         this.cart = [];
         this.getCaddy(this.user['_id']);
       });
@@ -518,7 +517,7 @@ export class CaddiesComponent implements OnInit {
   delCaddies(idCmd, idElem, ht, backfill_fee, ongoing_fee) {
     this.totalFees = this.totalFees - backfill_fee - ongoing_fee;
     this.totalHT = this.totalHT - ht;
-    this.orderService.delElemOrder({id_cmd:idCmd, id_product: idElem, backfill_fee: backfill_fee, totalFees: this.totalFees, totalHT: this.totalHT}).subscribe(()=>{
+    this.orderService.delElemOrder({ id_cmd: idCmd, id_product: idElem, backfill_fee: backfill_fee, totalFees: this.totalFees, totalHT: this.totalHT }).subscribe(() => {
       this.cart = [];
       this.getCaddy(this.user['_id']);
     });
@@ -546,11 +545,11 @@ export class CaddiesComponent implements OnInit {
   }
   termsCheckbox(element: HTMLInputElement): void {
     this.term = element.checked;
-    if(element.checked){
+    if (element.checked) {
       sessionStorage.setItem('tc', JSON.stringify(this.term));
     } else {
       sessionStorage.removeItem('surveyForm');
-      this.surveyForm = {dd: '', dt: '', du: { cb: [], other: ''} };
+      this.surveyForm = { dd: '', dt: '', du: { cb: [], other: '' } };
     }
   }
   next() {
@@ -559,15 +558,15 @@ export class CaddiesComponent implements OnInit {
   previous() {
     this.survey--;
   }
-  updtSurvey(event){
+  updtSurvey(event) {
     this.surveyForm = event.value;
   }
   saveOrderView() {
-    this.orderService.updtCaddy({idCmd: this.idCmd, state: 'PLI'}).subscribe(res=>{});
+    this.orderService.updtCaddy({ idCmd: this.idCmd, state: 'PLI' }).subscribe(res => { });
   }
-  saveSurvey(){
+  saveSurvey() {
     sessionStorage.setItem('surveyForm', JSON.stringify(this.surveyForm));
-    this.orderService.updtCaddy({idCmd: this.idCmd, state: 'PBI', survey: this.surveyForm}).subscribe(res=>{});
+    this.orderService.updtCaddy({ idCmd: this.idCmd, state: 'PBI', survey: this.surveyForm }).subscribe(res => { });
   }
 
   //Function Billing
@@ -581,11 +580,11 @@ export class CaddiesComponent implements OnInit {
     let billingCart = {};
     // sessionStorage.setItem('user', JSON.stringify(this.user));
 
-    this.countriesService.isUE({id:this.user['countryBilling']}).subscribe(res=>{
-      this.vatValueApply = ( this.user['countryBilling'] == 'FR' || ( res.ue == 1 && ( this.user['vat'] == '' || !this.checkv ) ) );
+    this.countriesService.isUE({ id: this.user['countryBilling'] }).subscribe(res => {
+      this.vatValueApply = (this.user['countryBilling'] == 'FR' || (res.ue == 1 && (this.user['vat'] == '' || !this.checkv)));
 
       billingCart['currency'] = this.currency;
-      if(this.currencychange){
+      if (this.currencychange) {
         modify['currency'] = this.currency;
       }
       billingCart['currencyTx'] = this.taux[billingCart['currency']];
@@ -593,7 +592,7 @@ export class CaddiesComponent implements OnInit {
       billingCart['vatValue'] = this.vatValueApply ? this.vat : null;
 
       billingCart['payment'] = this.user['payment'];
-      if(this.paymentchange){
+      if (this.paymentchange) {
         modify['payment'] = this.user['payment'];
       }
 
@@ -603,7 +602,7 @@ export class CaddiesComponent implements OnInit {
       billingCart['cityBilling'] = this.user['cityBilling'];
       billingCart['postalCodeBilling'] = this.user['postalCodeBilling'];
       billingCart['countryBilling'] = this.user['countryBilling'];
-      if(this.addresschange){
+      if (this.addresschange) {
         modify['checkvat'] = this.checkv;
         modify['vat'] = this.user['vat'];
         modify['addressBilling'] = this.user['addressBilling'];
@@ -611,13 +610,13 @@ export class CaddiesComponent implements OnInit {
         modify['postalCodeBilling'] = this.user['postalCodeBilling'];
         modify['countryBilling'] = this.user['countryBilling'];
         modify['token'] = this.user['token'];
-        this.userService.preferBilling(modify).subscribe(res=>{});
+        this.userService.preferBilling(modify).subscribe(res => { });
       }
 
       for (let index = 0; index < this.cart.length; index++) {
         this.cart[index].status = 'PSC';
       }
-      this.orderService.updtCaddy({idCmd: this.idCmd, state: 'PSC', billing: billingCart, cart: this.cart}).subscribe(res=>{});
+      this.orderService.updtCaddy({ idCmd: this.idCmd, state: 'PSC', billing: billingCart, cart: this.cart }).subscribe(res => { });
     });
   }
 
@@ -625,19 +624,19 @@ export class CaddiesComponent implements OnInit {
     this.orderService.updtCaddy({
       idCmd: this.idCmd,
       state: 'PSC',
-      totaux : {
-        totalExchangeFees : this.totalFeesUsd,
-        totalHT : this.totalHTUsd,
-        currencyTx : this.rate,
-        currencyTxUsd : this.currencyTxUsd,
-        currency : this.currency,
-        totalTTC : this.precisionRound(this.totalTTCUsd, 2),
+      totaux: {
+        totalExchangeFees: this.totalFeesUsd,
+        totalHT: this.totalHTUsd,
+        currencyTx: this.rate,
+        currencyTxUsd: this.currencyTxUsd,
+        currency: this.currency,
+        totalTTC: this.precisionRound(this.totalTTCUsd, 2),
       }
-    }).subscribe(res=>{});
+    }).subscribe(res => { });
   }
 
-  sameAddress(){
-    if (this.user['sameAddress']){
+  sameAddress() {
+    if (this.user['sameAddress']) {
       this.user['addressBilling'] = this.user['address'];
       this.user['cityBilling'] = this.user['city'];
       this.user['postalCodeBilling'] = this.user['postalCode'];
@@ -650,39 +649,39 @@ export class CaddiesComponent implements OnInit {
       this.user['countryBilling'] = this.oldAddressBilling['countryBilling'];
     }
   }
-  changedAddress(){
-    if( this.oldAddressBilling ){
-      if( this.user['vat'] != this.oldAddressBilling['vat'] )
+  changedAddress() {
+    if (this.oldAddressBilling) {
+      if (this.user['vat'] != this.oldAddressBilling['vat'])
         return true;
-      if( this.user['addressBilling'] != this.oldAddressBilling['addressBilling'] )
+      if (this.user['addressBilling'] != this.oldAddressBilling['addressBilling'])
         return true;
-      if( this.user['cityBilling'] != this.oldAddressBilling['cityBilling'] )
+      if (this.user['cityBilling'] != this.oldAddressBilling['cityBilling'])
         return true;
-      if( this.user['postalCodeBilling'] != this.oldAddressBilling['postalCodeBilling'] )
+      if (this.user['postalCodeBilling'] != this.oldAddressBilling['postalCodeBilling'])
         return true;
-      if( this.user['countryBilling'] != this.oldAddressBilling['countryBilling'] )
+      if (this.user['countryBilling'] != this.oldAddressBilling['countryBilling'])
         return true;
     }
     return false;
   }
-  checkVat(){
+  checkVat() {
     if (this.user['vat'] !== '' && this.user['vat']) {
-      let c = this.user['vat'].substring(0,2);
-      let v = this.user['vat'].substring(2,this.user['vat'].length);
+      let c = this.user['vat'].substring(0, 2);
+      let v = this.user['vat'].substring(2, this.user['vat'].length);
       this.loadvat = 'form-control loading';
-      this.vatService.checkVat(c + '|' + v).subscribe(data=>{
+      this.vatService.checkVat(c + '|' + v).subscribe(data => {
         this.checkv = data.valid;
         this.loadvat = 'form-control';
       },
-      error=>{
-        console.error(error);
-      });
+        error => {
+          console.error(error);
+        });
     }
   }
 
   //Function Order Confirmation
-  getRate(){
-    this.fluxService.rate({currency:this.currency}).subscribe(res=>{
+  getRate() {
+    this.fluxService.rate({ currency: this.currency }).subscribe(res => {
       this.rate = parseFloat(res.rate);
       this.getCart();
     });
@@ -702,24 +701,24 @@ export class CaddiesComponent implements OnInit {
         currencyTxUsd: this.currencyTxUsd
       },
       user: this.user
-    }).subscribe(resp=>{
+    }).subscribe(resp => {
       let sdkConfigObj = {
-        context : 'test' // change it to 'live' when going live.
+        context: 'test' // change it to 'live' when going live.
       }
       let checkout = chckt.checkout(resp.body, '#paymentcard', sdkConfigObj);
-      chckt.hooks.beforeComplete = function(node, paymentData) {
-        if(paymentData.resultCode === "authorised") {
-          that.orderService.verify(paymentData).subscribe(r=>{
-            if(r.ok === 1){
+      chckt.hooks.beforeComplete = function (node, paymentData) {
+        if (paymentData.resultCode === "authorised") {
+          that.orderService.verify(paymentData).subscribe(r => {
+            if (r.ok === 1) {
               sessionStorage.removeItem('tc');
               sessionStorage.removeItem('surveyForm');
-              that.surveyForm = {dd: '', dt: '', du: { cb: [], other: ''} };
+              that.surveyForm = { dd: '', dt: '', du: { cb: [], other: '' } };
               that.open();
             }
             return false;
           });
         } else {
-          that.orderService.logPayement(paymentData).subscribe(r=>{
+          that.orderService.logPayement(paymentData).subscribe(r => {
             return false;
           });
         }
@@ -747,20 +746,20 @@ export class CaddiesComponent implements OnInit {
       currencyTxUsd: this.currencyTxUsd,
       email: this.user['email'],
       token: this.user['token']
-    }).subscribe(resp=>{
+    }).subscribe(resp => {
       sessionStorage.removeItem('tc');
       sessionStorage.removeItem('surveyForm');
-      this.surveyForm = {dd: '', dt: '', du: { cb: [], other: ''} };
+      this.surveyForm = { dd: '', dt: '', du: { cb: [], other: '' } };
       this.open();
       // this.pdfService.header('', this.user['id'], this.numVat, '', '', this.id, this.currency);
       // this.pdfService.link('QH-CMD-'+ this.id);
     });
-    this.orderService.sortProducts({idCmd: this.idCmd}).subscribe(res=>{});
+    this.orderService.sortProducts({ idCmd: this.idCmd }).subscribe(res => { });
   }
 
   open() {
     const message = [
-      'Thank you for your order','',
+      'Thank you for your order', '',
       'Your order has been submitted successfully and it is now pending validation.',
       'You will be notified by email once your order has been validated and when you can access your data. You could as well follow the progress of all your orders via your personal profile / order history section.'
     ];
@@ -771,38 +770,38 @@ export class CaddiesComponent implements OnInit {
     modalRef.componentInstance.link = '/';
   }
 
-   //Function ALL
+  //Function ALL
   getCurrency() {
     this.currencyService.getCurrencies().subscribe(res => {
       this.currencies = res.currencies;
       // if(this.page === 'orderconfirm'){
-        this.getSymbol();
+      this.getSymbol();
       // }
     });
   }
-  getSymbol(){
-    for (var i=0; i < this.currencies.length; i++) {
+  getSymbol() {
+    for (var i = 0; i < this.currencies.length; i++) {
       if (this.currencies[i]['id'] === this.user['currency']) {
-          this.symbol =  this.currencies[i]['symbol'];
-        }
-        this.taux[this.currencies[i]['id']] = this.currencies[i]['taux'];
+        this.symbol = this.currencies[i]['symbol'];
+      }
+      this.taux[this.currencies[i]['id']] = this.currencies[i]['taux'];
     }
   }
-  dateDiff(date1, date2){
-    let diff = { sec: 0, min: 0, hour:0, day: 0 };  // Initialisation du retour
+  dateDiff(date1, date2) {
+    let diff = { sec: 0, min: 0, hour: 0, day: 0 };  // Initialisation du retour
     let tmp = date2 - date1;
-    tmp = Math.floor(tmp/1000);                     // Nombre de secondes entre les 2 dates
+    tmp = Math.floor(tmp / 1000);                     // Nombre de secondes entre les 2 dates
     diff.sec = tmp % 60;                            // Extraction du nombre de secondes
-    tmp = Math.floor((tmp-diff.sec)/60);            // Nombre de minutes (partie entière)
+    tmp = Math.floor((tmp - diff.sec) / 60);            // Nombre de minutes (partie entière)
     diff.min = tmp % 60;                            // Extraction du nombre de minutes
-    tmp = Math.floor((tmp-diff.min)/60);            // Nombre d'heures (entières)
+    tmp = Math.floor((tmp - diff.min) / 60);            // Nombre d'heures (entières)
     diff.hour = tmp % 24;                           // Extraction du nombre d'heures
-    tmp = Math.floor((tmp-diff.hour)/24);           // Nombre de jours restants
+    tmp = Math.floor((tmp - diff.hour) / 24);           // Nombre de jours restants
     diff.day = tmp;
     return diff;
   }
-  searchCurrency(nameKey, myArray){
-    for (var i=0; i < myArray.length; i++) {
+  searchCurrency(nameKey, myArray) {
+    for (var i = 0; i < myArray.length; i++) {
       if (myArray[i].id === nameKey) {
         return myArray[i];
       }
@@ -811,7 +810,7 @@ export class CaddiesComponent implements OnInit {
   yyyymmdd(d) {
     var mm = d.month;
     var dd = d.day;
-    return [ d.year, (mm>9 ? '' : '0') + mm,(dd>9 ? '' : '0') + dd ].join('-');
+    return [d.year, (mm > 9 ? '' : '0') + mm, (dd > 9 ? '' : '0') + dd].join('-');
   };
 
   precisionRound(number, precision) {

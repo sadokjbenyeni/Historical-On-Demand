@@ -10,7 +10,7 @@ export class CompanytypesService {
 
   constructor(private http: HttpClient) { }
   getCompanytypes() {
-    return this.http.get( environment.api + '/companytype' );
+    return this.http.get<any>( environment.api + '/companytype' );
     // .map( res => res.json() );
   }
 

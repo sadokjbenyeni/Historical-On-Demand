@@ -12,7 +12,7 @@ export class VatService {
   constructor(private http: HttpClient) { }
 
   checkVat(vat) {
-    return this.http.get( environment.api + '/verifyvat/'+ vat );
+    return this.http.get<any>( environment.api + '/verifyvat/'+ vat );
     // .map( res => res.json() );
   }
 

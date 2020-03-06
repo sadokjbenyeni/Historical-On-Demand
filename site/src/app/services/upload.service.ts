@@ -11,17 +11,17 @@ export class UploadService {
   constructor( private http: HttpClient ) { }
 
   upload(bodyRequest): Observable<any> {
-    return this.http.post(environment.api + '/upload', bodyRequest)
+    return this.http.post<any>(environment.api + '/upload', bodyRequest)
     // .map( res  => res.json() );
   }
 
   pdfOrderFrom(bodyRequest): Observable<any> {
-    return this.http.post(environment.api + '/upload/pdfOrderFrom', bodyRequest)
+    return this.http.post<any>(environment.api + '/upload/pdfOrderFrom', bodyRequest)
     // .map( res  => res.json() );
   }
 
   upd(){
-    return this.http.post(environment.api + '/upload/link', {})
+    return this.http.post<any>(environment.api + '/upload/link', {})
     // .map( res  => res );
   }
 }

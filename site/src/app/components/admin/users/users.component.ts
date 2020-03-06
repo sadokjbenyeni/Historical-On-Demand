@@ -75,8 +75,5 @@ export class UsersComponent implements OnInit, AfterViewChecked {
   edit(id): void {
   }
 
-  private extractData(res: Response) {
-    const body = res.json();
-    return body.data || {};
-  }
+
 }

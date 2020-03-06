@@ -284,7 +284,7 @@ export class OrderspViewComponent implements OnInit {
 
   getListStates(){
     this.orderService.getListStates({}).subscribe(res=>{
-      this.states = res.states;
+      this.states = res['states'];
     });
   }
   getStateName(stateId) {

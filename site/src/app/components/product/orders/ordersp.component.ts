@@ -146,14 +146,10 @@ export class OrderspComponent implements OnInit {
   }
 
 
-  private extractData(res) {
-    const body = res.json();
-    return body.data || {};
-  }
 
   getListStates(){
     this.orderService.getListStates({}).subscribe(res=>{
-      this.states = res.states;
+      this.states = res['states'];
     });
   }
   getStateName(stateId) {
