@@ -4,7 +4,7 @@
     <ol class="breadcrumb custom-breadcrumb">
       <li class="active">Finance</li>
       <li class="active">Client Orders</li>
-      <li class="active">Order Details : {{ idOrder }}</li>
+      <li class="active">Order Details </li>
     </ol>
   </div>
 </div>
@@ -21,21 +21,19 @@
         <div class="panel panel-info">
           <div class="table-responsive container row">
             <div class="col-md-6">
-              <p><b>Submission Date and Time : </b> {{ submissionDate | date:'medium' }}</p>
-              <p><b>Order Form : </b> {{ idOrder }}</p>
-              <p><b>Payment method : </b>{{ payment }}</p>
-              <p>
-                <!-- <b>Invoice : </b><a *ngIf="invoice!=undefined" target="_blank" [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}}</a> -->
-                <br/>
-              </p>
-              <p><b>Order Status : <span>{{ getStateName(state) }}</span></b>
-              </div>
+              <p>Order ID : <b> {{ idOrder }}</b></p>
+              <p>Submission Date and Time : <b> {{ submissionDate | date:'medium' }}</b></p>
+              <p>Payment method : <b>{{ payment }}</b></p>
+              <p>Invoice : <b><a *ngIf="invoice!=undefined" target="_blank"
+                    [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}} </a></b></p>
+              <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b>
+            </div>
             <div class="col-md-6">
-              <p><b>Company Name: </b>{{ companyName }}</p>
-              <p><b>First name : </b>{{ firstname }}</p>
-              <p><b>Last name : </b>{{ lastname }}</p>
-              <p><b>Job role : </b>{{ job }}</p>
-              <p><b>Country : </b>{{ country }}</p>
+              <p>Company Name: <b>{{ company }}</b></p>
+              <p>First name : <b>{{ firstname }}</b></p>
+              <p>Last name : <b>{{ lastname }}</b></p>
+              <p>Job role : <b>{{ job }}</b></p>
+              <p>Country : <b>{{ countryBilling }}</b></p>
             </div>
           </div>
         </div>
@@ -73,7 +71,9 @@
                 <td *ngIf="!c.print">{{ getHt(c.ht) | number:'1.2-2' }} {{ symbols[currency] }}</td>
                 <td class="bg-grey" colspan="9" *ngIf="c.print"></td>
                 <td *ngIf="c.print && (c.backfill_fee || c.ongoing_fee)"><b>Exchange Fees</b></td>
-                <td *ngIf="c.print && (c.backfill_fee || c.ongoing_fee)">{{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }} {{ symbols[currency] }}</td>
+                <td *ngIf="c.print && (c.backfill_fee || c.ongoing_fee)">
+                  {{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }}
+                  {{ symbols[currency] }}</td>
               </tr>
               <tr *ngIf="cart?.length === 0">
                 <td colspan="11" class="no-data-available">Empty !</td>
@@ -110,7 +110,8 @@
         </div>
         <div class="table-responsive text-center">
           <div class="btn-action">
-            <span class="btn btn-success fa fa-handshake" *ngIf="verifState()" (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
+            <span class="btn btn-success fa fa-handshake" *ngIf="verifState()"
+              (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
             <span class="btn btn-danger fa fa-power-off" [routerLink]='["/finance/orders"]'> Close</span>
           </div>
         </div>

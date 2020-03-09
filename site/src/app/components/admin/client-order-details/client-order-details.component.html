@@ -4,13 +4,13 @@
     <ol class="breadcrumb custom-breadcrumb">
       <li class="active">Administration</li>
       <li class="active">Client Orders</li>
-      <li class="active">Order Details : {{ idOrder }}</li>
+      <li class="active">Order Details </li>
     </ol>
   </div>
 </div>
 <div class="container page-content">
   <div class="row">
-      <app-configuration></app-configuration>
+    <app-configuration></app-configuration>
     <div class="col-md-11">
       <div class="table-responsive">
         <div class="panel panel-primary" *ngIf="message">
@@ -21,18 +21,19 @@
         <div class="panel panel-info">
           <div class="table-responsive container row">
             <div class="col-md-6">
-              <p><b>Submission Date and Time : </b> {{ submissionDate | date:'medium' }}</p>
-              <p><b>Order Form : </b> {{ idOrder }}</p>
-              <p><b>Payment method : </b>{{ payment }}</p>
-              <p><b>Invoice : </b><a *ngIf="invoice!=undefined" target="_blank" [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}}</a></p>
-              <p><b>Order Status : <span>{{ getStateName(state) }}</span></b>
-              </div>
+              <p>Order ID : <b> {{ idOrder }}</b></p>
+              <p>Submission Date and Time : <b> {{ submissionDate | date:'medium' }}</b></p>
+              <p>Payment method : <b>{{ payment }}</b></p>
+              <p>Invoice : <b><a *ngIf="invoice!=undefined" target="_blank"
+                    [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}} </a></b></p>
+              <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b>
+            </div>
             <div class="col-md-6">
-              <p><b>Company Name: </b>{{ companyName }}</p>
-              <p><b>First name : </b>{{ firstname }}</p>
-              <p><b>Last name : </b>{{ lastname }}</p>
-              <p><b>Job role : </b>{{ job }}</p>
-              <p><b>Country : </b>{{ country }}</p>
+              <p>Company Name: <b>{{ company }}</b></p>
+              <p>First name : <b>{{ firstname }}</b></p>
+              <p>Last name : <b>{{ lastname }}</b></p>
+              <p>Job role : <b>{{ job }}</b></p>
+              <p>Country : <b>{{ countryBilling }}</b></p>
             </div>
           </div>
         </div>
@@ -56,7 +57,9 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let c of cart" [ngClass]="{ 'danger':c.status==='failed', 'warning':c.status==='running', clickable: true }" (click)="detail(c)">
+              <tr *ngFor="let c of cart"
+                [ngClass]="{ 'danger':c.status==='failed', 'warning':c.status==='running', clickable: true }"
+                (click)="detail(c)">
                 <td *ngIf="!c.print">{{ c.idx}}</td>
                 <td *ngIf="!c.print">{{ c.quotation_level }}</td>
                 <td *ngIf="!c.print">{{ c.symbol }}</td>
@@ -67,8 +70,10 @@
                 <td *ngIf="c.subscription === 1 && !c.print">{{c.period}}</td>
                 <td *ngIf="c.subscription === 1 && !c.print && !c.begin_date_select"></td>
                 <td *ngIf="c.subscription === 1 && !c.print && !c.end_date_select"></td>
-                <td *ngIf="c.subscription === 1 && !c.print && c.begin_date_select">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
-                <td *ngIf="c.subscription === 1 && !c.print && c.end_date_select">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
+                <td *ngIf="c.subscription === 1 && !c.print && c.begin_date_select">
+                  {{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
+                <td *ngIf="c.subscription === 1 && !c.print && c.end_date_select">
+                  {{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
                 <td *ngIf="c.subscription === 0 && !c.print"></td>
                 <td *ngIf="c.subscription === 0 && !c.print">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
                 <td *ngIf="c.subscription === 0 && !c.print">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
@@ -76,18 +81,22 @@
                 <td *ngIf="!c.print">{{ getHt(c.ht) | number:'1.2-2' }} {{ symbols[currency] }}</td>
                 <td class="bg-grey" colspan="9" *ngIf="c.print"></td>
                 <td *ngIf="(c.backfill_fee || c.ongoing_fee)"><b>Exchange Fees</b></td>
-                <td *ngIf="(c.backfill_fee || c.ongoing_fee)">{{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }} {{ symbols[currency] }}</td>
+                <td *ngIf="(c.backfill_fee || c.ongoing_fee)">
+                  {{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }}
+                  {{ symbols[currency] }}</td>
                 <td>{{ c.status }}</td>
                 <!-- <td><button class="btn btn-success" (click)="retry(c)">Retry</button></td> -->
                 <td>
                   <div class="btn-group" *ngIf="c.onetime === 1">
-                    <button type="button" class="btn btn-success fa" (click)="retryMode='delta';openModal(retrymodal);" >Retry Delta</button>
-                    <button type="button" class="btn btn-success fa dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="right">
+                    <button type="button" class="btn btn-success fa"
+                      (click)="retryMode='delta';openModal(retrymodal);">Retry Delta</button>
+                    <button type="button" class="btn btn-success fa dropdown-toggle" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false" data-placement="right">
                       <span class="caret"></span>
                       <span class="sr-only">Toggle Dropdown</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right">
-                      <li><a (click)="retryMode='full';openModal(retrymodal);" >Retry Full</a></li>
+                      <li><a (click)="retryMode='full';openModal(retrymodal);">Retry Full</a></li>
                     </ul>
                   </div>
                 </td>
@@ -101,7 +110,8 @@
         <div class="panel panel-primary" *ngIf="item">
           <div class="table-responsive container">
             <div class="col-lg-12">
-              <h4 [ngClass]="{ 'text-danger':item.status==='failed', 'text-warning':item.status==='running' }">Status : {{item.status}}</h4>
+              <h4 [ngClass]="{ 'text-danger':item.status==='failed', 'text-warning':item.status==='running' }">Status :
+                {{item.status}}</h4>
               <ul class="list-group">
                 <li class="list-group-item">
                   <label for="idelement">Item : {{ item.idElem }}</label>
@@ -110,7 +120,8 @@
                   <label>Logs :</label>
                   <ul class="list-group">
                     <li class="list-group-item" *ngFor="let log of item.log">
-                      <pre [ngClass]="{ 'alert-danger':log.status==='failed', 'alert-warning':log.status==='running' }">{{ log | json }}</pre>
+                      <pre
+                        [ngClass]="{ 'alert-danger':log.status==='failed', 'alert-warning':log.status==='running' }">{{ log | json }}</pre>
                     </li>
                   </ul>
                 </li>
@@ -145,11 +156,13 @@
           </div>
           <div class="table-responsive text-center">
             <div class="btn-action">
-              <span class="btn btn-success fa fa-handshake" *ngIf="verifState()" (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
+              <span class="btn btn-success fa fa-handshake" *ngIf="verifState()"
+                (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
             </div>
           </div>
         </div>
-        <div class="text-center"><span class="btn btn-danger fa fa-power-off" [routerLink]='["/admin/clientorder"]'> Close</span></div>
+        <div class="text-center"><span class="btn btn-danger fa fa-power-off" [routerLink]='["/admin/clientorder"]'>
+            Close</span></div>
       </div>
     </div>
   </div>
@@ -179,11 +192,13 @@
     <p>Please enter the reference of the item to be reinjected</p>
     <div class="form-group input-group">
       <span class="input-group-addon">Reference</span>
-      <input class="form-control ng-untouched" name="reference" placeholder="Reference" type="text" [(ngModel)]="item.reference">
+      <input class="form-control ng-untouched" name="reference" placeholder="Reference" type="text"
+        [(ngModel)]="item.reference">
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-danger" (click)="retry(retryMode); c('')" [disabled]="item.reference ===''">Retry</button>
+    <button type="button" class="btn btn-danger" (click)="retry(retryMode); c('')"
+      [disabled]="item.reference ===''">Retry</button>
     <button type="button" class="btn btn-light" (click)="c('')">Close</button>
   </div>
 </ng-template>

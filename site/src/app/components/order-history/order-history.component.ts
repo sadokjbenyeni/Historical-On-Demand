@@ -166,7 +166,7 @@ export class OrderHistoryComponent implements OnInit {
     this.details = [];
     this.list = false;
     this.viewdetail = true;
-    this.title = 'Order Details : ' + c.id;
+    this.title = 'Order Details'
     this.idCmd = c.id_cmd;
     this.idOrder = c.id;
     this.invoice = c.idCommande;
