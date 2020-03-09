@@ -51,7 +51,7 @@ export class ComCountriesComponent implements OnInit {
     private countriesService: CountriesService
   ) { }
 
-  @ViewChild(DataTableDirective)
+  @ViewChild(DataTableDirective, { static: false })
   datatableElement: DataTableDirective;
   private countriesForm: NgForm;
 
@@ -67,21 +67,21 @@ export class ComCountriesComponent implements OnInit {
       processing: true,
       ajax: (dataTablesParameters: any, callback) => {
         that.httpc
-        .post<DataTablesResponse>(environment.api + '/countries', dataTablesParameters, {})
-        .subscribe(res => {
-          that.countries = res.countries;
-          callback({
-            recordsTotal: res.recordsTotal,
-            recordsFiltered: res.recordsFiltered,
-            data: [],
+          .post<DataTablesResponse>(environment.api + '/countries', dataTablesParameters, {})
+          .subscribe(res => {
+            that.countries = res.countries;
+            callback({
+              recordsTotal: res.recordsTotal,
+              recordsFiltered: res.recordsFiltered,
+              data: [],
+            });
           });
-        });
       },
-      columns: [ { data: 'id' }, { data: 'name' }, { data: 'ue'} ]
+      columns: [{ data: 'id' }, { data: 'name' }, { data: 'ue' }]
     };
   }
 
-  detail(c){
+  detail(c) {
     if (this.clickable) {
       this.clickable = false;
       this.copyCountry = JSON.parse(JSON.stringify(c));
@@ -89,15 +89,15 @@ export class ComCountriesComponent implements OnInit {
     }
   }
 
-  cancel(i){
+  cancel(i) {
     this.clickable = true;
     this.countries[i] = this.copyCountry;
     this.row = '';
   }
 
-  save(c){
+  save(c) {
     this.clickable = true;
-    this.countriesService.saveUE(c).subscribe(res=>{
+    this.countriesService.saveUE(c).subscribe(res => {
       this.message = res.message;
       this.row = '';
       setTimeout(() => { this.message = ''; }, 5000);
@@ -110,6 +110,6 @@ export class ComCountriesComponent implements OnInit {
     })
   }
 
- 
+
 
 }

@@ -37,6 +37,7 @@
     "pdfmake": "^0.1.65",
     "rxjs": "^6.5.4",
     "tslib": "^1.10.0",
+    "tslint-angular": "^3.0.2",
     "xlsx": "^0.15.5",
     "xlsx-style": "^0.8.13",
     "zone.js": "^0.10.2"

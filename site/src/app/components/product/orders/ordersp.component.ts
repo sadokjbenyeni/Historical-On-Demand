@@ -50,7 +50,7 @@ export class OrderspComponent implements OnInit {
     private currencyService: CurrencyService
   ) { }
 
-  @ViewChild(DataTableDirective)
+  @ViewChild(DataTableDirective, { static: false })
   datatableElement: DataTableDirective;
   private countriesForm: NgForm;
 

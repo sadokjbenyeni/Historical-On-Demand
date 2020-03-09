@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { routes } from './app.routing';
 
 // Guard
@@ -170,17 +170,14 @@ import { ConfigElasticComponent } from './components/admin/config-elastic/config
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpClientModule,
     RouterModule.forRoot(routes),
     DataTablesModule,
     NgbModule,
-    NgModule,
     RecaptchaModule.forRoot(),
     PdfViewerModule
   ],
-  // exports: [
-  //   RouterModule
-  // ],
   providers: [
     GuardGuard,
     ConfigService,

@@ -1,7 +1,10 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { NgbTabChangeEvent, NgbDatepickerConfig, NgbModal, ModalDismissReasons, NgbDateStruct, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
+import { HttpClient } from '@angular/common/http';
+import {
+  NgbTabChangeEvent, NgbDatepickerConfig,
+  NgbModal, ModalDismissReasons, NgbDateStruct, NgbCalendar
+} from '@ng-bootstrap/ng-bootstrap';
 
 import { environment } from '../../../environments/environment';
 import { DataService } from '../../data.service';
@@ -79,7 +82,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
   datasets: Array<object>;
   pagesize: any;
   page: number;
-  reqSearch: { fields: string[], query: { bool: { must: any[], should: any[], must_not: any[] } }, aggs: object, from: number, size: number, index: any[], type: any[] };
+  reqSearch: {
+    fields: string[], query: { bool: { must: any[], should: any[], must_not: any[] } }
+      , aggs: object, from: number, size: number, index: any[], type: any[]
+  };
   nbperpage: string;
   nassc: string;
   exchange: string;
@@ -158,10 +164,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
     };
   }
 
-  @ViewChild("runsearch")
+  @ViewChild('runsearch', { static: false })
   private inputEl: ElementRef;
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     this.inputEl.nativeElement.focus();
   }
 
@@ -193,8 +199,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
     ];
     // this.data.currentSearch.subscribe(search => this.search = search);
   }
-  resetSelect(){
-    this.hits.forEach(hit=>{
+  resetSelect() {
+    this.hits.forEach(hit => {
       hit.selected = false;
     });
     this.addCart = {
@@ -208,7 +214,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
   setDataset(e) {
     this.reset();
-    let dtst = this.searchDataset(e, this.datasets);
+    const dtst = this.searchDataset(e, this.datasets);
     sessionStorage.setItem('dataset', JSON.stringify({ dataset: dtst.id, title: dtst.name }));
     this.data.changeSearch(dtst.search);
     this.search = dtst.search
@@ -241,14 +247,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
   verifPricingTier(index, adtv): number {
     let val = 1;
     this.tabPricingTier.forEach(pt => {
-      if(index === environment.elastic.instrument.derivatives) {
+      if (index === environment.elastic.instrument.derivatives) {
         if (pt.pricingTier === 1 && pt.sup <= adtv) {
           val = 1;
         } else if (pt.pricingTier === 2 && pt.inf > adtv) {
           val = 2;
         }
       }
-      if(index === environment.elastic.instrument.nonderivatives) {
+      if (index === environment.elastic.instrument.nonderivatives) {
         if (pt.pricingTier === 3 && pt.sup <= adtv) {
           val = 3;
         } else if (pt.pricingTier === 4 && pt.inf > adtv) {
@@ -259,20 +265,20 @@ export class SearchComponent implements OnInit, AfterViewInit {
     return val;
   }
 
-  getInfoUser(token){
-    let field = [
+  getInfoUser(token) {
+    const field = [
       'id',
       'token',
     ];
-    this.userService.info({token: token, field: field}).subscribe(res=>{
+    this.userService.info({ token: token, field: field }).subscribe(res => {
       this.user = res.user;
     });
   }
 
-  getCaddy(iduser){
-    this.orderService.getCaddies({id: iduser}).subscribe((c) => {
+  getCaddy(iduser) {
+    this.orderService.getCaddies({ id: iduser }).subscribe((c) => {
       this.caddies = [];
-      if(c.cmd.length > 0 ) {
+      if (c.cmd.length > 0) {
         c.cmd.forEach((cmd) => {
           cmd.products.forEach((p) => {
             let prod = {
@@ -285,10 +291,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
               bdref: this.dateNGB(p.begin_date_ref),
               begin_date: p.begin_date_ref,
               bds: this.dateNGB(p.begin_date),
-              end_date_select : p.end_date,
-              end_date : p.end_date_ref,
-              edref : this.dateNGB(p.end_date_ref),
-              eds : this.dateNGB(p.end_date)
+              end_date_select: p.end_date,
+              end_date: p.end_date_ref,
+              edref: this.dateNGB(p.end_date_ref),
+              eds: this.dateNGB(p.end_date)
             };
             this.caddies.push(prod);
           });
@@ -387,13 +393,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
   getAsset(assets) {
     this.assets = [];
     // this.fluxService.getAssets().subscribe(flux => {
-      // this.assetsRef = flux;
-      assets.forEach(a => {
-        // if (a.key !== '' && this.assetsRef.find(x => x.id === a.key)) {
-          // this.assets.push({ id: a.key, name: this.assetsRef.find(x => x.id === a.key).name });
-          this.assets.push({ id: a.key, name: a.key });
-        // }
-      });
+    // this.assetsRef = flux;
+    assets.forEach(a => {
+      // if (a.key !== '' && this.assetsRef.find(x => x.id === a.key)) {
+      // this.assets.push({ id: a.key, name: this.assetsRef.find(x => x.id === a.key).name });
+      this.assets.push({ id: a.key, name: a.key });
+      // }
+    });
     // });
   }
 
@@ -419,13 +425,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
       // if (a.key !== '' && exch && exch.desc === key) {
       //   this.exchanges.push({ id: key, name: exch.name });
       // }
-      this.exchanges.push({ id: key[0].replace('[','').replace(']',''), name: key[1].replace('[','').replace(']','') });
+      this.exchanges.push({ id: key[0].replace('[', '').replace(']', ''), name: key[1].replace('[', '').replace(']', '') });
     });
-    this.exchanges.sort( function(a, b){
-      if(a['name'].toUpperCase() < b['name'].toUpperCase()) {
+    this.exchanges.sort(function (a, b) {
+      if (a['name'].toUpperCase() < b['name'].toUpperCase()) {
         return -1;
       }
-      if(a['name'].toUpperCase() > b['name'].toUpperCase()) {
+      if (a['name'].toUpperCase() > b['name'].toUpperCase()) {
         return 1;
       }
       return 0;
@@ -476,7 +482,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       // this.all = this.all.replace(/\s/g,'');
       let alltemp = this.all.trim().split(" ");
       let allreq = '';
-      alltemp.forEach(al=>{
+      alltemp.forEach(al => {
         allreq += ' +"' + al + '"';
       })
       let shouldall = [];
@@ -527,7 +533,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
               //   'Description': {
               //     'value': '*' + allreq.toLowerCase() + '*'
               //   }
-            // }
+              // }
             },
             {
               "query_string": {
@@ -632,7 +638,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
       "bool": {
         "should": [
           { 'terms': { 'EID': this.catalogue['tabEid'] } },
-          { "terms": { "ContractEID": this.catalogue['tabEid'] }
+          {
+            "terms": { "ContractEID": this.catalogue['tabEid'] }
           }
         ]
       }
@@ -640,7 +647,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.reqSearch.fields = fields;
     this.out = this.reqSearch;
-    if(this.all !=='' || this.symbol !== '' || this.isin !== '' || this.mics !== '' || this.exchangesSearch.length > 0 || this.assetsSearch.length > 0){
+    if (this.all !== '' || this.symbol !== '' || this.isin !== '' || this.mics !== '' || this.exchangesSearch.length > 0 || this.assetsSearch.length > 0) {
       this.elasticService.getSearch(this.reqSearch).subscribe(resp => {
         this.hits = [];
         resp.hits.hits.forEach(hit => {
@@ -720,7 +727,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.exchangesSearch.push(e);
     this.inputEl.nativeElement.focus();
   };
-  btnFocus(){
+  btnFocus() {
     this.inputEl.nativeElement.focus();
   }
   getShowEntries() {
@@ -778,7 +785,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         let ed = new Date(p.end_date);
         let bd = new Date(p.begin_date);
         if (ed >= selectdate) {
-          if(bd <= selectdate) {
+          if (bd <= selectdate) {
             this.addCart.products[i].end_date_select = date.year + '-' + date.month + '-' + date.day;
           } else {
             this.addCart.products[i].end_date_select = p.begin_date;
@@ -798,13 +805,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
     convOneTimeFromMin = new Date(this.minDate.year, this.minDate.month - 1, this.minDate.day);
     convOneTimeTo = new Date(this.onetimeTo.year, this.onetimeTo.month - 1, this.onetimeTo.day);
 
-    if(convOneTimeFrom > convOneTimeTo) {
+    if (convOneTimeFrom > convOneTimeTo) {
       this.onetimeFrom = { year: convOneTimeTo.getFullYear(), month: convOneTimeTo.getMonth() + 1, day: convOneTimeTo.getDate() };
     }
-    if(convOneTimeFrom < convOneTimeFromMin) {
+    if (convOneTimeFrom < convOneTimeFromMin) {
       this.onetimeFrom = { year: convOneTimeFromMin.getFullYear(), month: convOneTimeFromMin.getMonth() + 1, day: convOneTimeFromMin.getDate() };
     }
-    this.addCart.onetimeFrom = this.onetimeFrom.year + '-' + this.onetimeFrom.month  + '-' + this.onetimeFrom.day;
+    this.addCart.onetimeFrom = this.onetimeFrom.year + '-' + this.onetimeFrom.month + '-' + this.onetimeFrom.day;
     this.dateChangeBegin(this.onetimeFrom);
   }
 
@@ -817,13 +824,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
     convOneTimeTo = new Date(this.onetimeTo.year, this.onetimeTo.month - 1, this.onetimeTo.day);
     convOneTimeToMax = new Date(this.maxDate.year, this.maxDate.month - 1, this.maxDate.day);
 
-    if(convOneTimeFrom > convOneTimeTo) {
+    if (convOneTimeFrom > convOneTimeTo) {
       this.onetimeTo = { year: convOneTimeFrom.getFullYear(), month: convOneTimeFrom.getMonth() + 1, day: convOneTimeFrom.getDate() };
     }
-    if(convOneTimeTo > convOneTimeToMax) {
+    if (convOneTimeTo > convOneTimeToMax) {
       this.onetimeTo = { year: convOneTimeToMax.getFullYear(), month: convOneTimeToMax.getMonth() + 1, day: convOneTimeToMax.getDate() };
     }
-    this.addCart.onetimeTo = new Date (this.onetimeTo.year + '-' + this.onetimeTo.month  + '-' + this.onetimeTo.day).toJSON();
+    this.addCart.onetimeTo = new Date(this.onetimeTo.year + '-' + this.onetimeTo.month + '-' + this.onetimeTo.day).toJSON();
     this.dateChangeEnd(this.onetimeTo);
   }
 
@@ -832,7 +839,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       let product = new Product();
       product.index = option._index;
       product.idx = option._id;
-      this.fluxService.infoProduct(option._source.EID).subscribe(eid=>{
+      this.fluxService.infoProduct(option._source.EID).subscribe(eid => {
         product.historical_data = eid.historical_data;
         product.contractid = '';
         if (option._index === environment.elastic.feed.productdb) { // FEED
@@ -840,23 +847,23 @@ export class SearchComponent implements OnInit, AfterViewInit {
           let av1 = new Date(option._source.AvailabilityEnd);
 
           if (this.addCart.products.length === 0) {
-            this.minDate = { year: av0.getFullYear(), month: (av0.getMonth()+1), day: av0.getDate() };
+            this.minDate = { year: av0.getFullYear(), month: (av0.getMonth() + 1), day: av0.getDate() };
             this.config.minDate = this.minDate;
-            this.maxDate = { year: av1.getFullYear(), month: (av1.getMonth()+1), day: av1.getDate() };
+            this.maxDate = { year: av1.getFullYear(), month: (av1.getMonth() + 1), day: av1.getDate() };
             this.config.maxDate = this.maxDate;
           } else {
             if (av0 < new Date(this.minDate.year + '-' + this.minDate.month + '-' + this.minDate.day)) {
-              this.minDate = { year: av0.getFullYear(), month: (av0.getMonth()+1), day: av0.getDate() };
+              this.minDate = { year: av0.getFullYear(), month: (av0.getMonth() + 1), day: av0.getDate() };
               this.config.minDate = this.minDate;
             }
             if (av1 > new Date(this.maxDate.year + '-' + this.maxDate.month + '-' + this.maxDate.day)) {
-              this.maxDate = { year: av1.getFullYear(), month: (av1.getMonth()+1), day: av1.getDate() };
+              this.maxDate = { year: av1.getFullYear(), month: (av1.getMonth() + 1), day: av1.getDate() };
               this.config.maxDate = this.maxDate;
             }
           }
           product.contractid = '';
           product.qhid = '';
-          product.description = this.catalogue['catalogue'][ this.catalogue['tabEid'].indexOf(option._source.EID.toString()) ].name;
+          product.description = this.catalogue['catalogue'][this.catalogue['tabEid'].indexOf(option._source.EID.toString())].name;
           product.pricingtier = 1;
           product.eid = option._source.EID;
           product.quotation_level = this.dataset.dataset;
@@ -874,17 +881,17 @@ export class SearchComponent implements OnInit, AfterViewInit {
           let av1 = new Date(option._source.AvailabilityEnd);
 
           if (this.addCart.products.length === 0) {
-            this.minDate = { year: av0.getFullYear(), month: (av0.getMonth()+1), day: av0.getDate() };
+            this.minDate = { year: av0.getFullYear(), month: (av0.getMonth() + 1), day: av0.getDate() };
             this.config.minDate = this.minDate;
-            this.maxDate = { year: av1.getFullYear(), month: (av1.getMonth()+1), day: av1.getDate() };
+            this.maxDate = { year: av1.getFullYear(), month: (av1.getMonth() + 1), day: av1.getDate() };
             this.config.maxDate = this.maxDate;
           } else {
             if (av0 < new Date(this.minDate.year + '-' + this.minDate.month + '-' + this.minDate.day)) {
-              this.minDate = { year: av0.getFullYear(), month: (av0.getMonth()+1), day: av0.getDate() };
+              this.minDate = { year: av0.getFullYear(), month: (av0.getMonth() + 1), day: av0.getDate() };
               this.config.minDate = this.minDate;
             }
             if (av1 > new Date(this.maxDate.year + '-' + this.maxDate.month + '-' + this.maxDate.day)) {
-              this.maxDate = { year: av1.getFullYear(), month: (av1.getMonth()+1), day: av1.getDate() };
+              this.maxDate = { year: av1.getFullYear(), month: (av1.getMonth() + 1), day: av1.getDate() };
               this.config.maxDate = this.maxDate;
             }
           }
@@ -915,17 +922,17 @@ export class SearchComponent implements OnInit, AfterViewInit {
           let av1 = new Date(option._source.AvailabilityEnd);
 
           if (this.addCart.products.length === 0) {
-            this.minDate = { year: av0.getFullYear(), month: (av0.getMonth()+1), day: av0.getDate() };
+            this.minDate = { year: av0.getFullYear(), month: (av0.getMonth() + 1), day: av0.getDate() };
             this.config.minDate = this.minDate;
-            this.maxDate = { year: av1.getFullYear(), month: (av1.getMonth()+1), day: av1.getDate() };
+            this.maxDate = { year: av1.getFullYear(), month: (av1.getMonth() + 1), day: av1.getDate() };
             this.config.maxDate = this.maxDate;
           } else {
             if (av0 < new Date(this.minDate.year + '-' + this.minDate.month + '-' + this.minDate.day)) {
-              this.minDate = { year: av0.getFullYear(), month: (av0.getMonth()+1), day: av0.getDate() };
+              this.minDate = { year: av0.getFullYear(), month: (av0.getMonth() + 1), day: av0.getDate() };
               this.config.minDate = this.minDate;
             }
             if (av1 > new Date(this.maxDate.year + '-' + this.maxDate.month + '-' + this.maxDate.day)) {
-              this.maxDate = { year: av1.getFullYear(), month: (av1.getMonth()+1), day: av1.getDate() };
+              this.maxDate = { year: av1.getFullYear(), month: (av1.getMonth() + 1), day: av1.getDate() };
               this.config.maxDate = this.maxDate;
             }
           }
@@ -1009,13 +1016,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
     prod['id_cmd'] = prd.id_cmd;
     prod['historical_data'] = prd.historical_data;
     if (prd.historical_data.backfill_fee && prd.historical_data.backfill_applyfee && onetime === 1 && !prd.historical_data.direct_billing) {
-    // if (prd.historical_data.backfill_fee && prd.historical_data.backfill_applyfee && onetime === 1) {
+      // if (prd.historical_data.backfill_fee && prd.historical_data.backfill_applyfee && onetime === 1) {
       prod['backfill_fee'] = prd.historical_data.backfill_fee;
     } else {
       prod['backfill_fee'] = 0;
     }
     if (prd.historical_data.ongoing_fee && prd.historical_data.ongoing_applyfee && subscription === 1 && !prd.historical_data.direct_billing) {
-    // if (prd.historical_data.ongoing_fee && prd.historical_data.ongoing_applyfee && subscription === 1) {
+      // if (prd.historical_data.ongoing_fee && prd.historical_data.ongoing_applyfee && subscription === 1) {
       prod['ongoing_fee'] = prd.historical_data.ongoing_fee;
     } else {
       prod['ongoing_fee'] = 0;
@@ -1023,9 +1030,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
     prod['status'] = prd.status;
     prod['price'] = prd.price;
     if (onetime === 1) {
-      if(diff.day < 20){ diff.day = 19; }
+      if (diff.day < 20) { diff.day = 19; }
       prod['ht'] = (diff.day + 1) * prd.price;
-    } else if(subscription === 1){
+    } else if (subscription === 1) {
       prod['ht'] = this.periodSubscription * parseInt(prd.price);
     }
     prod['pricingTier'] = prd.pricingtier;
@@ -1044,26 +1051,26 @@ export class SearchComponent implements OnInit, AfterViewInit {
     let prod = {};
     if (this.addCart.onetime === 1) {
       this.addCart.products.forEach((prd) => {
-        if(this.tabsearch === 'instrument') {
+        if (this.tabsearch === 'instrument') {
           prd.price = this.tabPrice.instrument.day[prd.pricingtier][this.ds];
         }
-        if(this.tabsearch === 'feed') {
+        if (this.tabsearch === 'feed') {
           prd.price = this.tabPrice.feed.day[prd.pricingtier][this.ds];
         }
         prod = this.product(prd, this.addCart.onetime, 0);
-        if(!this.verifExist(prod)) { caddy.push(prod); }
+        if (!this.verifExist(prod)) { caddy.push(prod); }
       });
     }
     if (this.addCart.subscription === 1) {
       this.addCart.products.forEach((p) => {
-        if(this.tabsearch === 'instrument') {
+        if (this.tabsearch === 'instrument') {
           p.price = this.tabPrice.instrument.month[p.pricingtier][this.ds];
         }
-        if(this.tabsearch === 'feed') {
+        if (this.tabsearch === 'feed') {
           p.price = this.tabPrice.feed.month[p.pricingtier][this.ds];
         }
         prod = this.product(p, 0, this.addCart.subscription);
-        if(!this.verifExist(prod)) {
+        if (!this.verifExist(prod)) {
           prod['begin_date_select'] = '';
           prod['end_date_select'] = '';
           caddy.push(prod);
@@ -1083,16 +1090,16 @@ export class SearchComponent implements OnInit, AfterViewInit {
   verifExist(p) {
     let resp = false;
     if (this.caddies.length > 0) {
-      this.caddies.forEach(cp=>{
-        if( p.quotation_level === cp['quotation_level'] &&
-            p.idx === cp['id']  &&
-            p.onetime === cp['onetime'] &&
-            p.subscription === cp['subscription']
+      this.caddies.forEach(cp => {
+        if (p.quotation_level === cp['quotation_level'] &&
+          p.idx === cp['id'] &&
+          p.onetime === cp['onetime'] &&
+          p.subscription === cp['subscription']
         ) {
-          if(p.subscription === 1) {
+          if (p.subscription === 1) {
             resp = true;
           } else {
-            if (p.onetime === 1 && p.begin_date_select === cp['begin_date_select'] && p.end_date_select === cp['end_date_select'] ) {
+            if (p.onetime === 1 && p.begin_date_select === cp['begin_date_select'] && p.end_date_select === cp['end_date_select']) {
               resp = true;
             }
           }
@@ -1139,13 +1146,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   open(content) {
-    this.addCart.onetimeFrom = this.minDate.year + '-' + this.minDate.month  + '-' + this.minDate.day;
-    this.addCart.onetimeTo = this.maxDate.year + '-' + this.maxDate.month  + '-' + this.maxDate.day;
+    this.addCart.onetimeFrom = this.minDate.year + '-' + this.minDate.month + '-' + this.minDate.day;
+    this.addCart.onetimeTo = this.maxDate.year + '-' + this.maxDate.month + '-' + this.maxDate.day;
     // if(!this.onetimeFrom) {
-      this.onetimeFrom = this.minDate;
+    this.onetimeFrom = this.minDate;
     // }
     // if(!this.onetimeTo) {
-      this.onetimeTo = this.maxDate;
+    this.onetimeTo = this.maxDate;
     // }
     this.modalService.open(content).result.then((result) => {
       this.closeResult = `Closed with: ${result}`;
@@ -1189,16 +1196,16 @@ export class SearchComponent implements OnInit, AfterViewInit {
   isString(val) { return typeof val === 'string'; }
   isNumber(val) { return typeof val === 'number'; }
 
-  dateDiff(date1, date2){
-    let diff = { sec: 0, min: 0, hour:0, day: 0 };
+  dateDiff(date1, date2) {
+    let diff = { sec: 0, min: 0, hour: 0, day: 0 };
     let tmp = date2 - date1;
-    tmp = Math.floor(tmp/1000);
+    tmp = Math.floor(tmp / 1000);
     diff.sec = tmp % 60;
-    tmp = Math.floor((tmp-diff.sec)/60);
+    tmp = Math.floor((tmp - diff.sec) / 60);
     diff.min = tmp % 60;
-    tmp = Math.floor((tmp-diff.min)/60);
+    tmp = Math.floor((tmp - diff.min) / 60);
     diff.hour = tmp % 24;
-    tmp = Math.floor((tmp-diff.hour)/24);
+    tmp = Math.floor((tmp - diff.hour) / 24);
     diff.day = tmp;
     return diff;
   }
@@ -1220,18 +1227,18 @@ export class SearchComponent implements OnInit, AfterViewInit {
     return t;
   }
 
-  searchDataset(nameKey, myArray){
-    for (var i=0; i < myArray.length; i++) {
-        if (myArray[i].id === nameKey) {
-            return myArray[i];
-        }
+  searchDataset(nameKey, myArray) {
+    for (var i = 0; i < myArray.length; i++) {
+      if (myArray[i].id === nameKey) {
+        return myArray[i];
+      }
     }
   }
-  searchExchangeName(nameKey, myArray){
-    for (var i=0; i < myArray.length; i++) {
-        if (myArray[i].desc === nameKey) {
-            return myArray[i];
-        }
+  searchExchangeName(nameKey, myArray) {
+    for (var i = 0; i < myArray.length; i++) {
+      if (myArray[i].desc === nameKey) {
+        return myArray[i];
+      }
     }
   }
   objectToArrayAss(a) {

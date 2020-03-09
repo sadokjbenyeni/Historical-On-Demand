@@ -30,13 +30,13 @@ export class UserDetailComponent implements OnInit {
     route.params.subscribe(_ => this.id = _.id);
   }
 
-  @ViewChild('utilisateurForm')
+  @ViewChild('utilisateurForm', { static: false })
   private userForm: NgForm;
 
   ngOnInit() {
     this.message = '';
     this.role = '';
-    this.user = {firstname: '', lastname: '', roleName: []};
+    this.user = { firstname: '', lastname: '', roleName: [] };
     this.userService.getRoles().subscribe(res => {
       this.roles = res.roles;
     });
@@ -45,19 +45,18 @@ export class UserDetailComponent implements OnInit {
       this.user['id'] = res.user['_id'];
     });
   }
-  
   roleChange(role) {
-    let rolsplit = role.split('|');
-    let rol = rolsplit[0];
-    let rolN = rolsplit[1];
+    const rolsplit = role.split('|');
+    const rol = rolsplit[0];
+    const rolN = rolsplit[1];
     this.user['role'] = rol;
     this.user['roleName'] = rolN;
     this.userSelect = rol + '|' + rolN;
   }
-  
   addRole(e) {
-    if( e )
+    if (e) {
       this.user['roleName'].push(e);
+    }
   }
   delRole(e) {
     this.user['roleName'].splice(this.user['roleName'].indexOf(e), 1);

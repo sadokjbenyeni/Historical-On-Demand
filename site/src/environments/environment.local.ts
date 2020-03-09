@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
   api: 'http://localhost:3000/api',
-  gateway: "http://gateway01.hod-lab.quanthouse.com",
+  gateway: 'http://gateway01.hod-lab.quanthouse.com',
   elastic: {
     instrument: {
       derivatives: 'derivatives_5',

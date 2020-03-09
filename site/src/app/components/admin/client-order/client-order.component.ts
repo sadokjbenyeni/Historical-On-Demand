@@ -49,7 +49,7 @@ export class ClientOrderComponent implements OnInit {
     private orderService: OrderService
   ) { }
 
-  @ViewChild(DataTableDirective)
+  @ViewChild(DataTableDirective, { static: false })
   datatableElement: DataTableDirective;
   private countriesForm: NgForm;
 
@@ -65,19 +65,19 @@ export class ClientOrderComponent implements OnInit {
       pageLength: 10,
       serverSide: true,
       processing: true,
-      order: [[ 1, 'desc' ]],
+      order: [[1, 'desc']],
       ajax: (dataTablesParameters: any, callback) => {
         dataTablesParameters.state = this.state;
         that.httpc
-        .post<DataTablesResponse>(environment.api + '/order/list', dataTablesParameters, {})
-        .subscribe(res => {
-          that.listorders = res.listorders;
-          callback({
-            recordsTotal: res.recordsTotal,
-            recordsFiltered: res.recordsFiltered,
-            data: [],
+          .post<DataTablesResponse>(environment.api + '/order/list', dataTablesParameters, {})
+          .subscribe(res => {
+            that.listorders = res.listorders;
+            callback({
+              recordsTotal: res.recordsTotal,
+              recordsFiltered: res.recordsFiltered,
+              data: [],
+            });
           });
-        });
       },
       columns: [
         { data: 'companyName' },
@@ -92,26 +92,26 @@ export class ClientOrderComponent implements OnInit {
     this.dtOptions.search = { search: this.search };
   }
 
-  filter(f){
+  filter(f) {
     this.search = f;
     // this.dtOptions.draw();
   }
 
-  getList(){
+  getList() {
     // this.orderService.getList({},{}).subscribe(res=>{
     //   this.listorders = res;
     // });
   }
 
-  changeState(col){
+  changeState(col) {
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(this.state).draw();
     });
   }
 
-  changeDate(col){
+  changeDate(col) {
     let val = '';
-    if(this.dateSubmission && this.dateSubmission['year']){
+    if (this.dateSubmission && this.dateSubmission['year']) {
       val += this.dateSubmission['year'] + '-' + this.dateSubmission['month'] + '-' + this.dateSubmission['day'];
       val += '|';
       val += this.dateSubmission['year'] + '-' + this.dateSubmission['month'] + '-' + (this.dateSubmission['day'] + 1);
@@ -129,15 +129,15 @@ export class ClientOrderComponent implements OnInit {
 
 
 
-  getListStates(){
-    this.orderService.getListStates({}).subscribe(res=>{
+  getListStates() {
+    this.orderService.getListStates({}).subscribe(res => {
       this.states = res['states'];
     });
   }
   getStateName(stateId) {
-    if( !this.states )
+    if (!this.states)
       return stateId;
-    return this.states.filter( e => e.id === stateId )[0] ? this.states.filter( e => e.id === stateId )[0].name : stateId;
+    return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
 
 }

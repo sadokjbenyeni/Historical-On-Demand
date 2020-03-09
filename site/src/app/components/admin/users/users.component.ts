@@ -35,7 +35,7 @@ export class UsersComponent implements OnInit, AfterViewChecked {
     private userService: UserService
   ) { }
 
-  @ViewChild('utilisateurForm')
+  @ViewChild('utilisateurForm', { static: false })
   private userForm: NgForm;
 
   ngOnInit() {

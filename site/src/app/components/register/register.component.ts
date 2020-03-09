@@ -59,7 +59,7 @@ export class RegisterComponent implements OnInit {
   ) {
   }
 
-  @ViewChild('utilisateurForm')
+  @ViewChild('utilisateurForm', { static: false })
   private utilisateurForm: NgForm;
 
   ngOnInit() {
