@@ -17,6 +17,14 @@ mongoose.set('debug', true);
 //Init express
 const app = express();
 
+//Enable CORS
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  next();
+});
+
 //Passport
 const passport = require('passport');
 require('./server/config/passport')(passport); // pass passport for configuration
@@ -32,8 +40,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //Enable bodyParser
-app.use(bodyParser.json({limit: '10mb'}));
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 //Require the models
 require('./server/models/config');
@@ -50,26 +58,20 @@ require('./server/models/companytype');
 
 //Get our API routes
 const api = require('./server/api/');
-  
+
 //Set API routes
 app.use('/api', api);
 
-//Enable CORS
-app.use(function(req, res, next) {
- res.header("Access-Control-Allow-Origin", "*");
- res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
- res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
- next();
-});
+
 
 // BEGIN CRON
 // A exporter de ce fichier pour plus de souplesse
 
-const cronCurrency = cron.schedule('30 15 * * *', function(){
+const cronCurrency = cron.schedule('30 15 * * *', function () {
   request.post({
-      headers: {'content-type' : 'application/x-www-form-urlencoded'},
-      url: 'http://localhost:3000/api/currency'
-    }, (err, r, body) => {
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    url: 'http://localhost:3000/api/currency'
+  }, (err, r, body) => {
   });
 });
 cronCurrency.start();
@@ -116,16 +118,16 @@ app.use('/iv', express.static(path.join(__dirname, 'files/invoice')));
 app.use('/help/dataguide', express.static(path.join(__dirname, 'dataguide/')));
 
 //Catch all other routes and return to the index file
-app.get('*', (req, res) =>{
-   res.sendFile(path.join(__dirname, 'site/dist/index.html'));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'site/dist/index.html'));
 })
 
 //Get environment port or use 3000
 const port = process.env.PORT || '3000';
 app.set('port', port);
- 
+
 //Create HTTP server.
 const server = http.createServer(app);
- 
+
 //Listen on port
 server.listen(port, () => console.log(`API running on localhost:${port}`));
