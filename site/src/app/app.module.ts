@@ -103,6 +103,7 @@ import { AdtvComponent } from './components/product/adtv/adtv.component';
 
 import { CallbackPipe } from './callback.pipe';
 import { ConfigElasticComponent } from './components/admin/config-elastic/config-elastic.component';
+import { PurchaseTypePipe } from './purchaseType.pipe';
 
 // lazy loading
 
@@ -152,6 +153,7 @@ import { ConfigElasticComponent } from './components/admin/config-elastic/config
     StatementsComponent,
     CeilPipe,
     CaddiesComponent,
+    PurchaseTypePipe,
     SafeHtmlPipePipe,
     NgbdModalContent,
     RibComponent,
