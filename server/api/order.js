@@ -825,7 +825,7 @@ router.get('/retry/:id/:export', (req, res) => {
     { "products" : { $elemMatch: { id_undercmd: req.params.id } } }
   ).then( (o) => {
     o.products.forEach(p => {
-      if( p.id_undercmd === req.params.id)
+      if (p.id_undercmd === req.params.id)
       {
         p.id_undercmd = o.id + "§" + p.idx;
         currentProduct = p;
@@ -837,13 +837,31 @@ router.get('/retry/:id/:export', (req, res) => {
         $set: { products: o.products }
       }
     ).then( () => {
-      return true;
-    }).then( () => {
+      currentProduct.begin_date = currentProduct.begin_date_select;
+      currentProduct.end_date = currentProduct.end_date_select;
+      let qhid = "";
+      if (currentProduct.qhid !== null || currentProduct.qhid !== "") {
+        qhid = currentProduct.qhid.toString();
+      }
+      let data = {
+        id: o.id,
+        id_cmd: currentProduct.id_undercmd,
+        onetime: currentProduct.onetime,
+        subscription: currentProduct.subscription,
+        eid: currentProduct.eid,
+        contractID: currentProduct.contractid,
+        qhid: qhid,
+        quotation_level: currentProduct.dataset,
+        searchdate: currentProduct.begin_date,
+        begin_date: yyyymmdd(currentProduct.begin_date),
+        end_date: yyyymmdd(currentProduct.end_date),
+        status: "validated",
+        export_mode: req.params.export
+      };
       Pool.updateOne(
         { id_cmd: req.params.id },
-        {
-          $set: { status: "validated", id_cmd: currentProduct.id_undercmd, export_mode: req.params.export }
-        }
+        { $set: data },
+        { upsert: true }
       ).then( () => {
         return res.status(200).json( { ok: "ok" } );
       });
