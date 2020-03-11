@@ -82,7 +82,7 @@ export class OrderscComponent implements OnInit {
         { data: 'id' },
         { data: 'state' },
         { data: 'submissionDate' },
-        // { data: 'period' },
+        { data: 'purchase type' },
         { data: 'redistribution' },
         { data: 'review', searchable: false, orderable: false },
       ]

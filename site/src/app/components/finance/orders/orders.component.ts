@@ -128,6 +128,7 @@ export class OrdersComponent implements OnInit {
         { data: 'state' },
         { data: 'submissionDate' },
         { data: 'total' },
+        { data: 'purchase type' },
         { data: 'discount' },
         { data: 'redistribution' },
         { data: 'review', searchable: false, orderable: false },
