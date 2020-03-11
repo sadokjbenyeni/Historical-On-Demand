@@ -45,7 +45,7 @@ export class OrderspComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private httpc: HttpClient,
+    private http: HttpClient,
     private orderService: OrderService,
     private currencyService: CurrencyService
   ) { }
@@ -67,19 +67,19 @@ export class OrderspComponent implements OnInit {
       pageLength: 10,
       serverSide: true,
       processing: true,
-      order: [[ 1, 'desc' ]],
+      order: [[1, 'desc']],
       ajax: (dataTablesParameters: any, callback) => {
         dataTablesParameters.state = this.state;
-        that.httpc
-        .post<DataTablesResponse>(environment.api + '/order/list', dataTablesParameters, {})
-        .subscribe(res => {
-          that.listorders = res.listorders;
-          callback({
-            recordsTotal: res.recordsTotal,
-            recordsFiltered: res.recordsFiltered,
-            data: [],
+        that.http
+          .post<DataTablesResponse>(environment.api + '/order/list', dataTablesParameters, {})
+          .subscribe(res => {
+            that.listorders = res.listorders;
+            callback({
+              recordsTotal: res.recordsTotal,
+              recordsFiltered: res.recordsFiltered,
+              data: [],
+            });
           });
-        });
       },
       columns: [
         { data: 'companyName' },
@@ -87,7 +87,7 @@ export class OrderspComponent implements OnInit {
         { data: 'state' },
         { data: 'submissionDate' },
         { data: 'total' },
-        { data: 'purchase type' },
+        { data: 'purchasetype' },
         { data: 'discount' },
         { data: 'redistribution' },
         { data: 'review', searchable: false, orderable: false },
@@ -97,29 +97,23 @@ export class OrderspComponent implements OnInit {
   }
 
 
-  filter(f){
+  filter(f) {
     this.search = f;
     // this.dtOptions.draw();
   }
 
-  getList(){
-    // this.orderService.getList({},{}).subscribe(res=>{
-    //   this.listorders = res;
-    // });
-  }
-
-  changeState(col){
+  changeState(col) {
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(this.state).draw();
     })
   }
 
-  changeDate(col){
+  changeDate(col) {
     let val = "";
-    if(this.dateSubmission && this.dateSubmission['year']){
+    if (this.dateSubmission && this.dateSubmission['year']) {
       val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + this.dateSubmission['day']
       val += '|';
-      val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + (this.dateSubmission['day']+1);
+      val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + (this.dateSubmission['day'] + 1);
     }
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(val).draw();
@@ -128,16 +122,18 @@ export class OrderspComponent implements OnInit {
 
   onKey(event: any, col: number) {
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      dtInstance.columns(col).search(event.target.value).draw();
+      debugger;
+      var columns = dtInstance.columns(col)
+      columns.search(event.target.value).draw();
     })
   }
 
-  getHt(val, currency, currencyTxUsd, currencyTx, discount){
+  getHt(val, currency, currencyTxUsd, currencyTx, discount) {
     if (currency !== 'usd') {
       let v = ((val / currencyTxUsd) * currencyTx);
-      return v - (v * discount/100);
-    } else{
-      return val - (val * discount/100);
+      return v - (v * discount / 100);
+    } else {
+      return val - (val * discount / 100);
     }
   }
 
@@ -148,19 +144,19 @@ export class OrderspComponent implements OnInit {
 
 
 
-  getListStates(){
-    this.orderService.getListStates({}).subscribe(res=>{
+  getListStates() {
+    this.orderService.getListStates({}).subscribe(res => {
       this.states = res['states'];
     });
   }
   getStateName(stateId) {
-    if( !this.states )
+    if (!this.states)
       return stateId;
-    return this.states.filter( e => e.id === stateId )[0] ? this.states.filter( e => e.id === stateId )[0].name : stateId;
+    return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
 
   getCurrencies() {
-    this.currencyService.getCurrencies().subscribe(r=>{
+    this.currencyService.getCurrencies().subscribe(r => {
       this.symbols = [];
       r.currencies.forEach(s => {
         this.symbols[s.id] = s.symbol;
