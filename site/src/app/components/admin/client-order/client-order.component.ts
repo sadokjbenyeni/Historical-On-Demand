@@ -84,7 +84,7 @@ export class ClientOrderComponent implements OnInit {
         { data: 'id' },
         { data: 'state' },
         { data: 'submissionDate' },
-        { data: 'purchase type' },
+        { data: 'purchasetype' },
         { data: 'redistribution' },
         { data: 'review', searchable: false, orderable: false },
       ]
