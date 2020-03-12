@@ -176,15 +176,11 @@
     </button>
   </div>
   <div class="modal-body">
-    <p>Sending a {{ retryMode | titlecase }} Retry request {{ retryMode==='full' ? "(all dates will be re-exported)" : "(only failed dates will be exported)" }} for:</p>
-    <div class="form-group input-group">
-      <label for="retryReference" class="input-group-addon">Reference</label>
-      <input class="form-control ng-untouched" name="reference" id="retryReference" placeholder="Reference" type="text" [(ngModel)]="item.reference">
-    </div>
+    <p>Sending a {{ retryMode | titlecase }} Retry request for <strong>{{item.reference}}</strong> {{ retryMode==='full' ? "(all dates will be re-exported)" : "(only failed dates will be exported)" }}.</p>
     <p class="alert alert-danger" *ngIf="retryMode==='full'">WARNING: Full retries may take considerable time and resources to complete.</p>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-danger" (click)="retry();c('')" [disabled]="item.reference ===''">Retry</button>
-    <button type="button" class="btn btn-light" (click)="c('')">Close</button>
+    <button type="button" class="btn btn-danger" (click)="retry();c('')" [disabled]="item.reference ===''">Ok</button>
+    <button type="button" class="btn btn-light" (click)="c('')">Cancel</button>
   </div>
 </ng-template>
