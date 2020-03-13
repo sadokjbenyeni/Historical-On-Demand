@@ -81,7 +81,16 @@
                   </div>
                 </th>
                 <th><input type="text" placeholder="Total" name="search-total" class="form-control input-border-color" (keyup)="onKey($event, 4)"></th>
-                <th><input type="text" placeholder="Purchase Type" name="search-redistribution" class="form-control input-border-color" (keyup)="onKey($event, 5)"></th>
+                <!-- <th><input type="text" placeholder="Purchase Type" name="search-redistribution" class="form-control input-border-color" (keyup)="onKey($event, 5)"></th> -->
+                <th>
+                  <select name="search" class="form-control input-border-color" [(ngModel)]="purchasetype"
+                    (ngModelChange)="changeType(5)">
+                    <option>Select Type</option>
+                    <option value=1>One-Off</option>
+                    <option value=2>Subscription</option>
+                    <option value=3>Subscription One-Off</option>
+                  </select>
+                </th>
                 <th><input type="text" placeholder="Discount" name="search-discount" class="form-control input-border-color" (keyup)="onKey($event, 6)"></th>
                 <th><input type="text" placeholder="Redistribution" name="search-redistribution" class="form-control input-border-color" (keyup)="onKey($event, 7)"></th>
                 <th></th>

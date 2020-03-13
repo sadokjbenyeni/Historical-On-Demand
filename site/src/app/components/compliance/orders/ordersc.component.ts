@@ -35,6 +35,7 @@ export class OrderscComponent implements OnInit {
   dateSubmission: Date;
   state: string;
   states: Array<any>;
+  purchasetype: string;
   search: string;
   message: string;
   dtTrigger: Subject<any> = new Subject();
@@ -55,6 +56,7 @@ export class OrderscComponent implements OnInit {
     this.message = '';
     this.dtOptions = {};
     this.state = 'PVC';
+    this.purchasetype = 'Select Type'
     this.getListStates();
 
     const that = this;
@@ -107,6 +109,12 @@ export class OrderscComponent implements OnInit {
     })
   }
 
+    changeType(col) {
+    this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      dtInstance.columns(col).search(this.purchasetype).draw();
+    })
+  }
+
   changeDate(col) {
     let val = '';
     if (this.dateSubmission && this.dateSubmission['year']) {
@@ -124,8 +132,6 @@ export class OrderscComponent implements OnInit {
       dtInstance.columns(col).search(event.target.value).draw();
     })
   }
-
-
 
   getListStates() {
     this.orderService.getListStates({}).subscribe(res => {

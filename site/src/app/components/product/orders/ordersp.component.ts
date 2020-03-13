@@ -35,6 +35,7 @@ class Orders {
 export class OrderspComponent implements OnInit {
   dateSubmission: Date;
   state: string;
+  purchasetype: string;
   states: Array<any>;
   search: string;
   message: string;
@@ -58,6 +59,7 @@ export class OrderspComponent implements OnInit {
     this.message = '';
     this.dtOptions = {};
     this.state = 'PVP';
+    this.purchasetype = 'Select Type'
     this.getListStates();
     this.getCurrencies();
 
@@ -108,6 +110,12 @@ export class OrderspComponent implements OnInit {
     })
   }
 
+    changeType(col) {
+    this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      dtInstance.columns(col).search(this.purchasetype).draw();
+    })
+  }
+
   changeDate(col) {
     let val = "";
     if (this.dateSubmission && this.dateSubmission['year']) {
@@ -122,7 +130,6 @@ export class OrderspComponent implements OnInit {
 
   onKey(event: any, col: number) {
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      debugger;
       var columns = dtInstance.columns(col)
       columns.search(event.target.value).draw();
     })
@@ -149,6 +156,7 @@ export class OrderspComponent implements OnInit {
       this.states = res['states'];
     });
   }
+
   getStateName(stateId) {
     if (!this.states)
       return stateId;

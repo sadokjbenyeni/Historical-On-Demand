@@ -53,6 +53,7 @@ export class OrdersComponent implements OnInit {
   beginDate: any;
   endDate: any;
   dateSubmission: Date;
+  purchasetype: string;
   state: string;
   states: Array<any>;
   search: string;
@@ -85,6 +86,7 @@ export class OrdersComponent implements OnInit {
     this.beginID = null;
     this.endID = null;
     this.beginDate = null;
+    this.purchasetype = 'Select Type'
     this.endDate = null;
     this.typeexport = "csv";
     this.columnsSelect = [];
@@ -151,6 +153,12 @@ export class OrdersComponent implements OnInit {
   changeState(col){
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(this.state).draw();
+    })
+  }
+
+    changeType(col) {
+    this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      dtInstance.columns(col).search(this.purchasetype).draw();
     })
   }
 

@@ -31,7 +31,16 @@
                     <span class="input-group-btn color clickable" (click)="sd.toggle()"><i class="fa fa-calendar"></i></span>
                   </div>
                 </th>
-                <th><input type="text" placeholder="Purchase Type" name="search-redistribution" class="form-control input-border-color" (keyup)="onKey($event, 4)"></th>
+                <!-- <th><input type="text" placeholder="Purchase Type" name="search-redistribution" class="form-control input-border-color" (keyup)="onKey($event, 4)"></th> -->
+                <th>
+                  <select name="search" class="form-control input-border-color" [(ngModel)]="purchasetype"
+                    (ngModelChange)="changeType(4)">
+                    <option>Select Type</option>
+                    <option value=1>One-Off</option>
+                    <option value=2>Subscription</option>
+                    <option value=3>Subscription One-Off</option>
+                  </select>
+                </th>
                 <th><input type="text" placeholder="Redistribution" name="search-redistribution" class="form-control input-border-color" (keyup)="onKey($event, 5)"></th>
                 <th></th>
               </tr>

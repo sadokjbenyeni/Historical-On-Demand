@@ -38,6 +38,7 @@ export class ClientOrderComponent implements OnInit {
   states: Array<any>;
   search: string;
   message: string;
+  purchasetype: string;
   dtTrigger: Subject<any> = new Subject();
   dtOptions: DataTables.Settings = {};
   listorders: Orders[] = [];
@@ -57,6 +58,7 @@ export class ClientOrderComponent implements OnInit {
     this.message = '';
     this.dtOptions = {};
     this.state = '';
+    this.purchasetype = 'Select Type'
     this.getListStates();
 
     const that = this;
@@ -109,6 +111,12 @@ export class ClientOrderComponent implements OnInit {
     });
   }
 
+    changeType(col) {
+    this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      dtInstance.columns(col).search(this.purchasetype).draw();
+    })
+  }
+
   changeDate(col) {
     let val = '';
     if (this.dateSubmission && this.dateSubmission['year']) {
@@ -127,13 +135,12 @@ export class ClientOrderComponent implements OnInit {
     });
   }
 
-
-
   getListStates() {
     this.orderService.getListStates({}).subscribe(res => {
       this.states = res['states'];
     });
   }
+  
   getStateName(stateId) {
     if (!this.states)
       return stateId;
