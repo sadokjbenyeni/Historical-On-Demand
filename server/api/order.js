@@ -918,17 +918,17 @@ router.post('/list', (req, res) => {
         search['submissionDate'] = { $gte: new Date(d[0]), $lt: new Date(d[1]) };
       }
       else if (s.data === 'purchasetype' && s.search.value) {
-        if (s.search.value == 1) {
+        if (s.search.value == '1') {
           search['products'] = {
             $not: { $elemMatch: { subscription: 1, onetime: 0 } }
           }
         }
-        if (s.search.value == 2) {
+        if (s.search.value == '2') {
           search['products'] = {
             $not: { $elemMatch: { subscription: 0, onetime: 1 } }
           }
         }
-        if (s.search.value == 3) {
+        if (s.search.value == '3') {
           search['$or'] = [{ 'products': { $not: { $elemMatch: { subscription: 1, onetime: 0 } } } },
           { 'Products': { $elemMatch: { subscription: 0, onetime: 1 } } }]
         }
