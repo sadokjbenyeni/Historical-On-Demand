@@ -120,7 +120,7 @@ export class OrderHistoryComponent implements OnInit {
       order: [[ 0, 'desc' ]],
       ajax: (dataTablesParameters: any, callback) => {
         // dataTablesParameters.token = this.token;
-        httpOptions.headers = httpOptions.headers.set('token', this.token);
+        httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
         this.http
         .post<DataTablesResponse>(environment.api + '/order/history', dataTablesParameters, httpOptions)
         .subscribe(res => {
