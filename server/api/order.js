@@ -929,9 +929,10 @@ router.post('/list', (req, res) => {
           }
         }
         if (s.search.value == '3') {
-          search['$or'] = [{ 'products': { $not: { $elemMatch: { subscription: 1, onetime: 0 } } } },
-          { 'Products': { $elemMatch: { subscription: 0, onetime: 1 } } }]
+          search['$and'] = [{ 'products': {  $elemMatch: { subscription: 1, onetime: 0 } } },
+          { 'products': { $elemMatch: { subscription: 0, onetime: 1 } } }]
         }
+        
       }
       else if (s.data === 'id' && s.search.value !== '') {
         search[s.data] = parseInt(s.search.value);
