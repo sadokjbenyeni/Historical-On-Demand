@@ -965,8 +965,8 @@ router.post('/list', (req, res) => {
 });
 
 router.post('/history', (req, res) => {
-  if (req.headers.Authorization) {
-    User.findOne({ token: req.headers.token }, { _id: true })
+  if (req.headers.authorization) {
+    User.findOne({ token: req.headers.authorization }, { _id: true })
       .then((result) => {
         let sort = {};
         let idUser = result._id;
