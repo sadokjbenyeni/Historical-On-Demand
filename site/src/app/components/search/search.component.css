@@ -15,7 +15,7 @@ ngb-datepicker {
 .test {
   background: #ea663b;
 }
-.custom-ngb-dp-months, {
+.custom-ngb-dp-months {
   display: block !important;
   width: 620px !important;
 }

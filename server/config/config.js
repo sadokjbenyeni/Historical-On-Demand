@@ -8,7 +8,7 @@ exports.rtconfig = () => { const urls = [ "192.168.10.10" ]; }
 exports.domain = () => { return "https://hod-lab.quanthouse.com"; }
 
 // IPs ElastcSearch
-exports.hostsES = () => { return ['10.0.10.100:9200', '10.0.10.101:9200', '10.0.10.102:9200']; }
+exports.hostsES = () => { return ['10.0.10.102:9200']; }
 
 // Param SMTP
 exports.smtpconf = () => {

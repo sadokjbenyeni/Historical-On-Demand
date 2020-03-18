@@ -863,7 +863,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
             }
           }
           product.contractid = '';
-          product.qhid = '';
+          product.qhid = '';  
           product.description = this.catalogue['catalogue'][this.catalogue['tabEid'].indexOf(option._source.EID.toString())].name;
           product.pricingtier = 1;
           product.eid = option._source.EID;
