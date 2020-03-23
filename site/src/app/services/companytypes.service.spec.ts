@@ -1,11 +1,12 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { CompanytypesService } from './companytypes.service';
-import { HttpClient, HttpHandler } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
 describe('CompanytypesService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
+      imports:[HttpClientModule],
       providers: [CompanytypesService]
     });
   });
