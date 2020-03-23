@@ -50,7 +50,7 @@ export class RibComponent implements OnInit {
   }
 
   saveRib(c) {
-    this.currencyService.saverib(c).subscribe(res=>{
+    this.currencyService.saveRib(c).subscribe(res=>{
       this.message = res.message;
     });
   }

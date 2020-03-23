@@ -1,13 +1,14 @@
+/*jshint esversion: 6 */
 // const app = require('express')();
 const router = require('express').Router();
 
-const config = require('../config/config.js');
-const HOSTSES = config.hostsES();
+import { hostsES } from '../config/config.js';
+const HOSTSElasticSearch = hostsES();
 
-const elasticsearch = require('elasticsearch');
+import { Client } from 'elasticsearch';
 
-const client = new elasticsearch.Client({
-	hosts: HOSTSES,
+const client = new Client({
+	hosts: HOSTSElasticSearch,
     log: 'trace'
 });
 
@@ -26,7 +27,7 @@ router.post('/', (req, res) => {
         _source: req.body.fields,
         body: {
             query: req.body.query,
-            aggs: req.body.aggs,
+            args: req.body.args,
 	        size: req.body.size,
 	        from: req.body.from,
         }
@@ -37,4 +38,4 @@ router.post('/', (req, res) => {
     });
 });
 
-module.exports = router;
+export default router;

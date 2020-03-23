@@ -28,6 +28,7 @@
     "paypal-rest-sdk": "^1.8.1",
     "pdfmake": "^0.1.65",
     "request-progress": "^3.0.0",
+    "rxjs-tslint": "^0.1.7",
     "soap": "^0.31.0",
     "tar-fs": "^2.0.0",
     "validate-vat": "^0.5.1",

@@ -1,6 +1,5 @@
-import { TestBed, inject } from '@angular/core/testing';
-
 import { CurrencyService } from './currency.service';
+import { TestBed, inject } from '@angular/core/testing';
 
 describe('CurrencyService', () => {
   beforeEach(() => {
@@ -13,3 +12,4 @@ describe('CurrencyService', () => {
     expect(service).toBeTruthy();
   }));
 });
+

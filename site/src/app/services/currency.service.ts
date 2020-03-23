@@ -1,8 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
-
 
 import { environment } from '../../environments/environment';
 
@@ -16,12 +13,12 @@ export class CurrencyService {
     // .map( res => res.json() );
   }
 
-  getRib(rib) {
-    return this.http.get<any>( environment.api + '/currency/rib/'+ rib)
+  getRib(rib: string) {
+    return this.http.get<any>( environment.api + '/currency/rib/' + rib)
     // .map( res => res.json() );
   }
 
-  saverib(rib) {
+  saveRib(rib: any) {
     return this.http.post<any>( environment.api + '/currency/saverib', rib)
     // .map( res => res.json() );
   }
