@@ -1,5 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ActivatedRoute } from '@angular/router'
 import { OrderspViewComponent } from './ordersp-view.component';
 
 describe('OrderspViewComponent', () => {
@@ -8,6 +8,7 @@ describe('OrderspViewComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports : [ActivatedRoute],
       declarations: [ OrderspViewComponent ]
     })
     .compileComponents();
