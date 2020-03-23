@@ -113,8 +113,6 @@ export class CaddiesComponent implements OnInit {
     private configService: ConfigService,
     private userService: UserService,
     private orderService: OrderService,
-    private uploadService: UploadService,
-    private pdfService: PdfService,
     private paymentService: PaymentService,
     private vatService: VatService,
     private fluxService: FluxService,

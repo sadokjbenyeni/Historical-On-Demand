@@ -20,7 +20,7 @@ client.ping({
     else { console.log('All is well'); }
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
     // client.ping({
     //     requestTimeout: 30000
     // }, function (error) {
@@ -28,7 +28,14 @@ router.post('/', (req, res) => {
     //     else { console.log('All is well'); }
     // });
 
-    client.search({
+    // client.info({
+    //     requestTimeout: 3000
+    // }, function (error, resp) {
+    //     if (error) { console.trace('elasticsearch cluster is down!'); }
+    //     else { console.log(resp); }
+    // });
+
+    await client.search({
         index: req.body.index,
         type: req.body.type,
         _source: req.body.fields,

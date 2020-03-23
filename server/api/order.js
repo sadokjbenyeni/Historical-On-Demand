@@ -1006,7 +1006,6 @@ router.post('/caddies', (req, res) => {
 router.post('/sortProducts', (req, res) => {
   Order.findOne({ id_cmd: req.body.idCmd })
     .then(cmd => {
-      console.log();
       let idx = 1;
       let listProducts = [];
       cmd.products.forEach(p => {
