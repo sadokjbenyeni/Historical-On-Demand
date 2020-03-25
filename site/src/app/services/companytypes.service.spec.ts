@@ -15,14 +15,3 @@ describe('CompanytypesService', () => {
     expect(service).toBeTruthy();
   }));
 });
-
-describe('Jasmine Company Service',() => {
-  let service : CompanytypesService;
-  let http : HttpClient;
-  beforeEach(() => {service  = new CompanytypesService(http);
-  });
-
-  it('#getCompanyTypes should return list of company types', ()=> {
-    expect(service.getCompanytypes()).toBe(http.get<any>( environment.api + '/companytype'))
-  });
-})

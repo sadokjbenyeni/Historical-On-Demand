@@ -1,5 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { ConfigService } from '../../../services/config.service';
+import { HttpClientModule } from '@angular/common/http';
 import { AdtvComponent } from './adtv.component';
 
 describe('AdtvComponent', () => {
@@ -8,7 +10,9 @@ describe('AdtvComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AdtvComponent ]
+      declarations: [ AdtvComponent ],
+      providers: [ ConfigService ],
+      imports: [ HttpClientModule ]
     })
     .compileComponents();
   }));

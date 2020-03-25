@@ -1,6 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { VatComponent } from './vat.component';
+import { HttpClientModule } from '@angular/common/http';
+import { ConfigService } from '../../../services/config.service';
+
 
 describe('VatComponent', () => {
   let component: VatComponent;
@@ -8,7 +11,9 @@ describe('VatComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ VatComponent ]
+      providers: [ ConfigService ],
+      declarations: [ VatComponent ],
+      imports: [ HttpClientModule ]
     })
     .compileComponents();
   }));

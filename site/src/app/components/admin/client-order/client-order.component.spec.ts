@@ -1,6 +1,10 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ClientOrderComponent } from './client-order.component';
+import { HttpClientModule } from '@angular/common/http';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
+import { OrderService } from '../../../services/order.service';
 
 describe('ClientOrderComponent', () => {
   let component: ClientOrderComponent;
@@ -8,7 +12,9 @@ describe('ClientOrderComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ClientOrderComponent ]
+      declarations: [ ClientOrderComponent ],
+      imports: [ HttpClientModule, RouterTestingModule, NgbModule ],
+      providers: [ OrderService ]
     })
     .compileComponents();
   }));

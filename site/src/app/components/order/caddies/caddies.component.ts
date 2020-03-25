@@ -1,4 +1,4 @@
-declare var chckt: any;
+  declare var chckt: any;
 
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';

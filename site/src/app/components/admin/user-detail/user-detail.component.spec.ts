@@ -3,14 +3,18 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientModule } from '@angular/common/http';
 import { UserDetailComponent } from './user-detail.component';
 
+import { UserService } from '../../../services/user.service';
+
+
 describe('UserDetailComponent', () => {
   let component: UserDetailComponent;
   let fixture: ComponentFixture<UserDetailComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientModule],
-      declarations: [ UserDetailComponent ]
+      imports: [HttpClientModule, RouterTestingModule],
+      declarations: [ UserDetailComponent ],
+      providers: [ UserService ]
     })
     .compileComponents();
   }));

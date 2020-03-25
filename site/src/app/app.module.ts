@@ -14,7 +14,6 @@ import { EmailValidatorDirective } from './validators/email-validator.directive'
 import { EqualValidatorDirective } from './validators/equal-validator.directive';
 import { TelephoneValidatorDirective } from './validators/telephone-validator.directive';
 import { MdpValidatorDirective } from './validators/mdp-validator.directive';
-import { DateValidatorDirective } from './validators/date-validator.directive';
 
 // Components
 // All

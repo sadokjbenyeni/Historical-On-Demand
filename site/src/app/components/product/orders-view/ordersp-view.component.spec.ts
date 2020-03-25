@@ -1,6 +1,11 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router'
+import { RouterTestingModule } from '@angular/router/testing';
 import { OrderspViewComponent } from './ordersp-view.component';
+import { HttpClientModule } from '@angular/common/http';
+
+import { OrderService } from '../../../services/order.service';
+import { ConfigService } from '../../../services/config.service';
+import { CurrencyService } from '../../../services/currency.service';
 
 describe('OrderspViewComponent', () => {
   let component: OrderspViewComponent;
@@ -8,8 +13,9 @@ describe('OrderspViewComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports : [ActivatedRoute],
-      declarations: [ OrderspViewComponent ]
+      imports : [RouterTestingModule, HttpClientModule ],
+      declarations: [ OrderspViewComponent ],
+      providers : [ OrderService, ConfigService, CurrencyService ]
     })
     .compileComponents();
   }));

@@ -1,4 +1,15 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientModule } from '@angular/common/http';
+
+import { RouterTestingModule } from '@angular/router/testing';
+import { environment } from '../../../environments/environment';
+import { DataService } from '../../data.service';
+import { ElasticService } from '../../services/elastic.service';
+
+import { OrderService } from '../../services/order.service';
+import { UserService } from '../../services/user.service';
+import { ConfigService } from '../../services/config.service';
+import { FluxService } from '../../services/flux.service';
 
 import { SearchComponent } from './search.component';
 
@@ -8,7 +19,9 @@ describe('SearchComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SearchComponent ]
+      declarations: [ SearchComponent ],
+      imports: [ HttpClientModule, RouterTestingModule ],
+      providers: [ DataService, ElasticService, OrderService, UserService, ConfigService, FluxService ]
     })
     .compileComponents();
   }));
