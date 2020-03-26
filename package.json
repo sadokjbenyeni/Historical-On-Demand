@@ -30,12 +30,12 @@
     "request-progress": "^3.0.0",
     "rxjs-tslint": "^0.1.7",
     "soap": "^0.31.0",
-    "tar-fs": "^2.0.0",
+    "tar-fs": "^2.0.1",
     "validate-vat": "^0.5.1",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
-    "@angular/cli": "^9.0.5",
+    "@angular/cli": "^9.1.0",
     "karma-firefox-launcher": "^1.3.0"
   }
 }
