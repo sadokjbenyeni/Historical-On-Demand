@@ -6,7 +6,6 @@ import {
   NgbModal, ModalDismissReasons, NgbDateStruct, NgbCalendar
 } from '@ng-bootstrap/ng-bootstrap';
 
-import { RouterTestingModule } from '@angular/router/testing';
 import { environment } from '../../../environments/environment';
 import { DataService } from '../../data.service';
 import { ElasticService } from '../../services/elastic.service';

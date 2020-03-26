@@ -1,14 +1,12 @@
-/*jshint esversion: 6 */
-// const app = require('express')();
 const router = require('express').Router();
 
-import { hostsES } from '../config/config.js';
-const HOSTSElasticSearch = hostsES();
+const config = require('../config/config.js');
+const HOSTSES = config.hostsES();
 
-import { Client } from 'elasticsearch';
+const elasticsearch = require('elasticsearch');
 
-const client = new Client({
-	hosts: HOSTSElasticSearch,
+const client = new elasticsearch.Client({
+	hosts: HOSTSES,
     log: 'trace'
 });
 
@@ -18,32 +16,18 @@ client.ping({
 }, function (error) {
     if (error) { console.trace('elasticsearch cluster is down!'); }
     else { console.log('All is well'); }
-});
+  });
 
-router.post('/', async (req, res) => {
-    // client.ping({
-    //     requestTimeout: 30000
-    // }, function (error) {
-    //     if (error) { console.trace('elasticsearch cluster is down!'); }
-    //     else { console.log('All is well'); }
-    // });
-
-    // client.info({
-    //     requestTimeout: 3000
-    // }, function (error, resp) {
-    //     if (error) { console.trace('elasticsearch cluster is down!'); }
-    //     else { console.log(resp); }
-    // });
-
-    await client.search({
+router.post('/', (req, res) => {
+	client.search({
         index: req.body.index,
         type: req.body.type,
         _source: req.body.fields,
         body: {
             query: req.body.query,
-            args: req.body.args,
-            size: req.body.size,
-            from: req.body.from,
+            aggs: req.body.aggs,
+	        size: req.body.size,
+	        from: req.body.from,
         }
     }).then(function (resp) {
         res.json(resp);
@@ -52,4 +36,4 @@ router.post('/', async (req, res) => {
     });
 });
 
-export default router;
+module.exports = router;
