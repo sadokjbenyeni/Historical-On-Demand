@@ -66,8 +66,10 @@
                 <td *ngIf="c.subscription === 1 && !c.print">{{c.period}}</td>
                 <td *ngIf="c.subscription === 1 && !c.print && !c.begin_date_select"></td>
                 <td *ngIf="c.subscription === 1 && !c.print && !c.end_date_select"></td>
-                <td *ngIf="c.subscription === 1 && !c.print && c.begin_date_select">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
-                <td *ngIf="c.subscription === 1 && !c.print && c.end_date_select">{{ c.end_date | date:'yyyy-MM-dd' }}</td>
+                <td *ngIf="c.subscription === 1 && !c.print && c.begin_date_select">
+                  {{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
+                <td *ngIf="c.subscription === 1 && !c.print && c.end_date_select">{{ c.end_date | date:'yyyy-MM-dd' }}
+                </td>
                 <td *ngIf="c.subscription === 0 && !c.print"></td>
                 <td *ngIf="c.subscription === 0 && !c.print">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
                 <td *ngIf="c.subscription === 0 && !c.print">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
@@ -75,7 +77,9 @@
                 <td *ngIf="!c.print">{{ getHt(c.ht) | number:'1.2-2' }} {{ symbols[currency] }}</td>
                 <td class="bg-grey" colspan="9" *ngIf="c.print"></td>
                 <td *ngIf="(c.backfill_fee || c.ongoing_fee)"><b>Exchange Fees</b></td>
-                <td *ngIf="(c.backfill_fee || c.ongoing_fee)">{{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }} {{ symbols[currency] }}</td>
+                <td *ngIf="(c.backfill_fee || c.ongoing_fee)">
+                  {{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }}
+                  {{ symbols[currency] }}</td>
               </tr>
               <tr *ngIf="cart?.length === 0">
                 <td colspan="11" class="no-data-available">Empty !</td>
@@ -83,8 +87,12 @@
             </tbody>
           </table>
         </div>
-        <div class="table-responsive container">
-          <div class="col-md-9"></div>
+        <div class="table-responsive container margin-left-zero">
+          <div class="col-md-9 margin-left-zero">
+            <p><b>Internal Notes:</b></p>
+            <p><textarea class=" responsive-field" name="internNotesText" id="internalNotesTextArea"
+                placeholder="Click here to add internal notes"></textarea></p>
+          </div>
           <div class="col-md-3">
             <table class="border-color-sum">
               <tr>
@@ -111,9 +119,11 @@
             </table>
           </div>
         </div>
+
         <div class="table-responsive text-center">
           <div class="btn-action">
-            <span class="btn btn-success fa fa-handshake" *ngIf="verifState()" (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
+            <span class="btn btn-success fa fa-handshake" *ngIf="verifState()"
+              (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
             <span class="btn btn-danger fa fa-power-off" [routerLink]='["/compliance/orders"]'> Close</span>
           </div>
         </div>

@@ -1,0 +1,9 @@
+.responsive-field {
+    width: 70%;
+    max-width: 100%;
+    height: 10vh;
+    max-height: 14vh;
+}
+.margin-left-zero {
+    padding-left: 0px;
+}

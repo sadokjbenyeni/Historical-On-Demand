@@ -103,6 +103,7 @@ import { AdtvComponent } from './components/product/adtv/adtv.component';
 import { CallbackPipe } from './callback.pipe';
 import { ConfigElasticComponent } from './components/admin/config-elastic/config-elastic.component';
 import { PurchaseTypePipe } from './purchaseType.pipe';
+import { DateValidatorDirective } from './validators/date-validator.directive';
 
 // lazy loading
 
