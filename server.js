@@ -11,7 +11,7 @@ const cron = require('node-cron');
 const MDB = require('./server/config/configmdb.js').mdb;
 
 //Connect to mongoDB server
-mongoose.connect('mongodb://@localhost:27017/histodataweb', {
+mongoose.connect('mongodb://'+MDB.userdb+':'+MDB.passdb+'@localhost:27017/histodataweb?authSource='+MDB.authdb, {
   useMongoClient: true,
 });
 mongoose.set('debug', true);
