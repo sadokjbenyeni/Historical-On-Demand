@@ -6,8 +6,12 @@
     padding-left: 0px;
 }
 .responsive-field {
-    width: 70%;
+    width: 100%;
     max-width: 100%;
-    height: 10vh;
-    max-height: 14vh;
+    height: 11vh;
+    max-height: 11vh;
+}
+
+.save-note-btn {
+    float: right;
 }

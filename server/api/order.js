@@ -1,10 +1,13 @@
+
 const app = require('express')();
 const router = require('express').Router();
 const request = require("request");
 const mongoose = require('mongoose');
 
-var tar = require('tar-fs')
-var fs = require('fs')
+
+var tar = require('tar-fs');
+
+var fs = require('fs');
 
 const Config = mongoose.model('Config');
 const Order = mongoose.model('Order');
@@ -13,6 +16,7 @@ const User = mongoose.model('User');
 const Currency = mongoose.model('Currency');
 
 const config = require('../config/config.js');
+
 const URLS = config.config();
 const DOMAIN = config.domain();
 const PAYMENTVERIFY = config.paymentVerify();
@@ -27,22 +31,22 @@ const PAYMENTKEY = config.paymentKey();
 
 // Facture du type QH_HISTO_000000n avec n auto-incrémental number
 
-/* 
+/*
 * Les états d'une commandes
 * =========================
-* 
+*
 * Durant le panier
 * ----------------
 * Pending Licensing Information : PLI
 * Pending Billing Information : PBI
 * Pending Submission by Client : PSC
-* 
+*
 * Plateforme Quanthouse
 * ---------------------
 * Pending Validation by Compliance : PVC
 * Pending Validation by Finance : PVF
 * Pending Validation by Product : PVP
-* 
+*
 * États d'avancement de la commande
 * ---------------------------------
 * Active : active
@@ -63,10 +67,12 @@ router.post('/verify', (req, res) => {
       'payload': req.body.payload
     }, json: true
   };
+
   request.post(options, function (error, response, body) {
     if (error) throw new Error(error);
     let log = body;
     log.date = new Date();
+
     autoValidation(body.merchantReference, log, body, res);
   });
 });
@@ -83,6 +89,7 @@ router.post('/logPayement', (req, res) => {
       'payload': req.body.payload
     }, json: true
   };
+
   request.post(options, function (error, response, body) {
     body.date = new Date();
     Order.updateOne({ id_cmd: body.merchantReference }, { $push: { logsPayment: body } })
@@ -93,7 +100,7 @@ router.post('/logPayement', (req, res) => {
 });
 
 router.post('/rib', (req, res) => {
-  // Order.updateOne( { id_cmd: req.body.idCmd }, { $set:{ 
+  // Order.updateOne( { id_cmd: req.body.idCmd }, { $set:{
   //   total: req.body.total,
   //   vatValue: req.body.vatValue,
   //   currency: req.body.currency,
@@ -101,6 +108,7 @@ router.post('/rib', (req, res) => {
   //   currencyTxUsd: req.body.currencyTxUsd
   //  } } )
   // .then((r)=>{
+
   autoValidation(req.body.idCmd, { token: req.body.token, email: req.body.email, payment: 'RIB', date: new Date() }, { ok: true }, res);
   // });
 });
@@ -111,7 +119,9 @@ router.post('/autovalidation', (req, res) => {
 });
 
 
+
 autoValidation = function (idCmd, logsPayment, r, res) {
+
   let state = '';
   let log = {};
   let url = '/api/mail/newOrder';
@@ -120,98 +130,131 @@ autoValidation = function (idCmd, logsPayment, r, res) {
     .then(o => { // Autovalidation Compliance
       log.date = new Date();
       let eids = [];
+
       o.products.forEach(product => {
         eids.push(product.eid);
+
         if (o.state === 'PSC') {
           corp = {
+
             "email": o.email,
             "idCmd": o.id,
             "paymentdate": logsPayment.date,
             "token": logsPayment.token,
             "service": 'Compliance'
           };
+
           sendMail(url, corp);
           if (((product.historical_data && (product.historical_data.backfill_agreement ||
             product.historical_data.backfill_applyfee)) ||
+
             o.survey[0].dd === "1") &&
             product.onetime === 1) {
+
             o.state = 'PVC';
             log.status = 'PVC';
             log.referer = 'Client';
           } else {
+
             o.validationCompliance = true;
             log.referer = 'Autovalidation';
+
             o.state = 'PVP';
             log.status = 'PVP';
             // Envoi email aux products
           }
         }
       });
+
       o.eid = eids;
       return o;
     })
     .then(o => {
+
       let url = '/api/mail/newOrder';
       let corp = {};
+
       if (o.state === "PVC") {
         // Envoi email aux compliances
         User.find({ roleName: "Compliance" }, { email: true, _id: false })
           .then((users) => {
             users.forEach(user => {
+
               sendMail('/api/mail/newOrderHoD',
                 {
                   idCmd: corp.idCmd,
+
                   email: user.email,
+
                   lastname: o.lastname,
+
                   firstname: o.firstname,
+
                   eid: o.eid.join(),
                   date: logsPayment.date,
+
                   total: totalttc(o),
                   service: "Compliance"
                 });
             });
           });
       }
+
       if (o.state === "PVP") {
         // Envoi email aux products
         User.find({ roleName: "Product" }, { email: true, _id: false })
           .then((users) => {
             users.forEach(user => {
+
               sendMail('/api/mail/newOrderHoD',
                 {
                   idCmd: corp.idCmd,
+
                   email: user.email,
+
                   lastname: o.lastname,
+
                   firstname: o.firstname,
+
                   eid: o.eid.join(),
                   date: logsPayment.date,
+
                   total: totalttc(o),
                   service: "Product"
                 });
             });
           });
       }
+
       if (o.state === "PVF") {
         // Envoi email aux finances
         User.find({ roleName: "Finance" }, { email: true, _id: false })
           .then((users) => {
             users.forEach(user => {
+
               sendMail('/api/mail/newOrderHoD',
                 {
                   idCmd: corp.idCmd,
+
                   email: user.email,
+
                   lastname: o.lastname,
+
                   firstname: o.firstname,
+
                   eid: o.eid.join(),
                   date: logsPayment.date,
+
                   total: totalttc(o),
                   service: "Finance"
                 });
             });
           });
       }
+
       if (o.validationCompliance) {
         corp = {
+
           "email": o.email,
           "idCmd": o.id,
           "paymentdate": logsPayment.date,
@@ -228,12 +271,14 @@ autoValidation = function (idCmd, logsPayment, r, res) {
         };
       }
       // if(o.state === 'PSC'){ sendMail(url, corp); }
+
       Order.updateOne({ id_cmd: idCmd }, { $push: { logsPayment: logsPayment, logs: log }, $set: { validationCompliance: o.validationCompliance, submissionDate: new Date(), state: o.state } })
         .then((rs) => {
           res.status(201).json(rs);
         });
     });
-}
+};
+
 
 
 router.post('/save', (req, res) => {
@@ -241,8 +286,10 @@ router.post('/save', (req, res) => {
   let total = 0;
 
   if (req.body.cart.currency !== 'usd') {
+
     total = precisionRound(((req.body.cart.total / req.body.cart.currencyTxUsd) * req.body.cart.currencyTx), 2);
   } else {
+
     total = precisionRound(req.body.cart.total, 2);
   }
 
@@ -278,11 +325,12 @@ router.post('/save', (req, res) => {
         }, json: true
       };
 
+
       request.post(options, function (error, response, body) {
         if (error) throw new Error(error);
         return res.status(200).json(response);
       });
-    })
+    });
 });
 
 router.put('/delProductCaddy', (req, res) => {
@@ -292,17 +340,20 @@ router.put('/delProductCaddy', (req, res) => {
       $pull: { products: { id_undercmd: req.body.id_product } },
       $set: { totalExchangeFees: req.body.totalFees, totalHT: req.body.totalHT }
     })
+
     .then((r) => {
       Order.findOne({ id_cmd: req.body.id_cmd }).then(v => {
+
         if (v.products.length === 0) {
+
           Order.remove({ id_cmd: req.body.id_cmd }).then(d => {
             res.status(201).json({ ok: true });
-          })
+          });
         } else {
           res.status(201).json({ ok: true });
         }
       });
-    })
+    });
 });
 
 router.put('/updtProductCaddy', (req, res) => {
@@ -329,9 +380,11 @@ router.put('/updtProductCaddy', (req, res) => {
     { id_cmd: req.body.idCmd, 'products.id_undercmd': req.body.idElem },
     { $set: updt }
   )
+
     .then((r) => {
       Order.findOne({ id_cmd: req.body.idCmd }).then(p => {
         let totalHT = 0;
+
         p.products.forEach(prd => {
           totalHT += prd.ht;
         });
@@ -340,8 +393,8 @@ router.put('/updtProductCaddy', (req, res) => {
         Order.updateOne({ id_cmd: req.body.idCmd }, { $set: { totalHT: o } }).then(() => {
           res.status(201).json({ ok: true });
         });
-      })
-    })
+      });
+    });
 });
 
 router.put('/updtCaddy', (req, res) => {
@@ -393,6 +446,7 @@ router.put('/updtCaddy', (req, res) => {
     res.status(201).json({ ok: true });
   } else {
     Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt })
+
       .then((r) => {
         res.status(201).json({ ok: true });
       });
@@ -403,14 +457,20 @@ router.put('/state', (req, res) => {
   let updt = {};
   let log = {};
   let corp = {};
+
   let prefixe = "QH_HISTO_";
+
   let nbcar = 7;
   updt.state = req.body.status;
   log.status = req.body.status;
   log.referer = req.body.referer;
+
   dateref = new Date();
+
   datedebref = new Date();
+
   dateFinref = new Date();
+
   log.date = dateref;
   if (req.body.referer === 'Compliance') {
     updt.validationCompliance = true;
@@ -425,20 +485,27 @@ router.put('/state', (req, res) => {
     Order.findOne({ id_cmd: req.body.idCmd })
       .then(o => {
         let eids = [];
+
         o.products.forEach(p => {
           eids.push(p.eid);
         });
         User.find({ roleName: "Product" }, { email: true, _id: false })
           .then((users) => {
             users.forEach(user => {
+
               sendMail('/api/mail/newOrderHoD',
                 {
                   idCmd: o.id,
+
                   email: user.email,
+
                   lastname: o.lastname,
+
                   firstname: o.firstname,
                   eid: eids.join(),
+
                   date: o.submissionDate,
+
                   total: totalttc(o),
                   service: "Product"
                 });
@@ -468,13 +535,16 @@ router.put('/state', (req, res) => {
         }
 
         if (req.body.status === 'rejected') {
+
           sendMail('/api/mail/orderRejected', corp);
           return true;
         }
         if (req.body.status === 'cancelled') {
+
           sendMail('/api/mail/orderCancelled', corp);
           return true;
         }
+
 
         o.products.forEach(p => {
           eids.push(p.eid);
@@ -483,14 +553,20 @@ router.put('/state', (req, res) => {
           User.find({ roleName: "Product" }, { email: true, _id: false })
             .then((users) => {
               users.forEach(user => {
+
                 sendMail('/api/mail/newOrderHoD',
                   {
                     idCmd: o.id,
+
                     email: user.email,
+
                     lastname: o.lastname,
+
                     firstname: o.firstname,
                     eid: eids.join(),
+
                     date: o.submissionDate,
+
                     total: totalttc(o),
                     service: "Finance"
                   });
@@ -503,19 +579,26 @@ router.put('/state', (req, res) => {
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
     updt.validationFinance = true;
     updt.reason = req.body.reason;
+
     let deb = datedebref;
+
     deb = verifWeek(datedebref);
+
     let debut = new Date(clone(deb));
+
     let end = dateFinref;
     let cart = [];
     let id = "";
+
     let item = "";
     req.body.product.forEach(p => {
       if (!p.print) { //actual product lines without Exchange fees
         p.dataset = p.quotation_level;
         p.exchangeName = p.exchange;
         if (p.subscription === 1) {
+
           end = new Date(endperiod(deb, p.period));
+
           end = verifWeekNext(end);
           p.begin_date = deb;
           p.end_date = end;
@@ -523,10 +606,13 @@ router.put('/state', (req, res) => {
           if (p.qhid !== null || p.qhid !== "") {
             qhid = p.qhid.toString();
           }
+
           let c = 0;
           for (let d = debut; d <= end; d.setDate(d.getDate() + 1)) {
             id = p.id_undercmd.split("-")[0];
+
             suffixe = p.id_undercmd.split("§")[1];
+
             addPool({
               index: p.index,
               id: req.body.id,
@@ -539,12 +625,16 @@ router.put('/state', (req, res) => {
               contractID: p.contractid,
               qhid: qhid,
               quotation_level: p.dataset,
+
               searchdate: new Date(d.yyyymmdd()),
+
               begin_date: d.yyyymmdd(),
+
               end_date: d.yyyymmdd(),
               status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
             });
           }
+
           debut = new Date(clone(deb));
         } else {
           p.begin_date = p.begin_date_select;
@@ -553,6 +643,7 @@ router.put('/state', (req, res) => {
           if (p.qhid !== null || p.qhid !== "") {
             qhid = p.qhid.toString();
           }
+
           addPool({
             index: p.index,
             id: req.body.id,
@@ -565,7 +656,9 @@ router.put('/state', (req, res) => {
             qhid: qhid,
             quotation_level: p.dataset,
             searchdate: p.begin_date,
+
             begin_date: yyyymmdd(p.begin_date),
+
             end_date: yyyymmdd(p.end_date),
             status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
           });
@@ -578,10 +671,12 @@ router.put('/state', (req, res) => {
       "email": req.body.email,
       "idCmd": req.body.id
     };
+
     sendMail('/api/mail/orderValidated', corp);
   }
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
     Config.findOne({ id: "counter" }).then((cnt) => {
+
       let id = cnt.value;
       let prefix = "QH_HISTO_";
       let nbcar = 7;
@@ -593,15 +688,18 @@ router.put('/state', (req, res) => {
       updt.idCommande = prefix + idnew.toString();
       Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).then(() => {
         Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } })
+
           .then((r) => {
+
             pdfpost(req.body.id);
             res.status(201).json({ ok: true });
           });
-      })
+      });
     });
   }
   else {
     Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } })
+
       .then((r) => {
         res.status(201).json({ ok: true });
       });
@@ -616,13 +714,17 @@ router.put('/update', (req, res) => {
 
       Order.findOne({ _id: req.body.idcmd.id_cmd })
         .then((updt) => {
+
           updt.id_cmd = updt.id + "-" + req.body.u.user.companyName.replace(' ', '').toLowerCase() + "-" + new Date().yyyymmdd().replace(/-/g, '');
           if (req.body.state) {
+
             updt.state = req.body.state;
           }
           if (req.body.cart) {
             let idx = 1;
+
             if (updt.products.length > 0) {
+
               idx = parseInt(updt.products[updt.products.length - 1].id_undercmd.split('§')[1]) + 1;
             }
             req.body.cart.forEach((elem) => {
@@ -662,9 +764,13 @@ router.put('/update', (req, res) => {
                 }
               }
 
+
               updt.totalExchangeFees += parseFloat(elem.backfill_fee);
+
               updt.totalExchangeFees += parseFloat(elem.ongoing_fee);
+
               updt.totalHT += parseFloat(elem.ht);
+
               updt.products.push({
                 "idx": elem.idx,
                 "index": elem.index,
@@ -703,44 +809,70 @@ router.put('/update', (req, res) => {
               });
             });
           }
+
           if (req.body.u.user && (updt.vatValide === null)) {
+
             updt.companyName = req.body.u.user.companyName;
+
             updt.companyType = req.body.u.user.companyType;
+
             updt.region = req.body.u.user.region;
+
             updt.job = req.body.u.user.job;
+
             updt.firstname = req.body.u.user.firstname;
+
             updt.lastname = req.body.u.user.lastname;
+
             updt.email = req.body.u.user.email;
+
             updt.phone = req.body.u.user.phone;
+
             updt.website = req.body.u.user.website;
+
             updt.address = req.body.u.user.address;
+
             updt.city = req.body.u.user.city;
+
             updt.country = req.body.u.user.country;
+
             updt.postalCode = req.body.u.user.postalCode;
+
             updt.addressBilling = req.body.u.user.addressBilling;
+
             updt.cityBilling = req.body.u.user.cityBilling;
+
             updt.countryBilling = req.body.u.user.countryBilling;
+
             updt.postalCodeBilling = req.body.u.user.postalCodeBilling;
+
             updt.vat = req.body.u.user.vat;
             // updt.vatValide = req.body.u.user.vatValide;
+
             updt.payment = req.body.u.user.payment;
+
             updt.currency = req.body.u.user.currency;
             // updt.currencyTx = req.body.user.currencyTx;
             for (var i = 0; i < currencies.length; i++) {
+
               if (currencies[i]['id'] === updt.currency) {
+
                 updt.currencyTx = currencies[i]['taux'];
               }
               if (currencies[i]['id'] === 'usd') {
+
                 updt.currencyTxUsd = currencies[i]['taux'];
               }
             }
           }
           if (req.body.survey) {
+
             updt.survey = req.body.survey;
           }
           Order.update(
             { _id: req.body.idcmd.id_cmd },
             { $set: updt })
+
             .then((r) => {
               return res.status(201).json({ ok: true });
             }
@@ -760,6 +892,7 @@ router.post('/usercaddy', (req, res) => {
   const states = ['CART', 'PLI', 'PBI', 'PSC'];
   Order.find({ idUser: req.body.id, state: { $in: states } }, { id_cmd: true, state: true })
     .then((cmd) => {
+
       if (cmd.length > 0 && states.indexOf(cmd.state)) {
         return res.status(200).json({ id_cmd: cmd[0]._id });
       } else {
@@ -770,6 +903,7 @@ router.post('/usercaddy', (req, res) => {
           } else {
             order.id = 1;
           }
+
           order.idUser = req.body.id;
           order.save((err, c) => {
             if (err) return console.error(err);
@@ -780,6 +914,7 @@ router.post('/usercaddy', (req, res) => {
       }
     });
 });
+
 
 router.get('/listStates', (req, res) => {
   let states = [
@@ -827,6 +962,7 @@ router.get('/retry/:id/:export', (req, res) => {
   Order.findOne(
     { "products": { $elemMatch: { id_undercmd: req.params.id } } }
   ).then((o) => {
+
     o.products.forEach(p => {
       if (p.id_undercmd === req.params.id) {
         p.id_undercmd = o.id + "§" + p.idx;
@@ -834,8 +970,10 @@ router.get('/retry/:id/:export', (req, res) => {
       }
     });
     Order.updateOne(
+
       { id_cmd: o.id_cmd },
       {
+
         $set: { products: o.products }
       }
     ).then(() => {
@@ -875,6 +1013,7 @@ router.get('/retry/:id/:export', (req, res) => {
 router.post('/listExport', (req, res) => {
   let sort = {};
   sort.id = 1;
+
   let search = {};
   Order.find(req.body)
     .sort(sort)
@@ -884,33 +1023,48 @@ router.post('/listExport', (req, res) => {
       orders.forEach(order => {
         let o = {};
         o["Invoice_ID"] = order.id;
+
         o["Client_ID"] = order.idUser;
+
         o["Client_Name"] = order.companyName + ": " + order.firstname + " " + order.lastname;
+
         o["Client_Country"] = order.country;
+
         o["Order_Date"] = order.submissionDate;
+
         if (order.validationFinance) {
+
           order.logs.forEach(lo => {
             if (lo.referer === "Finance") {
               o["Payment_Date"] = lo.date;// (validation by Finance)
             }
           });
         }
+
         o["Order_Currency"] = order.currency;
+
         o["Order_Amount_Before_Taxes"] = order.totalHT;
+
         o["Exchange_Fees"] = order.totalExchangeFees;
+
         o["VAT"] = order.vatValue;
         var pay = '';
+
         if (order.payment === 'creditcard') {
+
           if (order.logsPayment) {
+
             order.logsPayment.forEach(ord => {
               if (ord && ord.authResponse === 'Authorised') {
                 pay = ord.pspReference;
               }
-            })
+            });
           }
         }
+
         o["Payment_Method"] = order.payment;
         o["Payment_Reference"] = pay;
+
         o["TOTAL_Order_Amount"] = order.total;// CB : mettre la référence Adyen
         list.push(o);
       });
@@ -921,6 +1075,7 @@ router.post('/list', (req, res) => {
   let sort = {};
   sort.createdAt = -1;
   sort[req.body.columns[req.body.order[0].column].data] = req.body.order[0].dir;
+
   Order.count({ state: { $ne: '' }, state: { $exists: true } }).then((c) => {
     let search = {};
     search['state'] = { $ne: '' };
@@ -939,18 +1094,18 @@ router.post('/list', (req, res) => {
         if (s.search.value == '1') {
           search['products'] = {
             $not: { $elemMatch: { subscription: 1, onetime: 0 } }
-          }
+          };
         }
         if (s.search.value == '2') {
           search['products'] = {
             $not: { $elemMatch: { subscription: 0, onetime: 1 } }
-          }
+          };
         }
         if (s.search.value == '3') {
-          search['$and'] = [{ 'products': {  $elemMatch: { subscription: 1, onetime: 0 } } },
-          { 'products': { $elemMatch: { subscription: 0, onetime: 1 } } }]
+          search['$and'] = [{ 'products': { $elemMatch: { subscription: 1, onetime: 0 } } },
+          { 'products': { $elemMatch: { subscription: 0, onetime: 1 } } }];
         }
-        
+
       }
       else if (s.data === 'id' && s.search.value !== '') {
         search[s.data] = parseInt(s.search.value);
@@ -1026,21 +1181,41 @@ router.post('/sortProducts', (req, res) => {
     .then(cmd => {
       let idx = 1;
       let listProducts = [];
+
       cmd.products.forEach(p => {
         p.id_undercmd = cmd.id + "§" + idx++;
         listProducts.push(p);
       });
 
       Order.updateOne(
+
         { id_cmd: cmd.id_cmd },
         {
           $set: {
             products: listProducts
           }
+
         }).then(u => { return true; });
 
       return res.status(200).json({ 'ok': true });
     });
+});
+
+router.put('/addNote', (req, res) => {
+  if (!req.body.id || !req.body.note) {
+    return res.sendStatus(400);
+  }
+  Order.findOne({ id: req.body.id }).then(orderToUpdate => {
+    orderToUpdate.internalNote = req.body.note;
+    Order.update(
+      { _id: orderToUpdate._id },
+      { $set: orderToUpdate })
+
+      .then((r) => {
+        return res.status(201).json({ ok: true });
+      }
+      );
+  });
 });
 
 pdfpost = function (id) {
@@ -1054,10 +1229,12 @@ pdfpost = function (id) {
     },
     json: true
   };
+
   request.post(options, function (error, response, body) {
     if (error) throw new Error(error);
   });
 };
+
 
 sendMail = function (url, corp) {
   let options = {
@@ -1067,25 +1244,30 @@ sendMail = function (url, corp) {
     },
     body: corp, json: true
   };
+
   request.post(options, function (error, response, body) {
     if (error) throw new Error(error);
   });
 };
+
 
 Date.prototype.previousDay = function () {
   this.setDate(this.getDate() - 1);
   return this;
 };
 
+
 Date.prototype.nextDay = function () {
   this.setDate(this.getDate() + 1);
   return this;
 };
 
+
 Date.prototype.nextMonth = function (period) {
   this.setMonth(this.getMonth() + period);
   return this;
 };
+
 
 verifWeek = function (dt) {
   dt.previousDay();
@@ -1095,6 +1277,7 @@ verifWeek = function (dt) {
   return dt;
 };
 
+
 verifWeekNext = function (dt) {
   dt.nextDay();
   while (dt.getDay() === 0 || dt.getDay() === 6) {
@@ -1103,11 +1286,13 @@ verifWeekNext = function (dt) {
   return dt;
 };
 
+
 Date.prototype.yyyymmdd = function () {
   var mm = this.getMonth() + 1;
   var dd = this.getDate();
   return [this.getFullYear(), (mm > 9 ? '' : '0') + mm, (dd > 9 ? '' : '0') + dd].join('');
 };
+
 
 yyyymmdd = function (d) {
   let dat = d.split('-');
@@ -1122,8 +1307,10 @@ yyyymmdd = function (d) {
 };
 
 
+
 idcommande = function (prefix, nbcar) {
   Config.findOne({ id: "counter" }).then((cnt) => {
+
     let id = cnt.value;
     let nbid = nbcar - id.toString().length;
     for (let i = 0; i < nbid; i++) {
@@ -1133,19 +1320,23 @@ idcommande = function (prefix, nbcar) {
     prefix += idnew;
     Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).then(() => {
       return prefix;
-    })
+    });
   });
 };
 
+
 endperiod = function (data, periode) {
+
   let dateclone = new Date(clone(data));
   return dateclone.setMonth(dateclone.getMonth() + periode);
 };
+
 
 precisionRound = function (number, precision) {
   var factor = Math.pow(10, precision);
   return Math.round(number * factor) / factor;
 };
+
 
 totalttc = function (o) {
   let totalExchangeFees = 0;
@@ -1162,6 +1353,7 @@ totalttc = function (o) {
       totalHT = totalHT - (totalHT * (discount / 100));
     }
     totalVat = totalHT * o.vatValue;
+
     totalTTC = precisionRound((totalHT * (1 + o.vatValue)), 2);
   } else {
     totalExchangeFees = o.totalExchangeFees;
@@ -1171,18 +1363,22 @@ totalttc = function (o) {
       totalHT = totalHT - (totalHT * (discount / 100));
     }
     totalVat = totalHT * o.vatValue;
+
     totalTTC = precisionRound((totalHT * (1 + o.vatValue)), 2);
   }
   return totalTTC;
 };
 
+
 addPool = function (data) {
   Pool.findOne({ id_cmd: data.id_cmd, begin_date: data.begin_date }).then(p => {
     if (!p) {
+
       Pool.create(data).then(p => { return true; });
     }
   });
 };
+
 
 
 clone = function (obj) {

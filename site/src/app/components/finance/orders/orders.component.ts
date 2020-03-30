@@ -12,7 +12,7 @@ import { DataTableDirective } from 'angular-datatables';
 import { environment } from '../../../../environments/environment';
 
 import * as XLSX from 'xlsx';
-import { AngularCsv } from 'angular7-csv/dist/Angular-csv'
+import { AngularCsv } from 'angular7-csv/dist/Angular-csv';
 import { HttpClient } from '@angular/common/http';
 
 class DataTablesResponse {
@@ -67,6 +67,7 @@ export class OrdersComponent implements OnInit {
   beginID: any;
   endID: any;
   symbols: any[];
+  internalNotes: string;
 
   constructor(
 
@@ -86,20 +87,20 @@ export class OrdersComponent implements OnInit {
     this.beginID = null;
     this.endID = null;
     this.beginDate = null;
-    this.purchasetype = 'Select Type'
+    this.purchasetype = 'Select Type';
     this.endDate = null;
     this.typeexport = "csv";
     this.columnsSelect = [];
     this.dtOptions = {};
     this.state = 'PVF';
     this.columns = [
-      {id:'idFacture', name:'Invoice ID'},
-      {id:'idUser', name:'Client ID'},
-      {id:'firstname|lastname', name:'Client Name'},
-      {id:'createdAT', name:'Order Date'},
-      {id:'paymentDate', name:'Payment Date'},
-      {id:'total', name:'TOTAL Order Amount'},
-      {id:'currency', name:'Order Currency'},
+      { id: 'idFacture', name: 'Invoice ID' },
+      { id: 'idUser', name: 'Client ID' },
+      { id: 'firstname|lastname', name: 'Client Name' },
+      { id: 'createdAT', name: 'Order Date' },
+      { id: 'paymentDate', name: 'Payment Date' },
+      { id: 'total', name: 'TOTAL Order Amount' },
+      { id: 'currency', name: 'Order Currency' },
     ];
     this.getListStates();
     this.getCurrencies();
@@ -110,19 +111,19 @@ export class OrdersComponent implements OnInit {
       pageLength: 10,
       serverSide: true,
       processing: true,
-      order: [[ 1, 'desc' ]],
+      order: [[1, 'desc']],
       ajax: (dataTablesParameters: any, callback) => {
         dataTablesParameters.state = this.state;
         that.httpc
-        .post<DataTablesResponse>(environment.api + '/order/list', dataTablesParameters, {})
-        .subscribe(res => {
-          that.listorders = res.listorders;
-          callback({
-            recordsTotal: res.recordsTotal,
-            recordsFiltered: res.recordsFiltered,
-            data: [],
+          .post<DataTablesResponse>(environment.api + '/order/list', dataTablesParameters, {})
+          .subscribe(res => {
+            that.listorders = res.listorders;
+            callback({
+              recordsTotal: res.recordsTotal,
+              recordsFiltered: res.recordsFiltered,
+              data: [],
+            });
           });
-        });
       },
       columns: [
         { data: 'companyName' },
@@ -139,45 +140,45 @@ export class OrdersComponent implements OnInit {
     this.dtOptions.search = { search: this.search };
   }
 
-  filter(f){
+  filter(f) {
     this.search = f;
     // this.dtOptions.draw();
   }
 
-  getList(){
+  getList() {
     // this.orderService.getList({},{}).subscribe(res=>{
     //   this.listorders = res;
     // });
   }
 
-  changeState(col){
+  changeState(col) {
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(this.state).draw();
-    })
+    });
   }
 
-    changeType(col) {
+  changeType(col) {
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(this.purchasetype).draw();
-    })
+    });
   }
 
-  changeDate(col){
+  changeDate(col) {
     let val = "";
-    if(this.dateSubmission && this.dateSubmission['year']){
-      val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + this.dateSubmission['day']
+    if (this.dateSubmission && this.dateSubmission['year']) {
+      val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + this.dateSubmission['day'];
       val += '|';
-      val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + (this.dateSubmission['day']+1);
+      val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + (this.dateSubmission['day'] + 1);
     }
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(val).draw();
-    })
+    });
   }
 
   onKey(event: any, col: number) {
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(event.target.value).draw();
-    })
+    });
   }
 
   openExport() {
@@ -189,34 +190,34 @@ export class OrdersComponent implements OnInit {
 
   addCol(e) {
     let c = e.split('§');
-    this.columnsSelect.push({id: c[0], name: c[1]});
+    this.columnsSelect.push({ id: c[0], name: c[1] });
   }
 
   exportFile() {
-    let req = { state: { $in: ["PVF", "validated"]} };
+    let req = { state: { $in: ["PVF", "validated"] } };
     // if( this.beginID !== "" && this.endID !== "" ){
     //   req["id"] = { $gte: this.beginID, $lte: this.endID };
     // }
     let ids = {};
-    if( this.beginID){
+    if (this.beginID) {
       ids["$gte"] = this.beginID;
     }
-    if(this.endID){
+    if (this.endID) {
       ids["$lte"] = this.endID;
     }
-    if( this.beginID || this.endID){ req["id"] = ids; }
+    if (this.beginID || this.endID) { req["id"] = ids; }
 
     let dates = {};
-    if( this.beginDate){
-      dates["$gte"] = new Date(this.beginDate.year+'-'+ this.beginDate.month+'-'+ this.beginDate.day);
+    if (this.beginDate) {
+      dates["$gte"] = new Date(this.beginDate.year + '-' + this.beginDate.month + '-' + this.beginDate.day);
     }
-    if(this.endDate){
-      dates["$lte"] = new Date(this.endDate.year+'-'+ this.endDate.month+'-'+ this.endDate.day);
+    if (this.endDate) {
+      dates["$lte"] = new Date(this.endDate.year + '-' + this.endDate.month + '-' + this.endDate.day);
     }
-    if(this.endDate || this.beginDate){ req["submissionDate"] = dates; }
+    if (this.endDate || this.beginDate) { req["submissionDate"] = dates; }
 
-    if( this.typeexport === "csv"){
-      this.orderService.getListExport(req).subscribe(data=>{
+    if (this.typeexport === "csv") {
+      this.orderService.getListExport(req).subscribe(data => {
         let options = {
           fieldSeparator: ',',
           quoteStrings: '"',
@@ -239,11 +240,11 @@ export class OrdersComponent implements OnInit {
             "TOTAL_Order_Amount",
           ]
         };
-        new AngularCsv(data, 'Invoices_export_'+ new Date().getTime(), options);
+        new AngularCsv(data, 'Invoices_export_' + new Date().getTime(), options);
       });
     }
-    if( this.typeexport === "xlsx"){
-      this.orderService.getListExport(req).subscribe(data=>{
+    if (this.typeexport === "xlsx") {
+      this.orderService.getListExport(req).subscribe(data => {
         this.exportAsExcelFiles(data, "Invoices");
       });
     }
@@ -255,7 +256,7 @@ export class OrdersComponent implements OnInit {
 
   exportAsExcelFiles(json: any[], excelFileName: string): void {
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
-    const workbook: XLSX.WorkBook = {Sheets: {'data': worksheet}, SheetNames: ['data']};
+    const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
     XLSX.writeFile(workbook, this.toExportFileName(excelFileName));
   }
 
@@ -268,14 +269,14 @@ export class OrdersComponent implements OnInit {
     this.columnsSelect.splice(this.columnsSelect.indexOf(a), 1);
   }
 
-  getHt(val, currency, currencyTxUsd, currencyTx, discount, vatValue){
+  getHt(val, currency, currencyTxUsd, currencyTx, discount, vatValue) {
     let v = 0;
     if (currency !== 'usd') {
       v = ((val / currencyTxUsd) * currencyTx);
-      v = v - (v * discount/100)
+      v = v - (v * discount / 100);
       return v * (1 + vatValue);
-    } else{
-      v = val - (val * discount/100);
+    } else {
+      v = val - (val * discount / 100);
       return v * (1 + vatValue);
     }
   }
@@ -288,19 +289,19 @@ export class OrdersComponent implements OnInit {
 
 
 
-  getListStates(){
-    this.orderService.getListStates({}).subscribe(res=>{
+  getListStates() {
+    this.orderService.getListStates({}).subscribe(res => {
       this.states = res['states'];
     });
   }
   getStateName(stateId) {
-    if( !this.states )
+    if (!this.states)
       return stateId;
-    return this.states.filter( e => e.id === stateId )[0] ? this.states.filter( e => e.id === stateId )[0].name : stateId;
+    return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
 
   getCurrencies() {
-    this.currencyService.getCurrencies().subscribe(r=>{
+    this.currencyService.getCurrencies().subscribe(r => {
       this.symbols = [];
       r.currencies.forEach(s => {
         this.symbols[s.id] = s.symbol;

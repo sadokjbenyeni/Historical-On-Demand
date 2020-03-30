@@ -5,7 +5,7 @@ import { OrderService } from '../../../services/order.service';
 import { ConfigService } from '../../../services/config.service';
 import { CurrencyService } from '../../../services/currency.service';
 
-import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-ordersc-view',
@@ -44,9 +44,10 @@ export class OrderscViewComponent implements OnInit {
   fees: number;
   cart: Array<any>;
   invoice: string;
+  internalNotes: string;
 
   constructor(
-    private route:ActivatedRoute,
+    private route: ActivatedRoute,
     private router: Router,
     private modalService: NgbModal,
     private configService: ConfigService,
@@ -73,8 +74,8 @@ export class OrderscViewComponent implements OnInit {
     // this.getVat();
   }
 
-  getCmd(){
-    this.currencyService.getCurrencies().subscribe(r=>{
+  getCmd() {
+    this.currencyService.getCurrencies().subscribe(r => {
       this.symbols = [];
       r.currencies.forEach(s => {
         this.symbols[s.id] = s.symbol;
@@ -96,19 +97,19 @@ export class OrderscViewComponent implements OnInit {
         this.currencyTx = c.cmd.currencyTx;
         this.currencyTxUsd = c.cmd.currencyTxUsd;
         this.totalFees = this.getHt(c.cmd.totalExchangeFees);
-        this.totalHT = (this.getHt(c.cmd.totalHT) - (this.getHt(c.cmd.totalHT) * this.discount / 100) ) + this.totalFees;
+        this.totalHT = (this.getHt(c.cmd.totalHT) - (this.getHt(c.cmd.totalHT) * this.discount / 100)) + this.totalFees;
         this.vat = c.cmd.vatValue;
         this.totalVat = this.totalHT * this.vat;
         this.totalTTC = this.totalHT + this.totalVat;
         this.submissionDate = c.cmd.submissionDate;
         this.state = c.cmd.state;
         let index = 0;
-        if(c.cmd.products.length > 0){
+        if (c.cmd.products.length > 0) {
           this.list['cmd'].products.forEach((p) => {
             let diff = this.dateDiff(new Date(p.begin_date), new Date(p.end_date));
             if (p.onetime === 1) {
               p.price = (diff.day + 1) * p.price;
-            } else if(p.subscription === 1){
+            } else if (p.subscription === 1) {
               p.price = p.period * p.price;
             }
             index++;
@@ -133,8 +134,8 @@ export class OrderscViewComponent implements OnInit {
               ht: p.ht,
               begin_date_select: p.begin_date,
               begin_date: p.begin_date_ref,
-              end_date_select : p.end_date,
-              end_date : p.end_date_ref
+              end_date_select: p.end_date,
+              end_date: p.end_date_ref
             };
             this.ht += p.price;
             this.cart.push(prod);
@@ -147,22 +148,22 @@ export class OrderscViewComponent implements OnInit {
     });
   }
 
-  getVat(){
-    this.configService.getVat().subscribe(res=>{
+  getVat() {
+    this.configService.getVat().subscribe(res => {
       this.vat = res[0].valueVat / 100;
     });
   }
 
   verifState() {
-    if(this.state === 'PVC') {
+    if (this.state === 'PVC') {
       return true;
     } else {
       return false;
     }
   }
 
-  confirm(){
-    this.orderService.state({idCmd: this.idCmd, status: 'PVP', referer: 'Compliance', email: this.cmd['email']}).subscribe(()=>{
+  confirm() {
+    this.orderService.state({ idCmd: this.idCmd, status: 'PVP', referer: 'Compliance', email: this.cmd['email'] }).subscribe(() => {
       this.router.navigate(['/compliance/orders']);
     });
   }
@@ -172,13 +173,13 @@ export class OrderscViewComponent implements OnInit {
   }
 
   openModal(content) {
-    this.modalService.open(content, { size: 'sm'});
+    this.modalService.open(content, { size: 'sm' });
   }
 
-  getHt(val){
+  getHt(val) {
     if (this.currency !== 'usd') {
       return ((val / this.currencyTxUsd) * this.currencyTx);
-    } else{
+    } else {
       return val;
     }
   }
@@ -188,29 +189,29 @@ export class OrderscViewComponent implements OnInit {
     return Math.round(number * factor) / factor;
   }
 
-  dateDiff(date1, date2){
-    let diff = { sec: 0, min: 0, hour:0, day: 0 };  // Initialisation du retour
+  dateDiff(date1, date2) {
+    let diff = { sec: 0, min: 0, hour: 0, day: 0 };  // Initialisation du retour
     let tmp = date2 - date1;
-    tmp = Math.floor(tmp/1000);                     // Nombre de secondes entre les 2 dates
+    tmp = Math.floor(tmp / 1000);                     // Nombre de secondes entre les 2 dates
     diff.sec = tmp % 60;                            // Extraction du nombre de secondes
-    tmp = Math.floor((tmp-diff.sec)/60);            // Nombre de minutes (partie entière)
+    tmp = Math.floor((tmp - diff.sec) / 60);            // Nombre de minutes (partie entière)
     diff.min = tmp % 60;                            // Extraction du nombre de minutes
-    tmp = Math.floor((tmp-diff.min)/60);            // Nombre d'heures (entières)
+    tmp = Math.floor((tmp - diff.min) / 60);            // Nombre d'heures (entières)
     diff.hour = tmp % 24;                           // Extraction du nombre d'heures
-    tmp = Math.floor((tmp-diff.hour)/24);           // Nombre de jours restants
+    tmp = Math.floor((tmp - diff.hour) / 24);           // Nombre de jours restants
     diff.day = tmp;
     return diff;
   }
 
-  getListStates(){
-    this.orderService.getListStates({}).subscribe(res=>{
+  getListStates() {
+    this.orderService.getListStates({}).subscribe(res => {
       this.states = res['states'];
     });
   }
   getStateName(stateId) {
-    if( !this.states )
+    if (!this.states)
       return stateId;
-    return this.states.filter( e => e.id === stateId )[0] ? this.states.filter( e => e.id === stateId )[0].name : stateId;
+    return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
 
 }

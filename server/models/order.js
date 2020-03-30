@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 let OrderSchema = new mongoose.Schema({
   id: { type: Number }, //id incrementer dès le début du panier
-  idCommande: { type: String, maxlength: 200 }, 
+  idCommande: { type: String, maxlength: 200 },
   id_cmd: { type: String, maxlength: 200 },
   submissionDate: { type: Date },
   validatedDate: { type: Date },
@@ -48,10 +48,11 @@ let OrderSchema = new mongoose.Schema({
   products: { type: Array },
   logs: { type: Array },
   logsPayment: { type: Array },
-  validationCompliance: { type: Boolean, default: false},
-  validationProduct: { type: Boolean, default: false},
-  validationFinance: { type: Boolean, default: false},
-  mailActive: { type: Boolean, default: true}
+  validationCompliance: { type: Boolean, default: false },
+  validationProduct: { type: Boolean, default: false },
+  validationFinance: { type: Boolean, default: false },
+  mailActive: { type: Boolean, default: true },
+  internalNote: { type: String, default: null }
 }, { timestamps: true });
 
 mongoose.model('Order', OrderSchema);
