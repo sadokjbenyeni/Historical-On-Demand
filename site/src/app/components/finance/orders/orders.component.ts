@@ -3,9 +3,6 @@ import { NgForm } from '@angular/forms';
 
 import { Subject } from 'rxjs';
 
-
-
-
 import { OrderService } from '../../../services/order.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { DataTableDirective } from 'angular-datatables';
@@ -67,7 +64,6 @@ export class OrdersComponent implements OnInit {
   beginID: any;
   endID: any;
   symbols: any[];
-  internalNotes: string;
 
   constructor(
 
@@ -104,7 +100,6 @@ export class OrdersComponent implements OnInit {
     ];
     this.getListStates();
     this.getCurrencies();
-
     const that = this;
     this.dtOptions = {
       pagingType: 'full_numbers',
@@ -238,6 +233,7 @@ export class OrdersComponent implements OnInit {
             "Payment_Method",
             "Payment_Reference",
             "TOTAL_Order_Amount",
+            "Internal_Note"
           ]
         };
         new AngularCsv(data, 'Invoices_export_' + new Date().getTime(), options);

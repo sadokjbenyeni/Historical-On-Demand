@@ -1066,6 +1066,7 @@ router.post('/listExport', (req, res) => {
         o["Payment_Reference"] = pay;
 
         o["TOTAL_Order_Amount"] = order.total;// CB : mettre la référence Adyen
+        o["Internal_Note"] = order.internalNote;
         list.push(o);
       });
       return res.status(200).json(list);
