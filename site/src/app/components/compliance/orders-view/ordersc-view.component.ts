@@ -44,7 +44,7 @@ export class OrderscViewComponent implements OnInit {
   fees: number;
   cart: Array<any>;
   invoice: string;
-  internalNotes: string;
+  internalNote: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -103,6 +103,7 @@ export class OrderscViewComponent implements OnInit {
         this.totalTTC = this.totalHT + this.totalVat;
         this.submissionDate = c.cmd.submissionDate;
         this.state = c.cmd.state;
+        this.internalNote = c.cmd.internalNote;
         let index = 0;
         if (c.cmd.products.length > 0) {
           this.list['cmd'].products.forEach((p) => {
@@ -213,5 +214,4 @@ export class OrderscViewComponent implements OnInit {
       return stateId;
     return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
-
 }

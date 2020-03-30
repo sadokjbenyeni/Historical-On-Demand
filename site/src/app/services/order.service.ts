@@ -54,7 +54,8 @@ export class OrderService {
     return this.http.post<any>(environment.api + '/order', { user: user, sort: sort });// .map( res => res.json() );
   }
   getIdOrder(id) {
-    return this.http.get<any>(environment.api + '/order/idCmd/' + id);// .map( res => res.json() );
+    var result = this.http.get<any>(environment.api + '/order/idCmd/' + id);// .map( res => res.json() );
+    return result
   }
 
   getRetry(id, mode) {
@@ -80,7 +81,7 @@ export class OrderService {
     return this.http.post<any>(environment.api + '/order/sortProducts', requete);// .map( res => res.json() );
   }
 
-  updateInternalNotes(orderId: Number, internalNote: String) {
+  updateInternalNote(orderId: Number, internalNote: String) {
     return this.http.put<any>(environment.api + '/order/addNote', { id: orderId, note: internalNote });
   }
 }

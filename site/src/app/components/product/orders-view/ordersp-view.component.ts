@@ -48,7 +48,7 @@ export class OrderspViewComponent implements OnInit {
   cart: Array<any>;
   reason: any;
   invoice: string;
-  internalNotes: string;
+  internalNote: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -76,7 +76,6 @@ export class OrderspViewComponent implements OnInit {
     this.totalHT = 0;
     this.totalHTOld = 0;
     this.state = '';
-    this.internalNotes = '';
     this.getListStates();
     this.getCmd();
     // this.getVat();
@@ -128,6 +127,7 @@ export class OrderspViewComponent implements OnInit {
         this.totalTTC = this.totalHT + this.totalVat;
         this.submissionDate = c.cmd.submissionDate;
         this.state = c.cmd.state;
+        this.internalNote = c.cmd.internalNote;
         let index = 0;
         if (c.cmd.products.length > 0) {
           this.existSubscribe = false;
@@ -295,7 +295,7 @@ export class OrderspViewComponent implements OnInit {
     return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
 
-  addInternalNotes() {
-    this.orderService.updateInternalNotes(this.idOrder, this.internalNotes).subscribe();
+  addInternalNote() {
+    this.orderService.updateInternalNote(this.idOrder, this.internalNote).subscribe();
   }
 }

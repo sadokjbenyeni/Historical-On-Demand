@@ -1205,17 +1205,18 @@ router.put('/addNote', (req, res) => {
   if (!req.body.id || !req.body.note) {
     return res.sendStatus(400);
   }
-  Order.findOne({ id: req.body.id }).then(orderToUpdate => {
-    orderToUpdate.internalNote = req.body.note;
-    Order.update(
-      { _id: orderToUpdate._id },
-      { $set: orderToUpdate })
+  Order.findOne({ id: req.body.id })
+    .then(orderToUpdate => {
+      orderToUpdate.internalNote = req.body.note;
+      Order.update(
+        { _id: orderToUpdate._id },
+        { $set: orderToUpdate })
 
-      .then((r) => {
-        return res.status(201).json({ ok: true });
-      }
-      );
-  });
+        .then((r) => {
+          return res.status(201).json({ ok: true });
+        }
+        );
+    });
 });
 
 pdfpost = function (id) {
