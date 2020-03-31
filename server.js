@@ -109,7 +109,7 @@ cronCurrency.start();
 // cronAutovalidationPVF.start();
 // cronAutovalidationPVF.destroy();
 
-// END CRON  
+// END CRON
 
 //Static path to dist
 app.use(express.static(path.join(__dirname, 'site/dist')));
