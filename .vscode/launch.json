@@ -1,0 +1,32 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            
+            "type": "node",
+            "request": "launch",
+            "name": "Node",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}\\server.js"
+            
+        },
+        {
+            "name": "Angular",
+            "type": "firefox",
+            "request": "launch",
+            "reAttach": true,
+            "url": "localhost:4200",
+            "webRoot": "${workspaceFolder}",
+            "pathMappings": [{
+                "url": "localhost:4200",
+                "path": "${workspaceFolder}/site"
+            },
+            {
+                "url": "localhost:4200",
+                "path": "${workspaceFolder}/site/src/app/components/product/orders-view"
+            }]
+        }
+    ],
+}
