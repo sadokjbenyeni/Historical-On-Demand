@@ -13,7 +13,6 @@ const Pool = mongoose.model('Pool');
 
 router.param('cmd', function (req, res, next, id) {
    return res.sendStatus(422);
-   return next();
 });
 
 
@@ -127,14 +126,6 @@ router.get('/test2', (req,res)=>{
   .then(items=>{
     res.status(200).json(items);
   });
-});
-
-router.post('/test', (req,res)=>{
-  // Pool.find({'status': { $in: [ 'validated', 'exporting' ] }})
-  // .then(items=>{
-    // res.status(200).json(items);
-  // });
-    res.status(200).json({ok:"ok"});
 });
 
 router.post('/retry', (req,res)=>{
@@ -332,11 +323,6 @@ router.put('/finish', (req, res) => {
         res.json(err);
       });
     });
-  // })
-  // .catch( (err)=>{
-  //   console.dir(err);
-  //   res.json(err);
-  // });
 });
 
 // Fonctions utiles

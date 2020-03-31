@@ -11,9 +11,7 @@ const cron = require('node-cron');
 const MDB = require('./server/config/configmdb.js').mdb;
 
 //Connect to mongoDB server
-mongoose.connect('mongodb://'+MDB.userdb+':'+MDB.passdb+'@localhost:27017/histodataweb?authSource='+MDB.authdb, {
-  useMongoClient: true,
-});
+mongoose.connect('mongodb://localhost:27017/histodataweb', { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.set('debug', true);
 
 //Init express
@@ -35,6 +33,8 @@ require('./server/config/passport')(passport); // pass passport for configuratio
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 app.use(session({
+  saveUninitialized: false,
+  resave: false,
   secret: '#Les défits valent d\'être relevé%si§et seulement si ils¤ont quelques_choses à apporter à l\'humanité !'
 }));
 app.use(cookieParser());
