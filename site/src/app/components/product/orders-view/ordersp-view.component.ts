@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { OrderService } from '../../../services/order.service';
 import { ConfigService } from '../../../services/config.service';
 import { CurrencyService } from '../../../services/currency.service';
+import { AlertService, Alert } from '../../../_alert';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SalesService } from '../../../services/sales.service';
@@ -52,6 +53,10 @@ export class OrderspViewComponent implements OnInit {
   internalNote: string;
   choosenSale: string;
   listSales: string[] = [];
+  options = {
+    autoClose: true,
+    keepAfterRouteChange: false
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -60,7 +65,8 @@ export class OrderspViewComponent implements OnInit {
     private configService: ConfigService,
     private currencyService: CurrencyService,
     private orderService: OrderService,
-    private salesService: SalesService
+    private salesService: SalesService,
+    protected alertService: AlertService
   ) {
     route.params.subscribe(_ => this.idCmd = _.id);
   }
@@ -305,7 +311,7 @@ export class OrderspViewComponent implements OnInit {
     return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
 
-  addInternalNoteandSales() {
-    this.orderService.updateSalesAndInternalNote(this.idOrder, this.internalNote,this.choosenSale).subscribe();
+  updateChanges() {
+    this.orderService.SaveOrderMetadata(this.idOrder, this.internalNote, this.choosenSale).subscribe();
   }
 }

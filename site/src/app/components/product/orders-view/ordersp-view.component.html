@@ -6,6 +6,10 @@
       <li class="active">Client Orders</li>
       <li class="active">Order Details</li>
     </ol>
+    <div class="container text-center">
+      <alert></alert>
+      <router-outlet></router-outlet>
+    </div>
   </div>
 </div>
 <div class="container page-content">
@@ -95,8 +99,6 @@
             <p><textarea class="responsive-field" name="internNotesText" [(ngModel)]="internalNote"
                 id="internalNotesTextArea">{{internalNote}}</textarea>
             </p>
-            <span class="btn btn-info fa fa-save save-note-btn" (click)="addInternalNoteandSales()"> Save
-              Note and sale</span>
           </div>
           <div class="col-md-3">
             <table class="border-color-sum">
@@ -128,7 +130,9 @@
         </div>
         <div class="table-responsive text-center">
           <div class="btn-action">
-            <span class="btn btn-info fa fa-save" *ngIf="existSubscribe && verifState()"
+            <span class="btn btn-info fa fa-save save-note-btn"
+              (click)="updateChanges(); alertService.success('Changes Saved Successfully', options);"> Save Changes</span>
+            <span class="btn btn-info fa fa-save save-changes-btn" *ngIf="existSubscribe && verifState()"
               (click)="openModal(content); actions('Confirm Engagement Period Modification')"> Update Engagement
               Period</span>
             <span class="btn btn-info fa fa-save" *ngIf="verifState()"

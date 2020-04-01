@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { routes } from './app.routing';
-
 // Guard
 import { GuardGuard } from './guard.guard';
 
@@ -86,7 +85,7 @@ import { PdfService } from './services/pdf.service';
 
 // Commun
 import { ComCountriesComponent } from './components/commun/com-countries/com-countries.component';
-
+import { AlertModule } from './_alert';
 // Pipe
 import { CeilPipe } from './ceil.pipe';
 import { SafeHtmlPipePipe } from './safe-html-pipe.pipe';
@@ -179,7 +178,8 @@ import { SalesService } from './services/sales.service';
     DataTablesModule,
     NgbModule,
     RecaptchaModule.forRoot(),
-    PdfViewerModule
+    PdfViewerModule,
+    AlertModule,
   ],
   providers: [
     GuardGuard,
