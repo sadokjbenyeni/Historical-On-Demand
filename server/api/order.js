@@ -1203,7 +1203,7 @@ router.post('/sortProducts', (req, res) => {
     });
 });
 
-router.put('/addNoteandsale', (req, res) => {
+router.put('/updatemetadata', (req, res) => {
   if (!req.body.id || !req.body.note) {
     return res.sendStatus(400);
   }
