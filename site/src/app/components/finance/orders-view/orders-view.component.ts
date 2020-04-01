@@ -47,6 +47,7 @@ export class OrdersViewComponent implements OnInit {
   cart: Array<any>;
   invoice: string;
   internalNote: string;
+  sale: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -84,6 +85,7 @@ export class OrdersViewComponent implements OnInit {
       });
       this.orderService.getIdOrder(this.idCmd).subscribe((c) => {
         this.list = c;
+        this.sale = c.cmd.sales
         this.idCmd = c.cmd.id_cmd;
         this.invoice = c.cmd.idCommande;
         this.idOrder = c.cmd.id;

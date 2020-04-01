@@ -15,5 +15,7 @@ router.use('/flux', require('./flux'));
 router.use('/currency', require('./currency'));
 router.use('/search', require('./elastic'));
 router.use('/config', require('./config'));
+router.use('/sales', require('./sales'));
+
 
 module.exports = router;

@@ -81,8 +81,8 @@ export class OrderService {
     return this.http.post<any>(environment.api + '/order/sortProducts', requete);// .map( res => res.json() );
   }
 
-  updateInternalNote(orderId: Number, internalNote: String) {
-    return this.http.put<any>(environment.api + '/order/addNote', { id: orderId, note: internalNote });
+  updateSalesAndInternalNote(orderId: Number, internalNote: String, sales: String) {
+    return this.http.put<any>(environment.api + '/order/addNoteandsale', { id: orderId, note: internalNote, sales: sales });
   }
 }
 

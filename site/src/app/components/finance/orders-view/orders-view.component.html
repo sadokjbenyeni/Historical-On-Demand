@@ -26,7 +26,9 @@
               <p>Payment method : <b>{{ payment }}</b></p>
               <p>Invoice : <b><a *ngIf="invoice!=undefined" target="_blank"
                     [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}} </a></b></p>
-              <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b>
+              <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b></p>
+              <p>Sale : <b><span [class]="textcolor">{{ sale }}</span></b></p>
+
             </div>
             <div class="col-md-6">
               <p>Company Name: <b>{{ company }}</b></p>

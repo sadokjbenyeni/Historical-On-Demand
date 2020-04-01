@@ -1203,12 +1203,12 @@ router.post('/sortProducts', (req, res) => {
     });
 });
 
-router.put('/addNote', (req, res) => {
+router.put('/addNoteandsale', (req, res) => {
   if (!req.body.id || !req.body.note) {
     return res.sendStatus(400);
   }
   return res.status(200).json({
-    ok: OrderService.updateOrderNote(req.body.id, req.body.note)
+    ok: OrderService.updateOrderNoteandSales(req.body.id, req.body.note,req.body.sales)
   });
 });
 

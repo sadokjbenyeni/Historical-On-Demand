@@ -26,7 +26,13 @@
               <p>Payment method : <b>{{ payment }}</b></p>
               <p>Invoice : <b><a *ngIf="invoice!=undefined" target="_blank"
                     [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}} </a></b></p>
-              <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b>
+              <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b></p>
+              <p>Sales:
+                <select name="search" class=" input-border-color" [(ngModel)]="choosenSale">
+                  <option value="no sales">no sales</option>
+                  <option *ngFor='let s of listSales' [value]="s.name">{{s.name}}</option>
+                </select></p>
+
             </div>
             <div class="col-md-6">
               <p>Company Name: <b>{{ company }}</b></p>
@@ -89,8 +95,8 @@
             <p><textarea class="responsive-field" name="internNotesText" [(ngModel)]="internalNote"
                 id="internalNotesTextArea">{{internalNote}}</textarea>
             </p>
-            <span class="btn btn-info fa fa-save save-note-btn" (click)="addInternalNote()"> Save
-              Note</span>
+            <span class="btn btn-info fa fa-save save-note-btn" (click)="addInternalNoteandSales()"> Save
+              Note and sale</span>
           </div>
           <div class="col-md-3">
             <table class="border-color-sum">
