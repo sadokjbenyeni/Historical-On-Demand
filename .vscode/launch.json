@@ -1,32 +1,27 @@
 {
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            
-            "type": "node",
-            "request": "launch",
-            "name": "Node",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}\\server.js"
-            
+            "type": "",
+            "preLaunchTask": "ng serve",
+            "name": "ng serve"
         },
         {
-            "name": "Angular",
-            "type": "firefox",
+            "name": "Launch Chrome",
+            "type": "chrome",
             "request": "launch",
-            "reAttach": true,
-            "url": "localhost:4200",
+            "url": "http://localhost:4200/#",
             "webRoot": "${workspaceFolder}",
-            "pathMappings": [{
-                "url": "localhost:4200",
-                "path": "${workspaceFolder}/site"
-            },
-            {
-                "url": "localhost:4200",
-                "path": "${workspaceFolder}/site/src/app/components/product/orders-view"
-            }]
+            "sourceMapPathOverrides": {
+              "webpack:/*": "${webRoot}/*",
+              "/./*": "${webRoot}/*",
+              "/src/*": "${webRoot}/*",
+              "/*": "*",
+              "/./~/*": "${webRoot}/node_modules/*"
+            }
         }
-    ],
+    ]
 }
