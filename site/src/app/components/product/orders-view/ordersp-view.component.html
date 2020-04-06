@@ -139,7 +139,7 @@
         <div class="table-responsive text-center">
           <div class="btn-action">
             <span class="btn btn-info fa fa-save save-note-btn" id="save-changes-button"
-              (click)="updateChanges(); alertService.success('Changes Saved Successfully', options);"> Save
+              (click)="updateChanges();"> Save
               Changes</span>
             <span class="btn btn-info fa fa-save save-changes-btn" *ngIf="existSubscribe && verifState()"
               (click)="openModal(content); actions('Confirm Engagement Period Modification')"> Update Engagement

@@ -313,6 +313,10 @@ export class OrderspViewComponent implements OnInit {
   }
 
   updateChanges() {
-    this.orderService.SaveOrderMetadata(this.idOrder, this.internalNote, this.choosenSale, this.choosedOrderType).subscribe();
+    this.orderService.SaveOrderMetadata(this.idOrder, this.internalNote, this.choosenSale, this.choosedOrderType).subscribe(()=>
+    {
+      this.alertService.success('Changes Saved Successfully', this.options)
+    }
+    );
   }
 }
