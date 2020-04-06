@@ -225,6 +225,7 @@ export class OrdersComponent implements OnInit {
             "Client_Name",
             "Client_Country",
             "Order_Date",
+            "Order_Type",
             "Payment_Date",
             "Order_Currency",
             "Order_Amount_Before_Taxes",
@@ -233,7 +234,8 @@ export class OrdersComponent implements OnInit {
             "Payment_Method",
             "Payment_Reference",
             "TOTAL_Order_Amount",
-            "Internal_Note"
+            "Internal_Note",
+            "Sales"
           ]
         };
         new AngularCsv(data, 'Invoices_export_' + new Date().getTime(), options);

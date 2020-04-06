@@ -27,6 +27,8 @@
               <p>Invoice : <b><a *ngIf="invoice!=undefined" target="_blank"
                     [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}} </a></b></p>
               <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b></p>
+              <p>Order Type : <b><span [class]="textcolor">{{ ordertype }}</span></b></p>
+
               <p>Sale : <b><span [class]="textcolor">{{ sale }}</span></b></p>
 
             </div>

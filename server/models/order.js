@@ -53,7 +53,8 @@ let OrderSchema = new mongoose.Schema({
   validationFinance: { type: Boolean, default: false },
   mailActive: { type: Boolean, default: true },
   internalNote: { type: String, default: null },
-  sales: { type: String, default: 'no sales' }
+  sales: { type: String, default: 'no sales' },
+  type: { type: String, default: 'NA' }
 }, { timestamps: true });
 
 mongoose.model('Order', OrderSchema);

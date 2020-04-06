@@ -1032,6 +1032,7 @@ router.post('/listExport', (req, res) => {
         o["Client_Country"] = order.country;
 
         o["Order_Date"] = order.submissionDate;
+        o['type'] = order.type
 
         if (order.validationFinance) {
 
@@ -1068,6 +1069,7 @@ router.post('/listExport', (req, res) => {
 
         o["TOTAL_Order_Amount"] = order.total;// CB : mettre la référence Adyen
         o["Internal_Note"] = order.internalNote;
+        o["sales"] = order.sales;
         list.push(o);
       });
       return res.status(200).json(list);
@@ -1208,7 +1210,7 @@ router.put('/updatemetadata', (req, res) => {
     return res.sendStatus(400);
   }
   return res.status(200).json({
-    ok: OrderService.updateOrderMetaData(req.body.id, req.body.note, req.body.sales)
+    ok: OrderService.updateOrderMetaData(req.body.id, req.body.note, req.body.sales, req.body.type)
   });
 });
 

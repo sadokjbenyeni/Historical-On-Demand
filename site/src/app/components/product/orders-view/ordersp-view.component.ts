@@ -8,7 +8,6 @@ import { AlertService, Alert } from '../../../_alert';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SalesService } from '../../../services/sales.service';
-import { HttpResponse, HttpRequest } from '@angular/common/http';
 
 @Component({
   selector: 'app-ordersp-view',
@@ -54,6 +53,7 @@ export class OrderspViewComponent implements OnInit {
   internalNote: string;
   choosenSale: string;
   listSales: string[] = [];
+  choosedOrderType: string;
   options = {
     autoClose: true,
     keepAfterRouteChange: false
@@ -63,7 +63,6 @@ export class OrderspViewComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private modalService: NgbModal,
-    private configService: ConfigService,
     private currencyService: CurrencyService,
     private orderService: OrderService,
     private salesService: SalesService,
@@ -143,6 +142,7 @@ export class OrderspViewComponent implements OnInit {
         this.submissionDate = c.cmd.submissionDate;
         this.state = c.cmd.state;
         this.internalNote = c.cmd.internalNote;
+        this.choosedOrderType = c.cmd.type ? c.cmd.type : "NA"
         let index = 0;
         this.choosenSale = (c.cmd.sales != undefined) ? c.cmd.sales : "no sales";
 
@@ -313,6 +313,6 @@ export class OrderspViewComponent implements OnInit {
   }
 
   updateChanges() {
-    this.orderService.SaveOrderMetadata(this.idOrder, this.internalNote, this.choosenSale).subscribe();
+    this.orderService.SaveOrderMetadata(this.idOrder, this.internalNote, this.choosenSale, this.choosedOrderType).subscribe();
   }
 }

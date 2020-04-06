@@ -31,6 +31,14 @@
               <p>Invoice : <b><a *ngIf="invoice!=undefined" target="_blank"
                     [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}} </a></b></p>
               <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b></p>
+              <p>Order Type:
+                <select name="search" class=" input-border-color" [(ngModel)]="choosedOrderType">
+                  <option value="NA">NA</option>
+                  <option value="Client order">Client order </option>
+                  <option value="Free sample order for client">Free sample order for client </option>
+                  <option value="Internal order">Internal order </option>
+
+                </select></p>
               <p>Sales:
                 <select name="search" class=" input-border-color" [(ngModel)]="choosenSale">
                   <option value="no sales">no sales</option>
@@ -131,7 +139,8 @@
         <div class="table-responsive text-center">
           <div class="btn-action">
             <span class="btn btn-info fa fa-save save-note-btn" id="save-changes-button"
-              (click)="updateChanges(); alertService.success('Changes Saved Successfully', options);"> Save Changes</span>
+              (click)="updateChanges(); alertService.success('Changes Saved Successfully', options);"> Save
+              Changes</span>
             <span class="btn btn-info fa fa-save save-changes-btn" *ngIf="existSubscribe && verifState()"
               (click)="openModal(content); actions('Confirm Engagement Period Modification')"> Update Engagement
               Period</span>

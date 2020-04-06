@@ -81,8 +81,8 @@ export class OrderService {
     return this.http.post<any>(environment.api + '/order/sortProducts', requete);// .map( res => res.json() );
   }
 
-  SaveOrderMetadata(orderId: Number, internalNote: String, sales: String) {
-    return this.http.put<any>(environment.api + '/order/updatemetadata', { id: orderId, note: internalNote, sales: sales });
+  SaveOrderMetadata(orderId: Number, internalNote: String, sales: String, OrderType: string) {
+    return this.http.put<any>(environment.api + '/order/updatemetadata', { id: orderId, note: internalNote, sales: sales, type: OrderType });
   }
 }
 

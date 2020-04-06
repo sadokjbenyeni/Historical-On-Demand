@@ -48,6 +48,7 @@ export class OrdersViewComponent implements OnInit {
   invoice: string;
   internalNote: string;
   sale: string;
+  ordertype: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -84,6 +85,7 @@ export class OrdersViewComponent implements OnInit {
         this.symbols[s.id] = s.symbol;
       });
       this.orderService.getIdOrder(this.idCmd).subscribe((c) => {
+
         this.list = c;
         this.sale = c.cmd.sales
         this.idCmd = c.cmd.id_cmd;
@@ -109,6 +111,7 @@ export class OrdersViewComponent implements OnInit {
         this.submissionDate = c.cmd.submissionDate;
         this.internalNote = c.cmd.internalNote;
         this.state = c.cmd.state;
+        this.ordertype = c.cmd.type;
         let index = 0;
         if (c.cmd.products.length > 0) {
           this.existSubscribe = false;
