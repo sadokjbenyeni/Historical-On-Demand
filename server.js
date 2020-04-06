@@ -135,3 +135,4 @@ const server = http.createServer(app);
 
 //Listen on port
 server.listen(port, () => console.log(`API running on localhost:${port}`));
+module.exports = app;

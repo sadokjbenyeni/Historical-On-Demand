@@ -4,13 +4,15 @@
   "description": "Historical On Demand by QuantHouse",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha ./server/*.test/*.js"
   },
   "author": "Christophe LEFLOCH",
   "license": "ISC",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.19.0",
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
     "cookie-parser": "^1.4.4",
     "cryptiles": "^4.1.2",
     "elasticsearch": "^16.6.0",
@@ -36,6 +38,7 @@
   },
   "devDependencies": {
     "@angular/cli": "^9.1.0",
-    "karma-firefox-launcher": "^1.3.0"
+    "karma-firefox-launcher": "^1.3.0",
+    "mocha": "^7.1.1"
   }
 }

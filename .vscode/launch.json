@@ -5,10 +5,27 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "request": "attach",
-            "type": "firefox",
-            "preLaunchTask": "ng serve",
-            "name": "ng serve"
+            "type": "node",
+            "request": "launch",
+            "name": "Mocha All",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "--timeout",
+                "999999",
+                "--colors",
+                "${workspaceFolder}/server/*.test/**/*.js"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceFolder}/server.js",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
         },
         {
             "name": "Launch Chrome",
