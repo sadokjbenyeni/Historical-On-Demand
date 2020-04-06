@@ -1204,11 +1204,11 @@ router.post('/sortProducts', (req, res) => {
 });
 
 router.put('/updatemetadata', (req, res) => {
-  if (!req.body.id || !req.body.note) {
+  if (!req.body.id) {
     return res.sendStatus(400);
   }
   return res.status(200).json({
-    ok: OrderService.updateOrderNoteandSales(req.body.id, req.body.note,req.body.sales)
+    ok: OrderService.updateOrderMetaData(req.body.id, req.body.note, req.body.sales)
   });
 });
 

@@ -7,7 +7,7 @@
       <li class="active">Order Details</li>
     </ol>
     <div class="container text-center">
-      <alert></alert>
+      <alert id="alert-onsave" name="alertSaving"></alert>
       <router-outlet></router-outlet>
     </div>
   </div>
@@ -130,7 +130,7 @@
         </div>
         <div class="table-responsive text-center">
           <div class="btn-action">
-            <span class="btn btn-info fa fa-save save-note-btn"
+            <span class="btn btn-info fa fa-save save-note-btn" id="save-changes-button"
               (click)="updateChanges(); alertService.success('Changes Saved Successfully', options);"> Save Changes</span>
             <span class="btn btn-info fa fa-save save-changes-btn" *ngIf="existSubscribe && verifState()"
               (click)="openModal(content); actions('Confirm Engagement Period Modification')"> Update Engagement

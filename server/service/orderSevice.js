@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Orders = mongoose.model('Order');
 
-module.exports.updateOrderNoteandSales = (id, note,sales) => {
+module.exports.updateOrderMetaData = (id, note,sales) => {
     Orders.findOne({ id: id })
         .then(orderToUpdate => {
             orderToUpdate.internalNote = note;

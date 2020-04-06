@@ -5,7 +5,8 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "",
+            "request": "attach",
+            "type": "firefox",
             "preLaunchTask": "ng serve",
             "name": "ng serve"
         },
@@ -16,12 +17,21 @@
             "url": "http://localhost:4200/#",
             "webRoot": "${workspaceFolder}",
             "sourceMapPathOverrides": {
-              "webpack:/*": "${webRoot}/*",
-              "/./*": "${webRoot}/*",
-              "/src/*": "${webRoot}/*",
-              "/*": "*",
-              "/./~/*": "${webRoot}/node_modules/*"
+                "webpack:/*": "${webRoot}/*",
+                "/./*": "${webRoot}/*",
+                "/src/*": "${webRoot}/*",
+                "/*": "*",
+                "/./~/*": "${webRoot}/node_modules/*"
             }
+        },
+        {
+            "name": "Debug Jasmine Tests",
+            "type": "node",
+            "request": "attach",
+            "port": 9876,
+            "protocol": "inspector",
+            "timeout": 30000,
+            "stopOnEntry": false
         }
     ]
 }
