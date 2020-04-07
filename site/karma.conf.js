@@ -39,9 +39,9 @@ module.exports = function(config) {
     logLevel: config.LOG_INFO,
     autoWatch: true,
     autoWatchBatchDelay: 1000,
-    browsers: ["Chrome"],
+    browsers: ["ChromeHeadless"],
     customLaunchers: {
-      FirefoxHeadlessCI: {
+      ChromeHeadlessCI: {
         base: "ChromeHeadless",
         flags: ["--no-sandbox"]
       }
