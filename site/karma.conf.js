@@ -7,11 +7,10 @@
 //   }
 // });
 // require('./karma.conf.ts');
-
 const process = require('process');
-process.env.CHROME_BIN = require('puppeteer').executablePath();
 
-module.exports = function(config) {
+module.exports = function (config) {
+  process.env.CHROME_BIN = require('puppeteer').executablePath();
   config.set({
     basePath: "",
     frameworks: ["jasmine", "@angular-devkit/build-angular"],
@@ -32,7 +31,7 @@ module.exports = function(config) {
       dir: require('path').join(__dirname, './coverage/histodata-web'),
       reports: ['html', 'lcovonly', 'text-summary', 'cobertura'],
       fixWebpackSourcePaths: true
-    },    
+    },
     reporters: ["progress", "kjhtml", "junit"],
     port: 9876,
     colors: true,
