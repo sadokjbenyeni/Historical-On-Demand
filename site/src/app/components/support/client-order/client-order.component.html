@@ -2,14 +2,14 @@
 <div class="row page-header">
   <div class="col-lg-12">
     <ol class="breadcrumb custom-breadcrumb">
-      <li class="active">Administration</li>
+      <li class="active">Support</li>
       <li class="active">Client Orders</li>
     </ol>
   </div>
 </div>
 <div class="container page-content">
   <div class="row">
-    <app-configuration></app-configuration>
+    <app-menusupport></app-menusupport>
     <div class="col-md-11">
       <div class="panel panel-default">
         <div class="panel-body">
@@ -65,7 +65,7 @@
                   <span class="fa fa-check-circle text-success" *ngIf="o.survey[0] && o.survey[0]['dd'] === '1'"></span>
                   <span class="fa fa-times-circle text-danger" *ngIf="o.survey[0] && o.survey[0]['dd'] === '0'"></span>
                 </td>
-                <td class="text-center"><span class="btn btn-success" [routerLink]="'/admin/clientorderdetails/' + o._id"><i class="fa fa-eye"></i></span></td>
+                <td class="text-center"><span class="btn btn-success" [routerLink]="'/clientorderdetails/' + o._id"><i class="fa fa-eye"></i></span></td>
               </tr>
             </tbody>
           </table>

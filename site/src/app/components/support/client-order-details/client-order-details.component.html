@@ -2,7 +2,7 @@
 <div class="row page-header">
   <div class="col-lg-12">
     <ol class="breadcrumb custom-breadcrumb">
-      <li class="active">Administration</li>
+      <li class="active">Support</li>
       <li class="active">Client Orders</li>
       <li class="active">Order Details </li>
     </ol>
@@ -10,7 +10,7 @@
 </div>
 <div class="container page-content">
   <div class="row">
-    <app-configuration></app-configuration>
+    <app-menusupport></app-menusupport>
     <div class="col-md-11">
       <div class="table-responsive">
         <div class="panel panel-primary" *ngIf="message">
@@ -53,6 +53,7 @@
                 <th>Pricing Tier</th>
                 <th>Price</th>
                 <th>Status</th>
+                <th>Status</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -64,7 +65,7 @@
                 <td *ngIf="!c.print">{{ c.quotation_level }}</td>
                 <td *ngIf="!c.print">{{ c.symbol }}</td>
                 <td *ngIf="!c.print">{{ c.exchange }}</td>
-                <td *ngIf="!c.print">{{ c.eid }}</td> 
+                <td *ngIf="!c.print">{{ c.eid }}</td>
                 <td *ngIf="c.onetime === 1 && !c.print">One-Off</td>
                 <td *ngIf="c.subscription === 1 && !c.print">Subscription</td>
                 <td *ngIf="c.subscription === 1 && !c.print">{{c.period}}</td>
@@ -189,8 +190,10 @@
     </button>
   </div>
   <div class="modal-body">
-    <p>Sending a {{ retryMode | titlecase }} Retry request for <strong>{{item.reference}}</strong> {{ retryMode==='full' ? "(all dates will be re-exported)" : "(only failed dates will be exported)" }}.</p>
-    <p class="alert alert-danger" *ngIf="retryMode==='full'">WARNING: Full retries may take considerable time and resources to complete.</p>
+    <p>Sending a {{ retryMode | titlecase }} Retry request for <strong>{{item.reference}}</strong>
+      {{ retryMode==='full' ? "(all dates will be re-exported)" : "(only failed dates will be exported)" }}.</p>
+    <p class="alert alert-danger" *ngIf="retryMode==='full'">WARNING: Full retries may take considerable time and
+      resources to complete.</p>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-danger" (click)="retry();c('')" [disabled]="item.reference ===''">Ok</button>

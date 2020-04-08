@@ -6,8 +6,6 @@ import { GuardGuard } from './guard.guard';
 // Site Admins
 import { UsersComponent } from './components/admin/users/users.component';
 import { UserDetailComponent } from './components/admin/user-detail/user-detail.component';
-import { ClientOrderComponent } from './components/admin/client-order/client-order.component';
-import { ClientOrderDetailsComponent } from './components/admin/client-order-details/client-order-details.component';
 import { RoleComponent } from './components/admin/role/role.component';
 import { CountriesComponent } from './components/admin/countries/countries.component';
 import { CountryComponent } from './components/admin/country/country.component';
@@ -42,50 +40,55 @@ import { OrderHistoryComponent } from './components/order-history/order-history.
 import { CaddiesComponent } from './components/order/caddies/caddies.component';
 import { SurveyComponent } from './components/survey/survey.component';
 
+// Site Supports
+import { ClientOrderComponent } from './components/support/client-order/client-order.component';
+import { ClientOrderDetailsComponent } from './components/support/client-order-details/client-order-details.component';
+
 export const routes: Routes = [
-  { path: '', redirectTo: '/home', pathMatch : 'full' },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
   // CLIENT
-  { path: 'account', component : RegisterComponent, canActivate: [GuardGuard] },
-  { path: 'search', component : SearchComponent, canActivate: [GuardGuard] },
-  { path: 'order/history', component : OrderHistoryComponent, canActivate: [GuardGuard] },
-  { path: 'order/caddies', component : CaddiesComponent, canActivate: [GuardGuard] },
-  { path: 'order/review', component : CaddiesComponent, canActivate: [GuardGuard] },
-  { path: 'order/licensing', component : CaddiesComponent, canActivate: [GuardGuard] },
-  { path: 'order/payment', component : CaddiesComponent, canActivate: [GuardGuard] },
-  { path: 'order/survey', component : SurveyComponent, canActivate: [GuardGuard] },
-  { path: 'order/billing', component : CaddiesComponent, canActivate: [GuardGuard] },
-  { path: 'order/orderconfirm', component : CaddiesComponent, canActivate: [GuardGuard] },
+  { path: 'account', component: RegisterComponent, canActivate: [GuardGuard] },
+  { path: 'search', component: SearchComponent, canActivate: [GuardGuard] },
+  { path: 'order/history', component: OrderHistoryComponent, canActivate: [GuardGuard] },
+  { path: 'order/caddies', component: CaddiesComponent, canActivate: [GuardGuard] },
+  { path: 'order/review', component: CaddiesComponent, canActivate: [GuardGuard] },
+  { path: 'order/licensing', component: CaddiesComponent, canActivate: [GuardGuard] },
+  { path: 'order/payment', component: CaddiesComponent, canActivate: [GuardGuard] },
+  { path: 'order/survey', component: SurveyComponent, canActivate: [GuardGuard] },
+  { path: 'order/billing', component: CaddiesComponent, canActivate: [GuardGuard] },
+  { path: 'order/orderconfirm', component: CaddiesComponent, canActivate: [GuardGuard] },
   // ADMINISTRATOR
-  { path: 'admin/profil/:id', component : UserDetailComponent, canActivate: [GuardGuard] },
-  { path: 'admin/users', component : UsersComponent, canActivate: [GuardGuard] },
-  { path: 'admin/clientorder', component : ClientOrderComponent, canActivate: [GuardGuard] },
-  { path: 'admin/clientorderdetails/:id', component : ClientOrderDetailsComponent, canActivate: [GuardGuard] },
-  { path: 'admin/role', component : RoleComponent, canActivate: [GuardGuard] },
-  { path: 'admin/countries', component : CountriesComponent, canActivate: [GuardGuard] },
-  { path: 'admin/country/:id', component : CountryComponent, canActivate: [GuardGuard] },
-  { path: 'admin/terms', component : TermsComponent, canActivate: [GuardGuard] },
-  { path: 'admin/variable', component : VariableComponent, canActivate: [GuardGuard] },
-  { path: 'admin/help', component : HelpComponent, canActivate: [GuardGuard] },
+  { path: 'admin/profil/:id', component: UserDetailComponent, canActivate: [GuardGuard] },
+  { path: 'admin/users', component: UsersComponent, canActivate: [GuardGuard] },
+  { path: 'admin/role', component: RoleComponent, canActivate: [GuardGuard] },
+  { path: 'admin/countries', component: CountriesComponent, canActivate: [GuardGuard] },
+  { path: 'admin/country/:id', component: CountryComponent, canActivate: [GuardGuard] },
+  { path: 'admin/terms', component: TermsComponent, canActivate: [GuardGuard] },
+  { path: 'admin/variable', component: VariableComponent, canActivate: [GuardGuard] },
+  { path: 'admin/help', component: HelpComponent, canActivate: [GuardGuard] },
   // COMPLIANCE
   // { path: 'compliance/commandes', component : UsersComponent, canActivate: [GuardGuard] },
-  { path: 'compliance/config', component : ConfigcComponent, canActivate: [GuardGuard] },
-  { path: 'compliance/orders', component : OrderscComponent, canActivate: [GuardGuard] },
-  { path: 'compliance/orderview/:id', component : OrderscViewComponent, canActivate: [GuardGuard] },
+  { path: 'compliance/config', component: ConfigcComponent, canActivate: [GuardGuard] },
+  { path: 'compliance/orders', component: OrderscComponent, canActivate: [GuardGuard] },
+  { path: 'compliance/orderview/:id', component: OrderscViewComponent, canActivate: [GuardGuard] },
   // FINANCE
-  { path: 'finance/config', component : ConfigComponent, canActivate: [GuardGuard] },
-  { path: 'finance/orders', component : OrdersComponent, canActivate: [GuardGuard] },
-  { path: 'finance/orderview/:id', component : OrdersViewComponent, canActivate: [GuardGuard] },
+  { path: 'finance/config', component: ConfigComponent, canActivate: [GuardGuard] },
+  { path: 'finance/orders', component: OrdersComponent, canActivate: [GuardGuard] },
+  { path: 'finance/orderview/:id', component: OrdersViewComponent, canActivate: [GuardGuard] },
   // PRODUCT
-  { path: 'product/config', component : ConfigpComponent, canActivate: [GuardGuard] },
-  { path: 'product/orders', component : OrderspComponent, canActivate: [GuardGuard] },
-  { path: 'product/orderview/:id', component : OrderspViewComponent, canActivate: [GuardGuard] },
+  { path: 'product/config', component: ConfigpComponent, canActivate: [GuardGuard] },
+  { path: 'product/orders', component: OrderspComponent, canActivate: [GuardGuard] },
+  { path: 'product/orderview/:id', component: OrderspViewComponent, canActivate: [GuardGuard] },
+  // SUPPORT
+  { path: 'support/clientorder', component: ClientOrderComponent, canActivate: [GuardGuard] },
+  { path: 'clientorderdetails/:id', component: ClientOrderDetailsComponent, canActivate: [GuardGuard] },
   // ALL USERS
-  { path: 'home', component : HomeComponent },
-  { path: 'about', component : AboutComponent },
-  { path: 'help', component : HelpPageComponent },
-  { path: 'register', component : RegisterComponent },
-  { path: 'login', component : LoginComponent },
-  { path: 'activation/:token', component : LoginComponent },
-  { path: 'mdp/:token', component : LoginComponent },
+  { path: 'home', component: HomeComponent },
+  { path: 'about', component: AboutComponent },
+  { path: 'help', component: HelpPageComponent },
+  { path: 'register', component: RegisterComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'activation/:token', component: LoginComponent },
+  { path: 'mdp/:token', component: LoginComponent },
   { path: '**', component: HomeComponent }
 ];

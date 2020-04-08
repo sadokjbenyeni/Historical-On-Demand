@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<testsuite name="HeadlessChrome 80.0.3987 (Windows 10.0.0)" package="" timestamp="2020-04-07T15:15:43" id="0" hostname="LAPTOP-VVQS198M" tests="73" errors="0" failures="0" time="1.349">
+  <properties>
+    <property name="browser.fullName" value="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/80.0.3987.0 Safari/537.36"/>
+  </properties>
+  <testcase name="MailFailedComponent should create" time="0.059" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).MailFailedComponent"/>
+  <testcase name="DateValidatorDirective should create an instance" time="0.001" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).DateValidatorDirective"/>
+  <testcase name="OrdersViewComponent should create" time="0.115" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).OrdersViewComponent"/>
+  <testcase name="MenuproductComponent should create" time="0.013" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).MenuproductComponent"/>
+  <testcase name="UsersListComponent should create" time="0.007" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).UsersListComponent"/>
+  <testcase name="OrdersComponent should create" time="0.092" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).OrdersComponent"/>
+  <testcase name="ConfigcComponent should create" time="0.015" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).ConfigcComponent"/>
+  <testcase name="UserService should be created" time="0.004" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).UserService"/>
+  <testcase name="RibComponent should create" time="0.04" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).RibComponent"/>
+  <testcase name="SafeHtmlPipePipe create an instance" time="0.002" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).SafeHtmlPipePipe"/>
+  <testcase name="UploadService should be created" time="0.003" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).UploadService"/>
+  <testcase name="ComCountriesComponent should create" time="0.022" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).ComCountriesComponent"/>
+  <testcase name="FinanceService should be created" time="0.004" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).FinanceService"/>
+  <testcase name="OrderspViewComponent should create" time="0.066" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).OrderspViewComponent"/>
+  <testcase name="OrderspViewComponent #updateChanges() should update #internalNote and #choosenSale" time="0.02" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).OrderspViewComponent"/>
+  <testcase name="HelpPageComponent should create" time="0.027" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).HelpPageComponent"/>
+  <testcase name="PaymentsComponent should create" time="0.027" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).PaymentsComponent"/>
+  <testcase name="EmailValidatorDirective should create an instance" time="0.001" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).EmailValidatorDirective"/>
+  <testcase name="HelpComponent should create" time="0.016" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).HelpComponent"/>
+  <testcase name="HomeComponent should create" time="0.017" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).HomeComponent"/>
+  <testcase name="UsersComponent should create" time="0.018" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).UsersComponent"/>
+  <testcase name="OrderspComponent should create" time="0.038" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).OrderspComponent"/>
+  <testcase name="VatService should be created" time="0.003" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).VatService"/>
+  <testcase name="OrderService should return 400 when orderId is Null" time="0.002" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).OrderService"/>
+  <testcase name="OrderService should return 200 when metadata updated" time="0.001" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).OrderService"/>
+  <testcase name="OrderService should be created" time="0.003" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).OrderService"/>
+  <testcase name="ClientOrderDetailsComponent should create" time="0.061" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).ClientOrderDetailsComponent"/>
+  <testcase name="VariableComponent should create" time="0.013" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).VariableComponent"/>
+  <testcase name="Orders Product Component (with beforeEach) should call #updateChanges when clicked on save button" time="0.018" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).Orders Product Component (with beforeEach)"/>
+  <testcase name="Orders Product Component (with beforeEach) should create" time="0.012" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).Orders Product Component (with beforeEach)"/>
+  <testcase name="UserDetailComponent should create" time="0.021" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).UserDetailComponent"/>
+  <testcase name="CallbackPipe create an instance" time="0.001" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).CallbackPipe"/>
+  <testcase name="StatementsComponent should create" time="0.007" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).StatementsComponent"/>
+  <testcase name="ElasticService should be created" time="0.003" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).ElasticService"/>
+  <testcase name="AboutComponent should create" time="0.01" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).AboutComponent"/>
+  <testcase name="RoleComponent should create" time="0.012" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).RoleComponent"/>
+  <testcase name="MenuComponent should create" time="0.081" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).MenuComponent"/>
+  <testcase name="CurrencyService should be created" time="0.002" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).CurrencyService"/>
+  <testcase name="MdpValidatorDirective should create an instance" time="0" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).MdpValidatorDirective"/>
+  <testcase name="RegisterComponent should create" time="0.115" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).RegisterComponent"/>
+  <testcase name="TermsComponent should create" time="0.015" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).TermsComponent"/>
+  <testcase name="FluxService should be created" time="0.004" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).FluxService"/>
+  <testcase name="TelephoneValidatorDirective should create an instance" time="0" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).TelephoneValidatorDirective"/>
+  <testcase name="VatComponent should create" time="0.01" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).VatComponent"/>
+  <testcase name="AppComponent should create the app" time="0.01" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).AppComponent"/>
+  <testcase name="CeilPipe create an instance" time="0.002" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).CeilPipe"/>
+  <testcase name="ComplianceService should be created" time="0.002" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).ComplianceService"/>
+  <testcase name="PaymentService should be created" time="0.004" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).PaymentService"/>
+  <testcase name="OrderscViewComponent should create" time="0.044" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).OrderscViewComponent"/>
+  <testcase name="OrderComponent should create" time="0.011" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).OrderComponent"/>
+  <testcase name="SalesService should be created" time="0.006" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).SalesService"/>
+  <testcase name="RoleService should be created" time="0.002" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).RoleService"/>
+  <testcase name="OrderscComponent should create" time="0.054" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).OrderscComponent"/>
+  <testcase name="CompanytypesService should be created" time="0.003" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).CompanytypesService"/>
+  <testcase name="AdtvComponent should create" time="0.021" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).AdtvComponent"/>
+  <testcase name="EqualValidatorDirective should create an instance" time="0.002" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).EqualValidatorDirective"/>
+  <testcase name="GuardGuard should ..." time="0.003" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).GuardGuard"/>
+  <testcase name="LoginComponent should create" time="0.026" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).LoginComponent"/>
+  <testcase name="ConfigComponent should create" time="0.012" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).ConfigComponent"/>
+  <testcase name="ConfigpComponent should create" time="0.013" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).ConfigpComponent"/>
+  <testcase name="ProductService should be created" time="0.005" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).ProductService"/>
+  <testcase name="CountriesService should be created" time="0.002" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).CountriesService"/>
+  <testcase name="SurveyComponent should create" time="0.02" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).SurveyComponent"/>
+  <testcase name="DownloadSettingComponent should create" time="0.015" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).DownloadSettingComponent"/>
+  <testcase name="CountryComponent should create" time="0.006" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).CountryComponent"/>
+  <testcase name="MenucomplianceComponent should create" time="0.013" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).MenucomplianceComponent"/>
+  <testcase name="ConfigService should be created" time="0.004" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).ConfigService"/>
+  <testcase name="PdfService should be created" time="0.002" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).PdfService"/>
+  <testcase name="MenufinanceComponent should create" time="0.008" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).MenufinanceComponent"/>
+  <testcase name="ClientOrderComponent should create" time="0.023" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).ClientOrderComponent"/>
+  <testcase name="ConfigElasticComponent should create" time="0.01" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).ConfigElasticComponent"/>
+  <testcase name="ConfigurationComponent should create" time="0.009" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).ConfigurationComponent"/>
+  <testcase name="CountriesComponent should create" time="0.016" classname="HeadlessChrome_80_0_3987_(Windows_10_0_0).CountriesComponent"/>
+  <system-out>
+    <![CDATA[
+]]>
+  </system-out>
+  <system-err/>
+</testsuite>

@@ -41,8 +41,6 @@ import { HelpComponent } from './components/admin/help/help.component';
 import { UsersComponent } from './components/admin/users/users.component';
 import { UserDetailComponent } from './components/admin/user-detail/user-detail.component';
 import { UsersListComponent } from './components/admin/users-list/users-list.component';
-import { ClientOrderComponent } from './components/admin/client-order/client-order.component';
-import { ClientOrderDetailsComponent } from './components/admin/client-order-details/client-order-details.component';
 // Products
 import { MenuproductComponent } from './components/product/menuproduct/menuproduct.component';
 import { ConfigpComponent } from './components/product/config/configp.component';
@@ -63,7 +61,9 @@ import { MenufinanceComponent } from './components/finance/menufinance/menufinan
 import { ConfigComponent } from './components/finance/config/config.component';
 import { OrdersComponent } from './components/finance/orders/orders.component';
 import { OrdersViewComponent } from './components/finance/orders-view/orders-view.component';
-
+// Support
+import { ClientOrderComponent } from './components/support/client-order/client-order.component';
+import { ClientOrderDetailsComponent } from './components/support/client-order-details/client-order-details.component';
 // Services
 import { DataService } from './data.service';
 import { VatService } from './services/vat.service';
@@ -104,6 +104,7 @@ import { ConfigElasticComponent } from './components/admin/config-elastic/config
 import { PurchaseTypePipe } from './purchaseType.pipe';
 import { DateValidatorDirective } from './validators/date-validator.directive';
 import { SalesService } from './services/sales.service';
+import { MenusupportComponent } from './components/support/menusupport/menusupport.component';
 
 // lazy loading
 
@@ -166,7 +167,8 @@ import { SalesService } from './services/sales.service';
     ClientOrderComponent,
     ClientOrderDetailsComponent,
     ConfigElasticComponent,
-    MailFailedComponent
+    MailFailedComponent,
+    MenusupportComponent
   ],
   entryComponents: [NgbdModalContent],
   imports: [

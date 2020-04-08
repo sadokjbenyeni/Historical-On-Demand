@@ -14,7 +14,6 @@ export class ConfigurationComponent implements OnInit {
     this.pageConfig = [
       {page: 'Roles', active: false, link: '/admin/role'},
       {page: 'Users', active: false, link: '/admin/users'},
-      {page: 'Client Orders', active: false, link: '/admin/clientorder'},
       {page: 'Countries', active: false, link: '/admin/countries'},
       {page: 'Terms', active: false, link: '/admin/terms'},
       {page: 'Variables Environment', active: false, link: '/admin/variable'},
