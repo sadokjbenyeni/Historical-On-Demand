@@ -43,3 +43,6 @@ Thumbs.db
 
 #
 files/*
+
+# test file
+**/TEST-*.xml
