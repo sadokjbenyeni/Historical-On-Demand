@@ -6,7 +6,8 @@ import { OrderService } from '../../../services/order.service';
 import { ConfigService } from '../../../services/config.service';
 import { CurrencyService } from '../../../services/currency.service';
 
-import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-client-order-details',
@@ -18,6 +19,8 @@ export class ClientOrderDetailsComponent implements OnInit {
   currencyTxUsd: any;
   currencyTx: any;
   companyName: any;
+  gateway: string;
+  token: any;
   payment: string;
   firstname: any;
   lastname: any;
@@ -49,6 +52,11 @@ export class ClientOrderDetailsComponent implements OnInit {
   item: any;
   invoice: string;
   retryMode: string;
+  period: any;
+  datasets: object;
+  datasetsLink: { L1: string; L1TRADEONLY: string; L2: string; };
+  dtOptions: DataTables.Settings = {};
+
 
   constructor(
     private http: HttpClient,
@@ -63,6 +71,7 @@ export class ClientOrderDetailsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.gateway = environment.gateway;
     this.item = false;
     this.cart = [];
     this.symbols = [];
@@ -76,15 +85,28 @@ export class ClientOrderDetailsComponent implements OnInit {
     this.discount = 0;
     this.total = 0;
     this.state = '';
+    this.datasets = {
+      L1: 'L1 - Full',
+      L1TRADEONLY: 'L1 - Trades',
+      L2: 'L2'
+    };
+    this.datasetsLink = {
+      L1: 'L1-Full',
+      L1TRADEONLY: 'L1-Trades',
+      L2: 'L2'
+    };
+    this.token = JSON.parse(sessionStorage.getItem('user')).token;
+    this.periodDnl();
     this.getListStates();
     this.getCmd();
+    this.openByDefault();
     // this.getVat();
   }
 
   detail(c) {
     this.item = c;
     // console.dir(c);
-    if(this.item.onetime === 1){
+    if (this.item.onetime === 1) {
       this.item.reference = this.item.idElem;
     }
   }
@@ -102,8 +124,8 @@ export class ClientOrderDetailsComponent implements OnInit {
     // console.dir(this.item.reference);
   }
 
-  getCmd(){
-    this.currencyService.getCurrencies().subscribe(r=>{
+  getCmd() {
+    this.currencyService.getCurrencies().subscribe(r => {
       this.symbols = [];
       r.currencies.forEach(s => {
         this.symbols[s.id] = s.symbol;
@@ -125,7 +147,7 @@ export class ClientOrderDetailsComponent implements OnInit {
         this.currencyTx = c.cmd.currencyTx;
         this.currencyTxUsd = c.cmd.currencyTxUsd;
         this.totalFees = this.getHt(c.cmd.totalExchangeFees);
-        this.totalHT = (this.getHt(c.cmd.totalHT) - (this.getHt(c.cmd.totalHT) * this.discount / 100) ) + this.totalFees;
+        this.totalHT = (this.getHt(c.cmd.totalHT) - (this.getHt(c.cmd.totalHT) * this.discount / 100)) + this.totalFees;
         this.vat = c.cmd.vatValue;
         this.totalVat = this.totalHT * this.vat;
         this.totalTTC = this.totalHT + this.totalVat;
@@ -133,12 +155,12 @@ export class ClientOrderDetailsComponent implements OnInit {
         this.state = c.cmd.state;
         let index = 0;
         this.cart = [];
-        if(c.cmd.products.length > 0){
+        if (c.cmd.products.length > 0) {
           this.list['cmd'].products.forEach((p) => {
             let diff = this.dateDiff(new Date(p.begin_date), new Date(p.end_date));
             if (p.onetime === 1) {
               p.price = (diff.day + 1) * p.price;
-            } else if(p.subscription === 1){
+            } else if (p.subscription === 1) {
               p.price = p.period * p.price;
             }
             index++;
@@ -162,11 +184,11 @@ export class ClientOrderDetailsComponent implements OnInit {
               ht: p.ht,
               begin_date_select: p.begin_date,
               begin_date: p.begin_date_ref,
-              end_date_select : p.end_date,
-              end_date : p.end_date_ref,
-              status : p.status,
-              log : p.logs,
-              links : p.links
+              end_date_select: p.end_date,
+              end_date: p.end_date_ref,
+              status: p.status,
+              log: p.logs,
+              links: p.links
             };
             this.ht += p.price;
             this.cart.push(prod);
@@ -179,23 +201,23 @@ export class ClientOrderDetailsComponent implements OnInit {
     });
   }
 
-  getVat(){
-    this.configService.getVat().subscribe(res=>{
+  getVat() {
+    this.configService.getVat().subscribe(res => {
       this.vat = res[0].valueVat / 100;
     });
   }
 
   verifState() {
-    if(this.state === 'PVC') {
+    if (this.state === 'PVC') {
       return true;
     } else {
       return false;
     }
   }
 
-  confirm(){
+  confirm() {
     console.dir(this.cmd['email']);
-    this.orderService.state({idCmd: this.id_cmd, status: 'PVP', referer: 'Compliance', email: this.cmd['email']}).subscribe(()=>{
+    this.orderService.state({ idCmd: this.id_cmd, status: 'PVP', referer: 'Compliance', email: this.cmd['email'] }).subscribe(() => {
       this.router.navigate(['/compliance/orders']);
     });
   }
@@ -208,10 +230,10 @@ export class ClientOrderDetailsComponent implements OnInit {
     this.modalService.open(content);
   }
 
-  getHt(val){
+  getHt(val) {
     if (this.currency !== 'usd') {
       return ((val / this.currencyTxUsd) * this.currencyTx);
-    } else{
+    } else {
       return val;
     }
   }
@@ -221,29 +243,133 @@ export class ClientOrderDetailsComponent implements OnInit {
     return Math.round(number * factor) / factor;
   }
 
-  dateDiff(date1, date2){
-    let diff = { sec: 0, min: 0, hour:0, day: 0 };  // Initialisation du retour
+  dateDiff(date1, date2) {
+    let diff = { sec: 0, min: 0, hour: 0, day: 0 };  // Initialisation du retour
     let tmp = date2 - date1;
-    tmp = Math.floor(tmp/1000);                     // Nombre de secondes entre les 2 dates
+    tmp = Math.floor(tmp / 1000);                     // Nombre de secondes entre les 2 dates
     diff.sec = tmp % 60;                            // Extraction du nombre de secondes
-    tmp = Math.floor((tmp-diff.sec)/60);            // Nombre de minutes (partie entière)
+    tmp = Math.floor((tmp - diff.sec) / 60);            // Nombre de minutes (partie entière)
     diff.min = tmp % 60;                            // Extraction du nombre de minutes
-    tmp = Math.floor((tmp-diff.min)/60);            // Nombre d'heures (entières)
+    tmp = Math.floor((tmp - diff.min) / 60);            // Nombre d'heures (entières)
     diff.hour = tmp % 24;                           // Extraction du nombre d'heures
-    tmp = Math.floor((tmp-diff.hour)/24);           // Nombre de jours restants
+    tmp = Math.floor((tmp - diff.hour) / 24);           // Nombre de jours restants
     diff.day = tmp;
     return diff;
   }
 
-  getListStates(){
-    this.orderService.getListStates({}).subscribe(res=>{
+  getListStates() {
+    this.orderService.getListStates({}).subscribe(res => {
       this.states = res['states'];
     });
   }
   getStateName(stateId) {
-    if( !this.states )
+    if (!this.states)
       return stateId;
-    return this.states.filter( e => e.id === stateId )[0] ? this.states.filter( e => e.id === stateId )[0].name : stateId;
+    return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
+
+  openTab(activeName, tabName) {
+
+    var index, tabcontent, tablinks;
+
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (index = 0; index < tabcontent.length; index++) {
+      tabcontent[index].style.display = "none";
+    }
+
+    tablinks = document.getElementsByClassName("tablinks");
+    for (index = 0; index < tablinks.length; index++) {
+      tablinks[index].className = tablinks[index].className.replace(" active", "");
+    }
+
+    document.getElementById(tabName).style.display = "block";
+    document.getElementById(activeName).className += " active";
+  }
+
+  openByDefault() {
+    document.getElementById("defaultOpen").click();
+  }
+
+  limitDownLoad(onetime, subscription, datelk) {
+    let expired = new Date(datelk);
+    if (onetime === 1) {
+      return expired.setDate(expired.getDate() + this.period[0].periodOneOff);
+    }
+    if (subscription === 1) {
+      return expired.setDate(expired.getDate() + this.period[0].periodOneOff);
+    }
+  }
+
+  periodDnl() {
+    this.configService.getDownloadSetting().subscribe(period => {
+      this.period = period;
+    });
+  }
+
+  countLink(lks) {
+    let countlk = 0;
+    lks.forEach(el => {
+      countlk += el.link.split("|").length;
+    });
+
+    return countlk;
+  }
+
+  setting = {
+    element: {
+      dynamicDownload: null as HTMLElement
+    }
+  }
+
+  dynamicDownloadByHtmlTag(id: number, dataset: string, eid: string, symbol: string, asset: string, type: string, debut: string, fin: string, text: Array<any>, path: string) {
+    let fileName = "";
+    fileName += id;
+    fileName += "_" + this.datasetsLink[dataset];
+    fileName += "_" + eid;
+    if (symbol !== "") {
+      fileName += "_" + symbol;
+    }
+    if (asset !== "") {
+      fileName += "_" + asset;
+    }
+    fileName += "_" + type;
+    fileName += "_" + this.yyyymmdd(debut.split('T')[0]);
+    fileName += "_" + this.yyyymmdd(fin.split('T')[0]);
+
+
+    if (!this.setting.element.dynamicDownload) {
+      this.setting.element.dynamicDownload = document.createElement('a');
+    }
+    let liens = [];
+    text.forEach(ll => {
+      ll.link.split('|').forEach(lien => {
+        liens.push(environment.gateway + '/api/user/download/' + this.token + '/' + path + '/' + lien);
+      });
+    });
+    const element = this.setting.element.dynamicDownload;
+    // const fileType = 'text/json';
+    // element.setAttribute('href', `data:${fileType};charset=utf-8,${encodeURIComponent(JSON.stringify(liens))}`);
+    const fileType = 'text/plain';
+    element.setAttribute('href', `data:${fileType};charset=utf-8,${liens.join('\r\n')}`);
+    // let fn = fileName.split('¤');
+    // let datedeb = fn[1].split('T')[0].replace(/-/gi, '');
+    // let datefin = fn[2].split('T')[0].replace(/-/gi, '');
+    // element.setAttribute('download', fn[0]+this.viewDate(datedeb)+'_'+this.viewDate(datefin)+'.txt');
+    element.setAttribute('download', fileName + '.txt');
+
+    var event = new MouseEvent("click");
+    element.dispatchEvent(event);
+  }
+  yyyymmdd = function (d) {
+    let dat = d.split('-');
+    let mm = parseInt(dat[1]);
+    let dd = parseInt(dat[2]);
+
+    return [
+      dat[0],
+      (mm > 9 ? '-' : '-0') + mm,
+      (dd > 9 ? '-' : '-0') + dd
+    ].join('');
+  };
 
 }
