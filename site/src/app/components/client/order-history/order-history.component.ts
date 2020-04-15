@@ -1,19 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpHeaders,  HttpResponse } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
-import { OrderService } from '../../services/order.service';
-import { UploadService } from '../../services/upload.service';
-import { CurrencyService } from '../../services/currency.service';
-import { ConfigService } from '../../services/config.service';
+import { OrderService } from '../../../services/order.service';
+import { UploadService } from '../../../services/upload.service';
+import { CurrencyService } from '../../../services/currency.service';
+import { ConfigService } from '../../../services/config.service';
 
-import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
 import * as crypto from 'crypto-js';
 
 const httpOptions = {
   headers: new HttpHeaders({
-    'Content-Type':  'application/json',
+    'Content-Type': 'application/json',
     'Authorization': 'my-auth-token',
   })
 };
@@ -116,20 +116,20 @@ export class OrderHistoryComponent implements OnInit {
       serverSide: true,
       processing: true,
       searching: false,
-      order: [[ 0, 'desc' ]],
+      order: [[0, 'desc']],
       ajax: (dataTablesParameters: any, callback) => {
         // dataTablesParameters.token = this.token;
         httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
         this.http
-        .post<DataTablesResponse>(environment.api + '/order/history', dataTablesParameters, httpOptions)
-        .subscribe(res => {
-          this.cmd = res.listorders;
-          callback({
-            recordsTotal: res.recordsTotal,
-            recordsFiltered: res.recordsFiltered,
-            data: [],
+          .post<DataTablesResponse>(environment.api + '/order/history', dataTablesParameters, httpOptions)
+          .subscribe(res => {
+            this.cmd = res.listorders;
+            callback({
+              recordsTotal: res.recordsTotal,
+              recordsFiltered: res.recordsFiltered,
+              data: [],
+            });
           });
-        });
       },
       columns: [
         { data: 'id' },
@@ -144,24 +144,24 @@ export class OrderHistoryComponent implements OnInit {
 
   filterUser(link) {
     // console.log(this.today, this.limitDownLoad(link.createLinkDate));
-    let dif = { sec: 0, min: 0, hour:0, day: 0 };  // Initialisation du retour
+    let dif = { sec: 0, min: 0, hour: 0, day: 0 };  // Initialisation du retour
     let date1 = new Date().getTime();
     let expired = new Date(link.createLinkDate);
     expired.setDate(expired.getDate() + 14);
     let tmp = expired.getTime() - date1;
-    tmp = Math.floor(tmp/1000);                    // Nombre de secondes entre les 2 dates
+    tmp = Math.floor(tmp / 1000);                    // Nombre de secondes entre les 2 dates
     dif.sec = tmp % 60;                            // Extraction du nombre de secondes
-    tmp = Math.floor((tmp-dif.sec)/60);            // Nombre de minutes (partie entière)
+    tmp = Math.floor((tmp - dif.sec) / 60);            // Nombre de minutes (partie entière)
     dif.min = tmp % 60;                            // Extraction du nombre de minutes
-    tmp = Math.floor((tmp-dif.min)/60);            // Nombre d'heures (entières)
+    tmp = Math.floor((tmp - dif.min) / 60);            // Nombre d'heures (entières)
     dif.hour = tmp % 24;                           // Extraction du nombre d'heures
-    tmp = Math.floor((tmp-dif.hour)/24);           // Nombre de jours restants
+    tmp = Math.floor((tmp - dif.hour) / 24);           // Nombre de jours restants
     dif.day = tmp;
 
     return link.status === 'active' && dif.day > 0;
   }
 
-  view(c){
+  view(c) {
     this.details = [];
     this.list = false;
     this.viewdetail = true;
@@ -177,24 +177,24 @@ export class OrderHistoryComponent implements OnInit {
     this.job = c.job;
     this.country = c.country;
     this.countryBilling = c.countryBilling;
-    if(this.state === 'active') {
+    if (this.state === 'active') {
       this.textcolor = 'text-success';
-    } else if(this.state === 'rejected') {
+    } else if (this.state === 'rejected') {
       this.textcolor = 'text-danger';
-    } else if(this.state === 'cancelled') {
+    } else if (this.state === 'cancelled') {
       this.textcolor = 'text-warning';
-    } else if(this.state === 'inactive') {
+    } else if (this.state === 'inactive') {
       this.textcolor = 'text-muted';
     } else {
       this.textcolor = 'text-color';
     }
     this.submissionDate = c.submissionDate;
     let index = 0;
-    if(c.products.length > 0){
+    if (c.products.length > 0) {
       c.products.forEach(p => {
         index++;
         let l = [];
-        if(!p.links){ p['links'] = []; }
+        if (!p.links) { p['links'] = []; }
         p.links.forEach(pl => {
           pl.onetime = p.onetime;
           pl.subscription = p.subscription;
@@ -222,8 +222,8 @@ export class OrderHistoryComponent implements OnInit {
           ht: p.ht,
           begin_date_select: p.begin_date,
           begin_date: p.begin_date_ref,
-          end_date_select : p.end_date,
-          end_date : p.end_date_ref
+          end_date_select: p.end_date,
+          end_date: p.end_date_ref
         };
         // this.ht += p.price;
         this.details.push(prod);
@@ -241,18 +241,18 @@ export class OrderHistoryComponent implements OnInit {
     if (c.currency !== 'usd') {
       this.totalExchangeFees = (c.totalExchangeFees / c.currencyTxUsd) * c.currencyTx;
       this.discount = c.discount;
-      this.totalHT = ( (c.totalHT + c.totalExchangeFees) / c.currencyTxUsd) * c.currencyTx;
-      if(this.discount>0){
-        this.totalHT = this.totalHT - ( this.totalHT * (this.discount / 100) );
+      this.totalHT = ((c.totalHT + c.totalExchangeFees) / c.currencyTxUsd) * c.currencyTx;
+      if (this.discount > 0) {
+        this.totalHT = this.totalHT - (this.totalHT * (this.discount / 100));
       }
       this.totalVat = this.totalHT * this.vat;
       this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
-    } else{
+    } else {
       this.totalExchangeFees = c.totalExchangeFees;
       this.discount = c.discount;
       this.totalHT = c.totalHT + c.totalExchangeFees;
-      if(this.discount>0){
-        this.totalHT = this.totalHT - ( this.totalHT * (this.discount / 100) );
+      if (this.discount > 0) {
+        this.totalHT = this.totalHT - (this.totalHT * (this.discount / 100));
       }
       this.totalVat = this.totalHT * this.vat;
       this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
@@ -264,10 +264,10 @@ export class OrderHistoryComponent implements OnInit {
   }
 
   confirm() {
-    this.orderService.state({idCmd: this.idCmd, status: 'cancelled', referer: 'Client'}).subscribe(()=>{});
+    this.orderService.state({ idCmd: this.idCmd, status: 'cancelled', referer: 'Client' }).subscribe(() => { });
   }
 
-  close(){
+  close() {
     this.title = 'Order History';
     this.list = true;
     this.viewdetail = false;
@@ -275,13 +275,13 @@ export class OrderHistoryComponent implements OnInit {
   }
 
   getCurrencies() {
-    this.currencyService.getCurrencies().subscribe(r=>{
+    this.currencyService.getCurrencies().subscribe(r => {
       this.symbols = [];
       r.currencies.forEach(s => {
         this.symbols[s.id] = s.symbol;
       });
     });
- }
+  }
 
   encrypt(link) {
     return crypto.AES.encrypt(link, this.phrase);
@@ -290,16 +290,16 @@ export class OrderHistoryComponent implements OnInit {
     return crypto.AES.decrypt(link, this.phrase).toString(crypto.enc.Utf8);
   }
 
-  bulkdownload(){
+  bulkdownload() {
     this.uploadService.upd().subscribe(resp => {
     });
     // this.http.get('/loadfile/cmd-5a576574f906962c10c79c20-20180209-5a7db4ddb1197b3f022e953a-1/cmd-5a576574f906962c10c79c20-20180209-5a7db4ddb1197b3f022e953a-1_2017-06-06_1053.zip').subscribe(resp => {});
   };
 
-  getHt(val){
+  getHt(val) {
     if (this.currency !== 'usd') {
       return ((val / this.currencyTxUsd) * this.currencyTx);
-    } else{
+    } else {
       return val;
     }
   }
@@ -308,8 +308,8 @@ export class OrderHistoryComponent implements OnInit {
     let ttc = 0;
     if (val.currency !== 'usd') {
       ttc = (((val.totalHT + val.totalExchangeFees) / val.currencyTxUsd) * val.currencyTx);
-      if(val.discount>0){
-        ttc = ttc - ( ttc * (val.discount / 100) );
+      if (val.discount > 0) {
+        ttc = ttc - (ttc * (val.discount / 100));
       }
     } else {
       ttc = val.totalHT + val.totalExchangeFees;
@@ -320,40 +320,40 @@ export class OrderHistoryComponent implements OnInit {
     return this.precisionRound((ttc * (1 + val.vatValue)), 2);
   }
 
-  getHtAll(val, txUsd, tx){
+  getHtAll(val, txUsd, tx) {
     if (this.currency !== 'usd') {
       return ((val / txUsd) * tx);
-    } else{
+    } else {
       return val;
     }
   }
 
-  dateDiff(date1, date2){
-    let diff = { sec: 0, min: 0, hour:0, day: 0 };  // Initialisation du retour
+  dateDiff(date1, date2) {
+    let diff = { sec: 0, min: 0, hour: 0, day: 0 };  // Initialisation du retour
     let tmp = date2 - date1;
-    tmp = Math.floor(tmp/1000);                     // Nombre de secondes entre les 2 dates
+    tmp = Math.floor(tmp / 1000);                     // Nombre de secondes entre les 2 dates
     diff.sec = tmp % 60;                            // Extraction du nombre de secondes
-    tmp = Math.floor((tmp-diff.sec)/60);            // Nombre de minutes (partie entière)
+    tmp = Math.floor((tmp - diff.sec) / 60);            // Nombre de minutes (partie entière)
     diff.min = tmp % 60;                            // Extraction du nombre de minutes
-    tmp = Math.floor((tmp-diff.min)/60);            // Nombre d'heures (entières)
+    tmp = Math.floor((tmp - diff.min) / 60);            // Nombre d'heures (entières)
     diff.hour = tmp % 24;                           // Extraction du nombre d'heures
-    tmp = Math.floor((tmp-diff.hour)/24);           // Nombre de jours restants
+    tmp = Math.floor((tmp - diff.hour) / 24);           // Nombre de jours restants
     diff.day = tmp;
     return diff;
   }
 
-  periodDnl(){
-    this.configService.getDownloadSetting().subscribe(period=>{
+  periodDnl() {
+    this.configService.getDownloadSetting().subscribe(period => {
       this.period = period;
     });
   }
 
   limitDownLoad(onetime, subscription, datelk) {
     let expired = new Date(datelk);
-    if(onetime === 1){
+    if (onetime === 1) {
       return expired.setDate(expired.getDate() + this.period[0].periodOneOff);
     }
-    if(subscription === 1){
+    if (subscription === 1) {
       return expired.setDate(expired.getDate() + this.period[0].periodOneOff);
     }
   }
@@ -377,24 +377,24 @@ export class OrderHistoryComponent implements OnInit {
       dynamicDownload: null as HTMLElement
     }
   }
-//detail.idC+'_'+datasetsLink[detail.quotation_level]+'_'+detail.eid+'_one-off-¤'+detail.begin_date_select+'¤'+detail.end_date_select
-//lk.links
-//lk.path
-//detail.assetClass
+  //detail.idC+'_'+datasetsLink[detail.quotation_level]+'_'+detail.eid+'_one-off-¤'+detail.begin_date_select+'¤'+detail.end_date_select
+  //lk.links
+  //lk.path
+  //detail.assetClass
   dynamicDownloadByHtmlTag(id: number, dataset: string, eid: string, symbol: string, asset: string, type: string, debut: string, fin: string, text: Array<any>, path: string) {
     let fileName = "";
     fileName += id;
-    fileName += "_"+ this.datasetsLink[dataset];
-    fileName += "_"+ eid;
-    if(symbol !== ""){
-      fileName += "_"+ symbol;
+    fileName += "_" + this.datasetsLink[dataset];
+    fileName += "_" + eid;
+    if (symbol !== "") {
+      fileName += "_" + symbol;
     }
-    if(asset !== ""){
-      fileName += "_"+ asset;
+    if (asset !== "") {
+      fileName += "_" + asset;
     }
-    fileName += "_"+ type;
-    fileName += "_"+ this.yyyymmdd(debut.split('T')[0]);
-    fileName += "_"+ this.yyyymmdd(fin.split('T')[0]);
+    fileName += "_" + type;
+    fileName += "_" + this.yyyymmdd(debut.split('T')[0]);
+    fileName += "_" + this.yyyymmdd(fin.split('T')[0]);
 
 
     if (!this.setting.element.dynamicDownload) {
@@ -403,7 +403,7 @@ export class OrderHistoryComponent implements OnInit {
     let liens = [];
     text.forEach(ll => {
       ll.link.split('|').forEach(lien => {
-        liens.push(environment.gateway + '/api/user/download/'+this.token+'/'+ path +'/'+ lien);
+        liens.push(environment.gateway + '/api/user/download/' + this.token + '/' + path + '/' + lien);
       });
     });
     const element = this.setting.element.dynamicDownload;
@@ -415,32 +415,32 @@ export class OrderHistoryComponent implements OnInit {
     // let datedeb = fn[1].split('T')[0].replace(/-/gi, '');
     // let datefin = fn[2].split('T')[0].replace(/-/gi, '');
     // element.setAttribute('download', fn[0]+this.viewDate(datedeb)+'_'+this.viewDate(datefin)+'.txt');
-    element.setAttribute('download', fileName +'.txt');
+    element.setAttribute('download', fileName + '.txt');
 
     var event = new MouseEvent("click");
     element.dispatchEvent(event);
   }
-  yyyymmdd = function(d) {
+  yyyymmdd = function (d) {
     let dat = d.split('-');
     let mm = parseInt(dat[1]);
     let dd = parseInt(dat[2]);
 
     return [
       dat[0],
-      (mm>9 ? '-' : '-0') + mm,
-      (dd>9 ? '-' : '-0') + dd
+      (mm > 9 ? '-' : '-0') + mm,
+      (dd > 9 ? '-' : '-0') + dd
     ].join('');
   };
 
-  getListStates(){
-    this.orderService.getListStates({}).subscribe(res=>{
+  getListStates() {
+    this.orderService.getListStates({}).subscribe(res => {
       this.states = res['states'];
     });
   }
   getStateName(stateId) {
-    if( !this.states )
+    if (!this.states)
       return stateId;
-    return this.states.filter( e => e.id === stateId )[0] ? this.states.filter( e => e.id === stateId )[0].name : stateId;
+    return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
 
 }

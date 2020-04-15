@@ -13,7 +13,6 @@ import { EmailValidatorDirective } from './validators/email-validator.directive'
 import { EqualValidatorDirective } from './validators/equal-validator.directive';
 import { TelephoneValidatorDirective } from './validators/telephone-validator.directive';
 import { MdpValidatorDirective } from './validators/mdp-validator.directive';
-
 // Components
 // All
 import { MenuComponent } from './components/menu/menu.component';
@@ -23,7 +22,7 @@ import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { SearchComponent } from './components/search/search.component';
-import { OrderHistoryComponent } from './components/order-history/order-history.component';
+import { OrderHistoryComponent } from './components/client/order-history/order-history.component';
 import { AboutComponent } from './components/about/about.component';
 import { HelpPageComponent } from './components/help-page/help-page.component';
 import { OrderComponent } from './components/order/order.component';
@@ -105,6 +104,8 @@ import { PurchaseTypePipe } from './purchaseType.pipe';
 import { DateValidatorDirective } from './validators/date-validator.directive';
 import { SalesService } from './services/sales.service';
 import { MenusupportComponent } from './components/support/menusupport/menusupport.component';
+import { CommonModule } from '@angular/common';
+import { OrderHistoryDetailsComponent } from './components/client/order-history-details/order-history-details.component';
 
 // lazy loading
 
@@ -168,7 +169,8 @@ import { MenusupportComponent } from './components/support/menusupport/menusuppo
     ClientOrderDetailsComponent,
     ConfigElasticComponent,
     MailFailedComponent,
-    MenusupportComponent
+    MenusupportComponent,
+    OrderHistoryDetailsComponent
   ],
   entryComponents: [NgbdModalContent],
   imports: [
@@ -182,6 +184,7 @@ import { MenusupportComponent } from './components/support/menusupport/menusuppo
     RecaptchaModule.forRoot(),
     PdfViewerModule,
     AlertModule,
+    CommonModule
   ],
   providers: [
     GuardGuard,
