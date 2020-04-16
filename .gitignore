@@ -46,3 +46,12 @@ files/*
 
 # test file
 **/TEST-*.xml
+
+#visual studio code
+**/.vs/*
+**/.vs
+.vs/*
+
+**/.vscode/*
+**/.vscode
+.vscode/*
