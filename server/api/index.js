@@ -17,5 +17,7 @@ router.use('/search', require('./elastic'));
 router.use('/config', require('./config'));
 router.use('/sales', require('./sales'));
 
+//v1
+router.use('/v1/order', require('./public/order'));
 
 module.exports = router;

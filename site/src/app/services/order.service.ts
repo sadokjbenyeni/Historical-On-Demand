@@ -84,5 +84,9 @@ export class OrderService {
   SaveOrderMetadata(orderId: Number, internalNote: String, sales: String, OrderType: string) {
     return this.http.put<any>(environment.api + '/order/updatemetadata', { id: orderId, note: internalNote, sales: sales, type: OrderType });
   }
+
+  getClientOrderMetadata(httpOptions) {
+    return this.http.get<any>(environment.api + '/v1/order', httpOptions);
+  }
 }
 

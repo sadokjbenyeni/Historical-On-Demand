@@ -4,6 +4,10 @@ import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { routes } from './app.routing';
+
+//Angular Material
+import { MatTableModule } from '@angular/material/table';
+
 // Guard
 import { GuardGuard } from './guard.guard';
 
@@ -184,7 +188,8 @@ import { OrderHistoryDetailsComponent } from './components/client/order-history-
     RecaptchaModule.forRoot(),
     PdfViewerModule,
     AlertModule,
-    CommonModule
+    CommonModule,
+    MatTableModule
   ],
   providers: [
     GuardGuard,
