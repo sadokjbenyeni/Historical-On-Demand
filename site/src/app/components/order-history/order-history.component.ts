@@ -161,22 +161,22 @@ export class OrderHistoryComponent implements OnInit {
     return link.status === 'active' && dif.day > 0;
   }
 
-  view(c){
+  view(order) {
     this.details = [];
     this.list = false;
     this.viewdetail = true;
     this.title = 'Order Details'
-    this.idCmd = c.id_cmd;
-    this.idOrder = c.id;
-    this.invoice = c.idCommande;
-    this.state = c.state;
-    this.firstname = c.firstname;
-    this.lastname = c.lastname;
-    this.payment = c.payment;
-    this.company = c.companyName;
-    this.job = c.job;
-    this.country = c.country;
-    this.countryBilling = c.countryBilling;
+    this.idCmd = order.id_cmd;
+    this.idOrder = order.id;
+    this.invoice = order.idCommande;
+    this.state = order.state;
+    this.firstname = order.firstname;
+    this.lastname = order.lastname;
+    this.payment = order.payment;
+    this.company = order.companyName;
+    this.job = order.job;
+    this.country = order.country;
+    this.countryBilling = order.countryBilling;
     if(this.state === 'active') {
       this.textcolor = 'text-success';
     } else if(this.state === 'rejected') {
@@ -188,10 +188,10 @@ export class OrderHistoryComponent implements OnInit {
     } else {
       this.textcolor = 'text-color';
     }
-    this.submissionDate = c.submissionDate;
+    this.submissionDate = order.submissionDate;
     let index = 0;
-    if(c.products.length > 0){
-      c.products.forEach(p => {
+    if(order.products.length > 0){
+      order.products.forEach(p => {
         index++;
         let l = [];
         if(!p.links){ p['links'] = []; }
@@ -203,8 +203,8 @@ export class OrderHistoryComponent implements OnInit {
         let prod = {
           id: index,
           print: false,
-          idC: c.id,
-          idCmd: c.id_cmd,
+          idC: order.id,
+          idCmd: order.id_cmd,
           idElem: p.id_undercmd,
           quotation_level: p.dataset,
           symbol: p.symbol,
@@ -234,23 +234,23 @@ export class OrderHistoryComponent implements OnInit {
       });
     }
     // this.details = c.products;
-    this.currency = c.currency;
-    this.currencyTx = c.currencyTx;
-    this.currencyTxUsd = c.currencyTxUsd;
-    this.vat = c.vatValue;
-    if (c.currency !== 'usd') {
-      this.totalExchangeFees = (c.totalExchangeFees / c.currencyTxUsd) * c.currencyTx;
-      this.discount = c.discount;
-      this.totalHT = ( (c.totalHT + c.totalExchangeFees) / c.currencyTxUsd) * c.currencyTx;
+    this.currency = order.currency;
+    this.currencyTx = order.currencyTx;
+    this.currencyTxUsd = order.currencyTxUsd;
+    this.vat = order.vatValue;
+    if (order.currency !== 'usd') {
+      this.totalExchangeFees = (order.totalExchangeFees / order.currencyTxUsd) * order.currencyTx;
+      this.discount = order.discount;
+      this.totalHT = ( (order.totalHT + order.totalExchangeFees) / order.currencyTxUsd) * order.currencyTx;
       if(this.discount>0){
         this.totalHT = this.totalHT - ( this.totalHT * (this.discount / 100) );
       }
       this.totalVat = this.totalHT * this.vat;
       this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
     } else{
-      this.totalExchangeFees = c.totalExchangeFees;
-      this.discount = c.discount;
-      this.totalHT = c.totalHT + c.totalExchangeFees;
+      this.totalExchangeFees = order.totalExchangeFees;
+      this.discount = order.discount;
+      this.totalHT = order.totalHT + order.totalExchangeFees;
       if(this.discount>0){
         this.totalHT = this.totalHT - ( this.totalHT * (this.discount / 100) );
       }
