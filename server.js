@@ -11,7 +11,8 @@ const cron = require('node-cron');
 const MDB = require('./server/config/configmdb.js').mdb;
 
 //Connect to mongoDB server
-mongoose.connect('mongodb://localhost:27017/histodataweb', { useNewUrlParser: true, useUnifiedTopology: true });
+//mongoose.connect('mongodb://localhost:27017/histodataweb', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb://'+MDB.userdb+':'+MDB.passdb+'@localhost:27017/histodataweb?authSource='+MDB.authdb, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.set('debug', true);
 
 //Init express
