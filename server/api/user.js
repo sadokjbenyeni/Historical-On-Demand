@@ -52,44 +52,6 @@ router.get('/count/', (req, res) => {
     }
 });
 
-router.get('/download/:token/:id/:file', (req, res) => {
-    let valid = false;
-    User.findOne({token: req.params.token}, {_id:true})
-    .then((u)=>{
-        if(u) {
-            let idUser = JSON.parse(JSON.stringify(u._id));
-            Order.findOne({idUser: idUser, 'products.id_undercmd': req.params.id.split('|')[0]})
-            .select({'products.$.id_undercmd':1, '_id': false})
-            .then(o=>{
-                if(o){
-                    o.products[0].links.forEach(lk=>{
-                        if (lk.status === 'active') {
-                            lk.links.forEach(link=>{
-                                let rgx = RegExp(req.params.file);
-                                valid += rgx.test(link.link);
-                            })
-                        }
-                    })
-                } else {
-                    res.status(404).end();        
-                }
-            })
-            .then(()=>{
-                if(valid) {
-                    res.download('/mapr/client_exports/' + req.params.id + '/' + req.params.file);
-                } else {
-                    res.status(404).end();
-                }
-            });
-        } else {
-            res.status(404).end();
-        }
-    })
-    .catch(err=>{
-        res.status(500).end();
-    });
-});
-
 router.get('/cpt/', (req,res)=>{
     User.findOne({nbSession:1},{_id:false, count:true})
     .then((nb) => {
@@ -435,6 +397,45 @@ router.post('/list', (req, res) => {
       });
   });
 });
+
+router.get('/download/:token/:id/:file', (req, res) => {
+    let valid = false;
+    User.findOne({ token: req.params.token }, { _id: true })
+        .then((u) => {
+            if (u) {
+                let idUser = JSON.parse(JSON.stringify(u._id));
+                Order.findOne({ idUser: idUser, 'products.id_undercmd': req.params.id.split('|')[0] })
+                    .select({ 'products.$.id_undercmd': 1, '_id': false })
+                    .then(o => {
+                        if (o) {
+                            o.products[0].links.forEach(lk => {
+                                if (lk.status === 'active') {
+                                    lk.links.forEach(link => {
+                                        let rgx = RegExp(req.params.file);
+                                        valid += rgx.test(link.link);
+                                    })
+                                }
+                            })
+                        } else {
+                            res.status(404).end();
+                        }
+                    })
+                    .then(() => {
+                        if (valid) {
+                            res.download('/mapr/client_exports/' + req.params.id + '/' + req.params.file);
+                        } else {
+                            res.status(404).end();
+                        }
+                    });
+            } else {
+                res.status(404).end();
+            }
+        })
+        .catch(err => {
+            res.status(500).end();
+        });
+});
+
 
 function download(url, dest, cb) {
     // on créé un stream d'écriture qui nous permettra

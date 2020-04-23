@@ -113,9 +113,6 @@ img#logo {
   position: fixed;
 }
 #datasetPanel {
-  /* top: 250px;
-  /* display: block;
-  position: relative; */
   padding: 15px;
 }
 .datasetGroup {
@@ -334,8 +331,6 @@ td.bg-grey {
 }
 span.cap {
   display: block;
-  /* min-height: 60px;
-  border-bottom: 1px solid #ddd; */
 }
 .ngb-dp-day.hidden {
   display: block !important;
@@ -403,3 +398,15 @@ re-captcha > div {
   margin: auto;
   text-align: center;
 }
+
+.mat-sort-header-container {
+  flex-direction: inherit !important; 
+  justify-content: center !important;
+}
+
+.mat-paginator {
+  display: initial !important;
+}
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

@@ -8,6 +8,7 @@ import { CurrencyService } from '../../../services/currency.service';
 import { ConfigService } from '../../../services/config.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ActivatedRoute } from '@angular/router';
+import { Product } from '../../order/product';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -83,8 +84,11 @@ export class OrderHistoryDetailsComponent implements OnInit {
 
 
   ngOnInit() {
+    this.symbols = new Array();
     this.gateway = environment.gateway;
     this.today = new Date();
+    this.listCurrencies();
+
     this.periodDnl();
     this.title = 'Order History';
     this.details = [];
@@ -106,7 +110,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
     // };
     this.idUser = JSON.parse(sessionStorage.getItem('user'))._id;
     this.token = JSON.parse(sessionStorage.getItem('user')).token;
-    this.getCurrencies();
     this.list = true;
     this.viewdetail = false;
     const that = this;
@@ -118,10 +121,10 @@ export class OrderHistoryDetailsComponent implements OnInit {
       searching: false,
       order: [[0, 'desc']],
       ajax: (dataTablesParameters: any, callback) => {
-        // dataTablesParameters.token = this.token;
+        dataTablesParameters.token = this.token;
         httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
         this.http
-          .post<DataTablesResponse>(environment.api + '/order/history', dataTablesParameters, httpOptions)
+          .post<DataTablesResponse>(environment.api + '/v1/order/details', httpOptions)
           .subscribe(res => {
             this.cmd = res.listorders;
             callback({
@@ -140,7 +143,10 @@ export class OrderHistoryDetailsComponent implements OnInit {
         { data: 'details', orderable: false },
       ]
     };
-    this.view();
+    this.getClientOrderMetadata();
+    this.getClientOrderData();
+    this.getClientOrderFees();
+    // this.view();
   }
 
   getStateName(stateId) {
@@ -271,14 +277,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
     });
   }
 
-  getCurrencies() {
-    this.currencyService.getCurrencies().subscribe(r => {
-      this.symbols = [];
-      r.currencies.forEach(s => {
-        this.symbols[s.id] = s.symbol;
-      });
-    });
-  }
 
   view() {
     this.orderService.getIdOrder(this.idCmd).subscribe((c) => {
@@ -379,12 +377,111 @@ export class OrderHistoryDetailsComponent implements OnInit {
         this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
       }
     });
-    };
+  };
 
-
-    precisionRound(number, precision) {
-      var factor = Math.pow(10, precision);
-      return Math.round(number * factor) / factor;
-    }
-
+  getClientOrderMetadata() {
+    this.orderService.getClientOrderMetadataById(this.idCmd).subscribe((order) => {
+      this.idOrder = order.metadata.id;
+      this.submissionDate = order.metadata.submissionDate;
+      this.payment = order.metadata.payment;
+      this.invoice = null;
+      this.state = order.metadata.state;
+      this.company = order.metadata.companyName;
+      this.firstname = order.metadata.firstname;
+      this.lastname = order.metadata.lastname;
+      this.job = order.metadata.job;
+      this.countryBilling = order.metadata.countryBilling;
+    })
   }
+
+  getClientOrderData() {
+    this.orderService.getClientOrderDataById(this.idCmd).subscribe((order) => {
+      let index = 0;
+      if (order.data.products.length > 0) {
+        order.data.products.forEach(product => {
+          index++;
+          let linkList = [];
+          if (!product.links) { product['links'] = []; }
+          product.links.forEach(productLink => {
+            productLink.onetime = product.onetime;
+            productLink.subscription = product.subscription;
+            linkList.push(productLink);
+          });
+          let newProduct = {
+            id: index,
+            print: false,
+            idC: order.data.id,
+            idCmd: order.data.id_cmd,
+            idElem: product.id_undercmd,
+            quotation_level: product.dataset,
+            symbol: product.symbol,
+            exchange: product.exchangeName,
+            assetClass: product.assetClass,
+            eid: product.eid,
+            qhid: product.qhid,
+            links: linkList,
+            description: product.description,
+            onetime: product.onetime,
+            subscription: product.subscription,
+            pricingTier: product.pricingTier,
+            period: product.period,
+            price: product.price,
+            ht: product.ht,
+            begin_date_select: product.begin_date,
+            begin_date: product.begin_date_ref,
+            end_date_select: product.end_date,
+            end_date: product.end_date_ref
+          };
+          this.details.push(newProduct);
+          if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
+            this.details.push({ print: true, backfill_fee: product.backfill_fee, ongoing_fee: product.ongoing_fee });
+          }
+        });
+      }
+    })
+  }
+
+  getClientOrderFees() {
+    this.orderService.getClientOrderFeesById(this.idCmd).subscribe((order) => {
+      this.currency = order.fees.currency;
+      this.currencyTx = order.fees.currencyTx;
+      this.currencyTxUsd = order.fees.currencyTxUsd;
+      this.vat = order.fees.vatValue;
+      if (order.fees.currency !== 'usd') {
+        this.totalExchangeFees = (order.fees.totalExchangeFees / order.fees.currencyTxUsd) * order.fees.currencyTx;
+        this.discount = order.fees.discount;
+        this.totalHT = ((order.fees.totalHT + order.fees.totalExchangeFees) / order.fees.currencyTxUsd) * order.fees.currencyTx;
+        if (this.discount > 0) {
+          this.totalHT = this.totalHT - (this.totalHT * (this.discount / 100));
+        }
+        this.totalVat = this.totalHT * this.vat;
+        this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
+      } else {
+        this.totalExchangeFees = order.fees.totalExchangeFees;
+        this.discount = order.fees.discount;
+        this.totalHT = order.fees.totalHT + order.fees.totalExchangeFees;
+        if (this.discount > 0) {
+          this.totalHT = this.totalHT - (this.totalHT * (this.discount / 100));
+        }
+        this.totalVat = this.totalHT * this.vat;
+        this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
+      }
+    })
+  }
+
+
+  precisionRound(number, precision) {
+    var factor = Math.pow(10, precision);
+    return Math.round(number * factor) / factor;
+  }
+  listCurrencies() {
+    this.currencyService.getCurrencies().subscribe(list => {
+      this.symbols = [];
+      list.currencies.forEach(item => {
+        this.symbols[item.id] = item.symbol;
+      });
+    });
+  }
+
+
+}

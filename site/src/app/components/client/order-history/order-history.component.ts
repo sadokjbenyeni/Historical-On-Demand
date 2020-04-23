@@ -1,9 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
 
 import { OrderService } from '../../../services/order.service';
 import { CurrencyService } from '../../../services/currency.service';
-import { ConfigService } from '../../../services/config.service';
+
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
+import { MatFormField } from '@angular/material/form-field';
+
+import { Order } from '../../../Models/Client/Order';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 // import * as crypto from 'crypto-js';
 
@@ -13,6 +21,8 @@ const httpOptions = {
     'Authorization': 'my-auth-token',
   })
 };
+
+
 
 // class DataTablesResponse {
 //   listorders: any[];
@@ -24,6 +34,8 @@ const httpOptions = {
   styleUrls: ['./order-history.component.css']
 })
 export class OrderHistoryComponent implements OnInit {
+  pageSizeOptions: number[] = [5, 10, 25, 100];
+
   // idOrder: any;
   token: any;
   // gateway: string;
@@ -46,7 +58,7 @@ export class OrderHistoryComponent implements OnInit {
   // state: string;
   // payment: string;
   // submissionDate: any;
-  command: Array<object>;
+  command: Array<any>;
   // details: Array<any>;
   userId: string;
   // list: boolean;
@@ -62,6 +74,9 @@ export class OrderHistoryComponent implements OnInit {
   // countryBilling: any;
   // datasetsLink: { L1: string; L1TRADEONLY: string; L2: string; };
   // dtOptions: DataTables.Settings = {};
+  mappedOrders: Order[];
+  clientOrderTableColumns: string[] = ['orderId', 'submissionDateTime', 'orderStatus', 'totalOrderAmount', 'invoice', 'details'];
+  public dataSource = new MatTableDataSource();
 
   constructor(
     // private http: HttpClient,
@@ -74,16 +89,23 @@ export class OrderHistoryComponent implements OnInit {
     // this.phrase = 'test';
   }
 
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+
   ngOnInit() {
+    this.listCurrencies();
+    this.userId = JSON.parse(sessionStorage.getItem('user'))._id;
+    this.token = JSON.parse(sessionStorage.getItem('user')).token;
+    this.getOrders();
     // this.gateway = environment.gateway;
     // this.today = new Date();
     // this.downloadPeriod();
-    this.pageTitle = 'Order History';
     // this.details = [];
     // this.getListStates();
     // this.datasets = {
     //   L1: 'L1 - Full',
     //   L1TRADEONLY: 'L1 - Trades',
+    //   L2: 'L2'
     //   L2: 'L2'
     // };
     // this.datasets = {
@@ -91,10 +113,7 @@ export class OrderHistoryComponent implements OnInit {
     //   L1TRADEONLY: 'Times & Sales',
     //   L2: 'Market Depth'
     // };
-    this.userId = JSON.parse(sessionStorage.getItem('user'))._id;
-    this.token = JSON.parse(sessionStorage.getItem('user')).token;
-    httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
-    this.listCurrencies();
+
     // this.list = true;
     // this.viewdetail = false;
     // this.http;
@@ -104,13 +123,19 @@ export class OrderHistoryComponent implements OnInit {
     //   this.command = res.listorders;
     // });
     // const that = this;
-    this.getOrderMetadata();
   }
 
-  getOrderMetadata() {
-    this.orderService.getClientOrderMetadata(httpOptions).subscribe(result => {
-      this.command = result['listorders'];
-    });
+  getOrders() {
+    httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
+    this.orderService.getClientOrders(httpOptions).pipe(map(
+      orderTable =>
+        orderTable['listorders'].map(order => new Order(order['id'], order['submissionDate'], this.getStatusName(order['state']), this.getTTCWithCurrency(order, order['currency']), null, order['_id']))
+    ))
+      .subscribe(result => {
+        this.dataSource.data = result;
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      }, error => console.log(error));
   }
 
   getStatusName(statusId) {
@@ -118,6 +143,7 @@ export class OrderHistoryComponent implements OnInit {
       return statusId;
     return this.statusList.filter(status => status.id === statusId)[0] ? this.statusList.filter(status => status.id === statusId)[0].name : statusId;
   }
+
   listCurrencies() {
     this.currencyService.getCurrencies().subscribe(list => {
       this.symbols = [];
@@ -127,23 +153,36 @@ export class OrderHistoryComponent implements OnInit {
     });
   }
 
-  getTTC(amount) {
+  getCurrency(currency) {
+    return this.symbols[currency];
+  }
+
+  getTTC(order) {
     let ttc = 0;
-    if (amount.currency !== 'usd') {
-      ttc = (((amount.totalHT + amount.totalExchangeFees) / amount.currencyTxUsd) * amount.currencyTx);
+    if (order.currency !== 'usd') {
+      ttc = (((order.totalHT + order.totalExchangeFees) / order.currencyTxUsd) * order.currencyTx);
     }
     else {
-      ttc = amount.totalHT + amount.totalExchangeFees;
+      ttc = order.totalHT + order.totalExchangeFees;
     }
-    if (amount.discount > 0) {
-      ttc = ttc - (ttc * (amount.discount / 100));
+    if (order.discount > 0) {
+      ttc = ttc - (ttc * (order.discount / 100));
     }
-    return this.precisionRound((ttc * (1 + amount.vatValue)), 2);
+    return this.precisionRound((ttc * (1 + order.vatValue)), 2);
+  }
+
+  getTTCWithCurrency(order, currency) {
+    return this.getTTC(order) + this.getCurrency(currency);
   }
 
   precisionRound(number, precision) {
     var factor = Math.pow(10, precision);
     return Math.round(number * factor) / factor;
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.toLowerCase();
   }
 
   // getListStates() {

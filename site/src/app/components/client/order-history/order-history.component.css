@@ -1,11 +1,13 @@
-.linked{
-  display: block;
+table {
+  width: 100%;
 }
-.order>td {
-  border-bottom: 1px solid #ddd;
+
+th.mat-sort-header-sorted {
+  color: black;
 }
-.souscription {
-  min-height: 55px;
-  border-bottom: 1px dashed;
-  margin-bottom: 5px;
+
+mat-form-field {
+  font-size: 14px;
+  float: right;
 }
+

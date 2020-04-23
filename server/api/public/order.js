@@ -27,19 +27,44 @@ router.get('/', (req, res) => {
             Order.find({ idUser: result._id })
                 .collation({ locale: "en" })
                 .then((orders) => {
-                    orders = clientOrderMetadata(orders);
+                    orders = clientOrders(orders);
                     return res.status(200).json({ listorders: orders });
                 });
         });
 });
 
-clientOrderMetadata = function (orders) {
+router.get('/:id/metadata', (req, res) => {
+    Order.findOne({ _id: req.params.id })
+        .then((order) => {
+            clientMetadata = clientOrderMetadata(order);
+            return res.status(200).json({ metadata: clientMetadata });
+        })
+})
+
+router.get('/:id/data', (req, res) => {
+    Order.findOne({ _id: req.params.id })
+        .then((order) => {
+            clientData = clientOrderData(order);   
+            return res.status(200).json({ data: clientData });
+        })
+})
+
+router.get('/:id/fees', (req, res) => {
+    Order.findOne({ _id: req.params.id })
+        .then((order) => {
+            clientFees = clientOrderFees(order);
+            return res.status(200).json({ fees: clientFees });
+        })
+})
+
+
+clientOrders = function (orders) {
 
     return orders.map(order => {
         const container = {};
 
+        container._id = order._id;
         container.id = order.id;
-        container.id_cmd = order.id_cmd;
         container.submissionDate = order.submissionDate;
         container.state = order.state;
         container.totalHT = order.totalHT;
@@ -53,5 +78,50 @@ clientOrderMetadata = function (orders) {
     });
 }
 
+clientOrderMetadata = function (order) {
+
+    const container = {};
+
+    container.id = order.id;
+    container.submissionDate = order.submissionDate;
+    container.payment = order.payment;
+    container.state = order.state;
+    container.companyName = order.companyName;
+    container.firstname = order.firstname;
+    container.lastname = order.lastname;
+    container.job = order.job;
+    container.countryBilling = order.countryBilling;
+
+    return container;
+}
+
+clientOrderData = function (order) {
+
+    const container = {};
+
+    container.id = order.id;
+    container.id_cmd = order.id_cmd;
+    container.products = order.products;
+
+    return container;
+}
+
+clientOrderFees = function (order) {
+
+    const container = {};
+
+    container.currency = order.currency;
+    container.currencyTx = order.currencyTx;
+    container.currencyTxUsd = order.currencyTxUsd;
+    container.discount = order.discount;
+    container.totalExchangeFees = order.totalExchangeFees;
+    container.totalHT = order.totalHT;
+    container.total = order.total;
+    container.idFacture = order.idFacture;   
+    container.vat = order.vat;
+    container.vatValide = order.vatValide;
+    container.vatValue = order.vatValue;
+    return container;
+}
 
 module.exports = router;

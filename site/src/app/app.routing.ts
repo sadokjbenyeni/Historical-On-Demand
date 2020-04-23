@@ -83,7 +83,7 @@ export const routes: Routes = [
   { path: 'product/orderview/:id', component: OrderspViewComponent, canActivate: [GuardGuard] },
   // SUPPORT
   { path: 'support/clientorder', component: ClientOrderComponent, canActivate: [GuardGuard] },
-  { path: 'support/clientorder/:id', component: ClientOrderDetailsComponent, canActivate: [GuardGuard] },
+  { path: 'support/orderview/:id', component: ClientOrderDetailsComponent, canActivate: [GuardGuard] },
   // ALL USERS
   { path: 'home', component: HomeComponent },
   { path: 'about', component: AboutComponent },
