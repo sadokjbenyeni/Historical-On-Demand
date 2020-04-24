@@ -7,7 +7,7 @@ exports.rtconfig = () => { const urls = [ "192.168.10.10" ]; }
 // Domain of site
 exports.domain = () => { return "https://hod-lab.quanthouse.com"; }
 
-exports.localdomain = () => { return "https://10.1.0.5:3000"; }
+exports.localdomain = () => { return "http://localhost:3000"; }
 
 // IPs ElastcSearch
 exports.hostsES = () => { return ['10.0.10.102:9200']; }

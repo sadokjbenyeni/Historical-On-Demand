@@ -1,22 +1,19 @@
 const router = require('express').Router();
 
-const config = require('../config/config.js');
-const HOSTSES = config.hostsES();
 
-const elasticsearch = require('elasticsearch');
+const { Client } = require('@elastic/elasticsearch')
+const client = new Client({ node: 'http://10.0.10.102:9200' })
 
-const client = new elasticsearch.Client({
-	hosts: HOSTSES,
-    log: 'trace'
+
+client.ping({}, { requestTimeout: 20000 }, function (error) {
+    if (error) {
+        console.trace('elasticsearch cluster is down!'); 
+        console.error(error);
+    }
+    else { 
+        console.log('elasticsearch cluster is up!'); 
+    }
 });
-
-
-client.ping({
-    requestTimeout: 3000
-}, function (error) {
-    if (error) { console.trace('elasticsearch cluster is down!'); }
-    else { console.log('All is well'); }
-  });
 
 router.post('/', (req, res) => {
 	client.search({
@@ -30,7 +27,7 @@ router.post('/', (req, res) => {
 	        from: req.body.from,
         }
     }).then(function (resp) {
-        res.json(resp);
+        res.json(resp.body);
     }, function (err) {
         console.trace(err.message);
     });

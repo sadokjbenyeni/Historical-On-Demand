@@ -247,14 +247,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
   verifPricingTier(index, adtv): number {
     let val = 1;
     this.tabPricingTier.forEach(pt => {
-      if (index === environment.elastic.instrument.derivatives) {
+      if (index.toLowerCase().startsWith(environment.elastic.instrument.derivatives)) {
         if (pt.pricingTier === 1 && pt.sup <= adtv) {
           val = 1;
         } else if (pt.pricingTier === 2 && pt.inf > adtv) {
           val = 2;
         }
       }
-      if (index === environment.elastic.instrument.nonderivatives) {
+      if (index.toLowerCase().startsWith(environment.elastic.instrument.nonderivatives)) {
         if (pt.pricingTier === 3 && pt.sup <= adtv) {
           val = 3;
         } else if (pt.pricingTier === 4 && pt.inf > adtv) {
@@ -842,7 +842,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.fluxService.infoProduct(option._source.EID).subscribe(eid => {
         product.historical_data = eid.historical_data;
         product.contractid = '';
-        if (option._index === environment.elastic.feed.productdb) { // FEED
+        if (option._index.toLowerCase().startsWith(environment.elastic.feed.productdb.toLowerCase())) { // FEED
           let av0 = new Date(option._source.AvailabilityStart);
           let av1 = new Date(option._source.AvailabilityEnd);
 
@@ -876,7 +876,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
           product.end_date_select = av1.toJSON();
           product.id_cmd = '';
         }
-        if (option._index === environment.elastic.instrument.nonderivatives) { // Instrument non-deriv
+        if (option._index.toLowerCase().startsWith(environment.elastic.instrument.nonderivatives.toLowerCase())) { // Instrument non-deriv
           let av0 = new Date(option._source.AvailabilityStart);
           let av1 = new Date(option._source.AvailabilityEnd);
 
@@ -917,7 +917,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
           product.end_date_select = av1.toJSON();
           product.id_cmd = '';
         }
-        if (option._index === environment.elastic.instrument.derivatives) { // Instrument deriv
+        if (option._index.toLowerCase().startsWith(environment.elastic.instrument.derivatives.toLowerCase())) { // Instrument deriv
           let av0 = new Date(option._source.AvailabilityStart);
           let av1 = new Date(option._source.AvailabilityEnd);
 

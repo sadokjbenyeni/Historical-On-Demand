@@ -15,6 +15,8 @@ const MDB = require('./server/config/configmdb.js').mdb;
 mongoose.connect('mongodb://'+MDB.userdb+':'+MDB.passdb+'@localhost:27017/histodataweb?authSource='+MDB.authdb, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.set('debug', true);
 
+console.log("Starting hod web site backend version 1.1.2...")
+
 //Init express
 const app = express();
 
@@ -135,5 +137,8 @@ app.set('port', port);
 const server = http.createServer(app);
 
 //Listen on port
-server.listen(port, () => console.log(`API running on localhost:${port}`));
+server.listen(port, () => {
+  console.log(`API running on localhost:${port}`);
+  console.log("HoD web site backend available");
+});
 module.exports = app;
