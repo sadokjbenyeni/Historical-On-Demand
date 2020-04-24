@@ -1,13 +1,7 @@
 
-const app = require('express')();
 const router = require('express').Router();
 const request = require("request");
 const mongoose = require('mongoose');
-
-
-var tar = require('tar-fs');
-
-var fs = require('fs');
 
 const Config = mongoose.model('Config');
 const Order = mongoose.model('Order');
@@ -17,8 +11,8 @@ const Currency = mongoose.model('Currency');
 
 const config = require('../config/config.js');
 
-const URLS = config.config();
 const DOMAIN = config.domain();
+const LOCALDOMAIN = config.localdomain();
 const PAYMENTVERIFY = config.paymentVerify();
 const PAYMENTSETUP = config.paymentSetup();
 const PAYMENTKEY = config.paymentKey();
@@ -1216,7 +1210,7 @@ router.put('/updatemetadata', (req, res) => {
 
 pdfpost = function (id) {
   let options = {
-    url: DOMAIN + '/api/pdf',
+    url: LOCALDOMAIN + '/api/pdf',
     headers: {
       'content-type': 'application/json',
     },
@@ -1234,7 +1228,7 @@ pdfpost = function (id) {
 
 sendMail = function (url, corp) {
   let options = {
-    url: DOMAIN + url,
+    url: LOCALDOMAIN + url,
     headers: {
       'content-type': 'application/json',
     },

@@ -1,21 +1,13 @@
-const app = require('express')();
 const router = require('express').Router();
-const request = require("request");
 const mongoose = require('mongoose');
 
+var path = require('path');
 var fs = require('fs');
 var pdfMake = require('pdfmake/src/printer');
-var pdfFonts = require('pdfmake/build/vfs_fonts');
-
-const Config = mongoose.model('Config');
 const Order = mongoose.model('Order');
 const User = mongoose.model('User');
 const Currency = mongoose.model('Currency');
 const Countrie = mongoose.model('Countrie');
-
-const config = require('../config/config.js');
-const URLS = config.config();
-const DOMAIN = config.domain();
 
 router.post('/', (req, res) => {
     Order.findOne({id: req.body.id }).then( cmd =>{
@@ -142,7 +134,11 @@ pdf = function  (cmd, currency, user, country){
 
   //Création du document PDF
   let pdfDoc = printer.createPdfKitDocument(invoice);
-  pdfDoc.pipe(fs.createWriteStream('files/invoice/'+ cmd.idCommande +'.pdf'));
+  let dir = 'files/invoice';
+  if(!fs.existsSync(dir)){
+    fs.mkdirSync(dir,{ recursive: true });
+  }
+  pdfDoc.pipe(fs.createWriteStream(path.join(dir, cmd.idCommande +'.pdf')));
   pdfDoc.end();
 };
 

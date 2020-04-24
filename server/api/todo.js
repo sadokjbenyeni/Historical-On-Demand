@@ -4,8 +4,7 @@ const request = require("request");
 const mongoose = require('mongoose');
 
 const config = require('../config/config.js');
-const URLS = config.config();
-const DOMAIN = config.domain();
+const LOCALDOMAIN = config.localdomain();
 
 const Order = mongoose.model('Order');
 const User = mongoose.model('User');
@@ -328,7 +327,7 @@ router.put('/finish', (req, res) => {
 // Fonctions utiles
 sendMail = (url, corp) => {
   let options = {
-    url: DOMAIN + url,
+    url: LOCALDOMAIN + url,
     headers: {
       'content-type': 'application/json',
     },

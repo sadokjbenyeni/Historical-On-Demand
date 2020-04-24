@@ -1,12 +1,8 @@
-const app = require('express')();
 const router = require('express').Router();
 const nodemailer = require("nodemailer");
 const config = require('../config/config.js');
 const domain = config.domain();
-const admin = config.admin();
-const URLS = config.config();
 const SMTP = config.smtpconf();
-
 const mongoose = require('mongoose');
 const Config = mongoose.model('Config');
 

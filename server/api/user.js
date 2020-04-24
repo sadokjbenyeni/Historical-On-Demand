@@ -1,4 +1,4 @@
-const app = require('express')();
+
 const router = require('express').Router();
 const mongoose = require('mongoose');
 const crypto = require("crypto");
@@ -10,14 +10,10 @@ const Order = mongoose.model('Order');
 const Role = mongoose.model('Role');
 
 const config = require('../config/config.js');
-const mailer = require('./mailer.js');
 const URLS = config.config();
-const admin = config.admin();
 const domain = config.domain();
 const PHRASE = config.phrase();
-const DNLFILE = config.dnwfile();
 const algorithm = 'aes256';
-var idd = "";
 
 router.param('user', function (req, res, next, id) {
    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
