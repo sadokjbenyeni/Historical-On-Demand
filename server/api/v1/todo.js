@@ -3,7 +3,7 @@ const router = require('express').Router();
 const request = require("request");
 const mongoose = require('mongoose');
 
-const config = require('../config/config.js');
+const config = require('../../config/config.js');
 const LOCALDOMAIN = config.localdomain();
 
 const Order = mongoose.model('Order');

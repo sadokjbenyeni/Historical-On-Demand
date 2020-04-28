@@ -61,6 +61,7 @@ require('./server/models/currency');
 require('./server/models/countrie');
 require('./server/models/companytype');
 require('./server/models/sale');
+require('./server/models/OrderProductLog');
 
 
 //Get our API routes

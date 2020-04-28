@@ -4,7 +4,7 @@ const fs = require('fs');
 const request = require('request');
 const progress = require('request-progress');
 
-const URLS = require('../config/config.js').config();
+const URLS = require('../../config/config.js').config();
 
 const storage = multer.diskStorage({
   destination: "./files",

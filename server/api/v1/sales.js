@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const salesService = require('../service/saleService')
+const salesService = require('../../service/saleService')
 
 router.get('/', (req, res) => { 
     salesService.GetAllSales().then(result => {

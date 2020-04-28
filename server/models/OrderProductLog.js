@@ -1,8 +1,8 @@
 //Configuration MODEL
 
-import { Schema, model } from 'mongoose';
+const mongoose = require('mongoose');
 
-let OrderProductLogSchema = new Schema({
+let OrderProductLogSchema = new mongoose.Schema({
     extract: { type: String, maxlength: 1024 },
     referer: { type: String, maxlength: 10 },
     orderId: { type: String, maxlength: 200 },
@@ -15,4 +15,4 @@ let OrderProductLogSchema = new Schema({
     log: { type: String, maxlength: 2048 },
 }, { timestamps: true });
 
-model('OrderProductLog', OrderProductLogSchema);
+mongoose.model('OrderProductLog', OrderProductLogSchema);

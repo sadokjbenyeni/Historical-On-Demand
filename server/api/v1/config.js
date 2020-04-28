@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 const Config = mongoose.model('Config');
 
-const config = require('../config/config.js');
+const config = require('../../config/config.js');
 const URLS = config.config();
 // const admin = config.admin();
 

@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  api: 'https://hod-lab.quanthouse.com/api',
+  api: 'https://hod-lab.quanthouse.com/api/v1',
   gateway: "http://gateway01.hod-lab.quanthouse.com",
   elastic: {
     instrument: {

@@ -6,7 +6,7 @@ const request = require('request');
 const xml2js = require('xml2js'); // XML2JS Module
 const parser = new xml2js.Parser();
 
-const config = require('../config/config.js');
+const config = require('../../config/config.js');
 const CURRENCY = config.currency();
 
 

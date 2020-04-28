@@ -9,7 +9,7 @@ const User = mongoose.model('User');
 const Order = mongoose.model('Order');
 const Role = mongoose.model('Role');
 
-const config = require('../config/config.js');
+const config = require('../../config/config.js');
 const URLS = config.config();
 const domain = config.domain();
 const PHRASE = config.phrase();
