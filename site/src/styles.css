@@ -408,5 +408,58 @@ re-captcha > div {
   display: initial !important;
 }
 
+ 
+/* Buttons Styling */
+.bottom-button {
+  width: 8vw;
+  max-width: 10vw;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  height: 35px;
+  text-align:center;
+  border: none;
+  background-size: 300% 100%;
+
+  border-radius: 5px;
+  -moz-transition: all .4s ease-in-out;
+  -o-transition: all .4s ease-in-out;
+  -webkit-transition: all .4s ease-in-out;
+  transition: all .4s ease-in-out;
+}
+
+.bottom-button:hover {
+  background-position: 100% 0;
+  -moz-transition: all .4s ease-in-out;
+  -o-transition: all .4s ease-in-out;
+  -webkit-transition: all .4s ease-in-out;
+  transition: all .4s ease-in-out;
+}
+
+.bottom-button:focus {
+  outline: none;
+}
+/* Close Button */
+.bottom-button.red-color {
+     background-image: linear-gradient(to right, #ff000d, #e73e44, #e4262d, #700006);  box-shadow: 0 5px 15px rgba(241, 74, 79, 0.4);
+}
+
+/* Cancel Order Button */
+.bottom-button.yellow-color {
+  background-image: linear-gradient(to right, #ddd905, #dfc13e, #dfd222, #9b8300);  box-shadow: 0 5px 15px rgba(230, 241, 74, 0.4);
+}
+
+.bottom-button.green-color {
+  background-image: linear-gradient(to right, #00901f, #2caf4d, #1ada5a, #0f5f30);  box-shadow: 0 5px 15px rgba(2, 148, 14, 0.4);
+}
+
+.bottom-button.orange-color {
+  background-image: linear-gradient(to right, #ff5100, #ee7241, #e7964b, #bb4500);  box-shadow: 0 5px 15px rgba(192, 127, 6, 0.4);
+}
+
+
+/*******************/
+
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

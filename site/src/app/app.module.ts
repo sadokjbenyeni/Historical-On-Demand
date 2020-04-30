@@ -144,6 +144,7 @@ import { SalesService } from './services/sales.service';
 import { MenusupportComponent } from './components/support/menusupport/menusupport.component';
 import { CommonModule } from '@angular/common';
 import { OrderHistoryDetailsComponent } from './components/client/order-history-details/order-history-details.component';
+import { CancelOrderDialogComponent } from './components/client/cancel-order-dialog/cancel-order-dialog.component';
 
 // lazy loading
 
@@ -208,7 +209,8 @@ import { OrderHistoryDetailsComponent } from './components/client/order-history-
     ConfigElasticComponent,
     MailFailedComponent,
     MenusupportComponent,
-    OrderHistoryDetailsComponent
+    OrderHistoryDetailsComponent,
+    CancelOrderDialogComponent
   ],
   entryComponents: [NgbdModalContent],
   imports: [

@@ -44,7 +44,7 @@ router.get('/:id/metadata', (req, res) => {
 router.get('/:id/data', (req, res) => {
     Order.findOne({ _id: req.params.id })
         .then((order) => {
-            clientData = clientOrderData(order);   
+            clientData = clientOrderData(order);
             return res.status(200).json({ data: clientData });
         })
 })
@@ -65,6 +65,7 @@ clientOrders = function (orders) {
 
         container._id = order._id;
         container.id = order.id;
+        container.id_cmd = order.id_cmd;
         container.submissionDate = order.submissionDate;
         container.state = order.state;
         container.totalHT = order.totalHT;
@@ -89,6 +90,7 @@ clientOrderMetadata = function (order) {
     container.companyName = order.companyName;
     container.firstname = order.firstname;
     container.lastname = order.lastname;
+    container.id_cmd = order.id_cmd;
     container.job = order.job;
     container.countryBilling = order.countryBilling;
 
@@ -117,7 +119,7 @@ clientOrderFees = function (order) {
     container.totalExchangeFees = order.totalExchangeFees;
     container.totalHT = order.totalHT;
     container.total = order.total;
-    container.idFacture = order.idFacture;   
+    container.idFacture = order.idFacture;
     container.vat = order.vat;
     container.vatValide = order.vatValide;
     container.vatValue = order.vatValue;
