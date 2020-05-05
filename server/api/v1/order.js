@@ -1069,98 +1069,61 @@ router.post('/listExport', (req, res) => {
       return res.status(200).json(list);
     });
 });
-router.post('/list', (req, res) => {
+router.post('/list', async (req, res) => {
   let sort = {};
   sort.createdAt = -1;
   sort[req.body.columns[req.body.order[0].column].data] = req.body.order[0].dir;
 
-  Order.count({ state: { $ne: '' }, state: { $exists: true } }).then((c) => {
-    let search = {};
-    search['state'] = { $ne: '' };
-    search['state'] = { $exists: true };
-    if (req.body.state) {
-      search['state'] = req.body.state;
-    }
-    req.body.columns.forEach(s => {
-      if (s.data === 'redistribution' && s.search.value !== '') {
-        search['survey.dd'] = s.search.value;
-      } else if (s.data === 'submissionDate' && s.search.value !== '') {
-        let d = s.search.value.split('|');
-        search['submissionDate'] = { $gte: new Date(d[0]), $lt: new Date(d[1]) };
-      }
-      else if (s.data === 'purchasetype' && s.search.value) {
-        if (s.search.value == '1') {
-          search['products'] = {
-            $not: { $elemMatch: { subscription: 1, onetime: 0 } }
-          };
-        }
-        if (s.search.value == '2') {
-          search['products'] = {
-            $not: { $elemMatch: { subscription: 0, onetime: 1 } }
-          };
-        }
-        if (s.search.value == '3') {
-          search['$and'] = [{ 'products': { $elemMatch: { subscription: 1, onetime: 0 } } },
-          { 'products': { $elemMatch: { subscription: 0, onetime: 1 } } }];
-        }
-
-      }
-      else if (s.data === 'id' && s.search.value !== '') {
-        search[s.data] = parseInt(s.search.value);
-      } else if ((s.data === 'total' || s.data === 'discount') && s.search.value !== '') {
-        search[s.data] = parseFloat(s.search.value);
-      } else if (s.search.value !== '') {
-        search[s.data] = new RegExp(s.search.value, "i");
-      }
-
-    });
-    if (req.body.search.value !== '') {
-      search['$or'] = [
-        { state: new RegExp(req.body.search.value, "i") },
-        { companyName: new RegExp(req.body.search.value, "i") },
-        { id_cmd: new RegExp(req.body.search.value, "i") }
-      ];
-    }
-    Order.count(search).then((cf) => {
-      Order.find(search)
-        .skip(req.body.start)
-        .limit(req.body.length)
-        .collation({ locale: "en" })
-        .sort(sort)
-        .then((orders) => {
-          if (!orders) { return res.status(404); }
-          return res.status(200).json({ recordsFiltered: cf, recordsTotal: c, draw: req.body.draw, listorders: orders });
-        });
-    });
-  });
+  var orderTotalCount = Order.count({ state: { $ne: '' }, state: { $exists: true } }).exec();  
+  let search = buildSearch(req);  
+  var orderCount = await Order.count(search).exec();
+  try{
+  var orders = await Order.find(search)
+    .skip(req.body.start)
+    .limit(req.body.length)
+    .collation({ locale: "en" })
+    .sort(sort)
+    .exec();
+  }catch(error){
+    console.error("["+req.headers.loggerToken + "] unhandle exception: " + error); 
+    return res.status(503).json({ message : "an error has been raised please contact support with this identifier ["+req.headers.loggerToken+"]" });
+  }
+    return res.status(200).json({ recordsFiltered: orderCount, recordsTotal: orderTotalCount, draw: req.body.draw, listorders: orders });
 });
+
+
 
 router.post('/history', (req, res) => {
   if (req.headers.authorization) {
     User.findOne({ token: req.headers.authorization }, { _id: true })
       .then((result) => {
-        let sort = {};
-        let idUser = result._id;
-        for (var i = 0; i < req.body.order.length; i++) {
-          sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
-        }
-        Order.count({ idUser: idUser }).then((c) => {
-          let search = {};
-          if (idUser) {
-            search['idUser'] = idUser;
+        if(result) {
+          let sort = {};
+          let idUser = result._id;
+          for (var i = 0; i < req.body.order.length; i++) {
+            sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
           }
-          Order.count(search).then((cf) => {
-            Order.find(search)
-              .skip(req.body.start)
-              .limit(req.body.length)
-              .collation({ locale: "en" })
-              .sort(sort)
-              .then((orders) => {
-                if (!orders) { return res.status(404); }
-                return res.status(200).json({ recordsFiltered: cf, recordsTotal: c, draw: req.body.draw, listorders: orders });
-              });
+          Order.count({ idUser: idUser }).then((c) => {
+            let search = {};
+            if (idUser) {
+              search['idUser'] = idUser;
+            }
+            Order.count(search).then((cf) => {
+              Order.find(search)
+                .skip(req.body.start)
+                .limit(req.body.length)
+                .collation({ locale: "en" })
+                .sort(sort)
+                .then((orders) => {
+                  if (!orders) { return res.status(404); }
+                  return res.status(200).json({ recordsFiltered: cf, recordsTotal: c, draw: req.body.draw, listorders: orders });
+                });
+            });
           });
-        });
+        }
+        else {
+          return res.status(404);
+        }
       });
   } else {
     return res.status(404);
@@ -1207,6 +1170,56 @@ router.put('/updatemetadata', (req, res) => {
     ok: OrderService.updateOrderMetaData(req.body.id, req.body.note, req.body.sales, req.body.type)
   });
 });
+
+buildSearch = function (req) {
+  let search = {};
+  search['state'] = { $ne: '' };
+  search['state'] = { $exists: true };
+  if (req.body.state) {
+    search['state'] = req.body.state;
+  }
+  req.body.columns.forEach(column => {
+    if (column.data === 'redistribution' && column.search.value !== '') {
+      search['survey.dd'] = column.search.value;
+    } else if (column.data === 'submissionDate' && column.search.value !== '') {
+      let d = column.search.value.split('|');
+      search['submissionDate'] = { $gte: new Date(d[0]), $lt: new Date(d[1]) };
+    }
+    else if (column.data === 'purchasetype' && column.search.value) {
+      if (column.search.value == '1') {
+        search['products'] = {
+          $not: { $elemMatch: { subscription: 1, onetime: 0 } }
+        };
+      }
+      if (column.search.value == '2') {
+        search['products'] = {
+          $not: { $elemMatch: { subscription: 0, onetime: 1 } }
+        };
+      }
+      if (column.search.value == '3') {
+        search['$and'] = [{ 'products': { $elemMatch: { subscription: 1, onetime: 0 } } },
+        { 'products': { $elemMatch: { subscription: 0, onetime: 1 } } }];
+      }
+
+    }
+    else if (column.data === 'id' && column.search.value !== '') {
+      search[column.data] = parseInt(column.search.value);
+    } else if ((column.data === 'total' || column.data === 'discount') && column.search.value !== '') {
+      search[column.data] = parseFloat(column.search.value);
+    } else if (column.search.value !== '') {
+      search[column.data] = new RegExp(column.search.value, "i");
+    }
+
+  });
+  if (req.body.search.value !== '') {
+    search['$or'] = [
+      { state: new RegExp(req.body.search.value, "i") },
+      { companyName: new RegExp(req.body.search.value, "i") },
+      { id_cmd: new RegExp(req.body.search.value, "i") }
+    ];
+  }
+  return search;
+}
 
 pdfpost = function (id) {
   let options = {

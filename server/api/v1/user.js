@@ -177,7 +177,7 @@ router.post('/', (req, res) => {
 
 router.post('/logout/', (req, res) => {
 
-    User.updateOne({token:req.body.token}, {$set:{islogin:false}})
+    User.updateOne({token:req.headers.authorization}, {$set:{islogin:false}})
     .then((val)=> {
         res.status(200).json({});
     })
@@ -186,24 +186,23 @@ router.post('/logout/', (req, res) => {
     });
 });
 
-router.post('/islogin/', (req, res) => {
-    User.findOne({token:req.body.token, islogin:true},{_id:false, islogin:true, roleName:true})
-    .then((val)=> {
-        if(val){
+router.post('/islogin/', async (req, res) => {
+    try {        
+        var user = await User.findOne({token:req.headers.authorization, islogin:true},{_id:false, islogin:true, roleName:true}).exec();
+        if(user){
             const pattern = /\/[0-9a-fA-F]{24}$/;
             let page = req.body.page.replace(pattern, '');
-            Role.count({pages: new RegExp(page, "i"), name: { $in: val.roleName } })
-            .then((role)=>{
-                res.status(200).json({islogin:val.islogin, role:role});
-            });
+            var hasRole = await Role.count({pages: new RegExp(page, "i"), name: { $in: user.roleName } }).exec();
+            return res.status(200).json({islogin:user.islogin, role:hasRole});
         }
         else {
-            res.status(200).json({islogin:false, role:role});
-        }
-    })
-    .catch((err)=> {
-        console.error(err);
-    });
+            return res.status(401).json({islogin:false});
+        }    
+    }
+    catch(error) { 
+        console.error("["+req.headers.loggerToken+"] " + error);
+        return res.status(500).json({message : "Unhandle error id " + req.headers.loggerToken});
+    }
 });
 
 router.post('/check/', (req, res) => {
@@ -264,19 +263,12 @@ router.post('/suspendre/', (req, res) => {
     });    
 });
             
-router.post('/verifmail/', (req, res) => {
-    // if(URLS.indexOf(req.headers.referer) !== -1){
-        User.findOne({email: req.body.email}, {_id:false, token:true})
-        .then((user) => {
-            if (!user) { 
-                return res.status(200).json({valid: false, message:"This email does not exist"});
-            }
-            return res.status(200).json({valid:true, token: user.token});
-        });
-    // }
-    // else{
-    //     return res.sendStatus(404);
-    // }
+router.post('/verifmail/', async (req, res) => {    
+    var user = await User.findOne({email: req.body.email}, {_id:false, token:true}).exec();        
+    if (!user) { 
+        return res.status(200).json({valid: false, message:"This email does not exist"});
+    }
+    return res.status(200).json({valid:true});
 });
 
 router.post('/preferBilling/', (req, res) => {

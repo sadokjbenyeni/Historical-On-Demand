@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
-// router.use('/orderProductLog', require('./orderProductLog'));
+router.use("/support", require('./support'));
+
 router.use('/user', require('./user'));
 router.use('/role', require('./role'));
 router.use('/countries', require('./countries'));

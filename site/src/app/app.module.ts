@@ -1,7 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS  } from '@angular/common/http';
+import { TokenInterceptor } from './interceptors/authentification/token.interceptor';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { routes } from './app.routing';
 // Guard
@@ -203,6 +204,7 @@ import { MenusupportComponent } from './components/support/menusupport/menusuppo
     ProductService,
     CompanytypesService,
     SalesService,
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })
