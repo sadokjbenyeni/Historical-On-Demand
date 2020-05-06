@@ -5,7 +5,15 @@ const Order = mongoose.model('Order');
 const config = require('../../config/config.js');
 
 router.get('/details/:id', async (req, res) => {
-
+    if (!req.headers.authorization) {
+        return res.status(401);
+    }
+    var user = await User.findOne({ token: req.headers.authorization }, { _id: true }).exec();
+    if (!user || !user.roleName || (!user.roleName.includes("Support") && !user.roleName.includes("Administration"))) {
+        let token = req.headers.loggerToken;
+        console.warn('[' + token + '][Security] Token not found');
+        return res.status(403);
+    }
     var order = await Order.findOne({ _id: req.params.id }).exec();
     try {
         order = clientOrderDetails(order);
@@ -31,9 +39,6 @@ clientOrderDetails = function (order) {
     container.job = order.job;
     container.countryBilling = order.countryBilling;
     container.products = order.products;
-    container.products.forEach(product => {
-        product.logs = null;
-    });
     container.currency = order.currency;
     container.currencyTx = order.currencyTx;
     container.currencyTxUsd = order.currencyTxUsd;
