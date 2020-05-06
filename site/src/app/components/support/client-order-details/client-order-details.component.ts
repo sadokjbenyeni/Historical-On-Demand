@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
@@ -57,7 +57,6 @@ export class ClientOrderDetailsComponent implements OnInit {
   datasetsLink: { L1: string; L1TRADEONLY: string; L2: string; };
   dtOptions: DataTables.Settings = {};
 
-
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
@@ -71,6 +70,7 @@ export class ClientOrderDetailsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.periodDnl();
     this.gateway = environment.gateway;
     this.item = false;
     this.cart = [];
@@ -96,10 +96,8 @@ export class ClientOrderDetailsComponent implements OnInit {
       L2: 'L2'
     };
     this.token = JSON.parse(sessionStorage.getItem('user')).token;
-    this.periodDnl();
     this.getListStates();
     this.getCmd();
-    this.openByDefault();
     // this.getVat();
   }
 
@@ -284,10 +282,6 @@ export class ClientOrderDetailsComponent implements OnInit {
 
     document.getElementById(tabName).style.display = "block";
     document.getElementById(activeName).className += " active";
-  }
-
-  openByDefault() {
-    document.getElementById("defaultOpen").click();
   }
 
   limitDownLoad(onetime, subscription, datelk) {

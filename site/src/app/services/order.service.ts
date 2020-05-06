@@ -90,16 +90,11 @@ export class OrderService {
     return this.http.get<any>(environment.api + '/v1/order', httpOptions);
   }
 
-  getClientOrderMetadataById(orderId) {
-    return this.http.get<any>(environment.api + '/v1/order/' + orderId + '/metadata');
+  getOrderDetailsById(orderId, httpOptions) {
+    return this.http.get<any>(environment.api + '/v1/order/details/' + orderId);
   }
-
-  getClientOrderDataById(orderId) {
-    return this.http.get<any>(environment.api + '/v1/order/' + orderId + '/data');
-  }
-
-  getClientOrderFeesById(orderId) {
-    return this.http.get<any>(environment.api + '/v1/order/' + orderId + '/fees');
+  getOrderDetailsByIdForSupport(orderId) {
+    return this.http.get<any>(environment.api + '/v1/support/order/details/' + orderId);
   }
 }
 

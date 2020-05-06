@@ -19,5 +19,5 @@ router.use('/sales', require('./sales'));
 
 //v1
 router.use('/v1/order', require('./public/order'));
-
+router.use('/v1/support/order', require('./support/order'));
 module.exports = router;

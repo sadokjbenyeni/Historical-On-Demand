@@ -33,30 +33,22 @@ router.get('/', (req, res) => {
         });
 });
 
-router.get('/:id/metadata', (req, res) => {
-    Order.findOne({ _id: req.params.id })
-        .then((order) => {
-            clientMetadata = clientOrderMetadata(order);
-            return res.status(200).json({ metadata: clientMetadata });
-        })
+router.get('/details/:id', async (req, res) => {
+    if (!req.headers.authorization) {
+        return res.status(401);
+    }
+    var user = await User.findOne({ token: req.headers.authorization }, { _id: true }).exec();
+    var order = await Order.findOne({ idUser: user._id }).exec();
+    
+    try {
+        order = clientOrderDetails(order);
+    }
+    catch (error) {
+        console.error("[" + req.headers.loggerToken + "] unhandle exception: " + error);
+        return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
+    }
+    return res.status(200).json({ details: order });
 })
-
-router.get('/:id/data', (req, res) => {
-    Order.findOne({ _id: req.params.id })
-        .then((order) => {
-            clientData = clientOrderData(order);
-            return res.status(200).json({ data: clientData });
-        })
-})
-
-router.get('/:id/fees', (req, res) => {
-    Order.findOne({ _id: req.params.id })
-        .then((order) => {
-            clientFees = clientOrderFees(order);
-            return res.status(200).json({ fees: clientFees });
-        })
-})
-
 
 clientOrders = function (orders) {
 
@@ -79,10 +71,9 @@ clientOrders = function (orders) {
     });
 }
 
-clientOrderMetadata = function (order) {
+clientOrderDetails = function (order) {
 
     const container = {};
-
     container.id = order.id;
     container.submissionDate = order.submissionDate;
     container.payment = order.payment;
@@ -93,25 +84,10 @@ clientOrderMetadata = function (order) {
     container.id_cmd = order.id_cmd;
     container.job = order.job;
     container.countryBilling = order.countryBilling;
-
-    return container;
-}
-
-clientOrderData = function (order) {
-
-    const container = {};
-
-    container.id = order.id;
-    container.id_cmd = order.id_cmd;
     container.products = order.products;
-
-    return container;
-}
-
-clientOrderFees = function (order) {
-
-    const container = {};
-
+    container.products.forEach(product => {
+        product.logs = null;
+    });
     container.currency = order.currency;
     container.currencyTx = order.currencyTx;
     container.currencyTxUsd = order.currencyTxUsd;

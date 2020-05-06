@@ -11,366 +11,178 @@
 <div class="container page-content">
   <app-menusupport></app-menusupport>
   <div class="row">
-    <div class="tab">
-      <button class="tablinks active" (click)="openTab('defaultOpen', 'Support View')" id="defaultOpen">Support
-        View</button>
-      <button class="tablinks active" (click)="openTab('defaultClose', 'Client View')" id="defaultClose">Client
-        View</button>
-    </div>
-    <div class="col-md-11 floatright tabcontent" id="Support View">
-      <div class="table-responsive">
-        <div class="panel panel-primary" *ngIf="message">
-          <div class="panel-heading">
-            <h5 class="text-center">{{message}}</h5>
-          </div>
-        </div>
-        <div class="panel panel-info">
-          <div class="table-responsive container row">
-            <div class="col-md-6">
-              <p>Order ID : <b> {{ idOrder }}</b></p>
-              <p>Submission Date and Time : <b> {{ submissionDate | date:'medium' }}</b></p>
-              <p>Payment method : <b>{{ payment }}</b></p>
-              <p>Invoice : <b><a *ngIf="invoice!=undefined" target="_blank"
-                    [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}} </a></b></p>
-              <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b>
+    <mat-tab-group>
+      <mat-tab label="Support View">
+        <div class="col-md-11 center-tab-content">
+          <div class="table-responsive">
+            <div class="panel panel-primary" *ngIf="message">
+              <div class="panel-heading">
+                <h5 class="text-center">{{message}}</h5>
+              </div>
             </div>
-            <div class="col-md-6">
-              <p>Company Name: <b>{{ company }}</b></p>
-              <p>First name : <b>{{ firstname }}</b></p>
-              <p>Last name : <b>{{ lastname }}</b></p>
-              <p>Job role : <b>{{ job }}</b></p>
-              <p>Country : <b>{{ countryBilling }}</b></p>
+            <div class="panel panel-info">
+              <div class="table-responsive container row">
+                <div class="col-md-6">
+                  <p>Order ID : <b> {{ idOrder }}</b></p>
+                  <p>Submission Date and Time : <b> {{ submissionDate | date:'medium' }}</b></p>
+                  <p>Payment method : <b>{{ payment }}</b></p>
+                  <p>Invoice : <b><a *ngIf="invoice!=undefined" target="_blank"
+                        [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}} </a></b></p>
+                  <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b>
+                </div>
+                <div class="col-md-6">
+                  <p>Company Name: <b>{{ company }}</b></p>
+                  <p>First name : <b>{{ firstname }}</b></p>
+                  <p>Last name : <b>{{ lastname }}</b></p>
+                  <p>Job role : <b>{{ job }}</b></p>
+                  <p>Country : <b>{{ countryBilling }}</b></p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="panel panel-default">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>Item #</th>
-                <th>Data Set</th>
-                <th>Symbol</th>
-                <th>Exchange</th>
-                <th>Product ID</th>
-                <th>Purchase Type</th>
-                <th>Engagement Period<br>(month)</th>
-                <th>Date From</th>
-                <th>Date To</th>
-                <th>Pricing Tier</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let c of cart"
-                [ngClass]="{ 'danger':c.status==='failed', 'warning':c.status==='running', clickable: true }"
-                (click)="detail(c)">
-                <td *ngIf="!c.print">{{ c.idx}}</td>
-                <td *ngIf="!c.print">{{ c.quotation_level }}</td>
-                <td *ngIf="!c.print">{{ c.symbol }}</td>
-                <td *ngIf="!c.print">{{ c.exchange }}</td>
-                <td *ngIf="!c.print">{{ c.eid }}</td>
-                <td *ngIf="c.onetime === 1 && !c.print">One-Off</td>
-                <td *ngIf="c.subscription === 1 && !c.print">Subscription</td>
-                <td *ngIf="c.subscription === 1 && !c.print">{{c.period}}</td>
-                <td *ngIf="c.subscription === 1 && !c.print && !c.begin_date_select"></td>
-                <td *ngIf="c.subscription === 1 && !c.print && !c.end_date_select"></td>
-                <td *ngIf="c.subscription === 1 && !c.print && c.begin_date_select">
-                  {{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
-                <td *ngIf="c.subscription === 1 && !c.print && c.end_date_select">
-                  {{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
-                <td *ngIf="c.subscription === 0 && !c.print"></td>
-                <td *ngIf="c.subscription === 0 && !c.print">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
-                <td *ngIf="c.subscription === 0 && !c.print">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
-                <td *ngIf="!c.print">{{ c.pricingTier }}</td>
-                <td *ngIf="!c.print">{{ getHt(c.ht) | number:'1.2-2' }} {{ symbols[currency] }}</td>
-                <td class="bg-grey" colspan="9" *ngIf="c.print"></td>
-                <td *ngIf="(c.backfill_fee || c.ongoing_fee)"><b>Exchange Fees</b></td>
-                <td *ngIf="(c.backfill_fee || c.ongoing_fee)">
-                  {{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }}
-                  {{ symbols[currency] }}</td>
-                <td>{{ c.status }}</td>
-                <!-- <td><button class="btn btn-success" (click)="retry(c)">Retry</button></td> -->
-                <td>
-                  <div class="btn-group" *ngIf="c.onetime === 1">
-                    <button type="button" class="btn btn-success fa"
-                      (click)="retryMode='delta';openModal(retrymodal);">Retry Delta</button>
-                    <button type="button" class="btn btn-success fa dropdown-toggle" data-toggle="dropdown"
-                      aria-haspopup="true" aria-expanded="false" data-placement="right">
-                      <span class="caret"></span>
-                      <span class="sr-only">Toggle Dropdown</span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-right">
-                      <li><a (click)="retryMode='full';openModal(retrymodal);">Retry Full</a></li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-              <tr *ngIf="cart?.length === 0">
-                <td colspan="11" class="no-data-available">Empty !</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="panel panel-primary" *ngIf="item">
-          <div class="table-responsive container">
-            <div class="col-lg-12">
-              <h4 [ngClass]="{ 'text-danger':item.status==='failed', 'text-warning':item.status==='running' }">Status :
-                {{item.status}}</h4>
-              <ul class="list-group">
-                <li class="list-group-item">
-                  <label for="idelement">Item : {{ item.idElem }}</label>
-                </li>
-                <li class="list-group-item">
-                  <label>Logs :</label>
+            <div class="panel panel-default">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Item #</th>
+                    <th>Data Set</th>
+                    <th>Symbol</th>
+                    <th>Exchange</th>
+                    <th>Product ID</th>
+                    <th>Purchase Type</th>
+                    <th>Engagement Period<br>(month)</th>
+                    <th>Date From</th>
+                    <th>Date To</th>
+                    <th>Pricing Tier</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let c of cart"
+                    [ngClass]="{ 'danger':c.status==='failed', 'warning':c.status==='running', clickable: true }"
+                    (click)="detail(c)">
+                    <td *ngIf="!c.print">{{ c.idx}}</td>
+                    <td *ngIf="!c.print">{{ c.quotation_level }}</td>
+                    <td *ngIf="!c.print">{{ c.symbol }}</td>
+                    <td *ngIf="!c.print">{{ c.exchange }}</td>
+                    <td *ngIf="!c.print">{{ c.eid }}</td>
+                    <td *ngIf="c.onetime === 1 && !c.print">One-Off</td>
+                    <td *ngIf="c.subscription === 1 && !c.print">Subscription</td>
+                    <td *ngIf="c.subscription === 1 && !c.print">{{c.period}}</td>
+                    <td *ngIf="c.subscription === 1 && !c.print && !c.begin_date_select"></td>
+                    <td *ngIf="c.subscription === 1 && !c.print && !c.end_date_select"></td>
+                    <td *ngIf="c.subscription === 1 && !c.print && c.begin_date_select">
+                      {{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
+                    <td *ngIf="c.subscription === 1 && !c.print && c.end_date_select">
+                      {{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
+                    <td *ngIf="c.subscription === 0 && !c.print"></td>
+                    <td *ngIf="c.subscription === 0 && !c.print">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
+                    <td *ngIf="c.subscription === 0 && !c.print">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
+                    <td *ngIf="!c.print">{{ c.pricingTier }}</td>
+                    <td *ngIf="!c.print">{{ getHt(c.ht) | number:'1.2-2' }} {{ symbols[currency] }}</td>
+                    <td class="bg-grey" colspan="9" *ngIf="c.print"></td>
+                    <td *ngIf="(c.backfill_fee || c.ongoing_fee)"><b>Exchange Fees</b></td>
+                    <td *ngIf="(c.backfill_fee || c.ongoing_fee)">
+                      {{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }}
+                      {{ symbols[currency] }}</td>
+                    <td>{{ c.status }}</td>
+                    <td>
+                      <div class="btn-group" *ngIf="c.onetime === 1">
+                        <button type="button" class="btn btn-success fa"
+                          (click)="retryMode='delta';openModal(retrymodal);">Retry Delta</button>
+                        <button type="button" class="btn btn-success fa dropdown-toggle" data-toggle="dropdown"
+                          aria-haspopup="true" aria-expanded="false" data-placement="right">
+                          <span class="caret"></span>
+                          <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                          <li><a (click)="retryMode='full';openModal(retrymodal);">Retry Full</a></li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="cart?.length === 0">
+                    <td colspan="11" class="no-data-available">Empty !</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="panel panel-primary" *ngIf="item">
+              <div class="table-responsive container">
+                <div class="col-lg-12">
+                  <h4 [ngClass]="{ 'text-danger':item.status==='failed', 'text-warning':item.status==='running' }">
+                    Status :
+                    {{item.status}}</h4>
                   <ul class="list-group">
-                    <li class="list-group-item" *ngFor="let log of item.log">
-                      <pre
-                        [ngClass]="{ 'alert-danger':log.status==='failed', 'alert-warning':log.status==='running' }">{{ log | json }}</pre>
+                    <li class="list-group-item">
+                      <label for="idelement">Item : {{ item.idElem }}</label>
+                    </li>
+                    <li class="list-group-item">
+                      <label>Logs :</label>
+                      <ul class="list-group">
+                        <li class="list-group-item" *ngFor="let log of item.log">
+                          <pre
+                            [ngClass]="{ 'alert-danger':log.status==='failed', 'alert-warning':log.status==='running' }">{{ log | json }}</pre>
+                        </li>
+                      </ul>
                     </li>
                   </ul>
-                </li>
-              </ul>
-            </div>
-            <!-- <div class="col-lg-6">
-              <h4>Action</h4>
-              <ul class="list-group">
-                <li class="list-group-item">
-                  <label for="Status">Status</label>
-                  <div class="custom-control custom-radio">
-                    <input type="radio" id="active" name="customRadio" class="custom-control-input"  [value]="'active'" [(ngModel)]="item.status">
-                    <label class="custom-control-label" for="active">Active</label>
-                  </div>
-                  <div class="custom-control custom-radio">
-                    <input type="radio" id="failed" name="customRadio" class="custom-control-input" [value]="'failed'" [(ngModel)]="item.status">
-                    <label class="custom-control-label" for="failed">Failed</label>
-                  </div>
-                  <div *ngIf="!item.links || item.links.length === 0">
-                      <input type="text" [(ngModel)]="link[item.idx]">
-                  </div>
-                  <div *ngFor="let links of item.links">
-                    <div *ngFor="let link of links.links">
-                      <input type="text" [(ngModel)]="link.link" class="form-control">
-                    </div>
-                  </div>
-                </li>
-              </ul>
-              <button class="btn btn-success" (click)="item=false">Update</button>
-              <button class="btn btn-default" (click)="item=false">Cancel</button>
-            </div> -->
-          </div>
-          <div class="table-responsive text-center">
-            <div class="btn-action">
-              <span class="btn btn-success fa fa-handshake" *ngIf="verifState()"
-                (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
+                </div>
+              </div>
+              <div class="table-responsive text-center">
+                <div class="btn-action">
+                  <span class="btn btn-success fa fa-handshake" *ngIf="verifState()"
+                    (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-11 floatright tabcontent" id="Client View">
-      <div>
-        <div class="panel panel-info">
-          <div class="table-responsive container row">
-            <div class="col-md-6">
-              <p>Order ID : <b> {{ idOrder }}</b></p>
-              <p>Submission Date and Time : <b> {{ submissionDate | date:'medium' }}</b></p>
-              <p>Payment method : <b>{{ payment }}</b></p>
-              <p>Invoice : <b><a *ngIf="invoice!=undefined" target="_blank"
-                    [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}} </a></b></p>
-              <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b>
+          <ng-template #content let-c="close" let-d="dismiss">
+            <div class="modal-header">
+              <h5 class="modal-title"><b>{{ action }}</b></h5>
+              <button type="button" class="close" aria-label="Close" (click)="d('')">
+                <span aria-hidden="true">&times;</span>
+              </button>
             </div>
-            <div class="col-md-6">
-              <p>Company Name: <b>{{ companyName }}</b></p>
-              <p>First name : <b>{{ firstname }}</b></p>
-              <p>Last name : <b>{{ lastname }}</b></p>
-              <p>Job role : <b>{{ job }}</b></p>
-              <p>Country : <b>{{ country }}</b></p>
+            <div class="modal-body text-right">
+              <button type="button" class="btn btn-danger" (click)="confirm(); c('')">Confirm</button>
+              <button type="button" class="btn btn-light" (click)="c('')">Close</button>
             </div>
-          </div>
+          </ng-template>
+
+          <ng-template #retrymodal let-c="close" let-d="dismiss">
+            <div class="modal-header">
+              <h5 class="modal-title"><b>{{ retryMode | titlecase }} Retry</b></h5>
+              <button type="button" class="close" aria-label="Close" (click)="d('')">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p>Sending a {{ retryMode | titlecase }} Retry request for <strong>{{item.reference}}</strong>
+                {{ retryMode==='full' ? "(all dates will be re-exported)" : "(only failed dates will be exported)" }}.
+              </p>
+              <p class="alert alert-danger" *ngIf="retryMode==='full'">WARNING: Full retries may take considerable time
+                and
+                resources to complete.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" (click)="retry();c('')"
+                [disabled]="item.reference ===''">Ok</button>
+              <button type="button" class="btn btn-light" (click)="c('')">Cancel</button>
+            </div>
+          </ng-template>
         </div>
-        <div class="panel panel-default">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>Item #</th>
-                  <th width="80px">Data Set</th>
-                  <th>Instrument ID</th>
-                  <th>Product ID</th>
-                  <th>Symbol</th>
-                  <th>Description</th>
-                  <th>Asset Class</th>
-                  <th>Exchange</th>
-                  <th>MIC</th>
-                  <th>Purchase Type</th>
-                  <th>Engagement Period<br>(month)</th>
-                  <th width="85px">Date From</th>
-                  <th width="85px">Date To</th>
-                  <th>Pricing Tier</th>
-                  <th>Price</th>
-                  <th style="width:100px">Expiration Date</th>
-                  <th>Remaining Days</th>
-                  <!-- <th>Download counter</th> -->
-                  <th width="250px">Deliverables</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let c of cart; let index = index">
-                  <td *ngIf="!c.print">{{ c.idx }}</td>
-                  <td *ngIf="!c.print"><span>{{datasets[c.quotation_level]}}</span></td>
-                  <td *ngIf="!c.print">{{ c.qhid }}</td>
-                  <td *ngIf="!c.print">{{ c.eid }}</td>
-                  <td *ngIf="!c.print">{{ c.symbol }}</td>
-                  <td *ngIf="!c.print">{{ c.description }}</td>
-                  <td *ngIf="!c.print">{{ c.assetClass }}</td>
-                  <td *ngIf="!c.print">{{ c.exchange }}</td>
-                  <td *ngIf="!c.print">{{ c.mics }}</td>
-                  <td *ngIf="c.onetime === 1">One-Off delivery</td>
-                  <td *ngIf="c.subscription === 1 && !c.print">Recurrent delivery (Subscription)</td>
-                  <td *ngIf="c.subscription === 1">{{ c.period }}</td>
-                  <td *ngIf="c.subscription === 0"></td>
-                  <td *ngIf="!c.print">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
-                  <td *ngIf="!c.print">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
-                  <td *ngIf="!c.print">{{ c.pricingTier }}</td>
-                  <td *ngIf="!c.print">{{ getHt(c.ht) | number:'1.2-2' }}&nbsp;{{ symbols[currency] }}
-                  </td>
-                  <td *ngIf="!c.print">
-                    <span *ngFor="let lk of c.links | callback: filterUser"
-                      [class]="c.subscription === 1 ? 'cap souscription' : 'cap'">
-                      {{ limitDownLoad(c.onetime, c.subscription, lk.createLinkDate) | date:'yyyy-MM-dd' }}
-                    </span>
-                  </td>
-                  <td *ngIf="!c.print">
-                    <span *ngFor="let lk of c.links | callback: filterUser"
-                      [class]="c.subscription === 1 ? 'cap souscription' : 'cap'">
-                      <span>{{ dateDiff(today, limitDownLoad(c.onetime, c.subscription, lk.createLinkDate)).day>0?dateDiff(today, limitDownLoad(c.onetime, c.subscription, lk.createLinkDate)).day + 1:0 }}</span>
-                    </span>
-                  </td>
-                  <!-- <td *ngIf="!detail.print">0</td> -->
-                  <td *ngIf="!c.print">
-                    <!-- <a (click)="bulkdownload()">test</a><br> -->
-                    <span *ngFor="let lk of detail.links | callback: filterUser">
-                      <!-- <span *ngIf="dateDiff(today, limitDownLoad(detail.onetime, detail.subscription, lk.createLinkDate)).day > 0 && lk.status === 'active'"> -->
-                      <span *ngIf="c.subscription === 1" class="cap souscription">
-                        <span *ngFor="let links of lk.links">
-                          <div *ngFor="let link of links.link.split('|')">
-                            <a href="{{gateway}}/api/user/download/{{token}}/{{ lk.path }}/{{ link }}" target="_blank"
-                              *ngIf="dateDiff(today, limitDownLoad(c.onetime, c.subscription, lk.createLinkDate)).day>0 && link && lk.status === 'active'">{{ link }}</a>
-                            <span
-                              *ngIf="dateDiff(today, limitDownLoad(c.onetime, c.subscription, lk.createLinkDate)).day<=0">
-                              {{ link }}
-                            </span>
-                          </div>
-                        </span>
-                      </span>
-                      <!-- <span *ngIf="lk.onetime === 1 && lk.links[0].link.split('|').length > period[0].linkPerFile"> -->
-                      <span *ngIf="c.onetime === 1 && countLink(lk.links) > period[0].linkPerFile" class="cap">
-                        <i class="fa fa-upload text-color fa-3x clickable"
-                          (click)="dynamicDownloadByHtmlTag(c.idC, c.quotation_level, c.eid, c.symbol, c.assetClass, 'One-Off', c.begin_date_select, c.end_date_select, lk.links, lk.path)"></i>
-                        <!-- <i class="fa fa-upload text-color fa-3x clickable" (click)="dynamicDownloadByHtmlTag(detail.idC+'_'+datasetsLink[detail.quotation_level]+'_'+detail.eid+'_one-off-¤'+detail.begin_date_select+'¤'+detail.end_date_select, lk.links, lk.path, detail.assetClass)" ></i> -->
-                      </span>
-                      <span *ngIf="c.onetime === 1 && countLink(lk.links) < period[0].linkPerFile" class="cap">
-                        <!-- <span *ngIf="lk.onetime === 1 && lk.links[0].link.split('|').length < period[0].linkPerFile"> -->
-                        <span *ngFor="let links of lk.links">
-                          <div *ngFor="let link of links.link.split('|')">
-                            <a href="{{gateway}}/api/user/download/{{token}}/{{ lk.path }}/{{ link }}" target="_blank"
-                              *ngIf="dateDiff(today, limitDownLoad(c.onetime, c.subscription, lk.createLinkDate)).day>0 && link && lk.status === 'active'">{{ link }}</a>
-                            <span
-                              *ngIf="dateDiff(today, limitDownLoad(c.onetime, c.subscription, lk.createLinkDate)).day<=0">
-                              {{ link }}
-                            </span>
-                          </div>
-                        </span>
-                      </span>
-                      <!-- </span> -->
-                    </span>
-                  </td>
-                  <td class="bg-grey" colspan="12" *ngIf="detail.print"></td>
-                  <td colspan="2" *ngIf="(detail.backfill_fee || detail.ongoing_fee)"><b>Exchange Fees</b></td>
-                  <td *ngIf="(detail.backfill_fee || detail.ongoing_fee)">
-                    {{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }}
-                    {{ symbols[currency] }}</td>
-                  <td class="bg-grey" colspan="4" *ngIf="detail.print"></td>
-                </tr>
-                <tr *ngIf="cart?.length === 0">
-                  <td colspan="11" class="no-data-available">Empty !</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      </mat-tab>
+
+      <mat-tab label="Client View">
+        <div class="center-tab-content col-md-11">
+          <app-order-history-details [isSupport]="true"></app-order-history-details>
         </div>
-        <div class="table-responsive container">
-          <div class="col-md-9"></div>
-          <div class="col-md-3">
-            <table class="border-color-sum">
-              <tr>
-                <td>Exchange Fees</td>
-                <td>{{totalExchangeFees | number:'1.2-2'}} {{ symbols[currency] }}</td>
-              </tr>
-              <tr>
-                <td>Order Amount</td>
-                <td>{{totalHT | number:'1.2-2'}} {{ symbols[currency] }}</td>
-              </tr>
-              <tr *ngIf="discount > 0">
-                <td>Discount (%)</td>
-                <td>{{discount}}</td>
-              </tr>
-              <tr>
-                <td>Taxes (VAT : {{ vat * 100}}% )</td>
-                <td>{{totalVat | number:'1.2-2'}} {{ symbols[currency] }}</td>
-              </tr>
-              <tr>
-                <td>TOTAL Order Amount</td>
-                <td>{{totalTTC | number:'1.2-2'}} {{ symbols[currency] }}</td>
-              </tr>
-            </table>
-          </div>
-        </div>
-        <div class="table-responsive text-center">
-          <div class="btn-action">
-            <span class="btn btn-warning fa fa-trash" (click)="openModal(content)" *ngIf=" (state === 'PVC' ||
-                      state === 'PVP' ||
-                      state === 'PVF') && payment !== 'creditcard'"> Cancel Order</span>
-          </div>
-        </div>
-      </div>
-    </div>
+      </mat-tab>
+    </mat-tab-group>
   </div>
 </div>
 <div class="text-center"><span class="btn btn-danger fa fa-power-off" [routerLink]='["/support/clientorder"]'>
     Close</span></div>
-
-<ng-template #content let-c="close" let-d="dismiss">
-  <div class="modal-header">
-    <h5 class="modal-title"><b>{{ action }}</b></h5>
-    <button type="button" class="close" aria-label="Close" (click)="d('')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body text-right">
-    <button type="button" class="btn btn-danger" (click)="confirm(); c('')">Confirm</button>
-    <button type="button" class="btn btn-light" (click)="c('')">Close</button>
-  </div>
-</ng-template>
-
-<ng-template #retrymodal let-c="close" let-d="dismiss">
-  <div class="modal-header">
-    <h5 class="modal-title"><b>{{ retryMode | titlecase }} Retry</b></h5>
-    <button type="button" class="close" aria-label="Close" (click)="d('')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body">
-    <p>Sending a {{ retryMode | titlecase }} Retry request for <strong>{{item.reference}}</strong>
-      {{ retryMode==='full' ? "(all dates will be re-exported)" : "(only failed dates will be exported)" }}.</p>
-    <p class="alert alert-danger" *ngIf="retryMode==='full'">WARNING: Full retries may take considerable time and
-      resources to complete.</p>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-danger" (click)="retry();c('')" [disabled]="item.reference ===''">Ok</button>
-    <button type="button" class="btn btn-light" (click)="c('')">Cancel</button>
-  </div>
-</ng-template>

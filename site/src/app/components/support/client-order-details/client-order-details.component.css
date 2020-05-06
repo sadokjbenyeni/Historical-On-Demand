@@ -36,3 +36,12 @@
   .floatright {
       float: right;
   }
+
+  [isSupport = true] {
+    margin-top: 0px;
+  } 
+
+  .center-tab-content {
+    width: 100%;
+    margin-top: 20px;
+  }

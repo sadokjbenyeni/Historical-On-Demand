@@ -399,7 +399,8 @@ re-captcha > div {
   text-align: center;
 }
 
-.mat-sort-header-container {
+.mat-sort-header-container
+ {
   flex-direction: inherit !important; 
   justify-content: center !important;
 }

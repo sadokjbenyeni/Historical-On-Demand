@@ -38,6 +38,7 @@ export class OrderHistoryComponent implements OnInit {
   command: Array<any>;
   userId: string;
 
+
   clientOrderTableColumns: string[] = ['orderId', 'submissionDateTime', 'orderStatus', 'totalOrderAmount', 'invoice', 'details'];
   public dataSource = new MatTableDataSource();
 

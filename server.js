@@ -5,6 +5,7 @@ const http = require('http');
 const bodyParser = require('body-parser');
 const request = require('request');
 const mongoose = require('mongoose');
+var randtoken = require('rand-token');
 
 const cron = require('node-cron');
 
@@ -22,7 +23,16 @@ app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  let token = randtoken.generate(16);  
+  req.headers.loggerToken = token;
+  var headers = new Array;
+  for (let index = 0; index < req.rawHeaders.length; index = index+2) {
+    headers.push("\"" + req.rawHeaders[index] + "\" : \"" + req.rawHeaders[index+1] + "\""); 
+  }
+  var params = new Array();
+  console.log(Date.now() + ' | ['+token+'] | HttpRequest: { '+headers.join(', ') + ', host: ' + req.host + ', hostname: '+ req.hostname + ' }');
   next();
+  console.log(Date.now() + ' | ['+token+'] | HttpResponse: '+res.statusCode+', ' + res.statusMessage+ ', '+req.headers.authorization);
 });
 
 //Passport

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, Input } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 
 import { OrderService } from '../../../services/order.service';
@@ -11,6 +11,14 @@ import { OrderData } from '../../../../app/Models/Client/OrderData';
 
 import { MatDialog } from '@angular/material/dialog';
 import { CancelOrderDialogComponent } from '../cancel-order-dialog/cancel-order-dialog.component';
+import { HttpHeaders } from '@angular/common/http';
+
+const httpOptions = {
+  headers: new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Authorization': 'my-auth-token',
+  })
+};
 
 @Component({
   selector: 'app-order-history-details',
@@ -59,6 +67,8 @@ export class OrderHistoryDetailsComponent implements OnInit {
   subscription: number;
   path: string;
   link: string;
+  
+  @Input() isSupport: boolean;
 
   constructor(
     public dialog: MatDialog,
@@ -75,15 +85,14 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.getPeriod();
     this.listCurrencies();
 
+    this.token = JSON.parse(sessionStorage.getItem('user')).token;
     this.symbols = new Array();
     this.gateway = environment.gateway;
     this.today = new Date();
 
     this.details = [];
     this.getListStates();
-    this.getClientOrderMetadata();
-    this.getClientOrderFees();
-    this.getClientOrderData();
+    this.getClientOrderDetails();
     this.datasets = {
       L1: 'L1 - Full',
       L1TRADEONLY: 'L1 - Trades',
@@ -94,7 +103,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
       L1TRADEONLY: 'L1-Trades',
       L2: 'L2'
     };
-    this.token = JSON.parse(sessionStorage.getItem('user')).token;
   }
 
   getState(stateId) {
@@ -205,95 +213,80 @@ export class OrderHistoryDetailsComponent implements OnInit {
     });
   }
 
-  getClientOrderMetadata() {
-    this.orderService.getClientOrderMetadataById(this.idCmd).subscribe((order) => {
-      this.idOrder = order.metadata.id;
-      this.submissionDate = order.metadata.submissionDate;
-      this.payment = order.metadata.payment;
-      this.invoice = order.metadata.id_cmd;
-      this.state = order.metadata.state;
-      this.company = order.metadata.companyName;
-      this.firstname = order.metadata.firstname;
-      this.lastname = order.metadata.lastname;
-      this.job = order.metadata.job;
-      this.countryBilling = order.metadata.countryBilling;
-    })
+  getClientOrderDetails() {
+    if (this.isSupport) {
+      this.orderService.getOrderDetailsByIdForSupport(this.idCmd).subscribe((order) => {
+        this.getOrderDetails(order);
+      })
+    }
+    else {
+      httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
+      this.orderService.getOrderDetailsById(this.idCmd, httpOptions).subscribe((order) => {
+        this.getOrderDetails(order);
+      })
+    }
   }
 
-  getClientOrderData() {
-    this.orderService.getClientOrderDataById(this.idCmd).subscribe((orderDetail) => {
-      let index = 0;
-      this.details = [];
-      if (orderDetail.data.products.length > 0) {
-        orderDetail.data.products.forEach(product => {
-
-          index++;
-          this.print = product.print;
-          let links = [];
-          if (!product.links) { product['links'] = []; }
-          product.links.forEach(link => {
-            this.onetime = product.onetime;
-            this.subscription = product.subscription;
-            links.push(link);
-          });
-          let newProduct = new OrderData(
-            index,
-            product.dataset,
-            product.qhid,
-            product.eid,
-            product.symbol,
-            product.description,
-            product.assetClass,
-            product.exchangeName,
-            product.mics,
-            null,
-            product.period,
-            product.begin_date_select,
-            product.end_date_select,
-            product.pricingTier,
-            product.ht,
-            product.links,
-            product.links,
-            product);
-          this.details.push(newProduct);
-          if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
-            this.print = true;
-            this.details.push({ backfill_fee: product.backfill_fee, ongoing_fee: product.ongoing_fee });
-          }
+  private getOrderDetails(order: any) {
+    this.idOrder = order.details.id;
+    this.submissionDate = order.details.submissionDate;
+    this.payment = order.details.payment;
+    this.invoice = order.details.id_cmd;
+    this.state = order.details.state;
+    this.company = order.details.companyName;
+    this.firstname = order.details.firstname;
+    this.lastname = order.details.lastname;
+    this.job = order.details.job;
+    this.countryBilling = order.details.countryBilling;
+    this.currency = order.details.currency;
+    this.currencyTx = order.details.currencyTx;
+    this.currencyTxUsd = order.details.currencyTxUsd;
+    this.vat = order.details.vatValue;
+    if (order.details.currency !== 'usd') {
+      this.totalExchangeFees = (order.details.totalExchangeFees / order.details.currencyTxUsd) * order.details.currencyTx;
+      this.discount = order.details.discount;
+      this.totalHT = ((order.details.totalHT + order.details.totalExchangeFees) / order.details.currencyTxUsd) * order.details.currencyTx;
+      if (this.discount > 0) {
+        this.totalHT = this.totalHT - (this.totalHT * (this.discount / 100));
+      }
+      this.totalVat = this.totalHT * this.vat;
+      this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
+    }
+    else {
+      this.totalExchangeFees = order.details.totalExchangeFees;
+      this.discount = order.details.discount;
+      this.totalHT = order.details.totalHT + order.details.totalExchangeFees;
+      if (this.discount > 0) {
+        this.totalHT = this.totalHT - (this.totalHT * (this.discount / 100));
+      }
+      this.totalVat = this.totalHT * this.vat;
+      this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
+    }
+    let index = 0;
+    this.details = [];
+    if (order.details.products.length > 0) {
+      order.details.products.forEach(product => {
+        index++;
+        this.print = product.print;
+        let links = [];
+        if (!product.links) {
+          product['links'] = [];
+        }
+        product.links.forEach(link => {
+          this.onetime = product.onetime;
+          this.subscription = product.subscription;
+          links.push(link);
         });
-      }
-      this.dataSource.data = this.details;
-    })
-  }
-
-  getClientOrderFees() {
-    this.orderService.getClientOrderFeesById(this.idCmd).subscribe((order) => {
-      this.currency = order.fees.currency;
-      this.currencyTx = order.fees.currencyTx;
-      this.currencyTxUsd = order.fees.currencyTxUsd;
-      this.vat = order.fees.vatValue;
-      if (order.fees.currency !== 'usd') {
-        this.totalExchangeFees = (order.fees.totalExchangeFees / order.fees.currencyTxUsd) * order.fees.currencyTx;
-        this.discount = order.fees.discount;
-        this.totalHT = ((order.fees.totalHT + order.fees.totalExchangeFees) / order.fees.currencyTxUsd) * order.fees.currencyTx;
-        if (this.discount > 0) {
-          this.totalHT = this.totalHT - (this.totalHT * (this.discount / 100));
+        let newProduct = new OrderData(index, product.dataset, product.qhid, product.eid, product.symbol, product.description, product.assetClass, product.exchangeName, product.mics, null, product.period, product.begin_date_select, product.end_date_select, product.pricingTier, product.ht, product.links, product.links, product);
+        this.details.push(newProduct);
+        if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
+          this.print = true;
+          this.details.push({ backfill_fee: product.backfill_fee, ongoing_fee: product.ongoing_fee });
         }
-        this.totalVat = this.totalHT * this.vat;
-        this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
-      } else {
-        this.totalExchangeFees = order.fees.totalExchangeFees;
-        this.discount = order.fees.discount;
-        this.totalHT = order.fees.totalHT + order.fees.totalExchangeFees;
-        if (this.discount > 0) {
-          this.totalHT = this.totalHT - (this.totalHT * (this.discount / 100));
-        }
-        this.totalVat = this.totalHT * this.vat;
-        this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
-      }
-    })
+      });
+    }
+    this.dataSource.data = this.details;
   }
-
 
   precisionRound(number, precision) {
     var factor = Math.pow(10, precision);
@@ -317,6 +310,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
     dialogReference.afterClosed().subscribe(result => {
     });
   }
+
 }
 
 
