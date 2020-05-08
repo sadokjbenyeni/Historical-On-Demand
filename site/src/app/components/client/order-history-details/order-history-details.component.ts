@@ -7,7 +7,7 @@ import { ConfigService } from '../../../services/config.service';
 import { ActivatedRoute } from '@angular/router';
 
 import { MatTableDataSource } from '@angular/material/table';
-import { OrderData } from '../../../../app/Models/Client/OrderData';
+import { Data } from '../../../Models/Order/Data';
 
 import { MatDialog } from '@angular/material/dialog';
 import { CancelOrderDialogComponent } from '../cancel-order-dialog/cancel-order-dialog.component';
@@ -61,13 +61,13 @@ export class OrderHistoryDetailsComponent implements OnInit {
   dtOptions: DataTables.Settings = {};
   clientOrderDetailsTableColumns: string[] = ['item', 'dataSet', 'instrumentID', 'productID', 'symbol', 'description', 'assetClass', 'exchange', 'mic', 'purchaseType'
     , 'engagementPeriod', 'dateFrom', 'dateTo', 'pricingTier', 'price', 'expirationDate', 'remainingDays', 'delivrables'];
-  public dataSource = new MatTableDataSource<OrderData>();
+  public dataSource = new MatTableDataSource<Data>();
   print: boolean;
   onetime: number;
   subscription: number;
   path: string;
   link: string;
-  
+
   @Input() isSupport: boolean;
 
   constructor(
@@ -82,6 +82,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
 
 
   ngOnInit() {
+    this.period = [];
     this.getPeriod();
     this.listCurrencies();
 
@@ -214,20 +215,13 @@ export class OrderHistoryDetailsComponent implements OnInit {
   }
 
   getClientOrderDetails() {
-    if (this.isSupport) {
-      this.orderService.getOrderDetailsByIdForSupport(this.idCmd).subscribe((order) => {
-        this.getOrderDetails(order);
-      })
-    }
-    else {
-      httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
-      this.orderService.getOrderDetailsById(this.idCmd, httpOptions).subscribe((order) => {
-        this.getOrderDetails(order);
-      })
-    }
+    httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
+    this.orderService.getOrderDetailsById(this.idCmd, httpOptions).subscribe((order) => {
+      this.getOrderDetails(order);
+    })
   }
 
-  private getOrderDetails(order: any) {
+  public getOrderDetails(order: any) {
     this.idOrder = order.details.id;
     this.submissionDate = order.details.submissionDate;
     this.payment = order.details.payment;
@@ -277,7 +271,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
           this.subscription = product.subscription;
           links.push(link);
         });
-        let newProduct = new OrderData(index, product.dataset, product.qhid, product.eid, product.symbol, product.description, product.assetClass, product.exchangeName, product.mics, null, product.period, product.begin_date_select, product.end_date_select, product.pricingTier, product.ht, product.links, product.links, product);
+        let newProduct = new Data(index, product.dataset, product.qhid, product.eid, product.symbol, product.description, product.assetClass, product.exchangeName, product.mics, null, product.period, product.begin_date_select, product.end_date_select, product.pricingTier, product.ht, product.links, product.links, product);
         this.details.push(newProduct);
         if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
           this.print = true;

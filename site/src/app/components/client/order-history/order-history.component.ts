@@ -8,8 +8,8 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 
-import { Order } from '../../../Models/Client/Order';
 import { map } from 'rxjs/operators';
+import { Order } from '../../../../app/Models/Order/Order';
 
 const httpOptions = {
   headers: new HttpHeaders({

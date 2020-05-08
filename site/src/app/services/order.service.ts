@@ -93,7 +93,7 @@ export class OrderService {
   getOrderDetailsById(orderId, httpOptions) {
     return this.http.get<any>(environment.api + '/v1/order/details/' + orderId);
   }
-  getOrderDetailsByIdForSupport(orderId) {
+  getSupportOrderDetailsById(orderId) {
     return this.http.get<any>(environment.api + '/v1/support/order/details/' + orderId);
   }
 }

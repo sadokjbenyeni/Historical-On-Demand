@@ -1,4 +1,4 @@
-export class OrderData {
+export class Data {
     item: number;
     dataSet: string;
     instrumentID: number;
