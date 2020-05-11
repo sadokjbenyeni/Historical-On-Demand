@@ -847,6 +847,8 @@ router.put('/update', (req, res) => {
 
             updt.postalCodeBilling = req.body.u.user.postalCodeBilling;
 
+            updt.submissionDate = new Date();
+            
             updt.vat = req.body.u.user.vat;
             // updt.vatValide = req.body.u.user.vatValide;
 
