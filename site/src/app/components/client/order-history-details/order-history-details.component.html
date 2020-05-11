@@ -254,9 +254,11 @@
     </div>
 </div>
 
-<div class="table-responsive text-center" *ngIf="!isSupport">
+<div class="table-responsive text-center" *ngIf="isSupport">
     <div class="btn-action">
-        <button class="bottom-button red-color" [routerLink]='["/order/history"]'><i
+        <button *ngIf="!isSupport" class="bottom-button red-color" [routerLink]='["/order/history"]'><i
+                class="fa fa-chevron-left"></i>Back</button>
+        <button *ngIf="isSupport" class="bottom-button red-color" [routerLink]='["/support/clientorder"]'><i
                 class="fa fa-chevron-left"></i>Back</button>
         <button class="bottom-button orange-color"><i class="fa fa-cloud-download"></i>Download Links</button>
         <button class="bottom-button yellow-color" (click)="openDialog()" *ngIf=" (state === 'PVC' ||

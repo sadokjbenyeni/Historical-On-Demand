@@ -45,3 +45,15 @@
     width: 100%;
     margin-top: 20px;
   }
+
+  #tabs .mat-tab-label {
+    min-width : 0px;
+     width: 167px;
+     height: 50px;
+     border-radius: 3px;
+     background-color: #ff5e00;
+   }
+
+   .fa-chevron-left{
+    padding-right: 5px;
+}
