@@ -65,7 +65,7 @@
                   <span class="fa fa-check-circle text-success" *ngIf="o.survey[0] && o.survey[0]['dd'] === '1'"></span>
                   <span class="fa fa-times-circle text-danger" *ngIf="o.survey[0] && o.survey[0]['dd'] === '0'"></span>
                 </td>
-                <td class="text-center"><span class="btn btn-success" [routerLink]="'/clientorderdetails/' + o._id"><i class="fa fa-eye"></i></span></td>
+                <td class="text-center"><span class="btn btn-success fa fa-eye" [routerLink]="o._id"></span></td>
               </tr>
             </tbody>
           </table>

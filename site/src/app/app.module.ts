@@ -3,8 +3,47 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule, HTTP_INTERCEPTORS  } from '@angular/common/http';
 import { TokenInterceptor } from './interceptors/authentification/token.interceptor';
+//import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { routes } from './app.routing';
+import { NoopAnimationsModule, BrowserAnimationsModule } from '@angular/platform-browser/animations';
+//Angular Material
+
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatNativeDateModule, MatRippleModule } from '@angular/material/core';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTreeModule } from '@angular/material/tree';
 // Guard
 import { GuardGuard } from './guard.guard';
 
@@ -14,7 +53,6 @@ import { EmailValidatorDirective } from './validators/email-validator.directive'
 import { EqualValidatorDirective } from './validators/equal-validator.directive';
 import { TelephoneValidatorDirective } from './validators/telephone-validator.directive';
 import { MdpValidatorDirective } from './validators/mdp-validator.directive';
-
 // Components
 // All
 import { MenuComponent } from './components/menu/menu.component';
@@ -24,7 +62,7 @@ import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { SearchComponent } from './components/search/search.component';
-import { OrderHistoryComponent } from './components/order-history/order-history.component';
+import { OrderHistoryComponent } from './components/client/order-history/order-history.component';
 import { AboutComponent } from './components/about/about.component';
 import { HelpPageComponent } from './components/help-page/help-page.component';
 import { OrderComponent } from './components/order/order.component';
@@ -106,6 +144,10 @@ import { PurchaseTypePipe } from './purchaseType.pipe';
 import { DateValidatorDirective } from './validators/date-validator.directive';
 import { SalesService } from './services/sales.service';
 import { MenusupportComponent } from './components/support/menusupport/menusupport.component';
+import { CommonModule } from '@angular/common';
+import { OrderHistoryDetailsComponent } from './components/client/order-history-details/order-history-details.component';
+import { CancelOrderDialogComponent } from './components/client/cancel-order-dialog/cancel-order-dialog.component';
+import { TokenInterceptor } from './interceptors/authentification/token.interceptor';
 
 // lazy loading
 
@@ -169,7 +211,9 @@ import { MenusupportComponent } from './components/support/menusupport/menusuppo
     ClientOrderDetailsComponent,
     ConfigElasticComponent,
     MailFailedComponent,
-    MenusupportComponent
+    MenusupportComponent,
+    OrderHistoryDetailsComponent,
+    CancelOrderDialogComponent
   ],
   entryComponents: [NgbdModalContent],
   imports: [
@@ -183,6 +227,47 @@ import { MenusupportComponent } from './components/support/menusupport/menusuppo
     RecaptchaModule.forRoot(),
     PdfViewerModule,
     AlertModule,
+    CommonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    BrowserAnimationsModule,
+    NoopAnimationsModule,
+    MatSortModule,
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    MatBadgeModule,
+    MatBottomSheetModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatStepperModule,
+    MatDatepickerModule,
+    MatDialogModule,
+    MatDividerModule,
+    MatExpansionModule,
+    MatGridListModule,
+    MatIconModule,
+    MatInputModule,
+    MatListModule,
+    MatMenuModule,
+    MatNativeDateModule,
+    MatPaginatorModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+    MatRadioModule,
+    MatRippleModule,
+    MatSelectModule,
+    MatSidenavModule,
+    MatSliderModule,
+    MatSlideToggleModule,
+    MatSnackBarModule,
+    MatTableModule,
+    MatTabsModule,
+    MatToolbarModule,
+    MatTooltipModule,
+    MatTreeModule
   ],
   providers: [
     GuardGuard,

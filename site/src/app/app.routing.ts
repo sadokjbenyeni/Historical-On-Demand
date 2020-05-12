@@ -36,13 +36,14 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { SearchComponent } from './components/search/search.component';
 import { OrderComponent } from './components/order/order.component';
-import { OrderHistoryComponent } from './components/order-history/order-history.component';
+import { OrderHistoryComponent } from './components/client/order-history/order-history.component';
 import { CaddiesComponent } from './components/order/caddies/caddies.component';
 import { SurveyComponent } from './components/survey/survey.component';
 
 // Site Supports
 import { ClientOrderComponent } from './components/support/client-order/client-order.component';
 import { ClientOrderDetailsComponent } from './components/support/client-order-details/client-order-details.component';
+import { OrderHistoryDetailsComponent } from './components/client/order-history-details/order-history-details.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -50,6 +51,7 @@ export const routes: Routes = [
   { path: 'account', component: RegisterComponent, canActivate: [GuardGuard] },
   { path: 'search', component: SearchComponent, canActivate: [GuardGuard] },
   { path: 'order/history', component: OrderHistoryComponent, canActivate: [GuardGuard] },
+  { path: 'order/history/:id', component: OrderHistoryDetailsComponent, canActivate: [GuardGuard] },
   { path: 'order/caddies', component: CaddiesComponent, canActivate: [GuardGuard] },
   { path: 'order/review', component: CaddiesComponent, canActivate: [GuardGuard] },
   { path: 'order/licensing', component: CaddiesComponent, canActivate: [GuardGuard] },
@@ -81,7 +83,7 @@ export const routes: Routes = [
   { path: 'product/orderview/:id', component: OrderspViewComponent, canActivate: [GuardGuard] },
   // SUPPORT
   { path: 'support/clientorder', component: ClientOrderComponent, canActivate: [GuardGuard] },
-  { path: 'clientorderdetails/:id', component: ClientOrderDetailsComponent, canActivate: [GuardGuard] },
+  { path: 'support/clientorder/:id', component: ClientOrderDetailsComponent, canActivate: [GuardGuard] },
   // ALL USERS
   { path: 'home', component: HomeComponent },
   { path: 'about', component: AboutComponent },

@@ -53,6 +53,7 @@ export class OrderService {
   postOrder(user, sort = 1) {
     return this.http.post<any>(environment.api + '/order', { user: user, sort: sort });// .map( res => res.json() );
   }
+
   getIdOrder(id) {
     var result = this.http.get<any>(environment.api + '/order/idCmd/' + id);// .map( res => res.json() );
     return result
@@ -83,6 +84,17 @@ export class OrderService {
 
   SaveOrderMetadata(orderId: Number, internalNote: String, sales: String, OrderType: string) {
     return this.http.put<any>(environment.api + '/order/updatemetadata', { id: orderId, note: internalNote, sales: sales, type: OrderType });
+  }
+
+  getClientOrders(httpOptions) {
+    return this.http.get<any>(environment.api + '/v1/order', httpOptions);
+  }
+
+  getOrderDetailsById(orderId, httpOptions) {
+    return this.http.get<any>(environment.api + '/v1/order/details/' + orderId);
+  }
+  getSupportOrderDetailsById(orderId) {
+    return this.http.get<any>(environment.api + '/v1/support/order/details/' + orderId);
   }
 }
 

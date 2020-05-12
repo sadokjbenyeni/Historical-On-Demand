@@ -5,6 +5,7 @@ const http = require('http');
 const bodyParser = require('body-parser');
 const request = require('request');
 const mongoose = require('mongoose');
+var randtoken = require('rand-token');
 
 const cron = require('node-cron');
 
@@ -36,11 +37,14 @@ app.use(function (req, res, next) {
   console.log(Date.now() + ' | ['+token+'] | HttpRequest: { '+headers.join(', ') + ', host: ' + req.host + ', hostname: '+ req.hostname + ' }');
   next();
   console.log(Date.now() + ' | ['+token+'] | HttpResponse: '+res.statusCode+', ' + res.statusMessage+ ', '+req.headers.authorization);
+
 });
 
 app.use(function(err, req, res, next) {
   console.error(Date.now() + ' | [' + req.headers.loggerToken + '] | Error: ' + err.stack);
   res.status(500).send('Something broke!');
+
+
 });
 
 //Passport

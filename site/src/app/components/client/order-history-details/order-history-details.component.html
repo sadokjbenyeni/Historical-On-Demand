@@ -1,0 +1,269 @@
+<app-menu></app-menu>
+<div class="row page-header" *ngIf="!isSupport">
+    <div class="col-lg-12">
+        <ol class="breadcrumb custom-breadcrumb">
+            <li class="active">Order History</li>
+            <li class="active">Order Details</li>
+        </ol>
+    </div>
+</div>
+<div class="container" [ngClass]="{'page-content': !isSupport}">
+    <mat-card class="col-md-5">
+        <mat-card-header>
+            <mat-card-title>Order Information</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="align">
+            <mat-list>
+                <mat-list-item><span>Order ID</span> </mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span>Submission Date & Time</span> </mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span>Payment Method</span></mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span>Invoice</span> </mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span>Order Status</span> </mat-list-item>
+            </mat-list>
+            <mat-divider [vertical]="true"></mat-divider>
+            <mat-list>
+                <mat-list-item>{{ idOrder }}</mat-list-item>
+                <mat-list-item>{{ submissionDate | date:'medium' }}</mat-list-item>
+                <mat-list-item>{{ payment }}</mat-list-item>
+                <mat-list-item><a *ngIf="invoice!=undefined" target="_blank"
+                        [href]="'/files/invoice/' + invoice + '.pdf'">Download Invoice</a></mat-list-item>
+                <mat-list-item>{{ getState(state) }}</mat-list-item>
+            </mat-list>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-card class="col-md-5">
+        <mat-card-header>
+            <mat-card-title>Client Information</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="align">
+            <mat-list>
+                <mat-list-item><span>Company Name</span> </mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span>First Name</span> </mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span>Last Name</span></mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span>Job Role</span> </mat-list-item>
+                <mat-divider></mat-divider>
+                <mat-list-item><span>Country</span> </mat-list-item>
+            </mat-list>
+            <mat-divider [vertical]="true"></mat-divider>
+            <mat-list>
+                <mat-list-item>{{ company }}</mat-list-item>
+                <mat-list-item>{{ firstname }}</mat-list-item>
+                <mat-list-item>{{ lastname }}</mat-list-item>
+                <mat-list-item>{{ job }}</mat-list-item>
+                <mat-list-item>{{ countryBilling }}</mat-list-item>
+            </mat-list>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-card class="col-md-2">
+        <mat-card-header>
+            <mat-card-title>Order Amount</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="align">
+            <mat-list>
+                <mat-list-item><span>Exchange Fees</span></mat-list-item>
+                <mat-divider [inset]="true"></mat-divider>
+                <mat-list-item><span>Order Amount</span></mat-list-item>
+                <mat-divider [inset]="true"></mat-divider>
+                <mat-list-item><span>Discount (%)</span></mat-list-item>
+                <mat-divider [inset]="true"></mat-divider>
+                <mat-list-item><span>Taxes (VAT : {{ vat * 100}}% )</span></mat-list-item>
+                <mat-divider [inset]="true"></mat-divider>
+                <mat-list-item class="bold grey">TOTAL Order Amount</mat-list-item>
+            </mat-list>
+            <mat-divider [vertical]="true"></mat-divider>
+            <mat-list>
+                <mat-list-item>{{totalExchangeFees | number:'1.2-2'}} {{ symbols[currency] }}
+                </mat-list-item>
+                <mat-divider [inset]="true"></mat-divider>
+                <mat-list-item>{{totalHT | number:'1.2-2'}} {{ symbols[currency] }}</mat-list-item>
+                <mat-divider [inset]="true"></mat-divider>
+                <mat-list-item>{{discount}}</mat-list-item>
+                <mat-divider [inset]="true"></mat-divider>
+                <mat-list-item>{{totalVat | number:'1.2-2'}}{{ symbols[currency] }}</mat-list-item>
+                <mat-divider [inset]="true"></mat-divider>
+                <mat-list-item class="bold">{{totalTTC | number:'1.2-2'}} {{ symbols[currency] }}
+                </mat-list-item>
+            </mat-list>
+        </mat-card-content>
+    </mat-card>
+</div>
+
+<div class="row">
+    <div class="col-lg-12 col-md-12">
+        <div class="panel-body ">
+
+            <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+
+                <ng-container matColumnDef="item">
+                    <th mat-header-cell *matHeaderCellDef> Item # </th>
+                    <td mat-cell *matCellDef="let element"><span *ngIf="!print">{{ element.item }}</span></td>
+                </ng-container>
+
+                <ng-container matColumnDef="dataSet">
+                    <th mat-header-cell *matHeaderCellDef> Data Set </th>
+                    <td mat-cell *matCellDef="let element"><span *ngIf="!print">{{ datasets[element.dataSet] }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="instrumentID">
+                    <th mat-header-cell *matHeaderCellDef> Instrument ID </th>
+                    <td mat-cell *matCellDef="let element"><span *ngIf="!print">{{ element.instrumentID }}</span> </td>
+                </ng-container>
+
+                <ng-container matColumnDef="productID">
+                    <th mat-header-cell *matHeaderCellDef> Product ID </th>
+                    <td mat-cell *matCellDef="let element"><span *ngIf="!print"> {{ element.productID }}</span> </td>
+                </ng-container>
+
+                <ng-container matColumnDef="symbol">
+                    <th mat-header-cell *matHeaderCellDef> Symbol </th>
+                    <td mat-cell *matCellDef="let element"><span *ngIf="!print">{{element.symbol }}</span> </td>
+                </ng-container>
+
+                <ng-container matColumnDef="description">
+                    <th mat-header-cell *matHeaderCellDef> Description </th>
+                    <td mat-cell *matCellDef="let element"><span *ngIf="!print"> {{ element.description }} </span></td>
+                </ng-container>
+
+                <ng-container matColumnDef="assetClass">
+                    <th mat-header-cell *matHeaderCellDef> Asset Class </th>
+                    <td mat-cell *matCellDef="let element"><span *ngIf="!print">{{ element.assetClass }}</span> </td>
+                </ng-container>
+
+                <ng-container matColumnDef="exchange">
+                    <th mat-header-cell *matHeaderCellDef> Exchange </th>
+                    <td mat-cell *matCellDef="let element"> <span *ngIf="!print">{{ element.exchange }}</span> </td>
+                </ng-container>
+
+                <ng-container matColumnDef="mic">
+                    <th mat-header-cell *matHeaderCellDef> MIC </th>
+                    <td mat-cell *matCellDef="let element"><span *ngIf="!print"> {{ element.mic }} </span></td>
+                </ng-container>
+
+                <ng-container matColumnDef="purchaseType">
+                    <th mat-header-cell *matHeaderCellDef> Purchase Type </th>
+                    <td mat-cell *matCellDef="let element"><span *ngIf="onetime === 1">One-Off delivery</span>
+                        <span *ngIf="subscription === 1 && !print">Recurrent delivery
+                            (Subscription)</span> </td>
+                </ng-container>
+
+                <ng-container matColumnDef="engagementPeriod">
+                    <th mat-header-cell *matHeaderCellDef> Engagement Period (month) </th>
+                    <td mat-cell *matCellDef="let element"><span
+                            *ngIf="subscription === 1">{{ element.engagementPeriod }}</span>
+                        <span *ngIf="subscription === 0"></span> </td>
+                </ng-container>
+
+                <ng-container matColumnDef="dateFrom">
+                    <th mat-header-cell *matHeaderCellDef> Date From </th>
+                    <td mat-cell *matCellDef="let element"> <span
+                            *ngIf="!print">{{ element.dateFrom | date:'yyyy-MM-dd' }}
+                        </span></td>
+                </ng-container>
+
+                <ng-container matColumnDef="dateTo">
+                    <th mat-header-cell *matHeaderCellDef> Date To </th>
+                    <td mat-cell *matCellDef="let element"><span *ngIf="!print">
+                            {{ element.dateTo | date:'yyyy-MM-dd' }}
+                        </span></td>
+                </ng-container>
+
+                <ng-container matColumnDef="pricingTier">
+                    <th mat-header-cell *matHeaderCellDef> Pricing Tier </th>
+                    <td mat-cell *matCellDef="let element"><span *ngIf="!print"> {{ element.pricingTier }} </span></td>
+                </ng-container>
+
+                <ng-container matColumnDef="price">
+                    <th mat-header-cell *matHeaderCellDef> Price </th>
+                    <td mat-cell *matCellDef="let element"> <span
+                            *ngIf="!print">{{ getHt(element.price) | number:'1.2-2' }}&nbsp;{{ symbols[currency] }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="expirationDate">
+                    <th mat-header-cell *matHeaderCellDef> Expiration Date </th>
+                    <td mat-cell *matCellDef="let element"><span *ngIf="!print"><span
+                                *ngFor="let link of element.expirationDate"
+                                [class]="subscription === 1 ? 'cap souscription' : 'cap'">
+                                {{ limitDownLoad(link.createLinkDate) | date:'yyyy-MM-dd' }}
+                            </span></span></td>
+
+                </ng-container>
+
+                <ng-container matColumnDef="remainingDays">
+                    <th mat-header-cell *matHeaderCellDef> Remaining Days </th>
+                    <td mat-cell *matCellDef="let element"> <span *ngIf="!print"> <span
+                                *ngFor="let link of element.remainingDays"
+                                [class]="subscription === 1 ? 'cap souscription' : 'cap'">
+                                <span>{{ dateDiff(today, limitDownLoad(link.createLinkDate)).day>0?dateDiff(today, limitDownLoad(link.createLinkDate)).day + 1:0 }}</span>
+                            </span></span></td>
+                </ng-container>
+
+                <ng-container matColumnDef="delivrables">
+                    <th mat-header-cell *matHeaderCellDef> Delivrables </th>
+                    <td mat-cell *matCellDef="let element">
+                        <span *ngFor="let lk of element.delivrables.links | callback: filterUser">
+                            <span *ngIf="subscription === 1" class="cap souscription">
+                                <span *ngFor="let links of lk.links">
+                                    <div *ngFor="let link of links.link.split('|')">
+                                        <a href="{{gateway}}/api/user/download/{{token}}/{{ lk.path }}/{{ link }}"
+                                            target="_blank"
+                                            *ngIf="dateDiff(today, limitDownLoad(lk.createLinkDate)).day>0 && link && lk.status === 'active'">{{ link }}</a>
+                                        <span *ngIf="dateDiff(today, limitDownLoad(lk.createLinkDate)).day<=0">
+                                            {{ link }}
+                                        </span>
+                                    </div>
+                                </span>
+                            </span>
+
+                            <span *ngIf="onetime === 1 && countLink(lk.links) > period[0].linkPerFile" class="cap">
+                                <div class="button">
+                                    <div class="icon">
+                                        <i (click)="dynamicDownloadByHtmlTag(element.delivrables.idx, element.delivrables.qhid, element.delivrables.eid, element.delivrables.symbol, element.delivrables.assetClass, 'One-Off', element.delivrables.begin_date_select, element.delivrables.end_date_select, lk.links, lk.path)"
+                                            class="fa fa-download"></i>
+                                    </div>
+                                </div>
+                            </span>
+                            <span *ngIf="onetime === 1 && countLink(lk.links) < period[0].linkPerFile" class="cap">
+                                <span *ngFor="let links of lk.links">
+                                    <div *ngFor="let link of links.link.split('|')">
+                                        <a href="{{gateway}}/api/user/download/{{token}}/{{ lk.path }}/{{ link }}"
+                                            target="_blank"
+                                            *ngIf="dateDiff(today, limitDownLoad(lk.createLinkDate)).day>0 && link && lk.status === 'active'">{{ link }}</a>
+                                        <span *ngIf="dateDiff(today, limitDownLoad(lk.createLinkDate)).day<=0">
+                                            {{ link }}
+                                        </span>
+                                    </div>
+                                </span>
+                            </span>
+                        </span>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="clientOrderDetailsTableColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: clientOrderDetailsTableColumns;"></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive text-center" *ngIf="isSupport">
+    <div class="btn-action">
+        <button *ngIf="!isSupport" class="bottom-button red-color" [routerLink]='["/order/history"]'><i
+                class="fa fa-chevron-left"></i>Back</button>
+        <button *ngIf="isSupport" class="bottom-button red-color" [routerLink]='["/support/clientorder"]'><i
+                class="fa fa-chevron-left"></i>Back</button>
+        <button class="bottom-button orange-color"><i class="fa fa-cloud-download"></i>Download Links</button>
+        <button class="bottom-button yellow-color" (click)="openDialog()" *ngIf=" (state === 'PVC' ||
+                      state === 'PVP' ||
+                      state === 'PVF') && payment !== 'creditcard'"><i class="fa fa-trash-o"></i> Cancel Order
+        </button>
+    </div>
+</div>
