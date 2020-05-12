@@ -5,7 +5,7 @@ const http = require('http');
 const bodyParser = require('body-parser');
 const request = require('request');
 const mongoose = require('mongoose');
-var randtoken = require('rand-token');
+const randtoken = require('rand-token');
 
 const cron = require('node-cron');
 
@@ -20,7 +20,6 @@ console.log("Starting hod web site backend version 1.1.2...")
 
 //Init express
 const app = express();
-const randtoken = require('rand-token');
 
 //Enable CORS
 app.use(function (req, res, next) {

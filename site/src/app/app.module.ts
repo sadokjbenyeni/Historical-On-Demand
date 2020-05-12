@@ -147,10 +147,7 @@ import { MenusupportComponent } from './components/support/menusupport/menusuppo
 import { CommonModule } from '@angular/common';
 import { OrderHistoryDetailsComponent } from './components/client/order-history-details/order-history-details.component';
 import { CancelOrderDialogComponent } from './components/client/cancel-order-dialog/cancel-order-dialog.component';
-import { TokenInterceptor } from './interceptors/authentification/token.interceptor';
-
 // lazy loading
-
 
 @NgModule({
   declarations: [
