@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
 router.use("/support", require('./support'));
+router.use("/internal", require('./internal'));
 
 router.use('/user', require('./user'));
 router.use('/role', require('./role'));

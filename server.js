@@ -38,6 +38,11 @@ app.use(function (req, res, next) {
   console.log(Date.now() + ' | ['+token+'] | HttpResponse: '+res.statusCode+', ' + res.statusMessage+ ', '+req.headers.authorization);
 });
 
+app.use(function(err, req, res, next) {
+  console.error(Date.now() + ' | [' + req.headers.loggerToken + '] | Error: ' + err.stack);
+  res.status(500).send('Something broke!');
+});
+
 //Passport
 const passport = require('passport');
 require('./server/config/passport')(passport); // pass passport for configuration

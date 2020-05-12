@@ -1005,70 +1005,17 @@ router.get('/retry/:id/:export', (req, res) => {
 });
 
 
-router.post('/listExport', (req, res) => {
+router.post('/listExport', async (req, res) => {
   let sort = {};
   sort.id = 1;
-
-  let search = {};
-  Order.find(req.body)
-    .sort(sort)
-    .then((orders) => {
-      if (!orders) { return res.status(404); }
-      var list = [];
-      orders.forEach(order => {
-        let o = {};
-        o["Invoice_ID"] = order.id;
-
-        o["Client_ID"] = order.idUser;
-
-        o["Client_Name"] = order.companyName + ": " + order.firstname + " " + order.lastname;
-
-        o["Client_Country"] = order.country;
-
-        o["Order_Date"] = order.submissionDate;
-        o['type'] = order.type
-
-        if (order.validationFinance) {
-
-          order.logs.forEach(lo => {
-            if (lo.referer === "Finance") {
-              o["Payment_Date"] = lo.date;// (validation by Finance)
-            }
-          });
-        }
-
-        o["Order_Currency"] = order.currency;
-
-        o["Order_Amount_Before_Taxes"] = order.totalHT;
-
-        o["Exchange_Fees"] = order.totalExchangeFees;
-
-        o["VAT"] = order.vatValue;
-        var pay = '';
-
-        if (order.payment === 'creditcard') {
-
-          if (order.logsPayment) {
-
-            order.logsPayment.forEach(ord => {
-              if (ord && ord.authResponse === 'Authorised') {
-                pay = ord.pspReference;
-              }
-            });
-          }
-        }
-
-        o["Payment_Method"] = order.payment;
-        o["Payment_Reference"] = pay;
-
-        o["TOTAL_Order_Amount"] = order.total;// CB : mettre la référence Adyen
-        o["Internal_Note"] = order.internalNote;
-        o["sales"] = order.sales;
-        list.push(o);
-      });
-      return res.status(200).json(list);
-    });
+  var orders = await Order.find(req.body)
+                          .sort(sort)
+                          .exec();    
+  if (!orders) { return res.status(404); }
+  var list = orders.map(orderItem => { convertOrderExport(orderItem); });
+  return res.status(200).json(list);
 });
+
 router.post('/list', async (req, res) => {
   let sort = {};
   sort.createdAt = -1;
@@ -1082,7 +1029,7 @@ router.post('/list', async (req, res) => {
     .skip(req.body.start)
     .limit(req.body.length)
     .collation({ locale: "en" })
-    .sort(sort)
+    //.sort(sort)
     .exec();
   }catch(error){
     console.error("["+req.headers.loggerToken + "] unhandle exception: " + error); 
@@ -1113,7 +1060,7 @@ router.post('/history', (req, res) => {
                 .skip(req.body.start)
                 .limit(req.body.length)
                 .collation({ locale: "en" })
-                .sort(sort)
+                //.sort(sort)
                 .then((orders) => {
                   if (!orders) { return res.status(404); }
                   return res.status(200).json({ recordsFiltered: cf, recordsTotal: c, draw: req.body.draw, listorders: orders });
@@ -1341,35 +1288,11 @@ precisionRound = function (number, precision) {
 };
 
 
-totalttc = function (o) {
-  let totalExchangeFees = 0;
-  let discount = 0;
-  let totalVat = 0;
-  let totalHT = 0;
-  let totalTTC = 0;
-
-  if (o.currency !== 'usd') {
-    totalExchangeFees = (o.totalExchangeFees / o.currencyTxUsd) * o.currencyTx;
-    discount = o.discount;
-    totalHT = ((o.totalHT + o.totalExchangeFees) / o.currencyTxUsd) * o.currencyTx;
-    if (discount > 0) {
-      totalHT = totalHT - (totalHT * (discount / 100));
-    }
-    totalVat = totalHT * o.vatValue;
-
-    totalTTC = precisionRound((totalHT * (1 + o.vatValue)), 2);
-  } else {
-    totalExchangeFees = o.totalExchangeFees;
-    discount = o.discount;
-    totalHT = o.totalHT + o.totalExchangeFees;
-    if (discount > 0) {
-      totalHT = totalHT - (totalHT * (discount / 100));
-    }
-    totalVat = totalHT * o.vatValue;
-
-    totalTTC = precisionRound((totalHT * (1 + o.vatValue)), 2);
+totalttc = function (order) {  
+  if (order.currency !== 'usd') {
+    return computeTotalTtcInLocalCurrency(order, totalTTC);
   }
-  return totalTTC;
+  return ComputeTotalTtcUsd(order, totalTTC);
 };
 
 
@@ -1392,5 +1315,69 @@ clone = function (obj) {
   }
   return copy;
 };
+
+convertOrderExport = function (orderItem) {
+  let orderValues = {};
+  orderValues["Invoice_ID"] = orderItem.id;
+  orderValues["Client_ID"] = orderItem.idUser;
+  orderValues["Client_Name"] = orderItem.companyName + ": " + orderItem.firstname + " " + orderItem.lastname;
+  orderValues["Client_Country"] = orderItem.country;
+  orderValues["Order_Date"] = orderItem.submissionDate;
+  orderValues['type'] = orderItem.type;
+  if (orderItem.validationFinance) {
+    orderItem.logs.forEach(lo => {
+      if (lo.referer === "Finance") {
+        orderValues["Payment_Date"] = lo.date; // (validation by Finance)
+      }
+    });
+  }
+  orderValues["Order_Currency"] = orderItem.currency;
+  orderValues["Order_Amount_Before_Taxes"] = orderItem.totalHT;
+  orderValues["Exchange_Fees"] = orderItem.totalExchangeFees;
+  orderValues["VAT"] = orderItem.vatValue;
+  var pay = '';
+  if (orderItem.payment === 'creditcard') {
+    if (orderItem.logsPayment) {
+      orderItem.logsPayment.forEach(ord => {
+        if (ord && ord.authResponse === 'Authorised') {
+          pay = ord.pspReference;
+        }
+      });
+    }
+  }
+  orderValues["Payment_Method"] = orderItem.payment;
+  orderValues["Payment_Reference"] = pay;
+  orderValues["TOTAL_Order_Amount"] = orderItem.total; // CB : mettre la référence Adyen
+  orderValues["Internal_Note"] = orderItem.internalNote;
+  orderValues["sales"] = orderItem.sales;
+}
+
+computeTotalTtcInLocalCurrency = function (order, totalTTC) {
+  var discount = 0;
+  var totalHT = 0;
+  totalExchangeFees = (order.totalExchangeFees / order.currencyTxUsd) * order.currencyTx;
+  discount = order.discount;
+  totalHT = ((order.totalHT + order.totalExchangeFees) / order.currencyTxUsd) * order.currencyTx;
+  if (discount > 0) {
+    totalHT = totalHT - (totalHT * (discount / 100));
+  }
+  totalVat = totalHT * order.vatValue;
+  totalTTC = precisionRound((totalHT * (1 + order.vatValue)), 2);
+  return totalTTC;
+}
+
+ComputeTotalTtcUsd = function (order, totalTTC) {
+  var discount = 0;
+  var totalHT = 0;
+  totalExchangeFees = order.totalExchangeFees;
+  discount = order.discount;
+  totalHT = order.totalHT + order.totalExchangeFees;
+  if (discount > 0) {
+    totalHT = totalHT - (totalHT * (discount / 100));
+  }
+  totalVat = totalHT * order.vatValue;
+  totalTTC = precisionRound((totalHT * (1 + order.vatValue)), 2);
+  return totalTTC;
+}
 
 module.exports = router;
