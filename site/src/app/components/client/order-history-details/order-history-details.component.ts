@@ -225,7 +225,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.idOrder = order.details.id;
     this.submissionDate = order.details.submissionDate;
     this.payment = order.details.payment;
-    this.invoice = order.details.id_cmd;
+    this.invoice = order.details.idCommande;
     this.state = order.details.state;
     this.company = order.details.companyName;
     this.firstname = order.details.firstname;

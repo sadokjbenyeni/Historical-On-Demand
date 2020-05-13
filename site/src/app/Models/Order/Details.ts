@@ -18,6 +18,7 @@ export class Details {
     totalTTC: number;
     submissionDate: Date;
     state: string;
+    invoice: string;
 
     constructor(commandId: string,
         idOrder: number,
@@ -37,7 +38,8 @@ export class Details {
         totalVat: any,
         totalTTC: number,
         submissionDate: Date,
-        state: string) {
+        state: string,
+        invoice: string) {
         this.commandId = commandId;
         this.idOrder = idOrder;
         this.companyName = companyName;
@@ -57,5 +59,6 @@ export class Details {
         this.totalTTC = totalTTC;
         this.submissionDate = submissionDate;
         this.state = state;
+        this.invoice = invoice;
     }
 }

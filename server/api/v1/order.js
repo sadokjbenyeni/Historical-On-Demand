@@ -841,6 +841,8 @@ router.put('/update', (req, res) => {
 
             updt.postalCodeBilling = req.body.u.user.postalCodeBilling;
 
+            updt.submissionDate = new Date();
+            
             updt.vat = req.body.u.user.vat;
             // updt.vatValide = req.body.u.user.vatValide;
 
@@ -980,7 +982,7 @@ clientOrders = function (orders) {
 
       container._id = order._id;
       container.id = order.id;
-      container.id_cmd = order.id_cmd;
+      container.idCommande = order.idCommande;
       container.submissionDate = order.submissionDate;
       container.state = order.state;
       container.totalHT = order.totalHT;
@@ -995,19 +997,19 @@ clientOrders = function (orders) {
 }
 
 clientOrderDetails = function (order) {
-  if(!order)
-  {
+  if (!order) {
       return {};
   }
   const container = {};
+  container._id = order._id;
   container.id = order.id;
+  container.idCommande = order.idCommande;
   container.submissionDate = order.submissionDate;
   container.payment = order.payment;
   container.state = order.state;
   container.companyName = order.companyName;
   container.firstname = order.firstname;
   container.lastname = order.lastname;
-  container.id_cmd = order.id_cmd;
   container.job = order.job;
   container.countryBilling = order.countryBilling;
   container.products = order.products;

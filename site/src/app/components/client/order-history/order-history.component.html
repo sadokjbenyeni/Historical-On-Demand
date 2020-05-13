@@ -17,7 +17,7 @@
           <input matInput (keyup)="applyFilter($event)" placeholder="Type here ...">
         </mat-form-field>
 
-        <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+        <table mat-table [dataSource]="dataSource" matSort matSortActive="submissionDateTime" matSortDirection="desc" class="mat-elevation-z8">
 
           <ng-container matColumnDef="orderId">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Order ID </th>
