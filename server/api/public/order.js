@@ -39,8 +39,7 @@ router.get('/details/:id', async (req, res) => {
     }
     var user = await User.findOne({ token: req.headers.authorization }, { _id: true }).exec();
     var order = await Order.findOne({ idUser: user._id, _id: req.params.id }).exec();
-    if(!order)
-    {
+    if (!order) {
         return res.status(200);
     }
     try {
@@ -60,7 +59,7 @@ clientOrders = function (orders) {
 
         container._id = order._id;
         container.id = order.id;
-        container.id_cmd = order.id_cmd;
+        container.idCommande = order.idCommande;
         container.submissionDate = order.submissionDate;
         container.state = order.state;
         container.totalHT = order.totalHT;
@@ -75,19 +74,19 @@ clientOrders = function (orders) {
 }
 
 clientOrderDetails = function (order) {
-    if(!order)
-    {
+    if (!order) {
         return {};
     }
     const container = {};
+    container._id = order._id;
     container.id = order.id;
+    container.idCommande = order.idCommande;
     container.submissionDate = order.submissionDate;
     container.payment = order.payment;
     container.state = order.state;
     container.companyName = order.companyName;
     container.firstname = order.firstname;
     container.lastname = order.lastname;
-    container.id_cmd = order.id_cmd;
     container.job = order.job;
     container.countryBilling = order.countryBilling;
     container.products = order.products;

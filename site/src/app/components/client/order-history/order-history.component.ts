@@ -52,6 +52,7 @@ export class OrderHistoryComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
 
   ngOnInit() {
+    this.symbols = [];
     this.listCurrencies();
     this.userId = JSON.parse(sessionStorage.getItem('user'))._id;
     this.token = JSON.parse(sessionStorage.getItem('user')).token;
@@ -62,7 +63,7 @@ export class OrderHistoryComponent implements OnInit {
     httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
     this.orderService.getClientOrders(httpOptions).pipe(map(
       orderTable =>
-        orderTable['listorders'].map(order => new Order(order['id'], order['submissionDate'], this.getStatusName(order['state']), this.getTTCWithCurrency(order, order['currency']), order['id_cmd'], order['_id']))
+        orderTable['listorders'].map(order => new Order(order['id'], order['submissionDate'], this.getStatusName(order['state']), this.getTTCWithCurrency(order, order['currency']), order['idCommande'], order['_id']))
     ))
       .subscribe(result => {
         this.dataSource.data = result;
@@ -79,7 +80,6 @@ export class OrderHistoryComponent implements OnInit {
 
   listCurrencies() {
     this.currencyService.getCurrencies().subscribe(list => {
-      this.symbols = [];
       list.currencies.forEach(item => {
         this.symbols[item.id] = item.symbol;
       });

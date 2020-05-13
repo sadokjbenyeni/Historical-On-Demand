@@ -76,9 +76,9 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
   }
   ngAfterViewInit(): void {
     this.orderService.getSupportOrderDetailsById(this.idCmd).subscribe(order => {
-      var orderDetails = this.convertOrderToOrderDetails(order);
-      this.getOrderDetailsById(orderDetails.details);
-      this.orderHistoryDetailsComponent.getOrderDetails(orderDetails);
+      this.orderDetails = this.convertOrderToOrderDetails(order);
+      this.getOrderDetailsById(this.orderDetails.details);
+      this.orderHistoryDetailsComponent.getOrderDetails(this.orderDetails);
     });
   }
 
