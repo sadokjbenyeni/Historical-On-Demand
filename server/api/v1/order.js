@@ -939,7 +939,8 @@ router.get('/:id', (req, res) => {
 
 router.get('/', (req, res) => {
   if (!req.headers.authorization) {
-      return res.status(401);
+    console.error(new Date() + " | [" + req.headers.loggerToken + "] | Order API | Access denied at this resource");
+    return res.status(401).json({ message: 'Access denied at this resource, please contact the support with ticket identifier: ' + req.headers.loggerToken })
   }
   User.findOne({ token: req.headers.authorization }, { _id: true })
       .then((result) => {

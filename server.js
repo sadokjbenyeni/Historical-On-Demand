@@ -33,9 +33,9 @@ app.use(function (req, res, next) {
     headers.push("\"" + req.rawHeaders[index] + "\" : \"" + req.rawHeaders[index+1] + "\""); 
   }
   var params = new Array();
-  console.log(Date.now() + ' | ['+token+'] | HttpRequest: { '+headers.join(', ') + ', host: ' + req.host + ', hostname: '+ req.hostname + ', url: ' + req.path + ' }');
+  console.log(new Date() + ' | ['+token+'] | HttpRequest: { '+headers.join(', ') + ', host: ' + req.host + ', hostname: '+ req.hostname + ', url: ' + req.path + ' }');
   next();
-  //console.log(Date.now() + ' | ['+token+'] | HttpResponse: '+res.statusCode+', ' + res.statusMessage+ ', '+req.headers.authorization);
+  console.log(new Date() + ' | ['+token+'] | HttpResponse: '+res.statusCode+', ' + res.statusMessage+ ', '+req.headers.authorization);
 });
 
 app.use(function(err, req, res, next) {
