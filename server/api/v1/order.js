@@ -931,6 +931,104 @@ router.get('/listStates', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
+  Order.findOne({ _id: req.params.id })
+      .then((cmd) => {
+          return res.status(200).json({ cmd: cmd });
+      });
+});
+
+router.get('/', (req, res) => {
+  if (!req.headers.authorization) {
+      return res.status(401);
+  }
+  User.findOne({ token: req.headers.authorization }, { _id: true })
+      .then((result) => {
+          Order.find({ idUser: result._id })
+              .collation({ locale: "en" })
+              .then((orders) => {
+                  orders = clientOrders(orders);
+                  return res.status(200).json({ listorders: orders });
+              });
+      });
+});
+
+router.get('/details/:id', async (req, res) => {
+  if (!req.headers.authorization) {
+      return res.status(401);
+  }
+  var user = await User.findOne({ token: req.headers.authorization }, { _id: true }).exec();
+  var order = await Order.findOne({ idUser: user._id, _id: req.params.id }).exec();
+  if(!order)
+  {
+      return res.status(200);
+  }
+  try {
+      order = clientOrderDetails(order);
+  }
+  catch (error) {
+      console.error("[" + req.headers.loggerToken + "] unhandle exception: " + error);
+      return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
+  }
+  return res.status(200).json({ details: order });
+})
+
+clientOrders = function (orders) {
+
+  return orders.map(order => {
+      const container = {};
+
+      container._id = order._id;
+      container.id = order.id;
+      container.id_cmd = order.id_cmd;
+      container.submissionDate = order.submissionDate;
+      container.state = order.state;
+      container.totalHT = order.totalHT;
+      container.currency = order.currency;
+      container.totalExchangeFees = order.totalExchangeFees;
+      container.currencyTxUsd = order.currencyTxUsd;
+      container.currencyTx = order.currencyTx;
+      container.discount = order.discount;
+      container.vatValue = order.vatValue;
+      return container;
+  });
+}
+
+clientOrderDetails = function (order) {
+  if(!order)
+  {
+      return {};
+  }
+  const container = {};
+  container.id = order.id;
+  container.submissionDate = order.submissionDate;
+  container.payment = order.payment;
+  container.state = order.state;
+  container.companyName = order.companyName;
+  container.firstname = order.firstname;
+  container.lastname = order.lastname;
+  container.id_cmd = order.id_cmd;
+  container.job = order.job;
+  container.countryBilling = order.countryBilling;
+  container.products = order.products;
+  container.products.forEach(product => {
+      product.logs = null;
+  });
+  container.currency = order.currency;
+  container.currencyTx = order.currencyTx;
+  container.currencyTxUsd = order.currencyTxUsd;
+  container.discount = order.discount;
+  container.totalExchangeFees = order.totalExchangeFees;
+  container.totalHT = order.totalHT;
+  container.total = order.total;
+  container.idFacture = order.idFacture;
+  container.vat = order.vat;
+  container.vatValide = order.vatValide;
+  container.vatValue = order.vatValue;
+  return container;
+}
+
+
+router.get('/:id', (req, res) => {
   Order.find({ idUser: req.params.id })
     .then((cmd) => {
       return res.status(200).json({ cmd: cmd });

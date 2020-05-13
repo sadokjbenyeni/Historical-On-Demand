@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
 router.use('/orderProductLog', require('./orderProductLog'));
+router.use('/order', require('./order'));
 
 router.use('/', function (req, res, next) {
     console.log('INFORMATION FOR MORGAN !!!!! Support logger call ('+req.url+'):', Date.now());

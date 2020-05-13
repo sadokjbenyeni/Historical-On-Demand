@@ -2,7 +2,7 @@ const router = require('express').Router();
 const mongoose = require('mongoose');
 
 const Order = mongoose.model('Order');
-const config = require('../../config/config.js');
+const config = require('../../../config/config.js');
 
 router.get('/details/:id', async (req, res) => {
     if (!req.headers.authorization) {

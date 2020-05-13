@@ -87,14 +87,15 @@ export class OrderService {
   }
 
   getClientOrders(httpOptions) {
-    return this.http.get<any>(environment.api + '/v1/order', httpOptions);
+    return this.http.get<any>(environment.api + '/order', httpOptions);
   }
 
   getOrderDetailsById(orderId, httpOptions) {
-    return this.http.get<any>(environment.api + '/v1/order/details/' + orderId);
+    return this.http.get<any>(environment.api + '/order/details/' + orderId);
   }
+  
   getSupportOrderDetailsById(orderId) {
-    return this.http.get<any>(environment.api + '/v1/support/order/details/' + orderId);
+    return this.http.get<any>(environment.api + '/support/order/details/' + orderId);
   }
 }
 
