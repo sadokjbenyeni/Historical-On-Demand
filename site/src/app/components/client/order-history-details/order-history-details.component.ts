@@ -273,10 +273,10 @@ export class OrderHistoryDetailsComponent implements OnInit {
         });
         let newProduct = new Data(index, product.dataset, product.qhid, product.eid, product.symbol, product.description, product.assetClass, product.exchangeName, product.mics, null, product.period, product.begin_date_select, product.end_date_select, product.pricingTier, product.ht, product.links, product.links, product);
         this.details.push(newProduct);
-        if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
-          this.print = true;
-          this.details.push({ backfill_fee: product.backfill_fee, ongoing_fee: product.ongoing_fee });
-        }
+        // if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
+        //   this.print = true;
+        //   this.details.push({ backfill_fee: product.backfill_fee, ongoing_fee: product.ongoing_fee });
+        // }
       });
     }
     this.dataSource.data = this.details;
