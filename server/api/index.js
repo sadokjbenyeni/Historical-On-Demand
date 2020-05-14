@@ -1,10 +1,11 @@
 const router = require('express').Router()
-
+const LoggerFactory = require('../../logger.js');
+const logger = new LoggerFactory().createLogger('System');
 
 router.use("/v1", require('./v1'));
+logger.info({ message: "API Versionning loaded.", className: "Index"});
 
 
-//v1
 //router.use('/v1/order', require('./public/order'));
 //router.use('/v1/support/order', require('./support/order'));
 module.exports = router;

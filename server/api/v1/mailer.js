@@ -46,6 +46,7 @@ router.post('/inscription', (req, res, next) => {
   };
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
+      req.logger.error({ message: err.message, className: 'Mailer API', error: error});
       return console.log(error);
     }
     return res.status(200).json({mail:true});
@@ -80,6 +81,7 @@ router.post('/activation', (req, res, next) => {
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
+        req.logger.error({ message: err.message, className: 'Mailer API', error: error});
         return console.log(error);
       }
       return res.status(200).json({mail:true});
@@ -119,6 +121,7 @@ router.post('/activated', (req, res, next) => {
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
+        req.logger.error({ message: err.message, className: 'Mailer API', error: error});
         return console.log(error);
       }
       return res.status(200).json({mail:true});
@@ -150,6 +153,7 @@ router.post('/mdp', (req, res, next) => {
   };
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
+      req.logger.error({ message: err.message, className: 'Mailer API', error: error});
       return console.log(error);
     }
     return res.status(200).json({mail:true});
@@ -181,6 +185,7 @@ router.post('/newOrder', (req, res, next) => {
   };
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
+      req.logger.error({ message: err.message, className: 'Mailer API', error: error});
       return console.log(error);
     }
     return res.status(200).json({mail:true});
@@ -214,6 +219,7 @@ router.post('/newOrderHoD', (req, res, next) => {
   };
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
+      req.logger.error({ message: err.message, className: 'Mailer API', error: error});
       return console.log(error);
     }
     return res.status(200).json({mail:true});
@@ -241,6 +247,7 @@ router.post('/reminder', (req, res, next) => { // géré par un CRON
   };
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
+      req.logger.error({ message: err.message, className: 'Mailer API', error: error});
       return console.log(error);
     }
     return res.status(200).json({mail:true});
@@ -268,6 +275,7 @@ router.post('/orderValidated', (req, res, next) => {
   };
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
+      req.logger.error({ message: err.message, className: 'Mailer API', error: error});
       return console.log(error);
     }
     return res.status(200).json({mail:true});
@@ -310,6 +318,7 @@ router.post('/orderFailedJob', (req, res, next) => {
   };
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
+      req.logger.error({ message: err.message, className: 'Mailer API', error: error});
       return console.log(error);
     }
     return res.status(200).json({mail:true});
@@ -338,6 +347,7 @@ router.post('/orderFailed', (req, res, next) => {
   };
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
+      req.logger.error({ message: err.message, className: 'Mailer API', error: error});
       return console.log(error);
     }
     return res.status(200).json({mail:true});
@@ -377,6 +387,7 @@ router.post('/orderExecuted', (req, res, next) => {
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
+        req.logger.error({ message: err.message, className: 'Mailer API', error: error});
         return console.log(error);
       }
       return res.status(200).json({mail:true});
@@ -407,6 +418,7 @@ router.post('/orderRejected', (req, res, next) => {
   };
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
+      req.logger.error({ message: err.message, className: 'Mailer API', error: error});
       return console.log(error);
     }
     return res.status(200).json({mail:true});
@@ -434,6 +446,7 @@ router.post('/orderCancelled', (req, res, next) => {
   };
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
+      req.logger.error({ message: err.message, className: 'Mailer API', error: error});
       return console.log(error);
     }
     return res.status(200).json({mail:true});

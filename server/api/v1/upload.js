@@ -176,8 +176,8 @@ const pdfOrderFrom = multer.diskStorage({
 });
 
 
-function link(cmd){
-    console.dir(cmd);
+function link(logger, cmd){
+    logger.error({ message: error.message, className: 'Todo API', error: error});
     let invoice = {};
     let header = function(currentPage, pageCount) { return [{ text: currentPage + ' of ' + pageCount, alignment: 'center', fontSize: 8 }] };
     let content = [];
@@ -346,7 +346,7 @@ router.post('/', upload.single('doc'), (req, res, next) => {
 
 router.post('/pdfOrderFrom', pdfOrderFromUpdt.single('doc'), (req, res, next) => {
 // router.post('/pdfOrderFrom/', (req, res, next) => {
-var pdfDoc = link(req.body.cmd);
+var pdfDoc = link(req.logger, req.body.cmd);
 // pdfMake.createPdf(invoice).download(name);
 pdfDoc.pipe(fs.createWriteStream('files/command/QH-ORDER-'+ req.body.id +'.pdf'));
 pdfDoc.end();

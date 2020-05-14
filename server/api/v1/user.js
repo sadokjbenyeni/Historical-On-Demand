@@ -128,9 +128,9 @@ router.post('/', (req, res) => {
         user.website = req.body.website?req.body.website:'';
         
         user.save((err, u)=>{
-            if (err) return console.error(err);
+            if (err) return req.logger.error({ message: err.message, error: err, className: "User API"});
             request.post({ url: domain + '/api/mail/inscription', form: {email: req.body.email, token: user.token} }, ( err, httpResponse, body )=> {
-                if(err) console.error(err);
+                if(err) req.logger.error({ message: err.message, error: err, className: "User API"});
                 res.status(201).json({account:true});
             });
         });
@@ -144,25 +144,28 @@ router.post('/logout/', (req, res) => {
         res.status(200).json({});
     })
     .catch((err)=> {
-        console.error(err);
+        req.logger.error({ message: err.message, error: err, className: "User API"})
     });
 });
 
 router.post('/islogin/', async (req, res) => {
+    req.logger.debug({ message: "isLogin calling...", className: "User API"});
     try {        
         var user = await User.findOne({token:req.headers.authorization, islogin:true},{_id:false, islogin:true, roleName:true}).exec();
         if(user){
             const pattern = /\/[0-9a-fA-F]{24}$/;
             let page = req.body.page.replace(pattern, '');
             var hasRole = await Role.count({pages: new RegExp(page, "i"), name: { $in: user.roleName } }).exec();
+            req.logger.debug("[Security] data: { isLogin: "+ user.islogin + ", hasRole: " + user.hasRole + " }");
             return res.status(200).json({islogin:user.islogin, role:hasRole});
         }
         else {
+            req.logger.warn("[Security] Access denied, no user found");
             return res.status(401).json({islogin:false});
         }    
     }
     catch(error) { 
-        console.error("["+req.headers.loggerToken+"] " + error);
+        req.logger.error({ message: error.message + "\n" + JSON.stringify(error), error: error, className: "User API"})
         return res.status(500).json({message : "Unhandle error id " + req.headers.loggerToken});
     }
 });
@@ -213,7 +216,7 @@ router.post('/activation/', (req, res) => {
         res.status(200).json({message: "Your account is activated. You can connect"});
     })
     .catch(err=>{
-        console.error(err);
+        req.logger.error({ message: err.message, error: err, className: "User API"})
     });
 });
 
@@ -264,7 +267,7 @@ router.post('/preferBilling/', (req, res) => {
         res.status(200).json({});
     })
     .catch((err)=> {
-        console.error(err);
+        req.logger.error({ message: err.message, error: err, className: "User API"})
     });
 });
 
@@ -331,8 +334,8 @@ router.put('/', (req, res) => {
                 res.status(201).json({message:"Your account has been updated"});
                 return;
         })
-        .catch((e)=>{
-            console.error(e);
+        .catch((err)=>{
+            req.logger.error({ message: err.message, error: err, className: "User API"})
         });
     // }
     // else{

@@ -1,4 +1,7 @@
 //Import dependencies
+const LoggerFactory = require('./logger.js');
+const logger = new LoggerFactory().createLogger('System');
+
 const express = require('express');
 const path = require('path');
 const http = require('http');
@@ -16,7 +19,7 @@ const MDB = require('./server/config/configmdb.js').mdb;
 mongoose.connect('mongodb://'+MDB.userdb+':'+MDB.passdb+'@localhost:27017/histodataweb?authSource='+MDB.authdb, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.set('debug', true);
 
-console.log("Starting hod web site backend version 1.1.2...")
+logger.info({ message: "Starting hod web site backend version 1.1.2...", className: "Server" });
 
 //Init express
 const app = express();
@@ -32,17 +35,15 @@ app.use(function (req, res, next) {
   for (let index = 0; index < req.rawHeaders.length; index = index+2) {
     headers.push("\"" + req.rawHeaders[index] + "\" : \"" + req.rawHeaders[index+1] + "\""); 
   }
-  var params = new Array();
-  console.log(new Date() + ' | ['+token+'] | HttpRequest: { '+headers.join(', ') + ', host: ' + req.host + ', hostname: '+ req.hostname + ', url: ' + req.path + ' }');
+  req.logger = new LoggerFactory().createLogger(token);
+  req.logger.info({ message: 'HttpRequest: { '+headers.join(', ') + ', host: ' + req.host + ', hostname: '+ req.hostname + ', url: ' + req.path + ' }', className: "Middleware" });
   next();
-  console.log(new Date() + ' | ['+token+'] | HttpResponse: '+res.statusCode+', ' + res.statusMessage+ ', '+req.headers.authorization);
+  req.logger.info({ message: 'HttpResponse: '+res.statusCode+', ' + res.statusMessage+ ', '+req.headers.authorization, className: "Middleware" });
 });
 
 app.use(function(err, req, res, next) {
-  console.error(Date.now() + ' | [' + req.headers.loggerToken + '] | Error: ' + err.stack);
+  req.logger.error({ error: err, className: "Middleware" });
   res.status(500).send('Something broke!');
-
-
 });
 
 //Passport
@@ -156,7 +157,7 @@ const server = http.createServer(app);
 
 //Listen on port
 server.listen(port, () => {
-  console.log(`API running on localhost:${port}`);
-  console.log("HoD web site backend available");
+  logger.info({ message: `API running on localhost:${port}`, className: "Server" });
+  logger.info({ message: "HoD web site backend available", className: "Server" });
 });
 module.exports = app;

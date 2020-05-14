@@ -13,8 +13,7 @@ router.get('/:orderid', async (req, res) => {
   }
   var user = await User.findOne({ token: req.headers.authorization }, { _id: true }).exec();
   if (!user || !user.roleName || (!user.roleName.includes("Support") && !user.roleName.includes("Administration"))) {
-    let token = req.headers.loggerToken;
-    console.warn('[' + token + '][Security] Token not found');
+    req.logger.warn({message: '[Security] Token not found', className: 'orderProductLog support API'});
     return res.status(404);
   }
   var logs = await OrderProductLog.find({ orderId: req.params.orderId }).exec();
@@ -28,7 +27,7 @@ router.get('/:orderid/:idx', async (req, res) => {
   var user = await User.findOne({ token: req.headers.authorization }, { _id: true }).exec();
   if (!user || !user.roleName || (!user.roleName.includes("Support") && !user.roleName.includes("Administration"))) {
     let token = req.headers.loggerToken;
-    console.warn('[' + token + '][Security] Token not found');
+    req.logger.warn({message: '[Security] Token not found', className: 'orderProductLog support API'});
     return res.status(404);
   }
   var logs = await OrderProductLog.find({ orderId: req.params.orderId, productId: req.params.idx }).exec();

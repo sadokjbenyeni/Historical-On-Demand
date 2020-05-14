@@ -1,15 +1,12 @@
 const router = require('express').Router();
 const mongoose = require('mongoose');
 
-const User = mongoose.model('User');
+// const User = mongoose.model('User');
 const OrderProductLog = mongoose.model('OrderProductLog');
+// const OrderProductLogService = require('../../../service/orderProductLogService');
 
-
-const OrderProductLogService = require('../../../service/orderProductLogService');
-
-router.put('/', async (req, res) => {
-    
-    console.info(Date.now() + ' | [' + req.headers.loggerToken + '] | OrderProductLog API | pushing the information in logs product for order...');
+router.put('/', async (req, res) => {    
+    req.logger.info({ message: 'pushing the information in logs product for order...', className: 'orderProductLog API' });
     if (!req.headers.internal) {
         return res.status(401);
     }
@@ -33,7 +30,7 @@ router.put('/', async (req, res) => {
         await logsDbo.save();
     }
     catch (err) {
-        console.error(Date.now() + ' | [' + req.headers.loggerToken + '] | OrderProductLog API | Error: '+err);
+        req.logger.error({ message: err.message, error: error, className: 'orderProductLog internal API' });
         return res.status(503).json({ message: "Unhandle exception, please contact support with '" + req.headers.loggerToken + "' identifier"});
     }
     return res.status(200).json({ logs: logs });

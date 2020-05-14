@@ -1,12 +1,10 @@
 const router = require('express').Router();
+const LoggerFactory = require('../../../../logger.js');
+const logger = new LoggerFactory().createLogger('System');
 
 router.use('/orderProductLog', require('./orderProductLog'));
 router.use('/order', require('./order'));
 
-router.use('/', function (req, res, next) {
-    console.log('INFORMATION FOR MORGAN !!!!! Support logger call ('+req.url+'):', Date.now());
-    next();
-  });
+logger.info({ message: "V1 of support API is loaded and available", className: "Index"});
 
-console.log("V1 of support API is loaded and available");
 module.exports = router;

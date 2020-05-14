@@ -15,7 +15,10 @@ const Exchange = mongoose.model('Exchange');
 
 router.post('/rate', (req, res) => {
   request('http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml', { json: true }, (err, r, body) => {
-    if (err) { return console.log(err); }
+    if (err) { 
+      req.logger.error({ message: err.message, className: 'Flux API', error: error});
+      return console.log(err); 
+    }
     parser.parseString(body, (err, result) => {
       let tab = result['gesmes:Envelope'].Cube[0].Cube[0].Cube;
       res.status(200).json({ rate: search(req.body.currency, tab) });
@@ -29,7 +32,10 @@ router.get('/eid/:dataset', (req, res) => {
   let tabeid = [];
   //console.dir(APIQF + '/apiHoDProduct.php');
   request(APIQF + '/apiHoDProduct.php', { json: true }, (err, r, body) => {
-    if (err) { return console.log(err); }
+    if (err) { 
+      req.logger.error({ message: err.message, className: 'Flux API', error: error});
+      return console.log(err); 
+    }
     objectToArray(body.hod_catalogue).forEach(c => {
       // if (objectToArray(c.dataset).indexOf(req.params.dataset) != -1 && c.is_active) {
       if (objectToArray(c.dataset).indexOf(req.params.dataset) != -1) {
@@ -66,7 +72,10 @@ router.get('/pricingtier', (req, res) => {
         result[p[x].level][p[x].recurrence][k] = tier;
       }
     }
-    if (err) { return console.log(err); }
+    if (err) { 
+      req.logger.error({ message: err.message, className: 'Flux API', error: error});
+      return console.log(err); 
+    }
     res.status(200).json(result);
   });
 });
@@ -74,7 +83,10 @@ router.get('/pricingtier', (req, res) => {
 // Attendu eid => 1027, 1053, ...
 router.get('/infoProduit/:eid', (req, res) => {
   request(APIQF + '/apiEID.php?eid=' + req.params.eid, { json: true }, (err, r, body) => {
-    if (err) { return console.log(err); }
+    if (err) { 
+      req.logger.error({ message: err.message, className: 'Flux API', error: error});
+      return console.log(err); 
+    }
     res.status(200).json(body.eid_catalogue[req.params.eid]);
   });
 });

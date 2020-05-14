@@ -743,7 +743,10 @@ router.post('/usercaddy', (req, res) => {
 
           order.idUser = req.body.id;
           order.save((err, c) => {
-            if (err) return console.error(err);
+            if (err) {
+              req.logger.error({ message: err.message, className: 'Order API', error: error});
+              return console.error(err);
+            }
             return res.status(200).json({ id_cmd: c._id });
           });
         });
@@ -781,7 +784,8 @@ router.get('/:id', (req, res) => {
 
 router.get('/', (req, res) => {
   if (!req.headers.authorization) {
-    console.error(new Date() + " | [" + req.headers.loggerToken + "] | Order API | Access denied at this resource");
+    // console.error(new Date() + " | [" + req.headers.loggerToken + "] | Order API | Access denied at this resource");
+    req.logger.error({ message: "Access denied at this resource", className: "Order API"});
     return res.status(401).json({ message: 'Access denied at this resource, please contact the support with ticket identifier: ' + req.headers.loggerToken })
   }
   User.findOne({ token: req.headers.authorization }, { _id: true })
@@ -809,7 +813,8 @@ router.get('/details/:id', async (req, res) => {
       order = clientOrderDetails(order);
   }
   catch (error) {
-      console.error("[" + req.headers.loggerToken + "] unhandle exception: " + error);
+      req.logger.error({ error: error, message: error.message, className: "Order API"});
+      // console.error("[" + req.headers.loggerToken + "] unhandle exception: " + error);
       return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
   }
   return res.status(200).json({ details: order });
@@ -970,10 +975,11 @@ router.post('/list', async (req, res) => {
     .skip(req.body.start)
     .limit(req.body.length)
     .collation({ locale: "en" })
-    //.sort(sort)
+    .sort(sort)
     .exec();
   }catch(error){
-    console.error("["+req.headers.loggerToken + "] unhandle exception: " + error); 
+    req.logger.error({ error: error, message: error.message, className: "Order API"});
+    // console.error("["+req.headers.loggerToken + "] unhandle exception: " + error); 
     return res.status(503).json({ message : "an error has been raised please contact support with this identifier ["+req.headers.loggerToken+"]" });
   }
     return res.status(200).json({ recordsFiltered: orderCount, recordsTotal: orderTotalCount, draw: req.body.draw, listorders: orders });

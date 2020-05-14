@@ -36,6 +36,7 @@
     "soap": "^0.31.0",
     "tar-fs": "^2.0.1",
     "validate-vat": "^0.5.1",
+    "winston": "^3.2.1",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {

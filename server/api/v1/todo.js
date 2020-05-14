@@ -303,7 +303,7 @@ router.put('/finish', async (req, res) => {
     res.status(200).json({"ok":"ok"});
   }  
   catch(err) {
-    console.dir(err);
+    req.logger.error({ message: err.message, className: 'Todo API', error: err});
     res.json(err);
   }
 });
@@ -333,9 +333,9 @@ updateOrderProductLogs = ((url, logs) => {
     request.put(options, function (error, response, body) {
       if(error) {
         var loggerToken = randtoken.generator(16);
-        console.Error("["+loggerToken+'] Cannot push the logs information in database; ' + error);
-        console.warn('['+loggerToken+'] '+ JSON.stringify(response));        
-        console.trace('['+loggerToken+'] '+ JSON.stringify(logs));        
+        logger.error({ message: 'Cannot push the logs information in database; ' + error, className: 'Todo API', error: error});
+        logger.warn({ message: JSON.stringify(response), className: 'Todo API' });        
+        logger.debug({ message: JSON.stringify(logs), className: 'Todo API' });
       }
     });
   });
@@ -355,7 +355,7 @@ updatePool = (async (id, status, date) => {
     return  true;
   }
   catch(error){
-    console.error(error);
+    logger.error({ message: error.message, className: 'Todo API', error: error});
     return false;
   }
 });
@@ -370,7 +370,7 @@ removePool = (async (id, lks, onetime, subscription) => {
     return true;
   }
   catch(error){
-    console.error(error);
+    logger.error({ message: error.message, className: 'Todo API', error: error});
     return false;
   }
 });

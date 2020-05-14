@@ -14,8 +14,8 @@ router.post('/', (req, res) => {
       User.findOne({_id: cmd.idUser}, {id: true, vat: true, countryBilling: true, checkvat: true}).then(u => {
         Countrie.findOne({id: cmd.countryBilling}).then(cnt => {
           Currency.findOne({id: cmd.currency}).then(c => {
-            pdf(cmd, c, u, cnt);
-            testoo(u);
+            pdf(req.logger, cmd, c, u, cnt);
+            testoo(req.logger, u);
             return res.status(200).json(cmd.idCommande);
           });
         });
@@ -23,12 +23,12 @@ router.post('/', (req, res) => {
     });
 });
 
-testoo = function(c){
-  console.log(c);
+testoo = function(logger, order){
+  logger.info({ message: order, className: 'PDF Api'});
 };
 
 /*** Fonctions PDF */
-pdf = function  (cmd, currency, user, country){
+pdf = function  (logger, cmd, currency, user, country){
   let fonts = {
     Roboto: {
       normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Regular.ttf'], 'base64'),
@@ -130,7 +130,7 @@ pdf = function  (cmd, currency, user, country){
   invoice['content'] = content;
   let totalHT = priceCurrency(cmd.totalHT + cmd.totalExchangeFees, cmd.currency, cmd.currencyTxUsd, cmd.currencyTx);
   let total = priceCurrency(cmd.total, cmd.currency, cmd.currencyTxUsd, cmd.currencyTx);
-  invoice['footer'] = footer(totalHT, (totalHT * cmd.vatValue), total, currency, cmd.reason, cmd.vat, country, cmd.vatValide, user);
+  invoice['footer'] = footer(logger, totalHT, (totalHT * cmd.vatValue), total, currency, cmd.reason, cmd.vat, country, cmd.vatValide, user);
 
   //Création du document PDF
   let pdfDoc = printer.createPdfKitDocument(invoice);
@@ -350,8 +350,8 @@ head = function(numInvoice, numAccount, idTax, invoiceDate, paymentDate, numCmd,
   };
 };
 
-footer = function(totalHt, totalVat, totalTTC, currency, message, vat, country, vatok, user){
-  console.log(country);
+footer = function(logger, totalHt, totalVat, totalTTC, currency, message, vat, country, vatok, user){
+  logger.info({ message: country, className: 'PDF Api'});
   let mentionvat = "";
   // Facture avec TVA : (client en France ou client en EU sans n° de TVA)
   if(country.id === 'FR' || (country.ue === '1' && !vatok)) {

@@ -51,14 +51,17 @@ router.post('/', (req, res) => {
     .then((Currencies) => {
         if (!Currencies) { return res.sendStatus(404); }
         request(CURRENCY, { json: true }, (err, r, body) => {
-            if (err) { return console.log(err); }
+            if (err) { 
+                req.logger.error({ message: err.message, error: error, className: 'Currency API'});
+                return console.log(err); 
+            }
             parser.parseString(body, (err, result) => {
                 let tab = result['gesmes:Envelope'].Cube[0].Cube[0].Cube;
                 Currencies.forEach((cur)=>{
                     if(cur.device !== 'EUR'){
                         let taux = search(cur.device, tab);
                         Currency.update({id:cur.id},{$set:{taux: taux, date: new Date()}},(e)=>{
-                            if (e) { console.error(e); }
+                            if (err) { req.logger.error({ message: err.message, error: error, className: 'Currency API'}); }
                         });
                     }
                 });
