@@ -166,7 +166,7 @@ router.post('/newOrder', (req, res, next) => {
 
     Thank you for choosing the QH's Historical Data On-Demand product.
     You Order # `+ req.body.idCmd +` has been received on ` + req.body.paymentdate.substring(0, 10) + " " + req.body.paymentdate.substring(11, 19) + ` CET and is currently pending validation.
-    For any further information about your order, please use the following link: `+ domain + `/order/history
+    For any further information about your order, please use the following link: `+ domain + `/order/history/` + req.body.idCmd +`
 
     
     Thank you,
@@ -175,7 +175,7 @@ router.post('/newOrder', (req, res, next) => {
     html: `Hello,<br><br>
     Thank you for choosing the QH's Historical Data On-Demand product.<br>
     You Order <b># `+ req.body.idCmd +`</b> has been received on ` + req.body.paymentdate.substring(0, 10) + " " + req.body.paymentdate.substring(11, 19) + ` CET and is currently pending validation.<br>
-    For any further information about your order, please use the following link: <a href="`+ domain + `/order/history"> Click here</a>
+    For any further information about your order, please use the following link: <a href="`+ domain + `/order/history` + req.body._id +`"> Click here</a>
     <br><br>
     <b>Thank you,<br>Quanthouse</b>`
   };

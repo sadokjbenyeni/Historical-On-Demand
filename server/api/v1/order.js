@@ -115,166 +115,6 @@ router.post('/autovalidation', (req, res) => {
 
 
 
-autoValidation = function (idCmd, logsPayment, r, res) {
-
-  let state = '';
-  let log = {};
-  let url = '/api/mail/newOrder';
-  let corp = {};
-  Order.findOne({ id_cmd: idCmd })
-    .then(o => { // Autovalidation Compliance
-      log.date = new Date();
-      let eids = [];
-
-      o.products.forEach(product => {
-        eids.push(product.eid);
-
-        if (o.state === 'PSC') {
-          corp = {
-
-            "email": o.email,
-            "idCmd": o.id,
-            "paymentdate": logsPayment.date,
-            "token": logsPayment.token,
-            "service": 'Compliance'
-          };
-
-          sendMail(url, corp);
-          if (((product.historical_data && (product.historical_data.backfill_agreement ||
-            product.historical_data.backfill_applyfee)) ||
-
-            o.survey[0].dd === "1") &&
-            product.onetime === 1) {
-
-            o.state = 'PVC';
-            log.status = 'PVC';
-            log.referer = 'Client';
-          } else {
-
-            o.validationCompliance = true;
-            log.referer = 'Autovalidation';
-
-            o.state = 'PVP';
-            log.status = 'PVP';
-            // Envoi email aux products
-          }
-        }
-      });
-
-      o.eid = eids;
-      return o;
-    })
-    .then(o => {
-
-      let url = '/api/mail/newOrder';
-      let corp = {};
-
-      if (o.state === "PVC") {
-        // Envoi email aux compliances
-        User.find({ roleName: "Compliance" }, { email: true, _id: false })
-          .then((users) => {
-            users.forEach(user => {
-
-              sendMail('/api/mail/newOrderHoD',
-                {
-                  idCmd: corp.idCmd,
-
-                  email: user.email,
-
-                  lastname: o.lastname,
-
-                  firstname: o.firstname,
-
-                  eid: o.eid.join(),
-                  date: logsPayment.date,
-
-                  total: totalttc(o),
-                  service: "Compliance"
-                });
-            });
-          });
-      }
-
-      if (o.state === "PVP") {
-        // Envoi email aux products
-        User.find({ roleName: "Product" }, { email: true, _id: false })
-          .then((users) => {
-            users.forEach(user => {
-
-              sendMail('/api/mail/newOrderHoD',
-                {
-                  idCmd: corp.idCmd,
-
-                  email: user.email,
-
-                  lastname: o.lastname,
-
-                  firstname: o.firstname,
-
-                  eid: o.eid.join(),
-                  date: logsPayment.date,
-
-                  total: totalttc(o),
-                  service: "Product"
-                });
-            });
-          });
-      }
-
-      if (o.state === "PVF") {
-        // Envoi email aux finances
-        User.find({ roleName: "Finance" }, { email: true, _id: false })
-          .then((users) => {
-            users.forEach(user => {
-
-              sendMail('/api/mail/newOrderHoD',
-                {
-                  idCmd: corp.idCmd,
-
-                  email: user.email,
-
-                  lastname: o.lastname,
-
-                  firstname: o.firstname,
-
-                  eid: o.eid.join(),
-                  date: logsPayment.date,
-
-                  total: totalttc(o),
-                  service: "Finance"
-                });
-            });
-          });
-      }
-
-      if (o.validationCompliance) {
-        corp = {
-
-          "email": o.email,
-          "idCmd": o.id,
-          "paymentdate": logsPayment.date,
-          "token": logsPayment.token,
-          "service": 'Product'
-        };
-      } else {
-        corp = {
-          "email": logsPayment.email,
-          "idCmd": o.id,
-          "paymentdate": logsPayment.date,
-          "token": logsPayment.token,
-          "service": 'Finance'
-        };
-      }
-      // if(o.state === 'PSC'){ sendMail(url, corp); }
-
-      Order.updateOne({ id_cmd: idCmd }, { $push: { logsPayment: logsPayment, logs: log }, $set: { validationCompliance: o.validationCompliance, submissionDate: new Date(), state: o.state } })
-        .then((rs) => {
-          res.status(201).json(rs);
-        });
-    });
-};
-
-
 
 router.post('/save', (req, res) => {
 
@@ -1479,6 +1319,118 @@ ComputeTotalTtcUsd = function (order, totalTTC) {
   totalVat = totalHT * order.vatValue;
   totalTTC = precisionRound((totalHT * (1 + order.vatValue)), 2);
   return totalTTC;
+}
+
+autoValidation = async function (idCmd, logsPayment, r, res) {
+  let log = {};
+  let url = '/api/mail/newOrder';
+  var order = await Order.findOne({ id_cmd: idCmd }).exec();
+  log.date = new Date();
+  let eids = [];
+  order.products.forEach(product => { eids.push(product.eid); });
+  if (order.state === 'PSC') {
+      autoValidationOrderStateIsPSC(corp, order, logsPayment, url, log);
+  }
+  order.eid = eids;
+  let url = '/api/mail/newOrder';
+  let corp = {};
+
+  if (order.state === "PVC") {
+    // Envoi email aux compliances
+    await autovalidationOrderStateIsPVC(corp, order, logsPayment);      
+  }
+  if (order.state === "PVP") {
+    // Envoi email aux products
+    await autoValidationOrderStateIsPVP(corp, order, logsPayment);
+  }
+  if (order.state === "PVF") {
+    await autoValidationOrderStatePVF(corp, order, logsPayment);      
+  }
+  var updateStatus = await Order.updateOne({ id_cmd: idCmd }, 
+                                           { $push: { 
+                                              logsPayment: logsPayment, 
+                                              logs: log }, 
+                                            $set: { 
+                                              validationCompliance: order.validationCompliance, 
+                                              submissionDate: new Date(), 
+                                              state: order.state }
+                                            }).exec();      
+  return  res.status(201).json(updateStatus);    
+};
+
+async function autoValidationOrderStatePVF(corp, order, logsPayment) {
+  var users = await User.find({ roleName: "Finance" }, { email: true, _id: false }).exec();
+  users.forEach(user => {
+    sendMail('/api/mail/newOrderHoD', {
+      idCmd: corp.idCmd,
+      email: user.email,
+      lastname: order.lastname,
+      firstname: order.firstname,
+      eid: order.eid.join(),
+      date: logsPayment.date,
+      total: totalttc(o),
+      service: "Finance"
+    });
+  });
+}
+
+async function autoValidationOrderStateIsPVP(corp, order, logsPayment) {
+  var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
+  users.forEach(user => {
+    sendMail('/api/mail/newOrderHoD', {
+      idCmd: corp.idCmd,
+      email: user.email,
+      lastname: order.lastname,
+      firstname: order.firstname,
+      eid: order.eid.join(),
+      date: logsPayment.date,
+      total: totalttc(order),
+      service: "Product"
+    });
+  });
+}
+
+async function autovalidationOrderStateIsPVC(corp, order, logsPayment) {
+  var users = await User.find({ roleName: "Compliance" }, { email: true, _id: false }).exec();
+  users.forEach(user => {
+    sendMail('/api/mail/newOrderHoD', {
+      idCmd: corp.idCmd,
+      email: user.email,
+      lastname: order.lastname,
+      firstname: order.firstname,
+      eid: order.eid.join(),
+      date: logsPayment.date,
+      total: totalttc(order),
+      service: "Compliance"
+    });
+  });
+}
+
+function autoValidationOrderStateIsPSC(corp, order, logsPayment, url, log) {
+  corp = {
+    "email": order.email,
+    "idCmd": order.id,
+    "paymentdate": logsPayment.date,
+    "token": logsPayment.token,
+    "service": 'Compliance'
+  };
+  sendMail(url, corp);
+  order.products.forEach(product => {
+    if (((product.historical_data
+      && (product.historical_data.backfill_agreement || product.historical_data.backfill_applyfee))
+      || order.survey[0].dd === "1") && product.onetime === 1) {
+      order.state = 'PVC';
+      log.status = 'PVC';
+      log.referer = 'Client';
+    }
+    else {
+      order.validationCompliance = true;
+      log.referer = 'Autovalidation';
+      order.state = 'PVP';
+      log.status = 'PVP';
+      // Envoi email aux products
+    }
+  });
 }
 
 module.exports = router;
