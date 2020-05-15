@@ -8,7 +8,7 @@ export class Data {
     assetClass: string;
     exchange: string;
     mic: string;
-    purchaseType: string;
+    purchaseType: PurchaseType;
     engagementPeriod: number;
     dateFrom: string;
     dateTo: string;
@@ -16,6 +16,8 @@ export class Data {
     price: string;
     expirationDate: any;
     remainingDays: number;
+    backfillFee: number;
+    ongoingFee: number;
     delivrables: any;
 
 
@@ -29,7 +31,7 @@ export class Data {
         assetClass: string,
         exchange: string,
         mic: string,
-        purchaseType: string,
+        subscription: number,
         engagementPeriod: number,
         dateFrom: string,
         dateTo: string,
@@ -37,6 +39,8 @@ export class Data {
         price: string,
         expirationDate: any,
         remainingDays: number,
+        backfillFee: number,
+        ongoingFee: number,
         delivrables: any) {
         this.item = item;
         this.dataSet = dataSet;
@@ -47,7 +51,7 @@ export class Data {
         this.assetClass = assetClass;
         this.exchange = exchange;
         this.mic = mic;
-        this.purchaseType = purchaseType;
+        this.purchaseType = subscription == 1 ? PurchaseType.subscription : PurchaseType.onetime;
         this.engagementPeriod = engagementPeriod;
         this.dateFrom = dateFrom;
         this.dateTo = dateTo;
@@ -55,6 +59,12 @@ export class Data {
         this.price = price;
         this.expirationDate = expirationDate;
         this.remainingDays = remainingDays;
+        this.backfillFee = backfillFee;
+        this.ongoingFee = ongoingFee;
         this.delivrables = delivrables;
     }
+}
+
+export enum PurchaseType {
+    subscription, onetime = 'one time'
 }
