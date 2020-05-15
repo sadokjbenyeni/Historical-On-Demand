@@ -12,6 +12,7 @@ import { Data } from '../../../Models/Order/Data';
 import { MatDialog } from '@angular/material/dialog';
 import { CancelOrderDialogComponent } from '../cancel-order-dialog/cancel-order-dialog.component';
 import { HttpHeaders } from '@angular/common/http';
+import { DeliverablesService } from '../../../../app/services/deliverables.service';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -60,7 +61,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
   datasetsLink: { L1: string; L1TRADEONLY: string; L2: string; };
   dtOptions: DataTables.Settings = {};
   clientOrderDetailsTableColumns: string[] = ['item', 'dataSet', 'instrumentID', 'productID', 'symbol', 'description', 'assetClass', 'exchange', 'mic', 'purchaseType'
-    , 'engagementPeriod', 'dateFrom', 'dateTo', 'pricingTier', 'price', 'expirationDate', 'remainingDays', 'delivrables'];
+    , 'engagementPeriod', 'dateFrom', 'dateTo', 'pricingTier', 'price', 'exchangeFees', 'expirationDate', 'remainingDays', 'delivrables'];
   public dataSource = new MatTableDataSource<Data>();
   print: boolean;
   onetime: number;
@@ -76,6 +77,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private currencyService: CurrencyService,
     private configService: ConfigService,
+    private deliverablesService: DeliverablesService
   ) {
     this.route.params.subscribe(_ => { this.idCmd = _.id; });
   }
@@ -271,12 +273,12 @@ export class OrderHistoryDetailsComponent implements OnInit {
           this.subscription = product.subscription;
           links.push(link);
         });
-        let newProduct = new Data(index, product.dataset, product.qhid, product.eid, product.symbol, product.description, product.assetClass, product.exchangeName, product.mics, null, product.period, product.begin_date_select, product.end_date_select, product.pricingTier, product.ht, product.links, product.links, product);
+        let newProduct = new Data(index, product.dataset, product.qhid, product.eid, product.symbol, product.description, product.assetClass, product.exchangeName, product.mics, product.subscription, product.period, product.begin_date_select, product.end_date_select, product.pricingTier, product.ht, product.links, product.links, product.backfill_fee, product.ongoing_fee, product);
         this.details.push(newProduct);
-        if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
-          this.print = true;
-          this.details.push({ backfill_fee: product.backfill_fee, ongoing_fee: product.ongoing_fee });
-        }
+        // if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
+        //   this.print = true;
+        //   this.details.push({ backfill_fee: product.backfill_fee, ongoing_fee: product.ongoing_fee });
+        // }
       });
     }
     this.dataSource.data = this.details;
@@ -303,6 +305,27 @@ export class OrderHistoryDetailsComponent implements OnInit {
     });
     dialogReference.afterClosed().subscribe(result => {
     });
+  }
+
+  downloadLinks() {
+    let fileName = this.idOrder + "_Manifest";
+    let downloadablelinks = [];
+    this.deliverablesService.getLinks(this.idOrder).subscribe(productslinks => {
+      productslinks.forEach(links => {
+        links.forEach(link => {
+          downloadablelinks.push(link);
+        });
+      });
+      if (!this.setting.element.dynamicDownload) {
+        this.setting.element.dynamicDownload = document.createElement('a');
+      }
+      const element = this.setting.element.dynamicDownload;
+      const fileType = 'text/plain';
+      element.setAttribute('href', `data:${fileType};charset=utf-8,${downloadablelinks.join('\r\n')}`);
+      element.setAttribute('download', fileName + '.txt');
+      var event = new MouseEvent("click");
+      element.dispatchEvent(event);
+    })
   }
 
 }

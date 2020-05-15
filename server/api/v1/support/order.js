@@ -1,16 +1,16 @@
 const router = require('express').Router();
 const mongoose = require('mongoose');
-
+const User = mongoose.model('User');
 const Order = mongoose.model('Order');
 
 router.get('/details/:id', async (req, res) => {
     if (!req.headers.authorization) {
         return res.status(401);
     }
-    var user = await User.findOne({ token: req.headers.authorization }, { _id: true }).exec();
-    if (!user || !user.roleName || (!user.roleName.includes("Support") && !user.roleName.includes("Administration"))) {
+    var user = await User.findOne({ token: req.headers.authorization, roleName: "Support" }, { _id: true }).exec();
+    if (!user) {
         req.logger.warn({ message: '[Security] Token not found', className: 'Order Support API'});
-        return res.status(403);
+        return res.status(403).json({ message: "Access denied. Please contact support with identifier: [" + req.headers.loggerToken + "]"});
     }
     var order = await Order.findOne({ _id: req.params.id }).exec();
     try {
