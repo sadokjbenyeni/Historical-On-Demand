@@ -16,8 +16,7 @@ export class Data {
     price: string;
     expirationDate: any;
     remainingDays: number;
-    backfillFee: number;
-    ongoingFee: number;
+    exchangeFee: number;
     delivrables: any;
 
 
@@ -59,8 +58,7 @@ export class Data {
         this.price = price;
         this.expirationDate = expirationDate;
         this.remainingDays = remainingDays;
-        this.backfillFee = backfillFee;
-        this.ongoingFee = ongoingFee;
+        this.exchangeFee = subscription == 1 ? ongoingFee : backfillFee;
         this.delivrables = delivrables;
     }
 }
