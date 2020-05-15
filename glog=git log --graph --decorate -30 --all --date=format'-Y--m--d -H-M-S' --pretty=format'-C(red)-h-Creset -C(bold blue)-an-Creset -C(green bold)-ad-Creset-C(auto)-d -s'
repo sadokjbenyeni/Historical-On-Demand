@@ -1,0 +1,247 @@
+[33mcommit d5f11f7708f465677f0fe966fc0949e46a4931be[m[33m ([m[1;36mHEAD -> [m[1;32menhancement[m[33m)[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Wed May 13 10:05:42 2020 +0100
+
+    Finished on working on support client view task
+
+[33mcommit fa93650cfe55233f1795d1d4cbdfc8d9e7a3a8ed[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Mon May 11 10:59:37 2020 +0100
+
+    Worked on sorting the order history table by default with date and make new added cart type orders display date time now instead of null
+
+[33mcommit 390620f41c3819efa1ae2275629d769b42a7cdba[m[33m ([m[1;31morigin/enhancement[m[33m)[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Mon May 11 08:43:46 2020 +0100
+
+    Worked on buttons on support
+
+[33mcommit 69a726c71eff17c7968b07a6b9574f7c1b4b71ff[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Fri May 8 14:38:41 2020 +0100
+
+    Worked on order client models
+
+[33mcommit 8bad2df862647582ef2411e5ffa6aa8f0a8e41cf[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Wed May 6 13:07:50 2020 +0100
+
+    Made changes server side support order service co-authored Morgan Dupire
+
+[33mcommit 90947a90445f97c5a05cfd357a78136e34805a18[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Wed May 6 10:25:04 2020 +0100
+
+    Worked on Support Client View
+
+[33mcommit 4dc77641b3381bd8bab36c0ef37f78f4c73f0ff9[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Thu Apr 30 10:00:32 2020 +0100
+
+    Finished working on order history pages
+
+[33mcommit fd3d83f59c621db59b072cbecc3fbeed3bf0ce89[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Thu Apr 23 09:39:25 2020 +0100
+
+    Worked on the back end side of the client orders details
+
+[33mcommit 99c68fa4616ffbb88c160f77ef459be53e13e83c[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Thu Apr 16 12:21:31 2020 +0100
+
+    Working on refactoring and cleaning order history home page
+
+[33mcommit eca91aa159c6ab85daba7eb171d85dc4e923fc25[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Wed Apr 15 10:51:34 2020 +0100
+
+    Working on splitting order history on two components
+
+[33mcommit 002d385187046e5d64dc3630c095f7a28f916c2b[m
+Author: Morgan Dupire <morgan.dupire@quanthouse.com>
+Date:   Thu Apr 16 11:36:05 2020 +0200
+
+    added .vs and .vscode in gitignore file
+
+[33mcommit 4e90f3b771bb818c6ac374de23ccfe24d975ec6d[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Mon Apr 13 15:14:08 2020 +0100
+
+    Working on adding a client view for the support
+
+[33mcommit 0972140c6dc90eee915ffe7e3d21974becad680c[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Fri Apr 10 09:46:46 2020 +0100
+
+     git ignored test.xml
+
+[33mcommit a7d1b4ac759e444578c2a66f6ce623b4f79bbb43[m
+Author: Morgan Dupire <morgan.dupire@quanthouse.com>
+Date:   Fri Apr 10 10:48:09 2020 +0200
+
+    Remove test fil
+
+[33mcommit 89d8e76b2682bcc8d552ef2e5e5ec40cca3ad3b3[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Thu Apr 9 17:08:10 2020 +0100
+
+    Worked on adding support role and database update
+
+[33mcommit 569dd23513702216ff4fdc40b6815e86bf4db362[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Wed Apr 8 12:00:24 2020 +0100
+
+    Worked on creating support role
+
+[33mcommit 8794fba122d7c18d47c4fb8c7126e2df9e0766db[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Tue Apr 7 16:17:17 2020 +0100
+
+    Working on test for the build's machine
+
+[33mcommit 919030cbf232e8959db883891e114fad9b3740aa[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Tue Apr 7 15:06:16 2020 +0100
+
+    Installed puppeteer
+
+[33mcommit cfb7760f64d4c5bc63295fe5d70829382553b5f4[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Tue Apr 7 14:54:27 2020 +0100
+
+    Working on test of build's machine
+
+[33mcommit 02b63d00650532ddd8793f24e4fe6fabda40d786[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Tue Apr 7 12:30:45 2020 +0100
+
+    Worked on machine of buold
+
+[33mcommit 225876e2ba6dae8554ba257062bf55e7ea2814d5[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Tue Apr 7 12:12:50 2020 +0100
+
+    Working on build machine
+
+[33mcommit 429195098da59ff57c9c7953234f199f23b7397b[m
+Author: Yassin abderrabba <medyassin.abderrabba@iress.com>
+Date:   Mon Apr 6 12:49:47 2020 +0100
+
+    fixed display issues of update orders metadata
+
+[33mcommit 421aefe2163dc4f97a1d8d803369952bdd7e4f87[m
+Author: Yassin abderrabba <medyassin.abderrabba@iress.com>
+Date:   Mon Apr 6 12:42:19 2020 +0100
+
+    worked on order type
+
+[33mcommit b3f7614713871566147f605131169d26b61fb2df[m
+Author: Yassin abderrabba <medyassin.abderrabba@iress.com>
+Date:   Mon Apr 6 10:22:51 2020 +0100
+
+    add unit tests in server side
+
+[33mcommit 8a88b18acd7a505352b4f4f42293de3cb89ae283[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Mon Apr 6 12:10:12 2020 +0100
+
+    Fixed a bug on message on save update in display
+
+[33mcommit f1ad9a68599e9b64c8fb8f6bd77f7e97d3df5473[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Mon Apr 6 10:31:52 2020 +0100
+
+    Worked on adding unit test for order product component
+
+[33mcommit 7767d21293afa173659b89395f19eae5f12d8b7f[m
+Author: Yassin abderrabba <medyassin.abderrabba@iress.com>
+Date:   Wed Apr 1 13:42:35 2020 +0200
+
+    renaming updatenote service
+
+[33mcommit 0791696f35cd304ff58c111b6cd40daea449414c[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Wed Apr 1 12:39:24 2020 +0100
+
+    Worked on adding alert box when button for saving is clicked
+
+[33mcommit e2014c8ab0453183dda48961302a758002e9b5a7[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Wed Apr 1 11:19:37 2020 +0100
+
+    Changed connection string for mdb
+
+[33mcommit 134d530b302f5138d35e1174ac1d1e718a30ff7e[m
+Author: Yassin abderrabba <medyassin.abderrabba@iress.com>
+Date:   Wed Apr 1 12:10:52 2020 +0200
+
+    adding sales.bson files into 'data' folder
+
+[33mcommit bb682609f792ded7e67ab6d30a7d6300fcc082d2[m
+Author: Yassin abderrabba <medyassin.abderrabba@iress.com>
+Date:   Wed Apr 1 11:39:10 2020 +0200
+
+    working on 'adding sale flag to order'
+
+[33mcommit 22f48a7b2f51e4b4fe5ca061c5740e842db49af9[m
+Author: Yassin abderrabba <medyassin.abderrabba@iress.com>
+Date:   Tue Mar 31 10:59:31 2020 +0200
+
+    delete .vscode folder
+
+[33mcommit 6c66b7a2141fa9aa8860d5182bd5ef1fc9cb3b8d[m
+Author: Yassin abderrabba <medyassin.abderrabba@iress.com>
+Date:   Tue Mar 31 10:46:04 2020 +0200
+
+    transactionnal commit
+
+[33mcommit 8ed42887f1af33962256f029e6b908c5b9e59391[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Tue Mar 31 09:55:37 2020 +0100
+
+    Added some untracked files
+
+[33mcommit b65405cdbe138f65bb58287862ac6550156abb48[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Tue Mar 31 09:39:35 2020 +0100
+
+    Worked on exporting internal notes in a csv/xslx
+
+[33mcommit 3c343643e2ef4988a5de7628c7f4a29ce02588c3[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Mon Mar 30 13:33:04 2020 +0100
+
+    Worked on exporting internal Note in excel file
+
+[33mcommit fb3d43f5503dfb63e9ca2b6fb79236741fea2678[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Mon Mar 30 12:52:32 2020 +0100
+
+    Worked on getting internal note from database
+
+[33mcommit 8bd8e32ce62a128629bfbff8246fb9db70c226d9[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Mon Mar 30 10:50:33 2020 +0100
+
+    Worked on adding internal note field
+
+[33mcommit 8eacb44a0be55727d2d910cbf3087383b598ac6e[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Fri Mar 27 10:17:26 2020 +0100
+
+    Worked on '[Front-End]Order: add comments (free text field) in product section' added text area in every section
+
+[33mcommit 392212b462467b197ebfdc76e4bcfffdc6c7f9f2[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Wed Mar 25 14:47:20 2020 +0100
+
+    Fixed failed tests
+
+[33mcommit 00e4e541f58723798d4b5e819d6aa98d44fcf036[m
+Author: Sadok Jbenyeni <sadok.jbenyeni@iress.com>
+Date:   Mon Mar 23 16:59:00 2020 +0100
+
+    Working on tests
+
+[33mcommit 226ce69d202a5931e246f2e5b6b35cdc413f6cd6[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m

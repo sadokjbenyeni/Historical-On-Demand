@@ -16,7 +16,7 @@ router.use('/currency', require('./currency'));
 router.use('/search', require('./elastic'));
 router.use('/config', require('./config'));
 router.use('/sales', require('./sales'));
-
+router.use('/deliverables', require('./deliverables'));
 //v1
 router.use('/v1/order', require('./public/order'));
 router.use('/v1/support/order', require('./support/order'));

@@ -254,13 +254,14 @@
     </div>
 </div>
 
-<div class="table-responsive text-center">  
+<div class="table-responsive text-center">
     <div class="btn-action">
         <button mat-button *ngIf="!isSupport" class="bottom-button red-color" [routerLink]='["/order/history"]'><i
                 class="fa fa-chevron-left"></i>Back</button>
         <button mat-button *ngIf="isSupport" class="bottom-button red-color" [routerLink]='["/support/clientorder"]'><i
                 class="fa fa-chevron-left"></i>Back</button>
-        <button mat-button class="bottom-button orange-color"><i class="fa fa-cloud-download"></i>Download Links</button>
+        <button mat-button class="bottom-button orange-color" *ngIf="getState(state)=='Active'"
+            (click)="downloadLinks()"><i class="fa fa-cloud-download"></i>Download Links</button>
         <button mat-button class="bottom-button yellow-color" (click)="openDialog()" *ngIf=" (state === 'PVC' ||
                       state === 'PVP' ||
                       state === 'PVF') && payment !== 'creditcard'"><i class="fa fa-trash-o"></i> Cancel Order

@@ -146,6 +146,7 @@ import { CommonModule } from '@angular/common';
 import { OrderHistoryDetailsComponent } from './components/client/order-history-details/order-history-details.component';
 import { CancelOrderDialogComponent } from './components/client/cancel-order-dialog/cancel-order-dialog.component';
 import { TokenInterceptor } from './interceptors/authentification/token.interceptor';
+import { DeliverablesService } from './services/deliverables.service';
 
 // lazy loading
 
@@ -287,6 +288,7 @@ import { TokenInterceptor } from './interceptors/authentification/token.intercep
     ProductService,
     CompanytypesService,
     SalesService,
+    DeliverablesService,
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]

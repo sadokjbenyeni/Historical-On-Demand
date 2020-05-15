@@ -12,6 +12,7 @@ import { Data } from '../../../Models/Order/Data';
 import { MatDialog } from '@angular/material/dialog';
 import { CancelOrderDialogComponent } from '../cancel-order-dialog/cancel-order-dialog.component';
 import { HttpHeaders } from '@angular/common/http';
+import { DeliverablesService } from '../../../../app/services/deliverables.service';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -76,6 +77,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private currencyService: CurrencyService,
     private configService: ConfigService,
+    private deliverablesService: DeliverablesService
   ) {
     this.route.params.subscribe(_ => { this.idCmd = _.id; });
   }
@@ -303,6 +305,27 @@ export class OrderHistoryDetailsComponent implements OnInit {
     });
     dialogReference.afterClosed().subscribe(result => {
     });
+  }
+
+  downloadLinks() {
+    let fileName = this.idOrder + "_Manifest";
+    let downloadablelinks = [];
+    this.deliverablesService.getLinks(this.idOrder).subscribe(productslinks => {
+      productslinks.forEach(links => {
+        links.forEach(link => {
+          downloadablelinks.push(link);
+        });
+      });
+      if (!this.setting.element.dynamicDownload) {
+        this.setting.element.dynamicDownload = document.createElement('a');
+      }
+      const element = this.setting.element.dynamicDownload;
+      const fileType = 'text/plain';
+      element.setAttribute('href', `data:${fileType};charset=utf-8,${downloadablelinks.join('\r\n')}`);
+      element.setAttribute('download', fileName + '.txt');
+      var event = new MouseEvent("click");
+      element.dispatchEvent(event);
+    })
   }
 
 }
