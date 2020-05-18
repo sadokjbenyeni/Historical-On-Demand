@@ -75,12 +75,9 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
     route.params.subscribe(_ => { this.idCmd = _.id; });
   }
   ngAfterViewInit(): void {
-    this.orderService.getSupportOrderDetailsById(this.idCmd).subscribe(order => {
-      this.orderDetails = this.convertOrderToOrderDetails(order);
-      this.getOrderDetailsById(this.orderDetails.details);
-      this.orderHistoryDetailsComponent.getOrderDetails(this.orderDetails);
-    });
+    this.loadOrderDetailsAndLogsAndSetupOrderDetails();
   }
+
 
   ngOnInit() {
     this.listCurrencies();
@@ -126,16 +123,12 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
   }
 
   retry() {
-    this.orderService.getRetry(this.item.reference, this.retryMode).subscribe((c) => {
-      this.orderService.getSupportOrderDetailsById(this.idCmd).subscribe(order => {
-        var orderDetails = this.convertOrderToOrderDetails(order);
-        this.getOrderDetailsById(orderDetails.details);
-        this.orderHistoryDetailsComponent.getOrderDetails(orderDetails);
-      });
+    this.orderService.getRetry(this.item.reference, this.retryMode).subscribe(order => {
+      this.loadLogsAndSetupOrderDetails(order);
     });
   }
 
-  getOrderDetailsById(order: any) {
+  getOrderDetailsById(order: any, logs: any) {
     this.currencyService.getCurrencies().subscribe(r => {
       this.symbols = [];
       r.currencies.forEach(s => {
@@ -166,44 +159,49 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
       let index = 0;
       this.cart = [];
       if (order.products.length > 0) {
-        order.products.forEach((p) => {
-          let diff = this.dateDiff(new Date(p.begin_date), new Date(p.end_date));
-          if (p.onetime === 1) {
-            p.price = (diff.day + 1) * p.price;
-          } else if (p.subscription === 1) {
-            p.price = p.period * p.price;
+        order.products.forEach((product) => {
+          let diff = this.dateDiff(new Date(product.begin_date), new Date(product.end_date));
+          if (product.onetime === 1) {
+            product.price = (diff.day + 1) * product.price;
+          } else if (product.subscription === 1) {
+            product.price = product.period * product.price;
           }
           index++;
+          
           let prod = {
             idx: index,
             print: false,
             idCmd: order.id_cmd,
-            idElem: p.id_undercmd,
-            quotation_level: p.dataset,
-            symbol: p.symbol,
-            exchange: p.exchangeName,
-            assetClass: p.assetClass,
-            eid: p.eid,
-            qhid: p.qhid,
-            description: p.description,
-            onetime: p.onetime,
-            subscription: p.subscription,
-            pricingTier: p.pricingTier,
-            period: p.period,
-            price: p.price,
-            ht: p.ht,
-            begin_date_select: p.begin_date,
-            begin_date: p.begin_date_ref,
-            end_date_select: p.end_date,
-            end_date: p.end_date_ref,
-            status: p.status,
-            log: p.logs,
-            links: p.links
+            idElem: product.id_undercmd,
+            quotation_level: product.dataset,
+            symbol: product.symbol,
+            exchange: product.exchangeName,
+            assetClass: product.assetClass,
+            eid: product.eid,
+            qhid: product.qhid,
+            description: product.description,
+            onetime: product.onetime,
+            subscription: product.subscription,
+            pricingTier: product.pricingTier,
+            period: product.period,
+            price: product.price,
+            ht: product.ht,
+            begin_date_select: product.begin_date,
+            begin_date: product.begin_date_ref,
+            end_date_select: product.end_date,
+            end_date: product.end_date_ref,
+            status: product.status,
+            links: product.links,
+            log:null
           };
-          this.ht += p.price;
+          if(logs && logs.IsArray)
+          {
+            prod.log= logs.find(log => log.id_cmd === order.orderId && log.productId == index);
+          }
+          this.ht += product.price;
           this.cart.push(prod);
-          if (p.backfill_fee > 0 || p.ongoing_fee > 0) {
-            this.cart.push({ print: true, backfill_fee: p.backfill_fee, ongoing_fee: p.ongoing_fee });
+          if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
+            this.cart.push({ print: true, backfill_fee: product.backfill_fee, ongoing_fee: product.ongoing_fee });
           }
         });
       }
@@ -285,5 +283,24 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
     if (!this.states)
       return stateId;
     return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
+  }
+
+  
+  private loadOrderDetailsAndLogsAndSetupOrderDetails() {
+    this.orderService.getSupportOrderDetailsById(this.idCmd).subscribe(order => {
+      this.loadLogsAndSetupOrderDetails(order);
+    });
+  }
+
+  private loadLogsAndSetupOrderDetails(order: any) {
+    this.orderService.getSupportLogsOrdersById(this.idCmd).subscribe(logs => {
+      this.SetupOrderDetails(order, logs);
+    });
+  }
+
+  private SetupOrderDetails(order: any, logs: any) {
+    this.orderDetails = this.convertOrderToOrderDetails(order);
+    this.getOrderDetailsById(this.orderDetails.details, logs);
+    this.orderHistoryDetailsComponent.getOrderDetails(this.orderDetails);
   }
 }

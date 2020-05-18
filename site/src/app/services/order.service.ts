@@ -97,5 +97,10 @@ export class OrderService {
   getSupportOrderDetailsById(orderId) {
     return this.http.get<any>(environment.api + '/support/order/details/' + orderId);
   }
+
+  getSupportLogsOrdersById(orderId) {
+    return this.http.get<any>(environment.api + '/support/orderProductLog/' + orderId);
+  }
+
 }
 
