@@ -318,10 +318,10 @@ router.put('/state', (req, res) => {
     // sendMail('/api/mail/newOrder', corp);
     // Email validation au pvp
     Order.findOne({ id_cmd: req.body.idCmd })
-      .then(o => {
+      .then(order => {
         let eids = [];
 
-        o.products.forEach(p => {
+        order.products.forEach(p => {
           eids.push(p.eid);
         });
         User.find({ roleName: "Product" }, { email: true, _id: false })
@@ -330,18 +330,18 @@ router.put('/state', (req, res) => {
 
               sendMail('/api/mail/newOrderHoD',
                 {
-                  idCmd: o.id,
+                  idCmd: order.id,
 
                   email: user.email,
 
-                  lastname: o.lastname,
+                  lastname: order.lastname,
 
-                  firstname: o.firstname,
+                  firstname: order.firstname,
                   eid: eids.join(),
 
-                  date: o.submissionDate,
+                  date: order.submissionDate,
 
-                  total: totalttc(o),
+                  total: totalttc(order),
                   service: "Product"
                 });
             });
@@ -360,7 +360,7 @@ router.put('/state', (req, res) => {
     };
     // Email validation au pvf
     Order.findOne({ id_cmd: req.body.idCmd })
-      .then(o => {
+      .then(order => {
         let eids = [];
 
         if (req.body.status === "cancelled") {
@@ -381,7 +381,7 @@ router.put('/state', (req, res) => {
         }
 
 
-        o.products.forEach(p => {
+        order.products.forEach(p => {
           eids.push(p.eid);
         });
         if (req.body.status !== "cancelled") {
@@ -391,18 +391,18 @@ router.put('/state', (req, res) => {
 
                 sendMail('/api/mail/newOrderHoD',
                   {
-                    idCmd: o.id,
+                    idCmd: order.id,
 
                     email: user.email,
 
-                    lastname: o.lastname,
+                    lastname: order.lastname,
 
-                    firstname: o.firstname,
+                    firstname: order.firstname,
                     eid: eids.join(),
 
-                    date: o.submissionDate,
+                    date: order.submissionDate,
 
-                    total: totalttc(o),
+                    total: totalttc(order),
                     service: "Finance"
                   });
               });
@@ -1237,9 +1237,9 @@ precisionRound = function (number, precision) {
 
 totalttc = function (order) {  
   if (order.currency !== 'usd') {
-    return computeTotalTtcInLocalCurrency(order, totalTTC);
+    return computeTotalTtcInLocalCurrency(order);
   }
-  return ComputeTotalTtcUsd(order, totalTTC);
+  return ComputeTotalTtcUsd(order);
 };
 
 
@@ -1299,7 +1299,7 @@ convertOrderExport = function (orderItem) {
   orderValues["sales"] = orderItem.sales;
 }
 
-computeTotalTtcInLocalCurrency = function (order, totalTTC) {
+computeTotalTtcInLocalCurrency = function (order) {
   var discount = 0;
   var totalHT = 0;
   totalExchangeFees = (order.totalExchangeFees / order.currencyTxUsd) * order.currencyTx;
@@ -1309,11 +1309,10 @@ computeTotalTtcInLocalCurrency = function (order, totalTTC) {
     totalHT = totalHT - (totalHT * (discount / 100));
   }
   totalVat = totalHT * order.vatValue;
-  totalTTC = precisionRound((totalHT * (1 + order.vatValue)), 2);
-  return totalTTC;
+  return precisionRound((totalHT * (1 + order.vatValue)), 2);
 }
 
-ComputeTotalTtcUsd = function (order, totalTTC) {
+ComputeTotalTtcUsd = function (order) {
   var discount = 0;
   var totalHT = 0;
   totalExchangeFees = order.totalExchangeFees;
@@ -1323,13 +1322,11 @@ ComputeTotalTtcUsd = function (order, totalTTC) {
     totalHT = totalHT - (totalHT * (discount / 100));
   }
   totalVat = totalHT * order.vatValue;
-  totalTTC = precisionRound((totalHT * (1 + order.vatValue)), 2);
-  return totalTTC;
+  return precisionRound((totalHT * (1 + order.vatValue)), 2);
 }
 
 autoValidation = async function (idCmd, logsPayment, r, res) {
   let log = {};
-  let url = '/api/mail/newOrder';
   var order = await Order.findOne({ id_cmd: idCmd }).exec();
   log.date = new Date();
   let eids = [];
@@ -1340,7 +1337,7 @@ autoValidation = async function (idCmd, logsPayment, r, res) {
   order.eid = eids;
   let url = '/api/mail/newOrder';
   let corp = {};
-
+    
   if (order.state === "PVC") {
     // Envoi email aux compliances
     await autovalidationOrderStateIsPVC(corp, order, logsPayment);      
@@ -1374,7 +1371,7 @@ async function autoValidationOrderStatePVF(corp, order, logsPayment) {
       firstname: order.firstname,
       eid: order.eid.join(),
       date: logsPayment.date,
-      total: totalttc(o),
+      total: totalttc(order),
       service: "Finance"
     });
   });
