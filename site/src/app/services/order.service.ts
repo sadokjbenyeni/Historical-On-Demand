@@ -82,7 +82,7 @@ export class OrderService {
     return this.http.post<any>(environment.api + '/order/sortProducts', requete);// .map( res => res.json() );
   }
 
-  SaveOrderMetadata(orderId: Number, internalNote: String, sales: String, OrderType: string) {
+  SaveOrderMetadata(orderId: Number, internalNote: String, sales: String, OrderType: String) {
     return this.http.put<any>(environment.api + '/order/updatemetadata', { id: orderId, note: internalNote, sales: sales, type: OrderType });
   }
 
@@ -102,5 +102,8 @@ export class OrderService {
     return this.http.get<any>(environment.api + '/support/orderProductLog/' + orderId);
   }
 
+  // createInvoice(orderObjectId: String, commandId: String, userId: String) {
+  //   return this.http.post<any>(environment.api + '/invoice', { orderObjectId: orderObjectId, commandId: commandId, userId: userId });
+  // }
 }
 

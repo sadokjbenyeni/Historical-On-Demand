@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { PdfService } from '../../../services/pdf.service';
+import { OrderService } from '../../../../app/services/order.service';
 
 @Component({
   selector: 'app-terms',
@@ -10,13 +11,14 @@ import { PdfService } from '../../../services/pdf.service';
 
 export class TermsComponent implements OnInit {
   constructor(
-    private pdfService: PdfService
+    private pdfService: PdfService,
+    private orderService: OrderService
   ) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
-  link(){
-    this.pdfService.pdf({id:225}).subscribe(res=>{
+  link() {
+    this.pdfService.pdf({ id: 225 }).subscribe(res => {
       console.log(res.file);
     });
   }

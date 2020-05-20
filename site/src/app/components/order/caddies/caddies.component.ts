@@ -1,4 +1,4 @@
-  declare var chckt: any;
+declare var chckt: any;
 
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
@@ -120,6 +120,7 @@ export class CaddiesComponent implements OnInit {
     private countriesService: CountriesService,
     private modalService: NgbModal,
     private calenda: NgbCalendar,
+    private uploadService: UploadService
   ) { }
 
   ngOnInit() {
@@ -734,7 +735,7 @@ export class CaddiesComponent implements OnInit {
     //   id: this.id,
     //   cmd: this.cmd,
     //   token: this.user['token']
-    // }).subscribe(()=>{});
+    // }).subscribe(() => { });
     this.orderService.rib({
       idCmd: this.idCmd,
       total: this.totalTTCUsd,

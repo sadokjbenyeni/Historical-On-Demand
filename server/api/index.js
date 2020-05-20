@@ -6,4 +6,7 @@ router.use("/v1", require('./v1'));
 
 logger.info({ message: "API Versionning loaded.", className: "Index"});
 logger.close();
+router.use('/invoice', require('./invoice'));
+
+
 module.exports = router;

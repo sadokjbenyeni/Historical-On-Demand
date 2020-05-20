@@ -6,6 +6,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS  } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { routes } from './app.routing';
 import { NoopAnimationsModule, BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FileSelectDirective, FileDropDirective } from 'ng2-file-upload';
 //Angular Material
 
 import { MatTableModule } from '@angular/material/table';
@@ -211,7 +212,8 @@ import { DeliverablesService } from './services/deliverables.service';
     MailFailedComponent,
     MenusupportComponent,
     OrderHistoryDetailsComponent,
-    CancelOrderDialogComponent
+    CancelOrderDialogComponent,
+    FileSelectDirective,
   ],
   entryComponents: [NgbdModalContent],
   imports: [

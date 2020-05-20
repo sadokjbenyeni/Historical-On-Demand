@@ -61,7 +61,7 @@ require('./server/models/countrie');
 require('./server/models/companytype');
 require('./server/models/sale');
 require('./server/models/OrderProductLog');
-
+require('./server/models/invoice');
 // Middleware
 app.use(function (req, res, next) {
   if(!req.headers.internal){
