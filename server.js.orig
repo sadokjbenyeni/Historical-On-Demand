@@ -25,10 +25,30 @@ logger.info({ message: "Starting hod web site backend version 1.1.4...", classNa
 const app = express();
 
 //Enable CORS
+<<<<<<< HEAD
 app.use(cors());
-  req.logger.info({ message: 'HttpRequest: { '+headers.join(', ') + ', host: ' + req.host + ', hostname: '+ req.hostname + ', url: ' + req.path + ' }', className: "Middleware" });
-  req.logger.info({ message: 'HttpResponse: '+res.statusCode+', ' + res.statusMessage+ ', '+req.headers.authorization, className: "Middleware" });
-app.use(function(err, req, res, next) {
+=======
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  let token = randtoken.generate(16);
+  req.headers.loggerToken = token;
+  var headers = new Array;
+  for (let index = 0; index < req.rawHeaders.length; index = index + 2) {
+    headers.push("\"" + req.rawHeaders[index] + "\" : \"" + req.rawHeaders[index + 1] + "\"");
+  }
+  req.logger = new LoggerFactory().createLogger(token);
+  req.logger.info({ message: 'HttpRequest: { ' + headers.join(', ') + ', host: ' + req.host + ', hostname: ' + req.hostname + ', url: ' + req.path + ' }', className: "Middleware" });
+  next();
+  req.logger.info({ message: 'HttpResponse: ' + res.statusCode + ', ' + res.statusMessage + ', ' + req.headers.authorization, className: "Middleware" });
+});
+
+app.use(function (err, req, res, next) {
+  req.logger.error({ error: err, className: "Middleware" });
+  res.status(500).send('Something broke!');
+});
+>>>>>>> 9039b3c... Worked on adding a web service for inserting invoice data in mongodb
 
 //Passport
 const passport = require('passport');

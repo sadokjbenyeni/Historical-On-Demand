@@ -472,6 +472,7 @@ router.put('/update', async (request, res) => {
                 }
               }
           }
+<<<<<<< HEAD
         }
         if (elem.ongoing_fee !== 0) {
           let a_ongoingfee = (elem.ongoing_fee).split(' ');
@@ -487,6 +488,63 @@ router.put('/update', async (request, res) => {
                 } else if (currencies[i]['device'] === a_ongoingfee[1]) {
                   elem.ongoing_fee = elem.ongoing_fee / currencies[i]['taux'];
                 }
+=======
+
+          if (req.body.u.user && (updt.vatValide === null)) {
+
+            updt.companyName = req.body.u.user.companyName;
+
+            updt.companyType = req.body.u.user.companyType;
+
+            updt.region = req.body.u.user.region;
+
+            updt.job = req.body.u.user.job;
+
+            updt.firstname = req.body.u.user.firstname;
+
+            updt.lastname = req.body.u.user.lastname;
+
+            updt.email = req.body.u.user.email;
+
+            updt.phone = req.body.u.user.phone;
+
+            updt.website = req.body.u.user.website;
+
+            updt.address = req.body.u.user.address;
+
+            updt.city = req.body.u.user.city;
+
+            updt.country = req.body.u.user.country;
+
+            updt.postalCode = req.body.u.user.postalCode;
+
+            updt.addressBilling = req.body.u.user.addressBilling;
+
+            updt.cityBilling = req.body.u.user.cityBilling;
+
+            updt.countryBilling = req.body.u.user.countryBilling;
+
+            updt.postalCodeBilling = req.body.u.user.postalCodeBilling;
+
+            updt.submissionDate = new Date();
+
+            updt.vat = req.body.u.user.vat;
+            // updt.vatValide = req.body.u.user.vatValide;
+
+            updt.payment = req.body.u.user.payment;
+
+            updt.currency = req.body.u.user.currency;
+            // updt.currencyTx = req.body.user.currencyTx;
+            for (var i = 0; i < currencies.length; i++) {
+
+              if (currencies[i]['id'] === updt.currency) {
+
+                updt.currencyTx = currencies[i]['taux'];
+              }
+              if (currencies[i]['id'] === 'usd') {
+
+                updt.currencyTxUsd = currencies[i]['taux'];
+>>>>>>> 9039b3c... Worked on adding a web service for inserting invoice data in mongodb
               }
           }
         }
@@ -562,7 +620,6 @@ router.put('/update', async (request, res) => {
       orderUpdated.postalCodeBilling = request.body.u.user.postalCodeBilling;
       orderUpdated.submissionDate = new Date();    
       orderUpdated.vat = request.body.u.user.vat;
-            
       // updt.vatValide = req.body.u.user.vatValide;
       orderUpdated.payment = request.body.u.user.payment;
       orderUpdated.currency = request.body.u.user.currency;
@@ -841,15 +898,27 @@ router.post('/list', async (req, res) => {
   var orderTotalCount = Order.count({ state: { $ne: '' }, state: { $exists: true } }).exec();
   let search = buildSearch(req);
   var orderCount = await Order.count(search).exec();
+<<<<<<< HEAD
+  try{
+  var orders = await Order.find(search)
+    .sort(sort)
+    .skip(req.body.start)
+    .limit(req.body.length)
+    .collation({ locale: "en" })    
+    .exec();
+  }catch(error){
+    req.logger.error({ error: error, message: error.message, className: "Order API"});
+=======
   try {
     var orders = await Order.find(search)
-    .sort(sort)
       .skip(req.body.start)
       .limit(req.body.length)
-    .collation({ locale: "en" })    
+      .collation({ locale: "en" })
+      .sort(sort)
       .exec();
   } catch (error) {
     req.logger.error({ error: error, message: error.message, className: "Order API" });
+>>>>>>> 9039b3c... Worked on adding a web service for inserting invoice data in mongodb
     // console.error("["+req.headers.loggerToken + "] unhandle exception: " + error); 
     return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
   }
@@ -1206,17 +1275,29 @@ autoValidation = async function (idCmd, logsPayment, r, res) {
     autoValidationOrderStateIsPSC(corp, order, logsPayment, url, log);
   }
   order.eid = eids;
-    
+<<<<<<< HEAD
   if (order.state === "PVC") {
     // Envoi email aux compliances
     await autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment);      
+=======
+  let url = '/api/mail/newOrder';
+  let corp = {};
+
+  if (order.state === "PVC") {
+    // Envoi email aux compliances
+    await autovalidationOrderStateIsPVC(corp, order, logsPayment);
+>>>>>>> 9039b3c... Worked on adding a web service for inserting invoice data in mongodb
   }
   if (order.state === "PVP") {
     // Envoi email aux products
     await autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment);
   }
   if (order.state === "PVF") {
+<<<<<<< HEAD
     await autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment);      
+=======
+    await autoValidationOrderStatePVF(corp, order, logsPayment);
+>>>>>>> 9039b3c... Worked on adding a web service for inserting invoice data in mongodb
   }
   var updateStatus = await Order.updateOne({ id_cmd: idCmd },
     {

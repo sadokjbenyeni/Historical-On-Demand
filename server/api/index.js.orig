@@ -1,0 +1,16 @@
+const router = require('express').Router()
+const LoggerFactory = require('../../logger.js');
+const logger = new LoggerFactory().createLogger('System');
+
+router.use("/v1", require('./v1'));
+
+<<<<<<< HEAD
+logger.info({ message: "API Versionning loaded.", className: "Index"});
+logger.close();
+router.use('/invoice', require('./invoice'));
+
+=======
+logger.info({ message: "API Versionning loaded.", className: "Index" });
+>>>>>>> 9039b3c... Worked on adding a web service for inserting invoice data in mongodb
+
+module.exports = router;

@@ -64,5 +64,5 @@ export class Data {
 }
 
 export enum PurchaseType {
-    subscription = 'subscription', onetime = 'one time'
+    subscription = 'Recurrent delivery (Subscription)', onetime = 'One-Off delivery'
 }

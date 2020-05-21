@@ -25,5 +25,4 @@ router.use('/deliverables', require('./deliverables'));
 router.use('/invoice', require('./invoice'));
 
 logger.info({ message: "V1 of API is loaded and available", className: "Index" });
-logger.close();
 module.exports = router;

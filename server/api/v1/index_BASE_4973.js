@@ -22,8 +22,6 @@ router.use('/search', require('./elastic'));
 router.use('/config', require('./config'));
 router.use('/sales', require('./sales'));
 router.use('/deliverables', require('./deliverables'));
-router.use('/invoice', require('./invoice'));
 
-logger.info({ message: "V1 of API is loaded and available", className: "Index" });
-logger.close();
+logger.info({ message: "V1 of API is loaded and available", className: "Index"});
 module.exports = router;

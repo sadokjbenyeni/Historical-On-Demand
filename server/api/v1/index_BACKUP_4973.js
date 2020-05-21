@@ -24,6 +24,10 @@ router.use('/sales', require('./sales'));
 router.use('/deliverables', require('./deliverables'));
 router.use('/invoice', require('./invoice'));
 
-logger.info({ message: "V1 of API is loaded and available", className: "Index" });
+<<<<<<< HEAD
+logger.info({ message: "V1 of API is loaded and available", className: "Index"});
 logger.close();
+=======
+logger.info({ message: "V1 of API is loaded and available", className: "Index" });
+>>>>>>> 9039b3c... Worked on adding a web service for inserting invoice data in mongodb
 module.exports = router;

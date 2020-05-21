@@ -151,10 +151,7 @@
 
                 <ng-container matColumnDef="purchaseType">
                     <th mat-header-cell *matHeaderCellDef> Purchase Type </th>
-                    <td mat-cell *matCellDef="let element"><span *ngIf="element.purchaseType === 'one time'">One-Off
-                            delivery</span>
-                        <span *ngIf="element.purchaseType === 'subscription' && !print">Recurrent delivery
-                            (Subscription)</span> </td>
+                    <td mat-cell *matCellDef="let element"><span *ngIf="!print"> {{ element.purchaseType }} </span></td>
                 </ng-container>
 
                 <ng-container matColumnDef="engagementPeriod">

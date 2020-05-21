@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const request = require("request");
 const mongoose = require('mongoose');
 
 var path = require('path');
@@ -9,13 +10,17 @@ const User = mongoose.model('User');
 const Currency = mongoose.model('Currency');
 const Countrie = mongoose.model('Countrie');
 
+const config = require('../../config/config.js');
+const DOMAIN = config.domain();
+const LOCALDOMAIN = config.localdomain();
+
 router.post('/', (req, res) => {
   Order.findOne({ id: req.body.id }).then(cmd => {
     User.findOne({ _id: cmd.idUser }, { id: true, vat: true, countryBilling: true, checkvat: true }).then(u => {
       Countrie.findOne({ id: cmd.countryBilling }).then(cnt => {
         Currency.findOne({ id: cmd.currency }).then(c => {
-            pdf(req.logger, cmd, c, u, cnt);
-            testoo(req.logger, u);
+          pdf(req.logger, cmd, c, u, cnt);
+          testoo(req.logger, u);
           return res.status(200).json(cmd.idCommande);
         });
       });
@@ -23,12 +28,12 @@ router.post('/', (req, res) => {
   });
 });
 
-testoo = function(logger, order){
-  logger.info({ message: order, className: 'PDF Api'});
+testoo = function (logger, order) {
+  logger.info({ message: order, className: 'PDF Api' });
 };
 
 /*** Fonctions PDF */
-pdf = function  (logger, cmd, currency, user, country){
+pdf = function (logger, cmd, currency, user, country) {
   let fonts = {
     Roboto: {
       normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Regular.ttf'], 'base64'),
@@ -137,28 +142,14 @@ pdf = function  (logger, cmd, currency, user, country){
   //Création du document PDF
   let pdfDoc = printer.createPdfKitDocument(invoice);
   let dir = 'files/invoice';
-  if(!fs.existsSync(dir)){
-    fs.mkdirSync(dir,{ recursive: true });
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
-  pdfDoc.pipe(fs.createWriteStream(path.join(dir, cmd.idCommande +'.pdf')));
+  pdfDoc.pipe(fs.createWriteStream(path.join(dir, cmd.idCommande + '.pdf')));
   pdfDoc.end();
 };
 
-// createInvoice = function (invoice) {
-//   let options = {
-//     url: DOMAIN + 'api/public/invoice',
-//     headers: {
-//       'content-type': 'application/json',
-//     },
-//     body: {
-//       invoice: invoice
-//     },
-//     json: true
-//   };
-//   request.post(options, function (error) {
-//     if (error) throw new Error(error);
-//   });
-// }
+
 
 qhAddress = function (address, cp, city, country, sasu, rcs, vat, invoiceBillingAddress) {
   return {
@@ -367,8 +358,8 @@ head = function (numInvoice, numAccount, idTax, invoiceDate, paymentDate, numCmd
   };
 };
 
-footer = function(logger, totalHt, totalVat, totalTTC, currency, message, vat, country, vatok, user){
-  logger.info({ message: country, className: 'PDF Api'});
+footer = function (logger, totalHt, totalVat, totalTTC, currency, message, vat, country, vatok, user) {
+  logger.info({ message: country, className: 'PDF Api' });
   let mentionvat = "";
   // Facture avec TVA : (client en France ou client en EU sans n° de TVA)
   if (country.id === 'FR' || (country.ue === '1' && !vatok)) {
