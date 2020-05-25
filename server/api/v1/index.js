@@ -24,4 +24,5 @@ router.use('/sales', require('./sales'));
 router.use('/deliverables', require('./deliverables'));
 
 logger.info({ message: "V1 of API is loaded and available", className: "Index"});
+logger.close();
 module.exports = router;

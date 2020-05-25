@@ -10,10 +10,12 @@ client.ping({}, { requestTimeout: 20000 }, function (error) {
     if (error) {
         logger.warn({ message: 'elasticsearch cluster is down!', className:'Elastic API'}); 
         logger.error(error);
+        logger.close();
     }
     else { 
-        logger.log({message: 'elasticsearch cluster is up!', className: 'Elastic API'}); 
-    }
+        logger.info({message: 'elasticsearch cluster is up!', className: 'Elastic API'}); 
+        logger.close();
+    }    
 });
 
 router.post('/', (req, res) => {

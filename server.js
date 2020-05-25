@@ -39,6 +39,7 @@ app.use(function (req, res, next) {
   req.logger.info({ message: 'HttpRequest: { '+headers.join(', ') + ', host: ' + req.host + ', hostname: '+ req.hostname + ', url: ' + req.path + ' }', className: "Middleware" });
   next();
   req.logger.info({ message: 'HttpResponse: '+res.statusCode+', ' + res.statusMessage+ ', '+req.headers.authorization, className: "Middleware" });
+  req.logger.close();
 });
 
 app.use(function(err, req, res, next) {
@@ -159,5 +160,6 @@ const server = http.createServer(app);
 server.listen(port, () => {
   logger.info({ message: `API running on localhost:${port}`, className: "Server" });
   logger.info({ message: "HoD web site backend available", className: "Server" });
+  logger.close();
 });
 module.exports = app;
