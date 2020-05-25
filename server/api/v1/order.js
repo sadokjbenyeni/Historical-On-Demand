@@ -1246,7 +1246,6 @@ totalttc = function (order) {
 addPool = function (data) {
   Pool.findOne({ id_cmd: data.id_cmd, begin_date: data.begin_date }).then(p => {
     if (!p) {
-
       Pool.create(data).then(p => { return true; });
     }
   });
@@ -1330,14 +1329,13 @@ autoValidation = async function (idCmd, logsPayment, r, res) {
   var order = await Order.findOne({ id_cmd: idCmd }).exec();
   log.date = new Date();
   let eids = [];
+  let corp = {};
+  let url = '/api/mail/newOrder';
   order.products.forEach(product => { eids.push(product.eid); });
   if (order.state === 'PSC') {
       autoValidationOrderStateIsPSC(corp, order, logsPayment, url, log);
   }
   order.eid = eids;
-  let url = '/api/mail/newOrder';
-  let corp = {};
-    
   if (order.state === "PVC") {
     // Envoi email aux compliances
     await autovalidationOrderStateIsPVC(corp, order, logsPayment);      
