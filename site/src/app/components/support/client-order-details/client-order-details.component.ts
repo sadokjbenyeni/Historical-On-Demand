@@ -128,7 +128,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getOrderDetailsById(order: any, logs: any) {
+  getOrderDetailsById(order: any, responseLogs: any) {
     this.currencyService.getCurrencies().subscribe(r => {
       this.symbols = [];
       r.currencies.forEach(s => {
@@ -166,8 +166,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
           } else if (product.subscription === 1) {
             product.price = product.period * product.price;
           }
-          index++;
-          
+          index++;          
           let prod = {
             idx: index,
             print: false,
@@ -192,11 +191,11 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
             end_date: product.end_date_ref,
             status: product.status,
             links: product.links,
-            log:null
+            logs:null
           };
-          if(logs && logs.IsArray)
+          if(responseLogs !== undefined && Array.isArray(responseLogs.logs))
           {
-            prod.log= logs.find(log => log.id_cmd === order.orderId && log.productId == index);
+            prod.logs= responseLogs.logs.filter(log => log.id_undercmd === product.id_undercmd);
           }
           this.ht += product.price;
           this.cart.push(prod);
@@ -293,14 +292,14 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
   }
 
   private loadLogsAndSetupOrderDetails(order: any) {
-    this.orderService.getSupportLogsOrdersById(this.idCmd).subscribe(logs => {
-      this.SetupOrderDetails(order, logs);
+    this.orderService.getSupportLogsOrdersById(this.idCmd).subscribe(responseLogs => {
+      this.SetupOrderDetails(order, responseLogs);
     });
   }
 
-  private SetupOrderDetails(order: any, logs: any) {
+  private SetupOrderDetails(order: any, responseLogs: any) {
     this.orderDetails = this.convertOrderToOrderDetails(order);
-    this.getOrderDetailsById(this.orderDetails.details, logs);
+    this.getOrderDetailsById(this.orderDetails.details, responseLogs);
     this.orderHistoryDetailsComponent.getOrderDetails(this.orderDetails);
   }
 }

@@ -5,18 +5,15 @@ const User = mongoose.model('User');
 const dnwfile = require('../config/config').dnwfile();
 const currencieService = require('./currencieService');
 
-module.exports.updateOrderMetaData = (id, note, sales, type) => {
-    Orders.findOne({ id: id })
-        .then(orderToUpdate => {
-            orderToUpdate.internalNote = note;
-            orderToUpdate.sales = sales;
-            orderToUpdate.type = type
-            Orders.update(
-                { _id: orderToUpdate._id },
-                { $set: orderToUpdate }).then(() => true)
-        });
+module.exports.updateOrderMetaData = async (id, note, sales, type) => {
+    var orderToUpdate = await Orders.findOne({ id: id }).exec();    
+    orderToUpdate.internalNote = note;
+    orderToUpdate.sales = sales;
+    orderToUpdate.type = type
+    await Orders.update({ _id: orderToUpdate._id }, { $set: orderToUpdate }).exec();
 };
-module.exports.getLinks = (token, orderId) => {
+
+module.exports.getLinks = async (token, orderId) => {
     return Users.findOne({ token: token }, { _id: true }).then(result => {
         if (result) {
             return Orders.findOne({ id: orderId, idUser: result._id }, { products: true, state: true, createdAt: true }).then(

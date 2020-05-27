@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const mongoose = require('mongoose');
 const randtoken = require('rand-token');
-
+const cors = require('cors');
 const cron = require('node-cron');
 
 const MDB = require('./server/config/configmdb.js').mdb;
@@ -25,27 +25,7 @@ logger.info({ message: "Starting hod web site backend version 1.1.2...", classNa
 const app = express();
 
 //Enable CORS
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-  let token = randtoken.generate(16);  
-  req.headers.loggerToken = token;
-  var headers = new Array;
-  for (let index = 0; index < req.rawHeaders.length; index = index+2) {
-    headers.push("\"" + req.rawHeaders[index] + "\" : \"" + req.rawHeaders[index+1] + "\""); 
-  }
-  req.logger = new LoggerFactory().createLogger(token);
-  req.logger.info({ message: 'HttpRequest: { '+headers.join(', ') + ', host: ' + req.host + ', hostname: '+ req.hostname + ', url: ' + req.path + ' }', className: "Middleware" });
-  next();
-  req.logger.info({ message: 'HttpResponse: '+res.statusCode+', ' + res.statusMessage+ ', '+req.headers.authorization, className: "Middleware" });
-  req.logger.close();
-});
-
-app.use(function(err, req, res, next) {
-  req.logger.error({ error: err, className: "Middleware" });
-  res.status(500).send('Something broke!');
-});
+app.use(cors());
 
 //Passport
 const passport = require('passport');
@@ -82,59 +62,35 @@ require('./server/models/companytype');
 require('./server/models/sale');
 require('./server/models/OrderProductLog');
 
+// Middleware
+app.use(function (req, res, next) {
+  if(!req.headers.internal){
+    let token = randtoken.generate(16);    
+    req.headers.loggerToken = token;    
+  }
+  else{
+    req.headers.loggerToken = req.headers['internal'];
+  }
+  var headers = new Array;
+  for (let index = 0; index < req.rawHeaders.length; index = index+2) {
+    headers.push("\"" + req.rawHeaders[index] + "\" : \"" + req.rawHeaders[index+1] + "\""); 
+  }
+  req.logger = new LoggerFactory().createLogger(req.headers.loggerToken);
+  req.logger.info({ message: 'HttpRequest: { ip: ' + req.ip + ', hostname: '+ req.hostname + ', Http method: ' + req.method + ', url: ' + req.path + ', ' +headers.join(', ') + ' }', className: "Middleware" });
+  req.logger.info({ message: 'Body: ' + JSON.stringify(req.body) , className: "Middleware" });
+  next();
+});
+
+app.use(function(err, req, res, next) {
+  res.status(err.status || 500);
+  res.json({'errors': { message: err.message, error: {}}});
+}); 
 
 //Get our API routes
 const api = require('./server/api/');
 
 //Set API routes
 app.use('/api', api);
-
-
-
-// BEGIN CRON
-// A exporter de ce fichier pour plus de souplesse
-
-const cronCurrency = cron.schedule('30 15 * * *', function () {
-  request.post({
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    url: 'http://localhost:3000/api/currency'
-  }, (err, r, body) => {
-  });
-});
-cronCurrency.start();
-// test.destroy();
-
-// CRON envoi mail après délai paramètrer
-// const cronFailed = cron.schedule('59 23 * * *', function(){
-//   request.post({
-//       headers: {'content-type' : 'application/x-www-form-urlencoded'},
-//       url: 'http://localhost:3000/api/cmd/verifFailed'
-//     }, (err, r, body) => {
-//   });
-// });
-// cronFailed.start();
-
-// CRON Passer Item et commande à l'état Inactive
-// const cronInactive = cron.schedule('1 * * * *', function(){
-//   request.post({
-//       headers: {'content-type' : 'application/x-www-form-urlencoded'},
-//       url: 'http://localhost:3000/api/cmd/verifInactive'
-//     }, (err, r, body) => {
-//   });
-// });
-// cronInactive.start();
-
-// const cronAutovalidationPVF = cron.schedule('30 15 * * *', function(){
-//   request.post({
-//       headers: {'content-type' : 'application/x-www-form-urlencoded'},
-//       url: 'http://localhost:3000/api/order/autovalidation'
-//     }, (err, r, body) => {
-//   });
-// });
-// cronAutovalidationPVF.start();
-// cronAutovalidationPVF.destroy();
-
-// END CRON
 
 //Static path to dist
 app.use(express.static(path.join(__dirname, 'site/dist')));
@@ -153,13 +109,8 @@ app.get('*', (req, res) => {
 const port = process.env.PORT || '3000';
 app.set('port', port);
 
-//Create HTTP server.
-const server = http.createServer(app);
-
-//Listen on port
-server.listen(port, () => {
-  logger.info({ message: `API running on localhost:${port}`, className: "Server" });
+var server = app.listen(port, function() {
+  logger.info({ message: `API running on localhost:${server.address().port}`, className: "Server" });
   logger.info({ message: "HoD web site backend available", className: "Server" });
   logger.close();
 });
-module.exports = app;

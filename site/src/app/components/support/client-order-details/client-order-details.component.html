@@ -122,7 +122,7 @@
                     <li class="list-group-item">
                       <label>Logs :</label>
                       <ul class="list-group">
-                        <li class="list-group-item" *ngFor="let log of item.log">
+                        <li class="list-group-item" *ngFor="let log of item.logs">
                           <pre
                             [ngClass]="{ 'alert-danger':log.status==='failed', 'alert-warning':log.status==='running' }">{{ log | json }}</pre>
                         </li>

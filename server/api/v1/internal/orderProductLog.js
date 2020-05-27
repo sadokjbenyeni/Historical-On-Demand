@@ -12,14 +12,14 @@ router.put('/', async (req, res) => {
     }
     var logs = req.body;
     try {
-        var logsDbo = await OrderProductLog.findOne({ id_cmd: req.body.id_undercmd }).exec();
+        var logsDbo = await OrderProductLog.findOne({ id_undercmd: req.body.id_undercmd }).exec();
         if (!logsDbo) {
             logsDbo = new OrderProductLog();
         }
         logsDbo.status = logs.status;
         logsDbo.extract = logs.extract;
         logsDbo.referer = logs.referer;
-        logsDbo.orderId = logs.orderId;
+        logsDbo.orderId = logs.id_undercmd.split('§')[0];
         logsDbo.id_undercmd = logs.id_undercmd;
         logsDbo.productId = logs.productId;
         logsDbo.date = logs.date;
