@@ -35,7 +35,6 @@ import { HelpPageComponent } from './components/help-page/help-page.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { SearchComponent } from './components/search/search.component';
-import { OrderComponent } from './components/order/order.component';
 import { OrderHistoryComponent } from './components/client/order-history/order-history.component';
 import { CaddiesComponent } from './components/order/caddies/caddies.component';
 import { SurveyComponent } from './components/survey/survey.component';

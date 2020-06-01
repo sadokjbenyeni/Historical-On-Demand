@@ -141,7 +141,11 @@ pdf = function (logger, cmd, currency, user, country) {
 
   //Création du document PDF
   let pdfDoc = printer.createPdfKitDocument(invoice);
-  let dir = 'files/invoice';
+
+  var dir = 'files/invoice';
+  if (clientAddress() == DOMAIN) {
+    dir = "mapr/invoices"
+  }
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -149,7 +153,9 @@ pdf = function (logger, cmd, currency, user, country) {
   pdfDoc.end();
 };
 
-
+function clientAddress() {
+  return request.connection.remoteAddress || request.socket.remoteAddress || request.headers['x-forwarded-for'];
+}
 
 qhAddress = function (address, cp, city, country, sasu, rcs, vat, invoiceBillingAddress) {
   return {
