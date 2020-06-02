@@ -63,7 +63,7 @@
                     [ngClass]="{ 'danger':c.status==='failed', 'warning':c.status==='running', clickable: true }"
                     (click)="detail(c)">
                     <td *ngIf="!c.print">{{ c.idx}}</td>
-                    <td *ngIf="!c.print">{{ c.quotation_level }}</td>
+                    <td *ngIf="!c.print">{{ datasets[c.quotation_level] }}</td>
                     <td *ngIf="!c.print">{{ c.symbol }}</td>
                     <td *ngIf="!c.print">{{ c.exchange }}</td>
                     <td *ngIf="!c.print">{{ c.eid }}</td>

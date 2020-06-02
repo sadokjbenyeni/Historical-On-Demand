@@ -12,36 +12,42 @@ module.exports.updateOrderMetaData = async (id, note, sales, type) => {
     orderToUpdate.type = type
     await Orders.update({ _id: orderToUpdate._id }, { $set: orderToUpdate }).exec();
 };
-
 module.exports.getLinks = async (token, orderId) => {
-    return Users.findOne({ token: token }, { _id: true }).then(result => {
-        if (result) {
-            return Orders.findOne({ id: orderId, idUser: result._id }, { products: true, state: true, createdAt: true }).then(
-                order => {
-                    if (order) {
-                        return order.products.filter(item => item.status == "active");
-                    }
-                })
+    var user = await Users.findOne({ token: token }, { _id: true, roleName: true }).exec();
+
+    if (user) {
+        var order;
+        if (user.roleName.indexOf('Support') != -1) {
+            order = await Orders.findOne({ id: orderId }, { products: true, state: true, createdAt: true }).exec();
         }
-    }).then(products => {
-        let links = []
-        products.forEach(item => {
-            producctlinks = []
-            item.links.forEach(link => {
-                if (item.subscription == 1) {
-                    link.links = [link.links[0]];
-                }
-                link.links.forEach(element => {
-                    element.link.split('|').forEach(elem => {
-                        producctlinks.push(dnwfile + '/api/user/download/' + token + '/' + link.path + '/' + elem);
+        else {
+            order = await Orders.findOne({ id: orderId, idUser: result._id }, { products: true, state: true, createdAt: true }).exec();
+        }
+        if (order) {
+            order.products.filter(item => item.status == "active");
+            let links = []
+            order.products.forEach(item => {
+                productlinks = []
+                item.links.forEach(link => {
+                    if (item.subscription == 1) {
+                        link.links = [link.links[0]];
+                    }
+                    link.links.forEach(element => {
+                        element.link.split('|').forEach(elem => {
+                            productlinks.push(dnwfile + '/api/user/download/' + token + '/' + link.path + '/' + elem);
+                        })
                     })
                 })
+                links.push(productlinks)
             })
-            links.push(producctlinks)
-        })
-        return links;
-    })
+            return links;
+        }
+        else {
+            throw new Error(`Order ${orderId} not found`);
+        }
+    }
 }
+
 module.exports.getOrderById = (token, OrderId) => {
     return Users.findOne({ token: token }).then(result => {
         if (result) {
