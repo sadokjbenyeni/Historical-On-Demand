@@ -58,7 +58,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
   job: any;
   country: any;
   countryBilling: any;
-  datasetsLink: { L1: string; L1TRADEONLY: string; L2: string; };
   dtOptions: DataTables.Settings = {};
   clientOrderDetailsTableColumns: string[] = ['item', 'dataSet', 'instrumentID', 'productID', 'symbol', 'description', 'assetClass', 'exchange', 'mic', 'purchaseType'
     , 'engagementPeriod', 'dateFrom', 'dateTo', 'pricingTier', 'price', 'exchangeFees', 'expirationDate', 'remainingDays', 'delivrables'];
@@ -99,11 +98,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.datasets = {
       L1: 'L1 - Full',
       L1TRADEONLY: 'L1 - Trades',
-      L2: 'L2'
-    };
-    this.datasetsLink = {
-      L1: 'L1-Full',
-      L1TRADEONLY: 'L1-Trades',
       L2: 'L2'
     };
   }
@@ -154,7 +148,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
   dynamicDownloadByHtmlTag(id: number, dataset: string, eid: string, symbol: string, asset: string, type: string, debut: string, fin: string, text: Array<any>, path: string) {
     let fileName = "";
     fileName += id;
-    fileName += "_" + this.datasetsLink[dataset];
+    fileName += "_" + this.datasets[dataset];
     fileName += "_" + eid;
     if (symbol !== "") {
       fileName += "_" + symbol;
