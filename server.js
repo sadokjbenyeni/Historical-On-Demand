@@ -26,9 +26,6 @@ const app = express();
 
 //Enable CORS
 app.use(cors());
-  req.logger.info({ message: 'HttpRequest: { '+headers.join(', ') + ', host: ' + req.host + ', hostname: '+ req.hostname + ', url: ' + req.path + ' }', className: "Middleware" });
-  req.logger.info({ message: 'HttpResponse: '+res.statusCode+', ' + res.statusMessage+ ', '+req.headers.authorization, className: "Middleware" });
-app.use(function(err, req, res, next) {
 
 //Passport
 const passport = require('passport');

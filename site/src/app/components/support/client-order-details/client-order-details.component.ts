@@ -172,13 +172,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
           } else if (product.subscription === 1) {
             product.price = product.period * product.price;
           }
-<<<<<<< Updated upstream
           index++;          
-          
-=======
-          index++;
-
->>>>>>> Stashed changes
           let prod = {
             idx: index,
             print: false,
@@ -203,18 +197,11 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
             end_date: product.end_date_ref,
             status: product.status,
             links: product.links,
-<<<<<<< Updated upstream
             logs:null
           };
           if(responseLogs !== undefined && Array.isArray(responseLogs.logs))
           {
             prod.logs= responseLogs.logs.filter(log => log.id_undercmd === product.id_undercmd);
-=======
-            log: null
-          };
-          if (logs && logs.IsArray) {
-            prod.log = logs.find(log => log.id_cmd === order.orderId && log.productId == index);
->>>>>>> Stashed changes
           }
           this.ht += product.price;
           this.cart.push(prod);
