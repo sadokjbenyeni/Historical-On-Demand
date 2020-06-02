@@ -19,7 +19,7 @@ const MDB = require('./server/config/configmdb.js').mdb;
 mongoose.connect('mongodb://'+MDB.userdb+':'+MDB.passdb+'@localhost:27017/histodataweb?authSource='+MDB.authdb, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.set('debug', true);
 
-logger.info({ message: "Starting hod web site backend version 1.1.2...", className: "Server" });
+logger.info({ message: "Starting hod web site backend version 1.1.4...", className: "Server" });
 
 //Init express
 const app = express();
