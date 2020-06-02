@@ -137,7 +137,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
       this.list = order;
       this.id_cmd = order.id_cmd;
       this.invoice = order.idCommande;
-      this.idOrder = order.idOrder;
+      this.idOrder = order.id;
       this.cmd = order;
       this.companyName = order.companyName;
       this.payment = order.payment;
