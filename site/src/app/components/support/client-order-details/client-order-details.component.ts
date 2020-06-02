@@ -62,6 +62,9 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
   datasetsLink: { L1: string; L1TRADEONLY: string; L2: string; };
   dtOptions: DataTables.Settings = {};
   orderDetails: OrderDetails;
+  sales: string;
+  type: string;
+  internalNote: string;
 
   constructor(
     private http: HttpClient,
@@ -156,6 +159,9 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
       this.totalTTC = this.totalHT + this.totalVat;
       this.submissionDate = order.submissionDate;
       this.state = order.state;
+      this.sales = order.sales;
+      this.type = order.type;
+      this.internalNote = order.internalNote;
       let index = 0;
       this.cart = [];
       if (order.products.length > 0) {
@@ -166,7 +172,13 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
           } else if (product.subscription === 1) {
             product.price = product.period * product.price;
           }
+<<<<<<< Updated upstream
           index++;          
+          
+=======
+          index++;
+
+>>>>>>> Stashed changes
           let prod = {
             idx: index,
             print: false,
@@ -191,11 +203,18 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
             end_date: product.end_date_ref,
             status: product.status,
             links: product.links,
+<<<<<<< Updated upstream
             logs:null
           };
           if(responseLogs !== undefined && Array.isArray(responseLogs.logs))
           {
             prod.logs= responseLogs.logs.filter(log => log.id_undercmd === product.id_undercmd);
+=======
+            log: null
+          };
+          if (logs && logs.IsArray) {
+            prod.log = logs.find(log => log.id_cmd === order.orderId && log.productId == index);
+>>>>>>> Stashed changes
           }
           this.ht += product.price;
           this.cart.push(prod);
@@ -284,7 +303,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
     return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
 
-  
+
   private loadOrderDetailsAndLogsAndSetupOrderDetails() {
     this.orderService.getSupportOrderDetailsById(this.idCmd).subscribe(order => {
       this.loadLogsAndSetupOrderDetails(order);

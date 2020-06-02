@@ -29,6 +29,8 @@
                   <p>Invoice : <b><a *ngIf="invoice!=undefined" target="_blank"
                         [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}} </a></b></p>
                   <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b>
+                    <p>Order Type: <b> {{ type }} </b></p>
+                    <p>Sales: <b> {{sales}}</b></p>
                 </div>
                 <div class="col-md-6">
                   <p>Company Name: <b>{{ company }}</b></p>
@@ -107,6 +109,11 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+            <div class="col-md-9 margin-left-zero">
+              <p><b>Internal Notes:</b></p>
+              <p><textarea class="responsive-field">{{internalNote}}</textarea>
+              </p>
             </div>
             <div class="panel panel-primary" *ngIf="item">
               <div class="table-responsive container">
