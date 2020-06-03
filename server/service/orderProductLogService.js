@@ -31,6 +31,31 @@ module.exports = function (id, logger) {
         }
     }
     
+    this.AddFinishLogsInProduct = function(logData) {
+        this.logger.info({ message: "updating logs in product....", className: 'OrderProductLog Service' });
+        this.logger.debug({ message: 'Logs: '+ JSON.stringify(logData), className: 'OrderProductLog Service' });               
+        try {   
+            logDbo = new OrderProductLog();
+            logDbo.id_undercmd = logData.id_undercmd; 
+            logDbo.referer = 'job';
+            logDbo.status = logData.status; 
+            logDbo.state_description = logData.state_description; 
+            logDbo.idUser = logData.idUser; 
+            logDbo.date = new Date();
+            logDbo.log = logData.log; 
+            logDbo.extract = logData.extract; 
+            logDbo.orderid = logData.orderid; 
+            logDbo.productId = logData.productId; 
+            logDbo.identifier = logData.identifier; 
+            this.logger.debug({ message: 'saving: '+ JSON.stringify(logDbo) + ' ...', className: 'OrderProductLog Service' });       
+            return logDbo.save();
+        }
+        catch (error) {
+            this.logger.error({ message: error.message, error: error, className: 'orderProductLog internal API' });
+            throw err;
+        }
+    }
+
     this.addLogInUpdateOrder = function(log) {
         this.logger.info({ message: "updating logs in product....", className: 'OrderProductLog Service' });
         this.logger.debug({ message: 'Logs: '+ JSON.stringify(log), className: 'OrderProductLog Service' });       

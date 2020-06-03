@@ -316,7 +316,7 @@ function updateLogsForOrder(id_cmd, req, order, identifiers) {
   logs.productId = identifiers[1];
   logs.identifier = identifiers;
   req.logger.info({ message: "updating logs in product....", className: 'Todo API' });
-  new OrderProductLogService(request.logger).putLogsInProduct(logs);
+  new OrderProductLogService(request.logger).AddFinishLogsInProduct(logs);
 }
 
 module.exports = router;
