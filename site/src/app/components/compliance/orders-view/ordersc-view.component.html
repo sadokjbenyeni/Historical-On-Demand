@@ -27,6 +27,8 @@
               <p>Invoice : <b><a *ngIf="invoice!=undefined" target="_blank"
                     [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}}</a> </b></p>
               <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b>
+                <p>Order Type: <b> {{ type }} </b></p>
+                <p>Sales: <b> {{sales}}</b></p>
             </div>
             <div class="col-md-6">
               <p>Company Name: <b>{{ company }}</b></p>
@@ -119,7 +121,6 @@
             </table>
           </div>
         </div>
-
         <div class="table-responsive text-center">
           <div class="btn-action">
             <span class="btn btn-success fa fa-handshake" *ngIf="verifState()"

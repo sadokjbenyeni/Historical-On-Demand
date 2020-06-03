@@ -44,6 +44,8 @@ export class OrderscViewComponent implements OnInit {
   fees: number;
   cart: Array<any>;
   invoice: string;
+  sales: string;
+  type: string;
   internalNote: string;
 
   constructor(
@@ -104,6 +106,8 @@ export class OrderscViewComponent implements OnInit {
         this.submissionDate = c.cmd.submissionDate;
         this.state = c.cmd.state;
         this.internalNote = c.cmd.internalNote;
+        this.type = c.cmd.type;
+        this.sales = c.cmd.sales;
         let index = 0;
         if (c.cmd.products.length > 0) {
           this.list['cmd'].products.forEach((p) => {

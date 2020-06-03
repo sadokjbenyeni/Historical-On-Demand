@@ -14,7 +14,7 @@ router.get('/details/:id', async (req, res) => {
     }
     var order = await Order.findOne({ _id: req.params.id }).exec();
     try {
-        order = clientOrderDetails(order);
+        order = supportOrderDetails(order);
     }
     catch (error) {
         req.logger.error({ error: error, message: error.message, className: "Order Support API" });
@@ -23,7 +23,7 @@ router.get('/details/:id', async (req, res) => {
     return res.status(200).json({ details: order });
 })
 
-clientOrderDetails = function (order) {
+supportOrderDetails = function (order) {
 
     const container = {};
     container.id = order.id;
@@ -36,6 +36,9 @@ clientOrderDetails = function (order) {
     container.idCommande = order.idCommande;
     container.job = order.job;
     container.countryBilling = order.countryBilling;
+    container.sales = order.sales;
+    container.type = order.type;
+    container.internalNote = order.internalNote;
     container.products = order.products;
     container.currency = order.currency;
     container.currencyTx = order.currencyTx;
@@ -48,9 +51,7 @@ clientOrderDetails = function (order) {
     container.vat = order.vat;
     container.vatValide = order.vatValide;
     container.vatValue = order.vatValue;
-    container.sales = order.sales;
-    container.type = order.type;
-    container.internalNote = order.internalNote;
+
     return container;
 }
 

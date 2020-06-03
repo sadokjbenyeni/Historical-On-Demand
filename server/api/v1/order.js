@@ -176,13 +176,13 @@ router.put('/delProductCaddy', async (req, res) => {
     {
       $pull: { products: { id_undercmd: req.body.id_product } },
       $set: { totalExchangeFees: req.body.totalFees, totalHT: req.body.totalHT }
-  }).exec();  
+    }).exec();
   var order = await Order.findOne({ id_cmd: req.body.id_cmd }).exec();
   try {
     await new OrderProductLogService(order.id, req.logger).Delete(req.body.id_product);
   }
-  catch(error){
-    req.logger.warn({message: "Logs are not be removed, an error has been raised. "+error.message, className: "Order API"});
+  catch (error) {
+    req.logger.warn({ message: "Logs are not be removed, an error has been raised. " + error.message, className: "Order API" });
   }
   if (order.products.length === 0) {
     await Order.deleteMany({ id_cmd: req.body.id_cmd }).exec();
@@ -444,7 +444,7 @@ router.put('/update', async (request, res) => {
   try {
     let orderProductLogs = [];
     var currencies = [];
-    var currencies = await Currency.find({}).exec();    
+    var currencies = await Currency.find({}).exec();
     var orderUpdated = await Order.findOne({ _id: request.body.idcmd.id_cmd }).exec();
     orderUpdated.id_cmd = orderUpdated.id + "-" + request.body.u.user.companyName.replace(' ', '').toLowerCase() + "-" + new Date().yyyymmdd().replace(/-/g, '');
     if (request.body.state) {
@@ -454,7 +454,7 @@ router.put('/update', async (request, res) => {
       let idx = 1;
       if (orderUpdated.products.length > 0) {
         idx = parseInt(orderUpdated.products[orderUpdated.products.length - 1].id_undercmd.split('§')[1]) + 1;
-      }      
+      }
       request.body.cart.forEach((elem) => {
         if (elem.backfill_fee !== 0) {
           let a_backfillfee = (elem.backfill_fee).split(' ');
@@ -529,13 +529,13 @@ router.put('/update', async (request, res) => {
           //   }
           // ]
         });
-        orderProductLogs.push({ 
+        orderProductLogs.push({
           id_undercmd: id_undercmd,
           referer: 'client',
           status: elem.status,
           idUser: orderUpdated.IdUser,
           date: new Date(),
-          log: 'Cart updated',        
+          log: 'Cart updated',
           orderId: orderUpdated.id,
           productId: idx,
         })
@@ -560,9 +560,9 @@ router.put('/update', async (request, res) => {
       orderUpdated.cityBilling = request.body.u.user.cityBilling;
       orderUpdated.countryBilling = request.body.u.user.countryBilling;
       orderUpdated.postalCodeBilling = request.body.u.user.postalCodeBilling;
-      orderUpdated.submissionDate = new Date();    
+      orderUpdated.submissionDate = new Date();
       orderUpdated.vat = request.body.u.user.vat;
-            
+
       // updt.vatValide = req.body.u.user.vatValide;
       orderUpdated.payment = request.body.u.user.payment;
       orderUpdated.currency = request.body.u.user.currency;
@@ -578,22 +578,22 @@ router.put('/update', async (request, res) => {
     }
     if (request.body.survey) {
       orderUpdated.survey = request.body.survey;
-    }    
-    await Order.updateOne({ _id: request.body.idcmd.id_cmd }, { $set: orderUpdated }).exec();      
+    }
+    await Order.updateOne({ _id: request.body.idcmd.id_cmd }, { $set: orderUpdated }).exec();
     try {
       var serviceLogs = new OrderProductLogService(orderUpdated.id, request.logger);
       request.logger.info({ message: 'Order updated', className: 'Order API' });
       await serviceLogs.addAllLogInUpdateOrder(orderProductLogs);
     }
-    catch(error){
+    catch (error) {
       request.logger.error({ message: error.message, error: error, className: 'Order API' });
-      return res.status(503).json({ message: "Unhandle exception, please contact support with '" + request.headers.loggerToken + "' identifier"});
+      return res.status(503).json({ message: "Unhandle exception, please contact support with '" + request.headers.loggerToken + "' identifier" });
     }
-    return res.status(201).json({ ok: true }); 
+    return res.status(201).json({ ok: true });
   }
-  catch(err)  {    
-    request.logger.error({message: 'Unhandle exception during update cart: '+ err.message, className: 'Order API', error: err});
-    return res.status(501).json({ message: 'Update cannot be executed please contact support with identifier \''+ request.headers.tokenLogger +'\'' });
+  catch (err) {
+    request.logger.error({ message: 'Unhandle exception during update cart: ' + err.message, className: 'Order API', error: err });
+    return res.status(501).json({ message: 'Update cannot be executed please contact support with identifier \'' + request.headers.tokenLogger + '\'' });
   }
 });
 
@@ -612,7 +612,7 @@ router.post('/usercaddy', (req, res) => {
           } else {
             order.id = 1;
           }
-          
+
           order.idUser = req.body.id;
           order.save((err, c) => {
             if (err) {
@@ -843,10 +843,10 @@ router.post('/list', async (req, res) => {
   var orderCount = await Order.count(search).exec();
   try {
     var orders = await Order.find(search)
-    .sort(sort)
+      .sort(sort)
       .skip(req.body.start)
       .limit(req.body.length)
-    .collation({ locale: "en" })    
+      .collation({ locale: "en" })
       .exec();
   } catch (error) {
     req.logger.error({ error: error, message: error.message, className: "Order API" });
@@ -1206,17 +1206,17 @@ autoValidation = async function (idCmd, logsPayment, r, res) {
     autoValidationOrderStateIsPSC(corp, order, logsPayment, url, log);
   }
   order.eid = eids;
-    
+
   if (order.state === "PVC") {
     // Envoi email aux compliances
-    await autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment);      
+    await autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment);
   }
   if (order.state === "PVP") {
     // Envoi email aux products
     await autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment);
   }
   if (order.state === "PVF") {
-    await autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment);      
+    await autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment);
   }
   var updateStatus = await Order.updateOne({ id_cmd: idCmd },
     {
@@ -1291,24 +1291,24 @@ async function UpdateStateCompliance(updt, corp, req) {
   };
   // sendMail('/api/mail/newOrder', corp);
   // Email validation au pvp
-  var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();    
-    let eids = [];
-    order.products.forEach(p => {
-      eids.push(p.eid);
+  var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
+  let eids = [];
+  order.products.forEach(p => {
+    eids.push(p.eid);
+  });
+  var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
+  users.forEach(user => {
+    sendMail('/api/mail/newOrderHoD', {
+      idCmd: order.id,
+      email: user.email,
+      lastname: order.lastname,
+      firstname: order.firstname,
+      eid: eids.join(),
+      date: order.submissionDate,
+      total: totalttc(order),
+      service: "Product"
     });
-    var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();      
-    users.forEach(user => {
-      sendMail('/api/mail/newOrderHoD', {
-        idCmd: order.id,
-        email: user.email,
-        lastname: order.lastname,
-        firstname: order.firstname,
-        eid: eids.join(),
-        date: order.submissionDate,
-        total: totalttc(order),
-        service: "Product"
-      });
-    });     
+  });
 }
 
 async function autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment) {
