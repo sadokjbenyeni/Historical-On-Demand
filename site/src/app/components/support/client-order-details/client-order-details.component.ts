@@ -114,6 +114,8 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
 
   detail(c) {
     this.item = c;
+    this.loadLogsAndSetupOrderDetails(c);
+    debugger;
     if (this.item.onetime === 1) {
       this.item.reference = this.item.idElem;
     }
@@ -127,7 +129,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
 
   retry() {
     this.orderService.getRetry(this.item.reference, this.retryMode).subscribe(order => {
-      this.loadLogsAndSetupOrderDetails(order);
+      this.loadOrderDetailsAndLogsAndSetupOrderDetails();
     });
   }
 
@@ -172,7 +174,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
           } else if (product.subscription === 1) {
             product.price = product.period * product.price;
           }
-          index++;          
+          index++;
           let prod = {
             idx: index,
             print: false,
@@ -197,11 +199,10 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
             end_date: product.end_date_ref,
             status: product.status,
             links: product.links,
-            logs:null
+            logs: null
           };
-          if(responseLogs !== undefined && Array.isArray(responseLogs.logs))
-          {
-            prod.logs= responseLogs.logs.filter(log => log.id_undercmd === product.id_undercmd);
+          if (responseLogs !== undefined && Array.isArray(responseLogs.logs)) {
+            prod.logs = responseLogs.logs.filter(log => log.id_undercmd === product.id_undercmd);
           }
           this.ht += product.price;
           this.cart.push(prod);

@@ -773,20 +773,20 @@ router.get('/retry/:id/:export', (req, res) => {
   var currentProduct;
   Order.findOne(
     { "products": { $elemMatch: { id_undercmd: req.params.id } } }
-  ).then((o) => {
+  ).then((order) => {
 
-    o.products.forEach(p => {
-      if (p.id_undercmd === req.params.id) {
-        p.id_undercmd = o.id + "§" + p.idx;
-        currentProduct = p;
+    order.products.forEach(product => {
+      if (product.id_undercmd === req.params.id) {
+        product.id_undercmd = order.id + "§" + product.idx;
+        currentProduct = product;
       }
     });
     Order.updateOne(
 
-      { id_cmd: o.id_cmd },
+      { id_cmd: order.id_cmd },
       {
 
-        $set: { products: o.products }
+        $set: { products: order.products }
       }
     ).then(() => {
       currentProduct.begin_date = currentProduct.begin_date_select;
@@ -796,7 +796,7 @@ router.get('/retry/:id/:export', (req, res) => {
         qhid = currentProduct.qhid.toString();
       }
       let data = {
-        id: o.id,
+        id: order.id,
         id_cmd: currentProduct.id_undercmd,
         onetime: currentProduct.onetime,
         subscription: currentProduct.subscription,

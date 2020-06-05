@@ -130,7 +130,9 @@ export class OrderHistoryDetailsComponent implements OnInit {
 
   limitDownLoad(datelk) {
     let expired = new Date(datelk);
-    return expired.setDate(expired.getDate() + this.period[0].periodOneOff);
+    if (this.onetime === 1 || this.subscription === 1) {
+      return expired.setDate(expired.getDate() + this.period[0].periodOneOff);
+    }
   }
 
   getPeriod() {
