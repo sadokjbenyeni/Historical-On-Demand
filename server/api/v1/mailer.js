@@ -5,7 +5,9 @@ const domain = config.domain();
 const SMTP = config.smtpconf();
 const mongoose = require('mongoose');
 const Config = mongoose.model('Config');
-
+const User = mongoose.model('User');
+const UserMailService = require('../../service/userMailerService');
+const OrderMailService = require('../../service/orderMailerService');
 
 const smtpTransport = nodemailer.createTransport({
   host: SMTP.host,
@@ -19,180 +21,92 @@ const smtpTransport = nodemailer.createTransport({
   debug: SMTP.debug
 });
 
-router.post('/inscription', (req, res, next) => {
-  let mailOptions = {
-    from: 'no-reply@quanthouse.com',
-    to: req.body.email, //req.body.user,
-    subject: '[UAT] Confirm your email',
-    text: `Hello,
-
-    
-    To validate your email address and activate your account, please click on the following link:
-    `+ domain + `/activation/` + req.body.token +
-      `If clicking the above link does not work, you can copy and paste the URL in a new browser window.
-
-    If you have received this email by error, you do not need to take any action. The account will not be activated and you will not receive any further emails.
-
-
-    The Quanthouse team`,
-
-    html: `Hello,<br><br>
-    To validate your email address and activate your account, please click on the following link:
-    <a href="`+ domain + `/activation/` + req.body.token + `">Activation of the HistodataWeb account</a><br>
-    If clicking the above link does not work, you can copy and paste the URL in a new browser window.<br><br>
-    If you have received this email by error, you do not need to take any action. The account will not be activated and you will not receive any further emails.
-    <br><br>
-    <b>The Quanthouse team</b>`
-  };
-  smtpTransport.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      req.logger.error({ message: err.message, className: 'Mailer API', error: error });
-      return console.log(error);
-    }
+router.post('/inscription', async (req, res, next) => {
+  var user = await User.findOne({ token: req.body.token }).exec();
+  if(!user)
+  {
+    return res.status(403).json({ error: "User not found" });
+  }  
+  try {
+    var mailer = new UserMailService(req.logger, user);
+    mailer.SendMailForInscription();
     return res.status(200).json({ mail: true });
-  });
-});
-router.post('/activation', (req, res, next) => {
-  let login = '';
-  let password = '';
-  let link = '';
-  // if(URLS.indexOf(req.headers.referer) !== -1){
-  let mailOptions = {
-    from: 'no-reply@quanthouse.com',
-    to: req.body.email, //req.body.user,
-    subject: '[UAT] Account Activation',
-    text: `Hello,
-      Thank you for choosing QH’s On Demand Historical Data product!
-      Your account has been successfully created. Below are your login credentials.
-      Login: ` + login + `
-      Password: ` + password + `
-      To manage your profile please go to: ` + link + `
-
-      The Quanthouse team`,
-
-    html: `Hello,<br><br>
-      Thank you for choosing QH’s On Demand Historical Data product!
-      Your account has been successfully created. Below are your login credentials.
-      Login: ` + login + `<br>
-      Password: ` + password + `<br><br>
-      To manage your profile please go to: ` + link + `
-      <br><br>
-      <b>The Quanthouse team</b>`
-  };
-  smtpTransport.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      req.logger.error({ message: err.message, className: 'Mailer API', error: error });
-      return console.log(error);
-    }
-    return res.status(200).json({ mail: true });
-  });
-  // }
-  // else{
-  //     return res.sendStatus(404);
-  // }
+  }
+  catch(error) {
+    req.logger.error({ message: error.message, className: 'Mailer API', error: error });
+    return res.status(501).json({ mail: false });
+  }
 });
 
-router.post('/activated', (req, res, next) => {
-  let login = '';
-  let password = '';
-  let link = '';
-  // if(URLS.indexOf(req.headers.referer) !== -1){
-  let mailOptions = {
-    from: 'no-reply@quanthouse.com',
-    to: req.body.email, //req.body.user,
-    subject: '[UAT] Your Account has been validated',
-    text: `Hello,
-      Thank you for choosing QH’s On Demand Historical Data product!
-      Your account has been successfully created. Below are your login credentials.
-      Login: ` + login + `
-      Password: ` + password + `
-      To manage your profile please go to: ` + link + `
-
-      The Quanthouse team`,
-
-    html: `Hello,<br><br>
-      Thank you for choosing QH’s On Demand Historical Data product!
-      Your account has been successfully created. Below are your login credentials.
-      Login: ` + login + `<br>
-      Password: ` + password + `<br><br>
-      To manage your profile please go to: ` + link + `
-      <br><br>
-      <b>The Quanthouse team</b>`
-  };
-  smtpTransport.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      req.logger.error({ message: err.message, className: 'Mailer API', error: error });
-      return console.log(error);
-    }
+router.post('/activation', async (req, res, next) => {
+  var user = await User.findOne({ token: req.body.token }).exec();
+  if(!user)
+  {
+    return res.status(403).json({ error: "User not found" });
+  }  
+  try {
+    var mailer = new UserMailService(req.logger, user);
+    mailer.activated();
     return res.status(200).json({ mail: true });
-  });
-  // }
-  // else{
-  //     return res.sendStatus(404);
-  // }
+  }
+  catch(error) {
+    req.logger.error({ message: error.message, className: 'Mailer API', error: error });
+    return res.status(501).json({ mail: false });
+  }
 });
 
-router.post('/mdp', (req, res, next) => {
-  let mailOptions = {
-    from: 'no-reply@quanthouse.com',
-    to: req.body.email,
-    subject: '[UAT] Password Initialization',
-    text: `Hello,
-
-    To reinitialize your password, please click on the following link: `+ domain + `/mdp/` + req.body.token + `
-    If clicking the above link does not work, you can copy and paste the URL in a new browser window.
-    If you have received this email by error, you do not need to take any action. Your password will remain unchanged.
-
-    The Quanthouse team`,
-
-    html: `Hello,<br><br>
-    To reinitialize your password, please click on the following link: `+ domain + `/mdp/` + req.body.token + `<br>
-    If clicking the above link does not work, you can copy and paste the URL in a new browser window.<br>
-    If you have received this email by error, you do not need to take any action. Your password will remain unchanged.<br><br>
-    <b>The Quanthouse team</b>`
-  };
-  smtpTransport.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      req.logger.error({ message: err.message, className: 'Mailer API', error: error });
-      return console.log(error);
-    }
+router.post('/activated', async (req, res, next) => {
+  var user = await User.findOne({ token: req.body.token }).exec();
+  if(!user)
+  {
+    return res.status(403).json({ error: "User not found" });
+  }  
+  try {
+    var mailer = new UserMailService(req.logger, user);
+    mailer.activated();
     return res.status(200).json({ mail: true });
-  });
+  }
+  catch(error) {
+    req.logger.error({ message: error.message, className: 'Mailer API', error: error });
+    return res.status(501).json({ mail: false });
+  }
 });
 
-router.post('/newOrder', (req, res, next) => {
-  let mailOptions = {
-    from: 'no-reply@quanthouse.com',
-    to: req.body.email,
-    subject: '[UAT] Order # ' + req.body.idCmd + ' Confirmation',
-    text: `Hello,
-
-
-    Thank you for choosing the QH's Historical Data On-Demand product.
-    You Order # `+ req.body.idCmd + ` has been received on ` + req.body.paymentdate.substring(0, 10) + " " + req.body.paymentdate.substring(11, 19) + ` CET and is currently pending validation.
-    For any further information about your order, please use the following link: `+ domain + `/order/history/` + req.body.idCmd + `
-
-    
-    Thank you,
-    Quanthouse`,
-
-    html: `Hello,<br><br>
-    Thank you for choosing the QH's Historical Data On-Demand product.<br>
-    You Order <b># `+ req.body.idCmd + `</b> has been received on ` + req.body.paymentdate.substring(0, 10) + " " + req.body.paymentdate.substring(11, 19) + ` CET and is currently pending validation.<br>
-    For any further information about your order, please use the following link: <a href="`+ domain + `/order/history` + req.body._id + `"> Click here</a>
-    <br><br>
-    <b>Thank you,<br>Quanthouse</b>`
-  };
-  smtpTransport.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      req.logger.error({ message: err.message, className: 'Mailer API', error: error });
-      return console.log(error);
-    }
+router.post('/mdp', async (req, res, next) => {
+  var user = await User.findOne({ email: req.body.email }).exec();
+  if(!user)
+  {
+    return res.status(403).json({ error: "User not found, please contact support with '" + req.headers.loggerToken + "'" });
+  }  
+  try {
+    var mailer = new UserMailService(req.logger, user);
+    mailer.RenewPassword();
     return res.status(200).json({ mail: true });
-  });
+  }
+  catch(error) {
+    req.logger.error({ message: error.message, className: 'Mailer API', error: error });
+    return res.status(501).json({ mail: false });
+  }
 });
 
-router.post('/newOrderHoD', (req, res, next) => {
+router.post('/newOrder', async (req, res, next) => {
+  var order = await Order.findOne({ _id: req.body._id }).exec();
+  if(!order)
+  {
+    return res.status(403).json({ error: "Order not found" });
+  }  
+  try {
+    var mailer = new OrderMailService(req.logger, order);
+    mailer.newOrder();
+    return res.status(200).json({ mail: true });
+  }
+  catch(error) {
+    req.logger.error({ message: error.message, className: 'Mailer API', error: error });
+    return res.status(501).json({ mail: false });
+  }
+});
+
+router.post('/newOrderHoD', async (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
@@ -226,7 +140,7 @@ router.post('/newOrderHoD', (req, res, next) => {
   });
 });
 
-router.post('/reminder', (req, res, next) => { // géré par un CRON
+router.post('/reminder', async (req, res, next) => { // géré par un CRON
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
@@ -254,7 +168,7 @@ router.post('/reminder', (req, res, next) => { // géré par un CRON
   });
 });
 
-router.post('/orderValidated', (req, res, next) => {
+router.post('/orderValidated', async (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
@@ -282,7 +196,7 @@ router.post('/orderValidated', (req, res, next) => {
   });
 });
 
-router.post('/orderFailedJob', (req, res, next) => {
+router.post('/orderFailedJob', async (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
@@ -325,7 +239,7 @@ router.post('/orderFailedJob', (req, res, next) => {
   });
 });
 
-router.post('/orderFailed', (req, res, next) => {
+router.post('/orderFailed', async (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
@@ -354,7 +268,7 @@ router.post('/orderFailed', (req, res, next) => {
   });
 });
 
-router.post('/orderExecuted', (req, res, next) => {
+router.post('/orderExecuted', async (req, res, next) => {
   Config.findOne({
     id: "downloadSetting"
   })
@@ -395,7 +309,7 @@ router.post('/orderExecuted', (req, res, next) => {
     });
 });
 
-router.post('/orderRejected', (req, res, next) => {
+router.post('/orderRejected', async (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,
@@ -425,7 +339,7 @@ router.post('/orderRejected', (req, res, next) => {
   });
 });
 
-router.post('/orderCancelled', (req, res, next) => {
+router.post('/orderCancelled', async (req, res, next) => {
   let mailOptions = {
     from: 'no-reply@quanthouse.com',
     to: req.body.email,

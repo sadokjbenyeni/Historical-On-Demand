@@ -6,7 +6,7 @@ const Companytypes = mongoose.model('Companytype');
 
 const config = require('../../config/config.js');
 const URLS = config.config();
-const admin = config.admin();
+// const admin = config.admin();
 
 
 router.get('/', (req, res) => {

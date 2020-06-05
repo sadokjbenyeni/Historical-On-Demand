@@ -1,6 +1,3 @@
-const mongoose = require('mongoose');
-const User = mongoose.model('User');
-
 // Access for Jobs
 exports.rtconfig = () => { const urls = [ "192.168.10.10" ]; }
 
@@ -11,6 +8,8 @@ exports.localdomain = () => { return "http://gateway01.hod-lab.quanthouse.com"; 
 
 // IPs ElastcSearch
 exports.hostsES = () => { return ['10.0.10.102:9200']; }
+
+exports.environment = () => '[UAT] '; // set as empty in PRODUCTION
 
 // Param SMTP
 exports.smtpconf = () => {
@@ -60,14 +59,14 @@ exports.config = () => {
     ];
     return urls;
 }
-exports.admin = ()=>{
-	let emailAdm = [];
-	User.find({type:"admin"},{_id:false, email:true})
-	.then((adm)=>{
-		adm.forEach(function(e) {
-			emailAdm.push(e.email);
-		});
-	});
+// exports.admin = ()=>{
+// 	let emailAdm = [];
+// 	User.find({type:"admin"},{_id:false, email:true})
+// 	.then((adm)=>{
+// 		adm.forEach(function(e) {
+// 			emailAdm.push(e.email);
+// 		});
+// 	});
 	
-	return emailAdm;
-}
+// 	return emailAdm;
+// }

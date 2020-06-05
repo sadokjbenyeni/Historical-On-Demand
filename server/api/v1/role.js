@@ -7,7 +7,7 @@ const Role = mongoose.model('Role');
 
 const config = require('../../config/config.js');
 const URLS = config.config();
-const admin = config.admin();
+// const admin = config.admin();
 const PHRASE = config.phrase();
 const algorithm = 'aes256';
 var idd = "";

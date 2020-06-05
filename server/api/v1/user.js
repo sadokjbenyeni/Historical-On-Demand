@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const crypto = require("crypto");
 const request = require('request');
 const fs = require('fs');
-
+const UserMailService = require('../../service/userMailerService');
 const User = mongoose.model('User');
 const Order = mongoose.model('Order');
 const Role = mongoose.model('Role');
@@ -95,43 +95,50 @@ router.post('/info', (req, res) => {
 });
 
 //Create Account User
-router.post('/', (req, res) => {
-    User.count()
-    .then((count) => {
-        let user = new User();
-        let d = new Date();
-        let concatoken = req.body.password+req.body.email+ d;
-        let pass = req.body.password;
-        let cipher = crypto.createCipher(algorithm, pass);
-        let crypted = cipher.update(PHRASE,'utf8','hex');
-        crypted += cipher.final('hex');
-        user.password = crypted;
-        cipher = crypto.createCipher(algorithm, concatoken);
-        crypted = cipher.update(PHRASE,'utf8','hex');
-        crypted += cipher.final('hex');
-        user.token = crypted;        
-        user.id = count + 1;
-        user.email = req.body.email;
-        user.lastname = req.body.lastname;
-        user.firstname = req.body.firstname;
-        user.job = req.body.job;
-        user.companyName = req.body.companyName;
-        user.companyType = req.body.companyType?req.body.companyType:'';
-        user.country = req.body.country?req.body.country:'';
-        user.address = req.body.address?req.body.address:'';
-        user.postalCode = req.body.postalCode?req.body.postalCode:'';
-        user.city = req.body.city?req.body.city:'';
-        user.region = req.body.region?req.body.region:'';
-        user.phone = req.body.phone?req.body.phone:'';
-        user.website = req.body.website?req.body.website:'';
-        
-        user.save((err, u)=>{
-            if (err) return req.logger.error({ message: err.message, error: err, className: "User API"});
-            request.post({ url: domain + '/api/mail/inscription', form: {email: req.body.email, token: user.token} }, ( err, httpResponse, body )=> {
-                if(err) req.logger.error({ message: err.message, error: err, className: "User API"});
-                res.status(201).json({account:true});
-            });
-        });
+router.post('/', async (req, res) => {
+    var count = await User.countDocuments().exec();
+    let user = new User();
+    let d = new Date();
+    let concatoken = req.body.password+req.body.email+ d;
+    let pass = req.body.password;
+    let cipher = crypto.createCipher(algorithm, pass);
+    let crypted = cipher.update(PHRASE,'utf8','hex');
+    crypted += cipher.final('hex');
+    user.password = crypted;
+    cipher = crypto.createCipher(algorithm, concatoken);
+    crypted = cipher.update(PHRASE,'utf8','hex');
+    crypted += cipher.final('hex');
+    user.token = crypted;        
+    user.id = count + 1;
+    user.email = req.body.email;
+    user.lastname = req.body.lastname;
+    user.firstname = req.body.firstname;
+    user.job = req.body.job;
+    user.companyName = req.body.companyName;
+    user.companyType = req.body.companyType?req.body.companyType:'';
+    user.country = req.body.country?req.body.country:'';
+    user.address = req.body.address?req.body.address:'';
+    user.postalCode = req.body.postalCode?req.body.postalCode:'';
+    user.city = req.body.city?req.body.city:'';
+    user.region = req.body.region?req.body.region:'';
+    user.phone = req.body.phone?req.body.phone:'';
+    user.website = req.body.website?req.body.website:'';    
+    
+    user.save((error, info) => 
+    {
+        if(error){
+            return req.logger.error({ message: JSON.stringify(error), error: error, className: "User API"});
+        }
+        try 
+        {
+            var mailer = new UserMailService(req.logger, user);
+            mailer.SendMailForInscription();
+            return res.status(200).json({ mail: true });
+        }
+        catch(error) {
+            req.logger.error({ message: error.message, className: 'Mailer API', error: error });
+            return res.status(501).json({ mail: false });
+        }
     });
 });
 
@@ -207,15 +214,24 @@ router.post('/check/', (req, res) => {
     });    
 });
 
-router.post('/activation/', (req, res) => {
-    User.update( { token: req.body.token }, { $set:{ state: 1 } } )
-    .then((user) => {
-        if (user.nModified === 0) { res.status(200).json({message: "User Not Found"}) }
-        res.status(200).json({message: "Your account is activated. You can connect"});
-    })
-    .catch(err=>{
-        req.logger.error({ message: err.message, error: err, className: "User API"})
-    });
+router.post('/activation/', async (req, res) => {
+    req.logger.info("activating account "+ req.body.token +" ...");
+    try{
+        await User.update( { token: req.body.token }, { $set:{ state: 1 } } ).exec();
+    }
+    catch(error){
+        req.logger.error({ message: err.message, error: err, className: "User API"});
+        req.logger.debug({ message: JSON.stringify(err), error: err, className: "User API"});
+        return res.status(503).json({message: "User Not Found, please contact support with '"+ req.headers.loggerToken +"'"}) ;
+    }
+    var user = await User.findOne( { token: req.body.token }).exec();
+    if (user.nModified === 0) 
+    { 
+        req.logger.warn("User not found: "+ req.body.token);
+        return res.status(403).json({message: "User Not Found, please contact support with '"+ req.headers.loggerToken +"'"}) ;
+    }
+    new UserMailService(req.logger, user).activated();
+    return res.status(200).json({message: "Your account is activated. You can connect"});
 });
 
 router.post('/suspendre/', (req, res) => {  

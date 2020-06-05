@@ -13,6 +13,7 @@ const cors = require('cors');
 const cron = require('node-cron');
 
 const MDB = require('./server/config/configmdb.js').mdb;
+const Config = require('./server/config/config.js');
 
 //Connect to mongoDB server
 //mongoose.connect('mongodb://localhost:27017/histodataweb', { useNewUrlParser: true, useUnifiedTopology: true });
@@ -111,7 +112,7 @@ app.set('port', port);
 
 var server = app.listen(port, function () {
   logger.info({ message: `API running on localhost:${server.address().port}`, className: "Server" });
-  logger.info({ message: "HoD web site backend available", className: "Server" });
+  logger.info({ message: "HoD web site backend available in "+ Config.environment(), className: "Server" });
   logger.close();
 });
 

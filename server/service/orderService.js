@@ -32,7 +32,7 @@ module.exports.getLinks = async (user, order, logger) => {
             }
             return product.links
                         .filter(linkContainer => linkContainer && linkContainer !== undefined &&  linkContainer.status === "active" 
-                                              && linkContainer.links !== undefined && linkContainer.links && linkContainer.links.length >0)
+                                              && linkContainer.links !== undefined && linkContainer.links && linkContainer.links.length > 0)
                         .map(linkObj => linkObj.links.filter(element => element && element.link !== undefined))
                         .reduce((left, right) => left.concat(right))
                         .map(links => links.link.split('|').map(elem => dnwfile + '/api/user/download/' + user.token + '/' + product.id_undercmd + '/' + elem));                                                                            
