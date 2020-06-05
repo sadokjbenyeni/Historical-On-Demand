@@ -100,7 +100,6 @@ router.post('/', (req, res) => {
     .then((count) => {
         let user = new User();
         let d = new Date();
-
         let concatoken = req.body.password+req.body.email+ d;
         let pass = req.body.password;
         let cipher = crypto.createCipher(algorithm, pass);
@@ -110,8 +109,7 @@ router.post('/', (req, res) => {
         cipher = crypto.createCipher(algorithm, concatoken);
         crypted = cipher.update(PHRASE,'utf8','hex');
         crypted += cipher.final('hex');
-        user.token = crypted;
-        
+        user.token = crypted;        
         user.id = count + 1;
         user.email = req.body.email;
         user.lastname = req.body.lastname;

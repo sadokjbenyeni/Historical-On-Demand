@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const Orders = mongoose.model('Order');
 const Users = mongoose.model('User')
-const User = mongoose.model('User');
 const dnwfile = require('../config/config').dnwfile();
 const currencieService = require('./currencieService');
 
@@ -12,41 +11,36 @@ module.exports.updateOrderMetaData = async (id, note, sales, type) => {
     orderToUpdate.type = type
     await Orders.update({ _id: orderToUpdate._id }, { $set: orderToUpdate }).exec();
 };
-module.exports.getLinks = async (token, orderId) => {
-    var user = await Users.findOne({ token: token }, { _id: true, roleName: true }).exec();
-
-    if (user) {
-        var order;
-        if (user.roleName.indexOf('Support') != -1) {
-            order = await Orders.findOne({ id: orderId }, { products: true, state: true, createdAt: true }).exec();
-        }
-        else {
-            order = await Orders.findOne({ id: orderId, idUser: result._id }, { products: true, state: true, createdAt: true }).exec();
-        }
-        if (order) {
-            order.products.filter(item => item.status == "active");
-            let links = []
-            order.products.forEach(item => {
-                productlinks = []
-                item.links.forEach(link => {
-                    if (item.subscription == 1) {
-                        link.links = [link.links[0]];
-                    }
-                    link.links.forEach(element => {
-                        element.link.split('|').forEach(elem => {
-                            productlinks.push(dnwfile + '/api/user/download/' + token + '/' + link.path + '/' + elem);
-                        })
-                    })
-                })
-                links.push(productlinks)
-            })
-            return links;
-        }
-        else {
-            throw new Error(`Order ${orderId} not found`);
-        }
+module.exports.getLinks = async (user, order, logger) => {
+    if(!user || user === undefined)
+    {
+        throw Error('User is undefined');
     }
+    if(!order || order === undefined)
+    {
+        throw Error('Order is undefined');
+    }
+    logger.info({message: 'getting links...: ' + order.id, className: 'Order Service'});
+    var products = order.products.filter(product => product !== undefined);    
+    products = products.filter(product => product.links !== undefined && product.links.length > 0);    
+    var result = products.map(product => 
+        {
+            logger.debug({message: 'product: ' + product.id_undercmd + ' => links: ' + JSON.stringify(product.links), className: 'Order Service'});
+            if (product.subscription == 1) {                
+                product.links = [product.links.filter(link => link !== undefined && link.status === "active" && link.links !== undefined && link.links.length > 0).pop()];
+                //link.links = [link.links[0]];
+            }
+            return product.links
+                        .filter(linkContainer => linkContainer && linkContainer !== undefined &&  linkContainer.status === "active" 
+                                              && linkContainer.links !== undefined && linkContainer.links && linkContainer.links.length >0)
+                        .map(linkObj => linkObj.links.filter(element => element && element.link !== undefined))
+                        .reduce((left, right) => left.concat(right))
+                        .map(links => links.link.split('|').map(elem => dnwfile + '/api/user/download/' + user.token + '/' + product.id_undercmd + '/' + elem));                                                                            
+        });
+    logger.debug({message: 'result: '+ JSON.stringify(result), className: 'Order Service'}); 
+    return result[0];
 }
+
 
 module.exports.getOrderById = (token, OrderId) => {
     return Users.findOne({ token: token }).then(result => {

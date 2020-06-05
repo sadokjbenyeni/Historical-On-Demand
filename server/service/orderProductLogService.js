@@ -48,7 +48,8 @@ module.exports = function (id, logger) {
             logDbo.productId = logData.productId; 
             logDbo.identifier = logData.identifier; 
             this.logger.debug({ message: 'saving: '+ JSON.stringify(logDbo) + ' ...', className: 'OrderProductLog Service' });       
-            return logDbo.save();
+            var saved = logDbo.save();
+            this.logger.info({ message: 'saved : '+ JSON.stringify(saved) + ' ...', className: 'OrderProductLog Service' });       
         }
         catch (error) {
             this.logger.error({ message: error.message, error: error, className: 'orderProductLog internal API' });
@@ -60,7 +61,6 @@ module.exports = function (id, logger) {
         this.logger.info({ message: "updating logs in product....", className: 'OrderProductLog Service' });
         this.logger.debug({ message: 'Logs: '+ JSON.stringify(log), className: 'OrderProductLog Service' });       
         //req.logger.info({ message: 'pushing the information in logs product for order...', className: 'orderProductLog API' });
-        
         try {                
             logDbo = new OrderProductLog();            
             logDbo.id_undercmd = log.id_undercmd;

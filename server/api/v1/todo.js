@@ -11,6 +11,8 @@ const User = mongoose.model('User');
 const Pool = mongoose.model('Pool');
 const randtoken = require('rand-token');
 
+const OrderProductLogService = require('../../service/orderProductLogService');
+
 router.param('cmd', function (req, res, next, id) {
    return res.sendStatus(422);
 });
@@ -152,7 +154,7 @@ router.put('/finish', async (req, res) => {
   req.logger.info({ message: "updating order "+ id_cmd + "....", className: 'Todo API'});
   await Order.updateMany({ 'products.id_undercmd': id_cmd },
     { $set: updateValues, 
-      $push: { "products.$.links": { createLinkDate: new Date(), status: req.status, links: req.link, path: req.body.id_cmd, nbDownload: 0 } } })
+      $push: { "products.$.links": { createLinkDate: new Date(), status: req.body.status, links: req.body.link, path: req.body.id_cmd, nbDownload: 0 } } })
              .exec();
   let identifiers = id_cmd.split('§');             
   updateLogsForOrder(id_cmd, req, order, identifiers);
@@ -316,7 +318,7 @@ function updateLogsForOrder(id_cmd, req, order, identifiers) {
   logs.productId = identifiers[1];
   logs.identifier = identifiers;
   req.logger.info({ message: "updating logs in product....", className: 'Todo API' });
-  new OrderProductLogService(request.logger).AddFinishLogsInProduct(logs);
+  new OrderProductLogService(logs.orderid, req.logger).AddFinishLogsInProduct(logs);
 }
 
 module.exports = router;
