@@ -157,7 +157,12 @@ router.put('/finish', async (req, res) => {
       $push: { "products.$.links": { createLinkDate: new Date(), status: req.body.status, links: req.body.link, path: req.body.id_cmd, nbDownload: 0 } } })
              .exec();
   let identifiers = id_cmd.split('§');             
-  updateLogsForOrder(id_cmd, req, order, identifiers);
+  try {
+    updateLogsForOrder(id_cmd, req, order, identifiers);
+  }
+  catch(error){
+    req.logger.error({ message: error.message, className: 'Todo API', error: error});
+  }
   try {
     let lks = "";
     if(req.status === 'active') {
@@ -314,9 +319,9 @@ function updateLogsForOrder(id_cmd, req, order, identifiers) {
   logs.date = new Date();
   logs.log = req.body.log;
   logs.extract = req.body.link;
-  logs.orderid = identifiers[0];
+  logs.orderId = order.id;
   logs.productId = identifiers[1];
-  logs.identifier = identifiers;
+  logs.identifier = id_cmd.split('§');
   req.logger.info({ message: "updating logs in product....", className: 'Todo API' });
   new OrderProductLogService(logs.orderid, req.logger).AddFinishLogsInProduct(logs);
 }

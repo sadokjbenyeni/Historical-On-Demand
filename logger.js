@@ -12,9 +12,10 @@ class LoggerFactory {
     {
         return winston.createLogger({
             level: 'info',
-            format: combine(
-              label({ label: identifier }),
-              timestamp(),
+            format: format.combine(
+              format.label({ label: identifier }),
+              format.timestamp(),
+              format.errors({ stack: true }),
               baseFormatLogger
             ),
             defaultMeta: { service: 'user-service' },

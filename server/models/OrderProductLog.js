@@ -11,8 +11,9 @@ let OrderProductLogSchema = new mongoose.Schema({
     state_description: { type: String, maxlength: 255 },
     idUser: { type: String, maxlength: 200 },
     date: { type: Date },
-    log: { type: String, maxlength: 2048 },
-    extract: { type: Object, maxlength: 1024 },
+    log: { type: String },
+    extract: { type: Object },
+    identifier: { type: Object }
 }, { timestamps: true });
 
 mongoose.model('OrderProductLog', OrderProductLogSchema);

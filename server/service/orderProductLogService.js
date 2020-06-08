@@ -31,9 +31,9 @@ module.exports = function (id, logger) {
         }
     }
     
-    this.AddFinishLogsInProduct = function(logData) {
+    this.AddFinishLogsInProduct = async function(logData) {
         this.logger.info({ message: "updating logs in product....", className: 'OrderProductLog Service' });
-        this.logger.debug({ message: 'Logs: '+ JSON.stringify(logData), className: 'OrderProductLog Service' });               
+        this.logger.info({ message: 'Logs: '+ JSON.stringify(logData), className: 'OrderProductLog Service' });               
         try {   
             logDbo = new OrderProductLog();
             logDbo.id_undercmd = logData.id_undercmd; 
@@ -44,12 +44,20 @@ module.exports = function (id, logger) {
             logDbo.date = new Date();
             logDbo.log = logData.log; 
             logDbo.extract = logData.extract; 
-            logDbo.orderid = logData.orderid; 
+            logDbo.orderId = logData.orderId; 
             logDbo.productId = logData.productId; 
-            logDbo.identifier = logData.identifier; 
-            this.logger.debug({ message: 'saving: '+ JSON.stringify(logDbo) + ' ...', className: 'OrderProductLog Service' });       
-            var saved = logDbo.save();
-            this.logger.info({ message: 'saved : '+ JSON.stringify(saved) + ' ...', className: 'OrderProductLog Service' });       
+            logDbo.identifier = logData.identifier;
+            this.logger.info({ message: 'saving: '+ JSON.stringify(logDbo) + ' ...', className: 'OrderProductLog Service' });       
+            
+            var result = await OrderProductLog.create(logDbo);
+            // function (err) {
+            //     if (err) {
+            //         this.logger.error({ message: 'Cannot save logs: '+ JSON.stringify(err), error: err, className: 'OrderProductLog Service' });       
+            //         return handleError(err);
+            //     }
+            //     this.logger.info({ message: 'Saved '+ logDbo.id_undercmd + ' logs', className: 'OrderProductLog Service' });
+            // });
+            this.logger.info({ message: 'Saved '+ logDbo.id_undercmd + '(_id: ' + result._id + ') logs', className: 'OrderProductLog Service' });
         }
         catch (error) {
             this.logger.error({ message: error.message, error: error, className: 'orderProductLog internal API' });

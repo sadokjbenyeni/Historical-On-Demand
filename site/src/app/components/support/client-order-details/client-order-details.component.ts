@@ -65,6 +65,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
   sales: string;
   type: string;
   internalNote: string;
+  productsLogs: Array<any>;
 
   constructor(
     private http: HttpClient,
@@ -114,8 +115,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
 
   detail(c) {
     this.item = c;
-    this.loadLogsAndSetupOrderDetails(c);
-    debugger;
+    this.loadLogsAndSetupOrderDetails(c);    
     if (this.item.onetime === 1) {
       this.item.reference = this.item.idElem;
     }
@@ -164,7 +164,8 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
       this.sales = order.sales;
       this.type = order.type;
       this.internalNote = order.internalNote;
-      let index = 0;
+      this.productsLogs = responseLogs.logs;
+      let index = 0;      
       this.cart = [];
       if (order.products.length > 0) {
         order.products.forEach((product) => {
