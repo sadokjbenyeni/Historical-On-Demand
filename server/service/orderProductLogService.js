@@ -60,7 +60,8 @@ module.exports = function (id, logger) {
             this.logger.info({ message: 'Saved '+ logDbo.id_undercmd + '(_id: ' + result._id + ') logs', className: 'OrderProductLog Service' });
         }
         catch (error) {
-            this.logger.error({ message: error.message, error: error, className: 'orderProductLog internal API' });
+            this.logger.error({ message: error.message, className: 'orderProductLog internal API' });
+            this.logger.error({ message: JSON.stringify(error), className:'orderProductLog internal API'});
             throw err;
         }
     }
@@ -83,7 +84,8 @@ module.exports = function (id, logger) {
             return logDbo.save();
         }
         catch (error) {
-            this.logger.error({ message: error.message, error: error, className: 'orderProductLog internal API' });
+            this.logger.error({ message: error.message, className: 'orderProductLog internal API' });
+            this.logger.error({ message: JSON.stringify(error), className:'orderProductLog internal API'});
             throw err;
         }
     }
@@ -96,6 +98,7 @@ module.exports = function (id, logger) {
         }
         catch(error){
             this.logger.error({ message: "Unhandle exception: " + error.message, error: error, className: 'OrderProductLog Service' });
+            this.logger.error({ message: JSON.stringify(error), className:'orderProductLog internal API'});
             throw error;
         }
     }

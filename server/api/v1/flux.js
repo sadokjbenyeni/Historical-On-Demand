@@ -16,7 +16,8 @@ const Exchange = mongoose.model('Exchange');
 router.post('/rate', (req, res) => {
   request('http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml', { json: true }, (err, r, body) => {
     if (err) { 
-      req.logger.error({ message: err.message, className: 'Flux API', error: error});
+      req.logger.error({ message: err.message, className: 'Flux API'});
+      req.logger.error(err);
       return console.log(err); 
     }
     parser.parseString(body, (err, result) => {
@@ -33,7 +34,8 @@ router.get('/eid/:dataset', (req, res) => {
   //console.dir(APIQF + '/apiHoDProduct.php');
   request(APIQF + '/apiHoDProduct.php', { json: true }, (err, r, body) => {
     if (err) { 
-      req.logger.error({ message: err.message, className: 'Flux API', error: error});
+      req.logger.error({ message: err.message, className: 'Flux API', error: err});
+      req.logger.error(err);
       return console.log(err); 
     }
     objectToArray(body.hod_catalogue).forEach(c => {
@@ -73,7 +75,8 @@ router.get('/pricingtier', (req, res) => {
       }
     }
     if (err) { 
-      req.logger.error({ message: err.message, className: 'Flux API', error: error});
+      req.logger.error({ message: err.message, className: 'Flux API'});
+      req.logger.error(err);
       return console.log(err); 
     }
     res.status(200).json(result);
@@ -85,6 +88,7 @@ router.get('/infoProduit/:eid', (req, res) => {
   request(APIQF + '/apiEID.php?eid=' + req.params.eid, { json: true }, (err, r, body) => {
     if (err) { 
       req.logger.error({ message: err.message, className: 'Flux API', error: error});
+      req.logger.error(err);
       return console.log(err); 
     }
     res.status(200).json(body.eid_catalogue[req.params.eid]);

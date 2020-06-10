@@ -161,7 +161,8 @@ router.put('/finish', async (req, res) => {
     updateLogsForOrder(id_cmd, req, order, identifiers);
   }
   catch(error){
-    req.logger.error({ message: error.message, className: 'Todo API', error: error});
+    req.logger.error({ message: error.message, className: 'Todo API'});
+    req.logger.error({ message: JSON.stringify(error), className:'Todo API'});
   }
   try {
     let lks = "";
@@ -193,7 +194,8 @@ router.put('/finish', async (req, res) => {
     return res.status(200).json({"ok":"ok"});
   }  
   catch(err) {
-    req.logger.error({ message: err.message, className: 'Todo API', error: err});
+    req.logger.error({ message: err.message, className: 'Todo API' });
+    req.logger.error({ message: JSON.stringify(error), className:'Todo API'});
     return res.json(err);
   }
 });
@@ -225,8 +227,8 @@ updateOrderProductLogs = ((url, logs, logger, loggerToken) => {
   };
     request.put(options, function (error, response, body) {
       if(error) {
-        var loggerToken = randtoken.generator(16);
-        logger.error({ message: 'Cannot push the logs information in database; ' + error, className: 'Todo API', error: error});
+        logger.error({ message: 'Cannot push the logs information in database; ' + error, className: 'Todo API'});
+        logger.error({ message: JSON.stringify(error), className:'Todo API'});
         logger.warn({ message: JSON.stringify(response), className: 'Todo API' });        
         logger.debug({ message: JSON.stringify(logs), className: 'Todo API' });
       }
@@ -248,7 +250,8 @@ updatePool = (async (id, status, date) => {
     return  true;
   }
   catch(error){
-    logger.error({ message: error.message, className: 'Todo API', error: error});
+    logger.error({ message: error.message, className: 'Todo API'});
+    logger.error({ message: JSON.stringify(error), className:'Todo API'});
     return false;
   }
 });
@@ -264,6 +267,7 @@ removePool = (async (id, lks, onetime, subscription) => {
   }
   catch(error){
     logger.error({ message: error.message, className: 'Todo API', error: error});
+    logger.error({ message: JSON.stringify(error), className:'Todo API'});
     return false;
   }
 });

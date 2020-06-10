@@ -33,7 +33,8 @@ router.post('/inscription', async (req, res, next) => {
     return res.status(200).json({ mail: true });
   }
   catch(error) {
-    req.logger.error({ message: error.message, className: 'Mailer API', error: error });
+    req.logger.error({ message: error.message, className: 'Mailer API' });
+    req.logger.error({ message: JSON.stringify(error), className:'Mailer API'});
     return res.status(501).json({ mail: false });
   }
 });
@@ -51,6 +52,7 @@ router.post('/activation', async (req, res, next) => {
   }
   catch(error) {
     req.logger.error({ message: error.message, className: 'Mailer API', error: error });
+    req.logger.error({ message: JSON.stringify(error), className:'Mailer API'});
     return res.status(501).json({ mail: false });
   }
 });
@@ -68,6 +70,7 @@ router.post('/activated', async (req, res, next) => {
   }
   catch(error) {
     req.logger.error({ message: error.message, className: 'Mailer API', error: error });
+    req.logger.error({ message: JSON.stringify(error), className:'Mailer API'});
     return res.status(501).json({ mail: false });
   }
 });
@@ -85,6 +88,7 @@ router.post('/mdp', async (req, res, next) => {
   }
   catch(error) {
     req.logger.error({ message: error.message, className: 'Mailer API', error: error });
+    req.logger.error({ message: JSON.stringify(error), className:'Mailer API'});
     return res.status(501).json({ mail: false });
   }
 });
@@ -102,42 +106,27 @@ router.post('/newOrder', async (req, res, next) => {
   }
   catch(error) {
     req.logger.error({ message: error.message, className: 'Mailer API', error: error });
+    req.logger.error({ message: JSON.stringify(error), className:'Mailer API'});
     return res.status(501).json({ mail: false });
   }
 });
 
 router.post('/newOrderHoD', async (req, res, next) => {
-  let mailOptions = {
-    from: 'no-reply@quanthouse.com',
-    to: req.body.email,
-    subject: '[UAT] QH Histo On-Demand / NEW Order',
-    text: `
-    New Client Order has been received and it is currently pending approval from QH ` + req.body.service + ` department.
-    Order characteristics:
-      - Client Name : `+ req.body.firstname + ` ` + req.body.lastname + `
-      - Order ID : `+ req.body.idCmd + `
-      - Submission date : `+ req.body.date.substring(0, 10) + " " + req.body.date.substring(11, 19) + `
-      - List of EIDs : `+ req.body.eid + `
-      - TOTAL Order amount (including taxes) : `+ req.body.total,
-
-    html: `
-    New Client Order has been received and it is currently pending approval from QH ` + req.body.service + ` department.<br><br>
-    Order characteristics:<br>
-    <ul>
-      <li>Client Name : `+ req.body.firstname + ` ` + req.body.lastname + `</li>
-      <li>Order ID : `+ req.body.idCmd + `</li>
-      <li>Submission date : `+ req.body.date.substring(0, 10) + " " + req.body.date.substring(11, 19) + `</li>
-      <li>List of EIDs : `+ req.body.eid + `</li>
-      <li>TOTAL Order amount (including taxes) : `+ req.body.total + `</li>
-    </ul>`
-  };
-  smtpTransport.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      req.logger.error({ message: err.message, className: 'Mailer API', error: error });
-      return console.log(error);
-    }
+  var order = await Order.findOne({ _id: req.body._id }).exec();
+  if(!order)
+  {
+    return res.status(403).json({ error: "Order not found" });
+  }  
+  try {
+    var mailer = new OrderMailService(req.logger, order);
+    mailer.newOrderHod(req.body.email, req.body.firstname, req.body.lastname, req.body.service, req.body.eid, req.body.total, req.body.date);
     return res.status(200).json({ mail: true });
-  });
+  }
+  catch(error) {
+    req.logger.error({ message: error.message, className: 'Mailer API', error: error });
+    req.logger.error({ message: JSON.stringify(error), className:'Mailer API'});
+    return res.status(501).json({ mail: false });
+  }
 });
 
 router.post('/reminder', async (req, res, next) => { // géré par un CRON
@@ -162,6 +151,7 @@ router.post('/reminder', async (req, res, next) => { // géré par un CRON
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
       req.logger.error({ message: err.message, className: 'Mailer API', error: error });
+      req.logger.error({ message: JSON.stringify(error), className:'Mailer API'});
       return console.log(error);
     }
     return res.status(200).json({ mail: true });
@@ -190,6 +180,7 @@ router.post('/orderValidated', async (req, res, next) => {
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
       req.logger.error({ message: err.message, className: 'Mailer API', error: error });
+      req.logger.error({ message: JSON.stringify(error), className:'Mailer API'});
       return console.log(error);
     }
     return res.status(200).json({ mail: true });
@@ -233,6 +224,7 @@ router.post('/orderFailedJob', async (req, res, next) => {
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
       req.logger.error({ message: err.message, className: 'Mailer API', error: error });
+      req.logger.error({ message: JSON.stringify(error), className:'Mailer API'});
       return console.log(error);
     }
     return res.status(200).json({ mail: true });
@@ -262,6 +254,7 @@ router.post('/orderFailed', async (req, res, next) => {
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
       req.logger.error({ message: err.message, className: 'Mailer API', error: error });
+      req.logger.error({ message: JSON.stringify(error), className:'Mailer API'});
       return console.log(error);
     }
     return res.status(200).json({ mail: true });
@@ -302,6 +295,7 @@ router.post('/orderExecuted', async (req, res, next) => {
       smtpTransport.sendMail(mailOptions, (error, info) => {
         if (error) {
           req.logger.error({ message: err.message, className: 'Mailer API', error: error });
+          req.logger.error({ message: JSON.stringify(error), className:'Mailer API'});
           return console.log(error);
         }
         return res.status(200).json({ mail: true });
@@ -333,6 +327,7 @@ router.post('/orderRejected', async (req, res, next) => {
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
       req.logger.error({ message: err.message, className: 'Mailer API', error: error });
+      req.logger.error({ message: JSON.stringify(error), className:'Mailer API'});
       return console.log(error);
     }
     return res.status(200).json({ mail: true });
@@ -361,6 +356,7 @@ router.post('/orderCancelled', async (req, res, next) => {
   smtpTransport.sendMail(mailOptions, (error, info) => {
     if (error) {
       req.logger.error({ message: err.message, className: 'Mailer API', error: error });
+      req.logger.error({ message: JSON.stringify(error), className:'Mailer API'});
       return console.log(error);
     }
     return res.status(200).json({ mail: true });

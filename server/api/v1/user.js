@@ -127,7 +127,9 @@ router.post('/', async (req, res) => {
     user.save((error, info) => 
     {
         if(error){
-            return req.logger.error({ message: JSON.stringify(error), error: error, className: "User API"});
+            req.logger.error({ message: JSON.stringify(error), error: error, className: "User API"});
+            
+            return req.logger.error({ message: JSON.stringify(error), className:"User API"});
         }
         try 
         {
@@ -136,7 +138,8 @@ router.post('/', async (req, res) => {
             return res.status(200).json({ mail: true });
         }
         catch(error) {
-            req.logger.error({ message: error.message, className: 'Mailer API', error: error });
+            req.logger.error({ message: error.message, className: 'Mailer API' });
+            req.logger.error({ message: JSON.stringify(error) + '\n'+ error.stacktrace, className:"User API"});
             return res.status(501).json({ mail: false });
         }
     });
@@ -149,7 +152,8 @@ router.post('/logout/', (req, res) => {
         res.status(200).json({});
     })
     .catch((err)=> {
-        req.logger.error({ message: err.message, error: err, className: "User API"})
+        req.logger.error({ message: err.message, className: "User API"});
+        req.logger.error(err);
     });
 });
 
@@ -170,7 +174,8 @@ router.post('/islogin/', async (req, res) => {
         }    
     }
     catch(error) { 
-        req.logger.error({ message: error.message + "\n" + JSON.stringify(error), error: error, className: "User API"})
+        req.logger.error({ message: error.message + "\n" + JSON.stringify(error), className: "User API"});
+        req.logger.error({ message: JSON.stringify(error), className:"User API"});
         return res.status(500).json({message : "Unhandle error id " + req.headers.loggerToken});
     }
 });
@@ -181,36 +186,46 @@ router.post('/check/', (req, res) => {
     crypted += cipher.final('hex');
 
     User.findOne(
-        { email:req.body.email, password:crypted},
-        {
-            id:true,
-            roleName:true,
-            email:true,
-            token:true,
-            state:true,
-            currency:true,
-            payment:true,
-            vat:true,
-            address: true,
-            city: true,
-            sameAddress: true,
-            postalCode: true,
-            country: true,
-            addressBilling: true,
-            cityBilling: true,
-            postalCodeBilling: true,
-            countryBilling: true
-        })
+        { email:req.body.email, password:crypted})
     .then((user) => {
-        if (!user) { res.status(202).json({user:false, message:'Invalid Password or User Not Found'}) }
-        if(user.state === 1){
-            User.updateOne({email:req.body.email}, {$set:{islogin:true}})
-            .then((val)=>{
-                res.status(200).json({user});
+        if (!user) { return res.status(403).json({user:false, message:'Invalid Password or User Not Found'}) }
+        if(user.state === 1) {            
+            User.updateOne({_id:user._id}, {$set:{islogin:true}})
+                .then((val)=>{
+                User.findOne(
+                    { _id:user._id},
+                    {
+                        id:true,
+                        roleName:true,
+                        email:true,
+                        token:true,
+                        state:true,
+                        currency:true,
+                        payment:true,
+                        vat:true,
+                        address: true,
+                        city: true,
+                        sameAddress: true,
+                        postalCode: true,
+                        country: true,
+                        addressBilling: true,
+                        cityBilling: true,
+                        postalCodeBilling: true,
+                        countryBilling: true,
+                        state: true
+                    })
+                .then((userReturn) => {            
+                    return res.status(200).json({userReturn});
+                });
             });
         } else {
-            res.status(202).json({message:'Your account is not activated'})
+            return res.status(403).json({message:'Your account is not activated'})
         }
+    })
+    .catch(error => {
+        req.logger.error({message: 'Invalid Password or User Not Found', className: 'User API'});
+        req.logger.error({ message: JSON.stringify(error), className:"User API"});
+        return res.status(403).json({user:false, message:'Invalid Password or User Not Found'})
     });    
 });
 
@@ -221,7 +236,8 @@ router.post('/activation/', async (req, res) => {
     }
     catch(error){
         req.logger.error({ message: err.message, error: err, className: "User API"});
-        req.logger.debug({ message: JSON.stringify(err), error: err, className: "User API"});
+        req.logger.error({ message: JSON.stringify(error), className:"User API"});
+        //req.logger.debug({ message: JSON.stringify(err), error: err, className: "User API"});
         return res.status(503).json({message: "User Not Found, please contact support with '"+ req.headers.loggerToken +"'"}) ;
     }
     var user = await User.findOne( { token: req.body.token }).exec();
@@ -281,7 +297,8 @@ router.post('/preferBilling/', (req, res) => {
         res.status(200).json({});
     })
     .catch((err)=> {
-        req.logger.error({ message: err.message, error: err, className: "User API"})
+        req.logger.error({ message: err.message, className: "User API"});
+        req.logger.error(err);
     });
 });
 
@@ -349,7 +366,8 @@ router.put('/', (req, res) => {
                 return;
         })
         .catch((err)=>{
-            req.logger.error({ message: err.message, error: err, className: "User API"})
+            req.logger.error({ message: err.message, error: err, className: "User API"});
+            req.logger.error(err);
         });
     // }
     // else{

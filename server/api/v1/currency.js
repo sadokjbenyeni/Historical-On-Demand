@@ -52,7 +52,8 @@ router.post('/', (req, res) => {
         if (!Currencies) { return res.sendStatus(404); }
         request(CURRENCY, { json: true }, (err, r, body) => {
             if (err) { 
-                req.logger.error({ message: err.message, error: error, className: 'Currency API'});
+                req.logger.error({ message: err.message, className: 'Currency API'});
+                req.logger.error(err);
                 return console.log(err); 
             }
             parser.parseString(body, (err, result) => {
@@ -61,7 +62,10 @@ router.post('/', (req, res) => {
                     if(cur.device !== 'EUR'){
                         let taux = search(cur.device, tab);
                         Currency.update({id:cur.id},{$set:{taux: taux, date: new Date()}},(e)=>{
-                            if (err) { req.logger.error({ message: err.message, error: error, className: 'Currency API'}); }
+                            if (err) { 
+                                req.logger.error({ message: err.message, error: err, className: 'Currency API'}); 
+                                req.logger.error(err);
+                            }
                         });
                     }
                 });

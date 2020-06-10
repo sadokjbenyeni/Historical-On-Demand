@@ -31,6 +31,7 @@ router.put('/', async (req, res) => {
     }
     catch (err) {
         req.logger.error({ message: err.message, error: error, className: 'orderProductLog internal API' });
+        req.logger.error(err);
         return res.status(503).json({ message: "Unhandle exception, please contact support with '" + req.headers.loggerToken + "' identifier"});
     }
     return res.status(200).json({ logs: logs });

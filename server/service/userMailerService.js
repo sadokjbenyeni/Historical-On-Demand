@@ -44,7 +44,8 @@ module.exports = function (logger, user) {
     this.logger.debug({ message: "mailOptions: " + JSON.stringify(mailOptions), className: "UserMailer service" });
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
-        this.logger.error({ message: err.message, className: 'Mailer API', error: error });
+        this.logger.error({ message: err.message, className: 'UserMailer service', error: error });
+        this.logger.error({ message: JSON.stringify(error), className:'UserMailer service'});
         throw error;
       }
     });
@@ -74,7 +75,8 @@ module.exports = function (logger, user) {
     this.logger.debug({ message: "mailOptions: " + JSON.stringify(mailOptions), className: "UserMailer service" });
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
-        this.logger.error({ message: error.message, className: 'Mailer API', error: error });
+        this.logger.error({ message: error.message, className: 'UserMailer service', error: error });
+        this.logger.error({ message: JSON.stringify(error), className:'UserMailer service'});
         throw error;
       }
     });
@@ -103,7 +105,8 @@ module.exports = function (logger, user) {
     this.logger.debug({ message: "mailOptions: " + JSON.stringify(mailOptions), className: "UserMailer service" });
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
-        this.logger.error({ message: err.message, className: 'Mailer API', error: error });
+        this.logger.error({ message: err.message, className: 'UserMailer service', error: error });
+        this.logger.error({ message: JSON.stringify(error), className:'UserMailer service'});
         throw error;
       }
     });

@@ -20,6 +20,7 @@ const PAYMENTKEY = config.paymentKey();
 
 const OrderService = require('../../service/orderService');
 const InvoiceService = require('../../service/invoiceService');
+const OrderMailService = require('../../service/orderMailerService');
 
 // Client Encryption Public Key : 10001|C958CBDFC34244F25D41E5B28DA3331CA52385EE3E73B2A51FD94D302CC135DD7DC49BE19EA66CCD00BAE7D26AF00BBB39C73351D4EACC10D7D023FE0ED844BD2D53FAFA9DE26D34373DB80278FB01BD00E27F0E922A3D7AB734D0AEFC48A78CAFA8F5D92FA2CBA08509F398FF9DA8B9AB909010622C6C1DB2933F8CAAD78D6AD9FCE5C46F1D679E83224A6B4B114757B81F5F62C109A5002C4FCC7EE7DA92C2762690835EAB446F4F86D88A903241E9F1930406DC01A4FEC4ED85666D7A1C99A7A46C4ADE83F7461428E6D11E78D86005732256AA632AF34E48990366FA85C463380F424294C81D16173279EB78EDF264422BFAC487CAD9C7A6E9F363AA481B
 // test : https://test.adyen.com/hpp/cse/js/8215198215590909.shtml
@@ -300,11 +301,17 @@ router.put('/state', async (req, res) => {
   dateFinref = new Date();
   log.date = dateref;
   if (req.body.referer === 'Compliance') {
-    UpdateStateCompliance(updt, corp, req);
+    await UpdateStateCompliance(updt, corp, req);
   }
   if (req.body.referer === 'Product') {
-    UpdateStateProduct(updt, req, corp);
-    // sendMail('/api/mail/newOrder', corp);
+    try{
+      await UpdateStateProduct(updt, req, corp);
+    }// sendMail('/api/mail/newOrder', corp);
+    catch(err){
+      req.logger.error({ message: JSON.stringify(err), className: 'Order API'});
+      req.logger.error({ message: JSON.stringify(error), className:'Order API'});
+      return res.status(503).json({message: 'An error has been thrown, please contact support with \''+req.loggerToken+"'"});
+    }
   }
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
     updt.validationFinance = true;
@@ -433,7 +440,6 @@ router.put('/state', async (req, res) => {
   }
   else {
     Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } })
-
       .then((r) => {
         res.status(201).json({ ok: true });
       });
@@ -521,13 +527,6 @@ router.put('/update', async (request, res) => {
           "begin_date": elem.begin_date_select,
           "end_date": elem.end_date_select,
           "status": elem.status,
-          // "logs": [
-          //   {
-          //     referer: "client",
-          //     status: elem.status,
-          //     date: new Date()
-          //   }
-          // ]
         });
         orderProductLogs.push({
           id_undercmd: id_undercmd,
@@ -587,12 +586,14 @@ router.put('/update', async (request, res) => {
     }
     catch (error) {
       request.logger.error({ message: error.message, error: error, className: 'Order API' });
+      request.logger.error({ message: JSON.stringify(error), className:'Order API'});
       return res.status(503).json({ message: "Unhandle exception, please contact support with '" + request.headers.loggerToken + "' identifier" });
     }
     return res.status(201).json({ ok: true });
   }
   catch (err) {
-    request.logger.error({ message: 'Unhandle exception during update cart: ' + err.message, className: 'Order API', error: err });
+    request.logger.error({ message: 'Unhandle exception during update cart: ' + err.message, className: 'Order API' });
+    request.logger.error(err);
     return res.status(501).json({ message: 'Update cannot be executed please contact support with identifier \'' + request.headers.tokenLogger + '\'' });
   }
 });
@@ -617,6 +618,7 @@ router.post('/usercaddy', (req, res) => {
           order.save((err, c) => {
             if (err) {
               req.logger.error({ message: err.message, className: 'Order API', error: error });
+              req.logger.error(err);
               return console.error(err);
             }
             return res.status(200).json({ id_cmd: c._id });
@@ -658,7 +660,7 @@ router.get('/', (req, res) => {
   if (!req.headers.authorization) {
     // console.error(new Date() + " | [" + req.headers.loggerToken + "] | Order API | Access denied at this resource");
     req.logger.error({ message: "Access denied at this resource", className: "Order API" });
-    return res.status(401).json({ message: 'Access denied at this resource, please contact the support with ticket identifier: ' + req.headers.loggerToken })
+    return res.status(401).json({ message: 'Access denied at this resource, please contact the support with ticket identifier: ' + req.headers.loggerToken });
   }
   User.findOne({ token: req.headers.authorization }, { _id: true })
     .then((result) => {
@@ -684,7 +686,8 @@ router.get('/details/:id', async (req, res) => {
     order = clientOrderDetails(order);
   }
   catch (error) {
-    req.logger.error({ error: error, message: error.message, className: "Order API" });
+    req.logger.error({ message: error.message, className: "Order API" });
+    req.logger.error({ message: JSON.stringify(error), className:'Order API'});
     // console.error("[" + req.headers.loggerToken + "] unhandle exception: " + error);
     return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
   }
@@ -849,7 +852,8 @@ router.post('/list', async (req, res) => {
       .collation({ locale: "en" })
       .exec();
   } catch (error) {
-    req.logger.error({ error: error, message: error.message, className: "Order API" });
+    req.logger.error({ message: error.message, className: "Order API" });
+    req.logger.error({ message: JSON.stringify(error), className:'Order API'});
     // console.error("["+req.headers.loggerToken + "] unhandle exception: " + error); 
     return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
   }
@@ -1234,6 +1238,7 @@ autoValidation = async function (idCmd, logsPayment, r, res) {
 };
 
 async function UpdateStateProduct(orderUpdate, req, corp) {
+  req.logger.info({message: 'updating state product...'});
   orderUpdate.validationProduct = true;
   orderUpdate.reason = req.body.reason;
   corp = {
@@ -1247,9 +1252,8 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
   var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
   let eids = [];
   if (req.body.status === "cancelled") {
-    Pool.remove({ id: req.body.idCmd.split("-")[0] }).then(() => {
-      return true;
-    });
+    await Pool.remove({ id: req.body.idCmd.split("-")[0] }).exec()
+    return true;  
   }
   if (req.body.status === 'rejected') {
     sendMail('/api/mail/orderRejected', corp);
@@ -1262,22 +1266,32 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
   order.products.forEach(p => {
     eids.push(p.eid);
   });
+  req.logger.info({message: 'sending email...'});
   if (req.body.status !== "cancelled") {
-    User.find({ roleName: "Product" }, { email: true, _id: false })
-      .then((users) => {
-        users.forEach(user => {
-          sendMail('/api/mail/newOrderHoD', {
-            idCmd: order.id,
-            email: user.email,
-            lastname: order.lastname,
-            firstname: order.firstname,
-            eid: eids.join(),
-            date: order.submissionDate,
-            total: totalttc(order),
-            service: "Finance"
-          });
-        });
-      });
+    var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();      
+    var mailer = new OrderMailService(req.logger, order);
+    users.forEach(user => {
+      mailer.newOrderHod(user.email, 
+                         user.firstname, 
+                         user.lastname, 
+                         "Product", 
+                         eids.join(),
+                         totalttc(order),
+                         order.submissionDate);
+    });
+    req.logger.info({message: 'email sent'});
+    // users.forEach(user => {
+    //   sendMail('/api/mail/newOrderHoD', {
+    //     idCmd: order.id,
+    //     email: user.email,
+    //     lastname: order.lastname,
+    //     firstname: order.firstname,
+    //     eid: eids.join(),
+    //     date: order.submissionDate,
+    //     total: totalttc(order),
+    //     service: "Finance"
+    //   });
+    // });      
   }
 }
 

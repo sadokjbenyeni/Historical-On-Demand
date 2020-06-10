@@ -17,7 +17,8 @@ router.get('/details/:id', async (req, res) => {
         order = supportOrderDetails(order);
     }
     catch (error) {
-        req.logger.error({ error: error, message: error.message, className: "Order Support API" });
+        req.logger.error({ message: error.message, className: "Order Support API" });
+        req.logger.error({ message: JSON.stringify(error), className:"Order Support API"});
         return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
     }
     return res.status(200).json({ details: order });

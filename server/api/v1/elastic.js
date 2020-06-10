@@ -9,7 +9,7 @@ const client = new Client({ node: 'http://10.0.10.102:9200' })
 client.ping({}, { requestTimeout: 20000 }, function (error) {
     if (error) {
         logger.warn({ message: 'elasticsearch cluster is down!', className:'Elastic API'}); 
-        logger.error(error);
+        logger.error({ message: JSON.stringify(error), className:'Elastic API'});
         logger.close();
     }
     else { 
@@ -32,7 +32,8 @@ router.post('/', (req, res) => {
     }).then(function (resp) {
         res.json(resp.body);
     }, function (err) {
-        req.logger.error({ message: err.message, error: error, className: 'Elastic API'});
+        req.logger.error({ message: err.message, className: 'Elastic API'});
+        req.logger.error(err);
     });
 });
 
