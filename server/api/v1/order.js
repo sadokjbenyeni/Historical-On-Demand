@@ -306,7 +306,7 @@ router.put('/state', async (req, res) => {
   if (req.body.referer === 'Product') {
     try{
       await UpdateStateProduct(updt, req, corp);
-    }// sendMail('/api/mail/newOrder', corp);
+    }
     catch(err){
       req.logger.error({ message: JSON.stringify(err), className: 'Order API'});
       req.logger.error({ message: JSON.stringify(error), className:'Order API'});
@@ -325,9 +325,6 @@ router.put('/state', async (req, res) => {
 
     let end = dateFinref;
     let cart = [];
-    let id = "";
-
-    let item = "";
     req.body.product.forEach(p => {
       if (!p.print) { //actual product lines without Exchange fees
         p.dataset = p.quotation_level;
@@ -408,8 +405,8 @@ router.put('/state', async (req, res) => {
       "email": req.body.email,
       "idCmd": req.body.id
     };
-
-    sendMail('/api/mail/orderValidated', corp);
+    var mailer = new OrderMailService(req.logger, { id: req.body.id });
+    mailer.orderValidated(corp);
   }
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
     Config.findOne({ id: "counter" }).then((cnt) => {
@@ -1007,21 +1004,6 @@ pdfpost = function (id) {
   });
 };
 
-sendMail = function (url, corp) {
-  let options = {
-    url: LOCALDOMAIN + url,
-    headers: {
-      'content-type': 'application/json',
-    },
-    body: corp, json: true
-  };
-
-  request.post(options, function (error, response, body) {
-    if (error) throw new Error(error);
-  });
-};
-
-
 Date.prototype.previousDay = function () {
   this.setDate(this.getDate() - 1);
   return this;
@@ -1207,7 +1189,7 @@ autoValidation = async function (idCmd, logsPayment, r, res) {
   let url = '/api/mail/newOrder';
   order.products.forEach(product => { eids.push(product.eid); });
   if (order.state === 'PSC') {
-    autoValidationOrderStateIsPSC(corp, order, logsPayment, url, log);
+    autoValidationOrderStateIsPSC(corp, order, logsPayment, log);
   }
   order.eid = eids;
 
@@ -1256,11 +1238,17 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
     return true;  
   }
   if (req.body.status === 'rejected') {
-    sendMail('/api/mail/orderRejected', corp);
+    var mailer = new OrderMailService(req.logger, order);
+    corp.reason = "order is rejected by the system"; // generic message
+    if(req.body.reason){
+      corp.reason = req.body.reason;
+    }
+    mailer.orderRejected(corp);
     return true;
   }
   if (req.body.status === 'cancelled') {
-    sendMail('/api/mail/orderCancelled', corp);
+    var mailer = new OrderMailService(req.logger, order);
+    mailer.orderCancelled(corp);
     return true;
   }
   order.products.forEach(p => {
@@ -1274,24 +1262,12 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
       mailer.newOrderHod(user.email, 
                          user.firstname, 
                          user.lastname, 
-                         "Product", 
+                         "Finance", 
                          eids.join(),
                          totalttc(order),
                          order.submissionDate);
     });
-    req.logger.info({message: 'email sent'});
-    // users.forEach(user => {
-    //   sendMail('/api/mail/newOrderHoD', {
-    //     idCmd: order.id,
-    //     email: user.email,
-    //     lastname: order.lastname,
-    //     firstname: order.firstname,
-    //     eid: eids.join(),
-    //     date: order.submissionDate,
-    //     total: totalttc(order),
-    //     service: "Finance"
-    //   });
-    // });      
+    req.logger.info({message: 'email sent'});    
   }
 }
 
@@ -1303,7 +1279,6 @@ async function UpdateStateCompliance(updt, corp, req) {
     "paymentdate": new Date(),
     "service": 'Product'
   };
-  // sendMail('/api/mail/newOrder', corp);
   // Email validation au pvp
   var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
   let eids = [];
@@ -1312,80 +1287,68 @@ async function UpdateStateCompliance(updt, corp, req) {
   });
   var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
   users.forEach(user => {
-    sendMail('/api/mail/newOrderHoD', {
-      idCmd: order.id,
-      email: user.email,
-      lastname: order.lastname,
-      firstname: order.firstname,
-      eid: eids.join(),
-      date: order.submissionDate,
-      total: totalttc(order),
-      service: "Product"
-    });
+    mailer.newOrderHod(user.email, 
+      user.firstname, 
+      user.lastname, 
+      "Product", 
+      eids.join(),
+      totalttc(order),
+      order.submissionDate);
   });
 }
 
 async function autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment) {
   var users = await User.find({ roleName: "Finance" }, { email: true, _id: false }).exec();
-  users.forEach(user => {
-    sendMail('/api/mail/newOrderHoD', {
-      idCmd: corp.idCmd,
-      email: user.email,
-      lastname: order.lastname,
-      firstname: order.firstname,
-      eid: order.eid.join(),
-      date: logsPayment.date,
-      total: totalttc(order),
-      service: "Finance"
+    var mailer = new OrderMailService(req.logger, order);
+    users.forEach(user => {
+      mailer.newOrderHod(user.email, 
+                        user.firstname, 
+                        user.lastname, 
+                        "Finance", 
+                        eids.join(),
+                        totalttc(order),
+                        order.submissionDate);
     });
-  });
+    req.logger.info({message: 'new order hod email sent'});
 }
 
 async function autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment) {
   var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
-  users.forEach(user => {
-    sendMail('/api/mail/newOrderHoD', {
-      idCmd: corp.idCmd,
-      email: user.email,
-      lastname: order.lastname,
-      firstname: order.firstname,
-      eid: order.eid.join(),
-      date: logsPayment.date,
-      total: totalttc(order),
-      service: "Product"
+  var mailer = new OrderMailService(req.logger, order);
+    users.forEach(user => {
+      mailer.newOrderHod(user.email, 
+                        user.firstname, 
+                        user.lastname, 
+                        "Product", 
+                        eids.join(),
+                        totalttc(order),
+                        order.submissionDate);
     });
-  });
 }
 
 async function autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment) {
   var users = await User.find({ roleName: "Compliance" }, { email: true, _id: false }).exec();
-  users.forEach(user => {
-    sendMail('/api/mail/newOrderHoD', {
-      idCmd: corp.idCmd,
-      email: user.email,
-      lastname: order.lastname,
-      firstname: order.firstname,
-      eid: order.eid.join(),
-      date: logsPayment.date,
-      total: totalttc(order),
-      service: "Compliance"
+  var mailer = new OrderMailService(req.logger, order);
+    users.forEach(user => {
+      mailer.newOrderHod(user.email, 
+                        user.firstname, 
+                        user.lastname, 
+                        "Compliance", 
+                        eids.join(),
+                        totalttc(order),
+                        order.submissionDate);
     });
-  });
 }
 
 function autoValidationOrderStateIsPSC(corp, order, logsPayment, url, log) {
-  corp = {
-    "email": order.email,
-    "idCmd": order.id,
-    "paymentdate": logsPayment.date,
-    "token": logsPayment.token,
-    "service": 'Compliance'
-  };
-  sendMail(url, corp);
+  var mailer = new OrderMailService(req.logger, order);
+  mailer.newOrder(order.email);
   order.products.forEach(product => {
     if (((product.historical_data
-      && (product.historical_data.backfill_agreement || product.historical_data.backfill_applyfee))
-      || order.survey[0].dd === "1") && product.onetime === 1) {
+      && (product.historical_data.backfill_agreement 
+          || product.historical_data.backfill_applyfee))
+          || order.survey[0].dd === "1") 
+      && product.onetime === 1) {
       order.state = 'PVC';
       log.status = 'PVC';
       log.referer = 'Client';

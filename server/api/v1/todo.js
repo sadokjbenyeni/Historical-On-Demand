@@ -58,13 +58,30 @@ router.post('/verifFailed', (req,res)=>{
     status: "failed", updatedAt: { $lte: d }
   })
   .then((cmd)=>{
+    let error = false;
     cmd.forEach((c) => {
-      sendMail('/api/mail/orderFailed', 
-      {
-        idCmd: c.id_cmd.split("-")[0],
-        email: c.email
-      });
+      try {
+        var mailer = new OrderMailService(req.logger, { id: c.id_cmd.split("-")[0] });
+        mailer.orderFailed({
+          idCmd: c.id_cmd.split("-")[0],
+          email: c.email
+        });
+      }
+      catch(error){
+        req.logger.error({message: "Error during mailing." + error.message, className: 'Mailer API'});
+        error = true;
+      }
+      // sendMail('/api/mail/orderFailed', 
+      // {
+      //   idCmd: c.id_cmd.split("-")[0],
+      //   email: c.email
+      // });
     });
+    if(error)
+    {
+      return res.status(500).json({reason: "An error has been thrown during the mailing, please contact support with '"+ req.headers.loggerToken + "'", mail:false});
+    }
+    return res.status(200);
   });
 });
 
@@ -144,11 +161,8 @@ router.put('/finish', async (req, res) => {
   updateValues.state = recup.status;
   if(recup.status === "active" && recup.mailActive) {
     req.logger.info({ message: "sending email....", className: 'Todo API'});
-    sendMail('/api/mail/orderExecuted', 
-    {
-      idCmd: recup.id,
-      email: recup.email
-    });    
+    var mailer = new OrderMailService(req.logger, { id: recup.id });
+    mailer.orderExecuted({ email: recup.email });
     updateValues.mailActive = false;
   }
   req.logger.info({ message: "updating order "+ id_cmd + "....", className: 'Todo API'});
@@ -178,8 +192,8 @@ router.put('/finish', async (req, res) => {
       updatePool(req.body.id_cmd, req.status, req.body.begin_date);
       var users = await User.find({roleName:"Product"},{email:true, _id:false}).exec();
       users.forEach(user => {
-        sendMail('/api/mail/orderFailedJob', 
-        {
+        var mailer = new OrderMailService(req.logger, { id: req.body.id_cmd });
+        mailer.orderFailedJob({
           idCmd: req.body.id_cmd,
           email: user.email,
           description: req.state_description,
@@ -199,20 +213,6 @@ router.put('/finish', async (req, res) => {
     return res.json(err);
   }
 });
-
-// Fonctions utiles
-sendMail = (url, corp) => {
-  let options = {
-    url: LOCALDOMAIN + url,
-    headers: {
-      'content-type': 'application/json',
-    },
-    body: corp, json: true
-  };
-  request.post(options, function (error, response, body) {
-    if (error) throw new Error(error);
-  });
-}
 
 updateOrderProductLogs = ((url, logs, logger, loggerToken) => { 
   logger.debug({ message: 'Logs: '+ JSON.stringify(logs), className: 'Todo API' });       

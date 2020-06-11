@@ -44,7 +44,7 @@ module.exports = function (logger, order) {
           if (error) {
             this.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
             this.logger.error({ message: JSON.stringify(error), className:'Order Mailer Service'});
-            return false;
+            throw error;
           }
           return true;
         });
@@ -85,4 +85,233 @@ module.exports = function (logger, order) {
       return true;
     });
   } 
+
+  this.orderValidated = function(corp)
+  {
+    let mailOptions = {
+      from: 'no-reply@quanthouse.com',
+      to: corp.email,
+      subject: config.environment() + 'Order # ' + this.order.id + ' Validation',
+      text: `Hello,
+  
+      You Order # `+ this.order.id + ` has been validated.
+      You will receive shortly an email notification with all relevant information allowing you to access your data.
+      
+      Thank you,
+      Quanthouse`,
+  
+      html: `Hello,<br><br>
+      You Order <b># `+ this.order.id + `</b> has been validated.<br>
+      You will receive shortly an email notification with all relevant information allowing you to access your data.
+      <br><br>
+      <b>Thank you,<br>Quanthouse</b>`
+    };
+    smtpTransport.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
+        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
+        return console.log(error);
+      }
+      return res.status(200).json({ mail: true });
+    });
+  }
+
+  this.orderRejected = function(corp) {
+    let mailOptions = {
+      from: 'no-reply@quanthouse.com',
+      to: corp.email,
+      subject: config.environment() + 'Order # ' + this.order.id + ' rejection',
+      text: `Hello,
+  
+      Your Order # `+ this.order.id + ` has been rejected with the following reason:
+      `+ corp.reason + `
+  
+      Please contact your local support should you need any further information.
+  
+      Thank you,
+      Quanthouse`,
+  
+      html: `Hello,<br><br>
+      Your Order <b># `+ this.order.id + `</b> has been rejected with the following reason:<br>
+      `+ corp.reason + `<br><br>
+      Please contact your local support should you need any further information.<br><br>
+      <b>Thank you,<br>Quanthouse</b>`
+    };
+    smtpTransport.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
+        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
+        return console.log(error);
+      }
+      return res.status(200).json({ mail: true });
+    });
+  }
+
+  this.orderCancelled = function(corp) {
+    let mailOptions = {
+      from: 'no-reply@quanthouse.com',
+      to: corp.email,
+      subject: config.environment() + 'Order # ' + this.order.id + ' cancellation',
+      text: `Hello,
+  
+      Your Order # `+ this.order.id + ` has been cancelled.
+  
+      Please contact your local support should you need any further information.
+  
+      Thank you,
+      Quanthouse`,
+  
+      html: `Hello,<br><br>
+      Your Order <b># `+ this.order.id + `</b> has been rejected with the following reason:<br><br>
+      Please contact your local support should you need any further information.<br><br>
+      <b>Thank you,<br>Quanthouse</b>`
+    };
+    smtpTransport.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
+        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
+        return console.log(error);
+      }
+      return res.status(200).json({ mail: true });
+    });
+  }
+
+  this.orderExecuted = async function(corp) {
+    var downloadSetting = await Config.findOne({id: "downloadSetting"}).exec();      
+    let mailOptions = {
+      from: 'no-reply@quanthouse.com',
+      to: corp.email,
+      subject: config.environment() + 'Order # ' + this.order.id + ' Execution',
+      text: `Hello,
+
+    You Order # `+ this.order.id + ` has been executed.
+    You can access your data via the Order History page of your account : `+ domain + `/order/history/
+
+    Your data will be available for download during :
+    - `+ downloadSetting.periodOneOff + ` days, for One-Time delivery items
+    - `+ downloadSetting.periodSubscription + ` days, for Recurrent delivery items (Subscription)
+    
+    Thank you,
+    Quanthouse`,
+
+      html: `Hello,<br><br>
+    You Order # `+ this.order.id + ` has been executed.<br>
+    You can access your data via the Order History page of your account : <a href="`+ domain + `/order/history/"> Click here</a>
+    <br><br>
+    Your data will be available for download during :<br>
+    - `+ downloadSetting.periodOneOff + ` days, for One-Time delivery items<br>
+    - `+ downloadSetting.periodSubscription + ` days, for Recurrent delivery items (Subscription)
+    <br><br>
+    <b>Thank you,<br>Quanthouse</b>`
+    };
+    smtpTransport.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
+        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
+        return console.log(error);
+      }
+      return res.status(200).json({ mail: true });
+    });
+  }
+
+  this.orderFailedJob = function(corp){
+    let mailOptions = {
+      from: 'no-reply@quanthouse.com',
+      to: corp.email,
+      subject: config.environment() + 'Order #' + this.order.id.split('-')[0] + ' execution failure',
+      text: `Hello,
+  
+      Client Order # `+ this.order.id.split('-')[0] + ` -> ` + this.order.id + ` execution has failed with the following error:
+      
+      Date : `+ corp.date + ` 
+      Description : 
+      `+ corp.description + `
+      
+      Additional context information :
+      Logs :
+      `+ corp.logs + `
+      
+      
+      This is an automated email, sent by the HoD Web Portal`,
+  
+      html: `Hello,<br><br>
+      Client Order <b># `+ this.order.id.split('-')[0] + ` -> ` + this.order.id + `</b> execution has failed with the following error:<br>
+      <br>
+      Date : `+ corp.date + ` <br>
+      Description : <br>
+      `+ corp.description + `
+      <br>
+      Additional context information :<br>
+      Logs :<br>
+      `+ corp.logs + `
+      <br>
+      <br>
+      This is an automated email, sent by the HoD Web Portal`
+    };
+    smtpTransport.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
+        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
+        throw error;
+      }
+    });
+  }
+
+  this.orderFailed = function(corp) {
+    let mailOptions = {
+      from: 'no-reply@quanthouse.com',
+      to: corp.email,
+      subject: config.environment() + 'Order # ' + this.order.id + ' execution issue',
+      text: `Hello,
+  
+      An issue has been encountered executing your Order # `+ this.order.id + ` Our teams are working actively to resolve the issue as quickly as possible.
+      
+      Please contact your local support should you need any further information.
+      
+      Thank you,
+      Quanthouse`,
+  
+      html: `Hello,<br><br>
+      An issue has been encountered executing your Order <b># `+ this.order.id + `</b> Our teams are working actively to resolve the issue as quickly as possible.<br><br>
+      Please contact your local support should you need any further information.
+      <br><br>
+      <b>Thank you,<br>Quanthouse</b>`
+    };
+    smtpTransport.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
+        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
+        throw error;
+      }
+    });
+  }
+
+  this.reminder = function(corp) {
+    let mailOptions = {
+      from: 'no-reply@quanthouse.com',
+      to: corp.email,
+      subject: config.environment() + 'Pending Order # ' + this.order.id,
+      text: `Hello,
+  
+      You Order # `+ this.order.id + ` received on ` + corp.logsPayment + ` CET is currently pending completion of the billing process.
+      To complete the billing process, please use the following link: `+ domain + `order/history/` + corp.token + `
+      
+      Thank you,
+      Quanthouse`,
+  
+      html: `Hello,<br><br>
+      You Order # `+ this.order.id + ` received on ` + corp.logsPayment + ` CET is currently pending completion of the billing process.<br>
+      To complete the billing process, please use the following link: <a href="`+ domain + `order/history/` + corp.token + `">click here</a>
+      <br><br>
+      <b>Thank you,<br>Quanthouse</b>`
+    };
+    smtpTransport.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
+        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
+        return console.log(error);
+      }
+      return res.status(200).json({ mail: true });
+    });
+  }
 }
