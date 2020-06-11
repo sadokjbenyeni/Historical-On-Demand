@@ -430,12 +430,12 @@ router.put('/state', async (req, res) => {
     res.status(201).json({ ok: true });
     //     });
     // });
-    // Order.findOne({ id: id }).then(order => {
-    //   return res.status(200).json({
-    //     ok: InvoiceService.insertInvoice(order._id, order.id_cmd, order.idUser)
-    //   });
-    // })
-    // });
+            Order.findOne({ id: id }).then(order => {
+              return res.status(201).json({
+                ok: InvoiceService.insertInvoice(order.id, order.idCommande, order.idUser)
+              });
+            })
+            res.status(201).json({ ok: true });
   }
   else {
     await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } }).exec();

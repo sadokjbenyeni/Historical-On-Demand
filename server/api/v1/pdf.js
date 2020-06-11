@@ -9,24 +9,37 @@ const Order = mongoose.model('Order');
 const User = mongoose.model('User');
 const Currency = mongoose.model('Currency');
 const Countrie = mongoose.model('Countrie');
+const http = require('http');
 
 const config = require('../../config/config.js');
 const DOMAIN = config.domain();
 const LOCALDOMAIN = config.localdomain();
 
-router.post('/', (req, res) => {
-  Order.findOne({ id: req.body.id }).then(cmd => {
-    User.findOne({ _id: cmd.idUser }, { id: true, vat: true, countryBilling: true, checkvat: true }).then(u => {
-      Countrie.findOne({ id: cmd.countryBilling }).then(cnt => {
-        Currency.findOne({ id: cmd.currency }).then(c => {
-          pdf(req.logger, cmd, c, u, cnt);
-          testoo(req.logger, u);
-          return res.status(200).json(cmd.idCommande);
-        });
-      });
-    });
-  });
-});
+router.post('/', async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401);
+  }
+  var authentifiedUser = await User.findOne({ token: req.headers.authorization }, { _id: true }).exec();
+  if (!authentifiedUser) {
+    req.logger.warn({ message: '[Security] Token not found', className: 'PDF API' });
+    return res.status(403).json({ message: "Access denied. Please contact support with identifier: [" + req.headers.loggerToken + "]" });
+  }
+  var order = await Order.findOne({ id: req.body.id }).exec();
+  if (order.idUser != authentifiedUser._id) {
+    return res.status(403).json({ message: "Access denied. Please contact support with identifier: [" + req.headers.loggerToken + "]" });
+  }
+  var user = await User.findOne({ _id: order.idUser }, { id: true, vat: true, countryBilling: true, checkvat: true }).exec();
+  var country = await Countrie.findOne({ id: order.countryBilling }).exec();
+  var currency = await Currency.findOne({ id: order.currency }).exec();
+  try {
+    pdf(req.logger, order, currency, user, country);
+  }
+  catch (error) {
+    req.logger.error({ error: error, message: error.message, className: "PDF API" });
+    return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
+  }
+  return res.status(200).json(order.idCommande);
+})
 
 testoo = function (logger, order) {
   logger.info({ message: order, className: 'PDF Api' });
@@ -143,15 +156,16 @@ pdf = function (logger, cmd, currency, user, country) {
   let pdfDoc = printer.createPdfKitDocument(invoice);
 
   var dir = 'files/invoice';
-  if (clientAddress() == DOMAIN) {
-    dir = "mapr/invoices"
-  }
+  // if (clientAddress() == DOMAIN) {
+  //   dir = "/mapr/client_invoices"
+  // }
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
   pdfDoc.pipe(fs.createWriteStream(path.join(dir, cmd.idCommande + '.pdf')));
   pdfDoc.end();
 };
+
 
 function clientAddress() {
   return request.connection.remoteAddress || request.socket.remoteAddress || request.headers['x-forwarded-for'];

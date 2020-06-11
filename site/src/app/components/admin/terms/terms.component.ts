@@ -18,7 +18,7 @@ export class TermsComponent implements OnInit {
   ngOnInit() { }
 
   link() {
-    this.pdfService.pdf({ id: 225 }).subscribe(res => {
+    this.pdfService.pdf({ id: 229 }).subscribe(res => {
       console.log(res.file);
     });
   }
