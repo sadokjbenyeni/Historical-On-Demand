@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { OrderService } from '../../../services/order.service';
 import { ConfigService } from '../../../services/config.service';
 import { CurrencyService } from '../../../services/currency.service';
-
+import { PdfService } from '../../../../app/services/pdf.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -55,7 +55,8 @@ export class OrdersViewComponent implements OnInit {
     private router: Router,
     private modalService: NgbModal,
     private currencyService: CurrencyService,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private pdfService: PdfService
   ) {
     route.params.subscribe(_ => this.idCmd = _.id);
   }
@@ -227,5 +228,9 @@ export class OrdersViewComponent implements OnInit {
       return stateId;
     return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
-
+  getInvoice() {
+    this.pdfService.pdf({ id: this.idOrder }).subscribe(res => {
+      console.log(res.file);
+    });
+  }
 }

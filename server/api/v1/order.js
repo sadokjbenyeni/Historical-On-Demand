@@ -432,7 +432,7 @@ router.put('/state', async (req, res) => {
     // });
             Order.findOne({ id: id }).then(order => {
               return res.status(201).json({
-                ok: InvoiceService.insertInvoice(order.id, order.idCommande, order.idUser)
+                ok: InvoiceService.insertInvoice(order.id, updt.idCommande, order.idUser)
               });
             })
             res.status(201).json({ ok: true });

@@ -17,7 +17,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { CancelOrderDialogComponent } from '../cancel-order-dialog/cancel-order-dialog.component';
 import { HttpHeaders } from '@angular/common/http';
 import { DeliverablesService } from '../../../../app/services/deliverables.service';
-import { PdfService } from '../../../../app/services/pdf.service';
 import { InvoiceService } from '../../../../app/services/invoice.service';
 import { invalid } from '@angular/compiler/src/render3/view/util';
 import { catchError } from 'rxjs/internal/operators/catchError';
@@ -86,7 +85,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
     private currencyService: CurrencyService,
     private configService: ConfigService,
     private deliverablesService: DeliverablesService,
-    private pdfService: PdfService,
     private invoiceService: InvoiceService,
     private http: HttpClient
   ) {
@@ -377,12 +375,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
   handleError(error): ObservableInput<any> {
     console.log(error);
     return Promise.all(new Array<any>());
-  }
-
-  getInvoice() {
-    this.pdfService.pdf({ id: this.idOrder }).subscribe(res => {
-      console.log(res.file);
-    });
   }
 }
 
