@@ -21,6 +21,7 @@ const PAYMENTKEY = config.paymentKey();
 const OrderService = require('../../service/orderService');
 const InvoiceService = require('../../service/invoiceService');
 const OrderMailService = require('../../service/orderMailerService');
+const OrderPdfService = require('../../service/orderPdfService');
 
 // Client Encryption Public Key : 10001|C958CBDFC34244F25D41E5B28DA3331CA52385EE3E73B2A51FD94D302CC135DD7DC49BE19EA66CCD00BAE7D26AF00BBB39C73351D4EACC10D7D023FE0ED844BD2D53FAFA9DE26D34373DB80278FB01BD00E27F0E922A3D7AB734D0AEFC48A78CAFA8F5D92FA2CBA08509F398FF9DA8B9AB909010622C6C1DB2933F8CAAD78D6AD9FCE5C46F1D679E83224A6B4B114757B81F5F62C109A5002C4FCC7EE7DA92C2762690835EAB446F4F86D88A903241E9F1930406DC01A4FEC4ED85666D7A1C99A7A46C4ADE83F7461428E6D11E78D86005732256AA632AF34E48990366FA85C463380F424294C81D16173279EB78EDF264422BFAC487CAD9C7A6E9F363AA481B
 // test : https://test.adyen.com/hpp/cse/js/8215198215590909.shtml
@@ -107,7 +108,7 @@ router.post('/rib', (req, res) => {
   //  } } )
   // .then((r)=>{
 
-  autoValidation(req.body.idCmd, { token: req.body.token, email: req.body.email, payment: 'RIB', date: new Date() }, { ok: true }, res);
+  autoValidation(req.body.idCmd, { token: req.body.token, email: req.body.email, payment: 'RIB', date: new Date() }, { ok: true }, res, req.logger);
   // });
 });
 
@@ -409,6 +410,7 @@ router.put('/state', async (req, res) => {
     mailer.orderValidated(corp);
   }
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
+    req.logger.info("validating order...");
     Config.findOne({ id: "counter" }).then((cnt) => {
 
       let id = cnt.value;
@@ -420,11 +422,12 @@ router.put('/state', async (req, res) => {
         prefix += "0";
       }
       updt.idCommande = prefix + idnew.toString();
+      req.logger.info("id commande: " + updt.idcommande);
       Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).then(() => {
         Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } })
-
           .then((r) => {
-            pdfpost(req.body.id);
+            req.logger.info("Order updated");
+            pdfpost(req.body.id, req.logger);
             res.status(201).json({ ok: true });
           });
       });
@@ -987,21 +990,27 @@ buildSearch = function (req) {
   return search;
 }
 
-pdfpost = function (id) {
-  let options = {
-    url: LOCALDOMAIN + '/api/pdf',
-    headers: {
-      'content-type': 'application/json',
-    },
-    body: {
-      id: id
-    },
-    json: true
-  };
+pdfpost = async function (id, logger) {
+  // logger.info({message: "invoice creating....", className: 'Order API'});
+  // let options = {
+  //   url: LOCALDOMAIN + '/api/pdf',
+  //   headers: {
+  //     'content-type': 'application/json',
+  //   },
+  //   body: {
+  //     id: id
+  //   },
+  //   json: true
+  // };
 
-  request.post(options, function (error, response, body) {
-    if (error) throw new Error(error);
-  });
+  // request.post(options, function (error, response, body) {
+  //   if (error){
+  //     logger.error({message: "Error during invoice creation. " + error.message, className: 'Order API'});
+  //     throw new Error(error);
+  //   }
+  // });
+  var order = await Order.findOne({ id: id}).exec();
+  await new OrderPdfService(order, logger).createInvoicePdf();
 };
 
 Date.prototype.previousDay = function () {
@@ -1180,43 +1189,60 @@ ComputeTotalTtcUsd = function (order) {
   return precisionRound((totalHT * (1 + order.vatValue)), 2);
 }
 
-autoValidation = async function (idCmd, logsPayment, r, res) {
+autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   let log = {};
-  var order = await Order.findOne({ id_cmd: idCmd }).exec();
-  log.date = new Date();
-  let eids = [];
-  let corp = {};
-  let url = '/api/mail/newOrder';
-  order.products.forEach(product => { eids.push(product.eid); });
-  if (order.state === 'PSC') {
-    autoValidationOrderStateIsPSC(corp, order, logsPayment, log);
-  }
-  order.eid = eids;
-
-  if (order.state === "PVC") {
-    // Envoi email aux compliances
-    await autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment);
-  }
-  if (order.state === "PVP") {
-    // Envoi email aux products
-    await autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment);
-  }
-  if (order.state === "PVF") {
-    await autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment);
-  }
-  var updateStatus = await Order.updateOne({ id_cmd: idCmd },
-    {
-      $push: {
-        logsPayment: logsPayment,
-        logs: log
-      },
-      $set: {
-        validationCompliance: order.validationCompliance,
-        submissionDate: new Date(),
-        state: order.state
-      }
-    }).exec();
-  return res.status(201).json(updateStatus);
+  // var order = await Order.findOne({ id_cmd: idCmd }).exec();
+  Order.findOne({ id_cmd: idCmd }).then(order => {
+    log.date = new Date();
+    let eids = [];
+    let corp = {};
+    order.products.forEach(product => { eids.push(product.eid); });
+    if (order.state === 'PSC') {
+      logger.info("PSC autovalidation");
+      autoValidationOrderStateIsPSC(corp, order, logsPayment, log, logger);
+    }
+    order.eid = eids;
+    if (order.state === "PVC") {
+      logger.info("PVC autovalidation");
+      // Envoi email aux compliances
+      autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment, logger);
+    }
+    if (order.state === "PVP") {
+      logger.info("PVP autovalidation");
+      // Envoi email aux products
+       autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger);
+    }
+    if (order.state === "PVF") {
+      logger.info("PVF autovalidation");
+       autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment, logger);
+    }
+    // var updateStatus = await Order.updateOne({ id_cmd: idCmd },
+    //   {
+    //     $push: {
+    //       logsPayment: logsPayment,
+    //       logs: log
+    //     },
+    //     $set: {
+    //       validationCompliance: order.validationCompliance,
+    //       submissionDate: new Date(),
+    //       state: order.state
+    //     }
+    //   }).exec();
+    //   return res.status(201).json(updateStatus);
+    return Order.updateOne({ id_cmd: idCmd },
+        {
+          $push: {
+            logsPayment: logsPayment,
+            logs: log
+          },
+          $set: {
+            validationCompliance: order.validationCompliance,
+            submissionDate: new Date(),
+            state: order.state
+          }
+        })
+        .then(updateStatus => res.status(201).json(updateStatus));
+  });
 };
 
 async function UpdateStateProduct(orderUpdate, req, corp) {
@@ -1265,7 +1291,7 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
                          "Finance", 
                          eids.join(),
                          totalttc(order),
-                         order.submissionDate);
+                         order.submissionDate.toString());
     });
     req.logger.info({message: 'email sent'});    
   }
@@ -1291,57 +1317,63 @@ async function UpdateStateCompliance(updt, corp, req) {
       user.firstname, 
       user.lastname, 
       "Product", 
-      eids.join(),
+      order.eid.join(),
       totalttc(order),
-      order.submissionDate);
+      order.submissionDate.toString());
   });
 }
 
-async function autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment) {
-  var users = await User.find({ roleName: "Finance" }, { email: true, _id: false }).exec();
-    var mailer = new OrderMailService(req.logger, order);
+function autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment, logger) {
+  // var users = await User.find({ roleName: "Finance" }, { email: true, _id: false }).exec();
+  User.find({ roleName: "Finance" }, { email: true, _id: false }).then(users => {
+    var mailer = new OrderMailService(logger, order);
     users.forEach(user => {
       mailer.newOrderHod(user.email, 
                         user.firstname, 
                         user.lastname, 
                         "Finance", 
-                        eids.join(),
+                        order.eid.join(),
                         totalttc(order),
-                        order.submissionDate);
+                        order.submissionDate.toString());
     });
     req.logger.info({message: 'new order hod email sent'});
+  });
 }
 
-async function autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment) {
-  var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
-  var mailer = new OrderMailService(req.logger, order);
-    users.forEach(user => {
-      mailer.newOrderHod(user.email, 
-                        user.firstname, 
-                        user.lastname, 
-                        "Product", 
-                        eids.join(),
-                        totalttc(order),
-                        order.submissionDate);
-    });
+ function autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger) {
+  // var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
+  User.find({ roleName: "Product" }, { email: true, _id: false }).then(users => {
+    var mailer = new OrderMailService(logger, order);
+      users.forEach(user => {
+        mailer.newOrderHod(user.email, 
+                          user.firstname, 
+                          user.lastname, 
+                          "Product", 
+                          order.eid.join(),
+                          totalttc(order),
+                          order.submissionDate.toString());
+      });
+  });
 }
 
-async function autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment) {
-  var users = await User.find({ roleName: "Compliance" }, { email: true, _id: false }).exec();
-  var mailer = new OrderMailService(req.logger, order);
-    users.forEach(user => {
-      mailer.newOrderHod(user.email, 
-                        user.firstname, 
-                        user.lastname, 
-                        "Compliance", 
-                        eids.join(),
-                        totalttc(order),
-                        order.submissionDate);
-    });
+function autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment, logger) {
+  // var users = await User.find({ roleName: "Compliance" }, { email: true, _id: false }).exec();
+  User.find({ roleName: "Compliance" }, { email: true, _id: false }).then(users => {
+    var mailer = new OrderMailService(logger, order);
+      users.forEach(user => {
+        mailer.newOrderHod(user.email, 
+                          user.firstname, 
+                          user.lastname, 
+                          "Compliance", 
+                          order.eid.join(),
+                          totalttc(order),
+                          order.submissionDate.toString());
+      });
+  });
 }
 
-function autoValidationOrderStateIsPSC(corp, order, logsPayment, url, log) {
-  var mailer = new OrderMailService(req.logger, order);
+function autoValidationOrderStateIsPSC(corp, order, logsPayment, url, log, logger) {
+  var mailer = new OrderMailService(logger, order);
   mailer.newOrder(order.email);
   order.products.forEach(product => {
     if (((product.historical_data

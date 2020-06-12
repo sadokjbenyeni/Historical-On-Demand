@@ -147,9 +147,9 @@ export class OrderHistoryDetailsComponent implements OnInit {
     }
   }
 
-  dynamicDownloadByHtmlTag(id: number, dataset: string, eid: string, symbol: string, asset: string, type: string, debut: string, fin: string, text: Array<any>, path: string) {
+  dynamicDownloadByHtmlTag(orderId: number, dataset: string, eid: string, symbol: string, asset: string, type: string, debut: string, fin: string, text: Array<any>, path: string) {
     let fileName = "";
-    fileName += id;
+    fileName += orderId;
     fileName += "_" + this.datasets[dataset];
     fileName += "_" + eid;
     if (symbol !== "") {
@@ -181,8 +181,8 @@ export class OrderHistoryDetailsComponent implements OnInit {
     element.dispatchEvent(event);
   }
 
-  yyyymmdd = function (d) {
-    let dat = d.split('-');
+  yyyymmdd = function (date) {
+    let dat = date.split('-');
     let mm = parseInt(dat[1]);
     let dd = parseInt(dat[2]);
 

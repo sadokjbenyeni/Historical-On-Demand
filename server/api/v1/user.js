@@ -187,13 +187,13 @@ router.post('/check/', (req, res) => {
 
     User.findOne(
         { email:req.body.email, password:crypted})
-    .then((user) => {
-        if (!user) { return res.status(403).json({user:false, message:'Invalid Password or User Not Found'}) }
-        if(user.state === 1) {            
-            User.updateOne({_id:user._id}, {$set:{islogin:true}})
+    .then((userDbo) => {
+        if (!userDbo) { return res.status(403).json({user:false, message:'Invalid Password or User Not Found'}) }
+        if(userDbo.state === 1) {            
+            User.updateOne({_id:userDbo._id}, {$set:{islogin:true}})
                 .then((val)=>{
                 User.findOne(
-                    { _id:user._id},
+                    { _id:userDbo._id},
                     {
                         id:true,
                         roleName:true,
@@ -214,8 +214,8 @@ router.post('/check/', (req, res) => {
                         countryBilling: true,
                         state: true
                     })
-                .then((userReturn) => {            
-                    return res.status(200).json({userReturn});
+                .then((user) => {            
+                    return res.status(200).json({user: user});
                 });
             });
         } else {
