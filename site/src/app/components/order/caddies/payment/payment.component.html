@@ -1,0 +1,56 @@
+<div class="table-responsive text-center">
+    <div>
+      <fieldset>
+        <legend>Payment</legend>
+        <!-- <table class="rib"> -->
+        <!-- <thead> -->
+        <!-- <th>Code Banque</th> -->
+        <!-- <th>Code Guichet</th> -->
+        <!-- <th>Numéro de compte</th> -->
+        <!-- <th>Clé RIB</th> -->
+        <!-- <th>Domiciliation</th> -->
+        <!-- </thead> -->
+        <!-- <tbody> -->
+        <!-- <tr> -->
+        <!-- <td><span>{{ rib.rib.cb }}</span></td> -->
+        <!-- <td><span>{{ rib.rib.cg }}</span></td> -->
+        <!-- <td><span>{{ rib.rib.nc }}</span></td> -->
+        <!-- <td><span>{{ rib.rib.cr }}</span></td> -->
+        <!-- <td><span>{{ rib.rib.domiciliation }}</span></td> -->
+        <!-- </tr> -->
+        <!-- </tbody> -->
+        <!-- </table> -->
+        <h4>IBAN</h4>
+        <table class="rib">
+          <tr>
+            <td>{{ rib.iban.ib1 }}</td>
+            <td>{{ rib.iban.ib2 }}</td>
+            <td>{{ rib.iban.ib3 }}</td>
+            <td>{{ rib.iban.ib4 }}</td>
+            <td>{{ rib.iban.ib5 }}</td>
+            <td>{{ rib.iban.ib6 }}</td>
+            <td>{{ rib.iban.ib7 }}</td>
+          </tr>
+        </table>
+        <h4>BIC</h4>
+        <table class="rib">
+          <tr>
+            <td>{{ rib.bic }}</td>
+          </tr>
+        </table>
+        <br><br>
+        <h4 class="text-danger">Please do not forget to include, as a payment reference, your Order ID
+          "HoD-{{ id }}" with your bank transfer to QuantHouse</h4>
+      </fieldset>
+      <button class="btn btn-primary" *ngIf="payment === 'banktransfer'" (click)="submitRib()">Submit</button>
+    </div>
+    <!--<div *ngIf="payment === 'creditcard' && false">
+          <fieldset>
+            <legend>Payment</legend>
+            comment 
+             <div id="paymentcard"></div> 
+             end comment
+          </fieldset>
+          <br><br>
+        </div>-->
+  </div>

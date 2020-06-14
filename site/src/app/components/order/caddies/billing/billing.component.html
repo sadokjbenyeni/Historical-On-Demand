@@ -1,0 +1,75 @@
+<div>
+  <div class="col-lg-12">
+    <div class="col-lg-6 ">
+      <div [formGroup]="form">
+        <h4>Billing Information</h4>
+        <mat-form-field claas="col-12">
+          <input matInput type="text" placeholder="VAT Number" (change)="checkVat()" formControlName="vatctl">
+          <!-- <div class="alert alert-danger" *ngIf="!validVat && user.vat !==''">
+            <span>You have entered an invalid VAT Number</span></div> -->
+        </mat-form-field>
+        <mat-form-field claas="col-12"><br>
+          <input matInput type="text" placeholder="Billing Address" formControlName="addressBillingctl" required>
+        </mat-form-field>
+        <mat-form-field claas="col-12"><br>
+          <input matInput type="text" name="cityBilling" placeholder="Billing City" formControlName="cityBillingctl"
+            required>
+        </mat-form-field>
+        <mat-form-field claas="col-12"><br>
+          <input matInput type="text" name="postalCodeBilling" placeholder="Billing Postal Code"
+            formControlName="postalCodeBillingctl" required>
+        </mat-form-field>
+        <mat-form-field claas="col-12"><br>
+          <mat-label>Select Country</mat-label>
+          <mat-select name="countryBilling" formControlName="countryBillingctl" required>
+            <mat-option *ngFor='let c of country' [value]=" c.id">{{c.name}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-lg-6">
+        <label class="checkbox text-color">
+          <mat-checkbox (change)="SetAdress($event)" name="sameaddress">
+            Use contact address as billing address ?</mat-checkbox>
+        </label>
+      </div>
+      <div class="col-lg-6">
+        <label class="checkbox text-color">
+          <mat-checkbox (change)="defaultBilling($event)" name="addresschange"> Save as default Billing Information ?
+          </mat-checkbox>
+        </label>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="form-group input-group">
+        <div class="col-lg-6 panel panel-primary">
+          <h4>Please select your payment method</h4>
+          <label class="radio" *ngFor="let payment of payments">
+            <input type="radio" name="payment" [value]="payment.id" [(ngModel)]="user.payment">
+            {{ payment.name }}
+            <!-- <input type="radio" name="payment" [value]="payment.id" [(ngModel)]="user.payment" [disabled]="this.minRib && payment.id === 'banktransfer'"> {{ payment.name }}  -->
+            <!-- <small class="text-color" *ngIf="this.minRib && payment.id === 'banktransfer'">(Amount < {{currencyObj['maxrib']}} {{currencyObj['symbol']}})</small> -->
+          </label>
+          <label class="checkbox text-color small">Credit Card is currently not supported as a payment
+            method</label>
+          <!-- <label class="checkbox text-color" *ngIf="user.payment != payment">
+              <input type="checkbox" name="paymentchange" [(ngModel)]="paymentchange"> Select as default
+              payment
+              method ?
+            </label> -->
+        </div>
+        <div class="col-lg-6 panel panel-primary">
+          <h4>Please select your billing currency</h4>
+          <label class="radio" *ngFor="let curr of currencies">
+            <input type="radio" name="currency" [value]="curr.id" [(ngModel)]="currency" [title]="curr.name"
+              (change)="ChangedCurrency(curr.id)"> {{ curr.device }}
+          </label>
+          <label class="checkbox text-color" *ngIf="user.currency != currency">
+            <mat-checkbox name="currencychange" (change)="ChangedDefaultCurrency($event)"> Select as default
+              billing currency ?
+            </mat-checkbox>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

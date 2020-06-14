@@ -1,51 +1,43 @@
 declare var chckt: any;
 
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild, AfterViewChecked, AfterViewInit } from '@angular/core';
 
-import { NgbCalendar, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgbdModalContent } from '../../../modal-content';
 
 import { OrderService } from '../../../services/order.service';
-import { VatService } from '../../../services/vat.service';
 import { FluxService } from '../../../services/flux.service';
-import { PaymentService } from '../../../services/payment.service';
 import { CountriesService } from '../../../services/countries.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { UserService } from '../../../services/user.service';
 import { ConfigService } from '../../../services/config.service';
-import { PdfService } from '../../../services/pdf.service';
-import { UploadService } from '../../../services/upload.service';
+import { AppDateAdapter, APP_DATE_FORMATS } from '../../../format-datepicker';
+import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
+import { BillingComponent } from './billing/billing.component';
+
 
 
 @Component({
   selector: 'app-caddies',
   templateUrl: './caddies.component.html',
-  styleUrls: ['./caddies.component.css']
+  styleUrls: ['./caddies.component.css'],
+  providers: [
+    { provide: DateAdapter, useClass: AppDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS }
+  ]
 })
-export class CaddiesComponent implements OnInit {
+export class CaddiesComponent implements OnInit, AfterViewInit {
+  @ViewChild(BillingComponent) billingComponent: BillingComponent;
+  IsChangeDefaultCurrency: boolean = false;
+  IsChangeCurrency: boolean = false;
+  IsChangeDefaultAdress: boolean = false;
   numVat: any;
-  id: any;
   currencyObj: any;
-  minRib: boolean;
   taux: any;
-  totalFeesUsd: any;
-  totalTTCUsd: number;
-  totalVatUsd: number;
-  totalAmountUsd: any;
-  totalHTUsd: any;
   currencyTxUsd: number;
-  dataset: { L1TRADEONLY: string; L1: string; L2: string; };
-  totalAmount: any;
-  discount: any;
-  totalTTC: any;
-  totalVat: number;
   totalHT: any;
-  totalFees: any;
   pages: number;
   framepayment: any;
-  idCmd: string;
-  status: string;
   // applyVAT: boolean;
   vatValueApply: boolean;
   symbol: string;
@@ -54,10 +46,9 @@ export class CaddiesComponent implements OnInit {
   paymentchange: boolean;
   addresschange: boolean;
   checkv: any;
-  loadvat: string;
   country: any;
-  user: object;
-  oldAddressBilling: { addressBilling: string; cityBilling: string; postalCodeBilling: string; countryBilling: string; vat: string };
+  user: any;
+  // oldAddressBilling: { addressBilling: string; cityBilling: string; postalCodeBilling: string; countryBilling: string; vat: string };
   rib: {
     _id: string,
     id: string,
@@ -88,16 +79,14 @@ export class CaddiesComponent implements OnInit {
   payments: Array<object>;
   currencies: Array<object>;
   currency: string;
-  surveyForm: { dd: string; dt: string; du: { cb: any[]; other: string; }; };
+  surveyForm: any;
   termspdf: string;
   viewterms: boolean;
   term: boolean;
-  survey: number;
   vat: number;
   ht: number;
   total: number;
-  cart: Array<any>;
-  cmd: object;
+  caddy: any;
   page: string;
   caddiesactive: string;
   reviewactive: string;
@@ -105,102 +94,50 @@ export class CaddiesComponent implements OnInit {
   billingactive: string;
   confirmactive: string;
   paymentactive: string;
-  breadcrumbs: Array<object>;
   closeResult: string;
+  billingStep: any;
 
   constructor(
-    private router: Router,
     private configService: ConfigService,
     private userService: UserService,
     private orderService: OrderService,
-    private paymentService: PaymentService,
-    private vatService: VatService,
     private fluxService: FluxService,
     private currencyService: CurrencyService,
     private countriesService: CountriesService,
     private modalService: NgbModal,
-    private calenda: NgbCalendar,
     private uploadService: UploadService
   ) { }
+  ngAfterViewInit(): void {
+    this.billingStep = this.billingComponent ? this.billingComponent.form : null;
+  }
+
+
 
   ngOnInit() {
-    this.minRib = false;
     this.pages = 1;
-    this.cart = [];
     this.taux = [];
-    this.idCmd = '';
-    this.surveyForm = { dd: '', dt: '', du: { cb: [], other: '' } };
     this.term = false;
-    this.dataset = { L1TRADEONLY: 'L1 - Trades', L1: 'L1 - Full', L2: 'L2 - MBL' };
-    this.user = JSON.parse(sessionStorage.getItem('user'));
-    this.getInfoUser(this.user['token']);
-    this.status = 'Pending Licensing Information';
+    this.getInfoUser();
 
-    if (JSON.parse(sessionStorage.getItem('tc'))) {
-      this.term = JSON.parse(sessionStorage.getItem('tc'));
-    }
-    if (JSON.parse(sessionStorage.getItem('surveyForm'))) {
-      this.surveyForm = JSON.parse(sessionStorage.getItem('surveyForm'));
-    }
+    // if (JSON.parse(sessionStorage.getItem('surveyForm'))) {
+    //   this.surveyForm = JSON.parse(sessionStorage.getItem('surveyForm'));
+    // }
 
     this.currencychange = false;
     this.paymentchange = false;
     this.addresschange = false;
     this.termspdf = '/files/historical_data_tc.pdf';
     this.checkv = false;
-    this.loadvat = 'form-control';
     this.viewterms = true;
-    this.survey = 0;
     this.symbol = '$';
-    this.ht = 0;
     this.total = 0;
-    this.caddiesactive = '';
-    this.reviewactive = '';
-    this.licensingactive = '';
-    this.billingactive = '';
-    this.confirmactive = '';
-    this.paymentactive = '';
-    if (this.router.url === '/order/caddies') {
-      this.page = 'caddies';
-    }
-    if (this.router.url === '/order/review') {
-      this.page = 'review';
-    }
-    if (this.router.url === '/order/licensing') {
-      this.page = 'licensing';
-    }
-    if (this.router.url === '/order/billing') {
-      this.page = 'billing';
-      this.getCountry();
-      this.getPayments();
-    }
-    if (this.router.url === '/order/orderconfirm') {
-      // this.getRate();
-      this.page = 'orderconfirm';
-      // this.getCurrency();
-    }
-
-    this.breadcrumbs = [
-      { name: "Shopping Cart", icon: "fa fa-shopping-cart", link: '/order/caddies', active: 'active' },
-      { name: "Order Review", icon: "fa fa-eye", link: '/order/review', active: this.reviewactive },
-      { name: "Licensing", icon: "fa fa-briefcase", link: '/order/licensing', active: this.licensingactive },
-      { name: "Billing", icon: "fa fa-clipboard", link: '/order/billing', active: this.billingactive },
-      { name: "Order Confirmation", icon: "fa fa-handshake", link: '/order/orderconfirm', active: this.confirmactive },
-      { name: "Payment", icon: "fa fa-credit-card", link: '/order/payment', active: this.paymentactive }
-    ];
   }
 
-  changeCurrency(e, id) {
+  changeCurrency(id) {
     this.currencyObj = this.searchCurrency(id, this.currencies);
   }
 
-  getPayments() {
-    this.paymentService.getPaymentsActive().subscribe(res => {
-      this.payments = res;
-    });
-  }
-
-  getInfoUser(token) {
+  getInfoUser() {
     let field = [
       'id',
       'email',
@@ -223,231 +160,68 @@ export class CaddiesComponent implements OnInit {
       'payment',
       'currency'
     ];
-    this.userService.info({ token: token, field: field }).subscribe(res => {
+    this.userService.info({ field: field }).subscribe(res => {
       this.user = res.user;
-
       // a retirer lors de l'implementation CB
       res.user.payment = 'banktransfer';
       this.user["payment"] = 'banktransfer';
       this.payment = 'banktransfer';
       // fin a retirer
-
       this.checkv = res.user.checkvat;
-      if (res.user.checkvat) { this.loadvat = 'form-control'; }
-      if (this.router.url === '/order/orderconfirm') {
-        if (res.user.payment) {
-          this.payment = res.user.payment;
-        } else {
-          this.payment = '';
-        }
-        //à retirer lors de l'implémentation du paiement par CB
-
-      }
-      if (res.user.currency) {
+      this.payment = res.user.payment ? res.user.payment : ''
+      //à retirer lors de l'implémentation du paiement par CB
+      if (this.user.currency) {
         this.currency = res.user.currency;
-        this.getRate();
-      } else {
-        this.currency = '';
       }
       this.getCurrency();
-      this.oldAddressBilling = {
-        addressBilling: res.user.addressBilling,
-        cityBilling: res.user.cityBilling,
-        postalCodeBilling: res.user.postalCodeBilling,
-        countryBilling: res.user.countryBilling,
-        vat: res.user.vat
-      };
-      this.getCaddy(this.user['_id']);
+      this.getCaddy();
+
     });
   }
 
-  getCaddy(iduser) {
-    this.orderService.getCaddies({ id: iduser }).subscribe((c) => {
-      if (c.cmd.length > 0) {
-        this.fluxService.rate({ currency: c.cmd[0].currency }).subscribe(res => {
-          this.currency = c.cmd[0].currency;
-          if (c.cmd[0].vat !== null && c.cmd[0].vat) {
-            this.user['vat'] = c.cmd[0].vat;
-          } else if (c.cmd[0].vatValide === null) {
-            this.user['vat'] = this.oldAddressBilling['vat'];
-          }
-          if (c.cmd[0].vatValide !== null) {
-            this.checkv = c.cmd[0].vatValide;
-          }
-          if (c.cmd[0].addressBilling !== null && c.cmd[0].addressBilling) {
-            this.user['addressBilling'] = c.cmd[0].addressBilling;
-          } else {
-            this.user['addressBilling'] = this.oldAddressBilling['addressBilling'];
-          }
-          if (c.cmd[0].cityBilling !== null && c.cmd[0].cityBilling) {
-            this.user['cityBilling'] = c.cmd[0].cityBilling;
-          } else {
-            this.user['cityBilling'] = this.oldAddressBilling['cityBilling'];
-          }
-          if (c.cmd[0].postalCodeBilling !== null && c.cmd[0].postalCodeBilling) {
-            this.user['postalCodeBilling'] = c.cmd[0].postalCodeBilling;
-          } else {
-            this.user['postalCodeBilling'] = this.oldAddressBilling['postalCodeBilling'];
-          }
-          if (c.cmd[0].countryBilling !== null && c.cmd[0].countryBilling) {
-            this.user['countryBilling'] = c.cmd[0].countryBilling;
-          } else {
-            this.user['countryBilling'] = this.oldAddressBilling['countryBilling'];
-          }
+  getCaddy() {
+    this.orderService.getCaddies().subscribe((order) => {
+      if (order) {
+        this.caddy = order;
+        this.fluxService.rate({ currency: this.currency }).subscribe(result => {
           this.currencyObj = this.searchCurrency(this.currency, this.currencies);
-          this.rate = parseFloat(res.rate);
+          this.rate = parseFloat(result.rate);
           let usd = 0;
-          for (var i = 0; i < this.currencies.length; i++) {
-            if (this.currencies[i]['id'] === 'usd') {
-              usd = this.currencies[i]['taux'];
+          this.currencies.forEach(element => {
+            if (element['id'] === 'usd') {
+              usd = element['taux'];
               this.currencyTxUsd = usd;
             }
-            if (this.currencies[i]['id'] === this.currency) {
-              this.symbol = this.currencies[i]['symbol'];
+            if (element['id'] === this.currency) {
+              this.symbol = element['symbol'];
             }
-          }
+          });
+
           this.configService.getVat().subscribe(res => {
             this.vat = res.valueVat / 100;
-            if (c.cmd.length > 0) {
-              this.cmd = c.cmd[0];
-              this.idCmd = c.cmd[0].id_cmd;
-              this.id = c.cmd[0].id;
-              // this.payment = c.cmd[0].payment;
-              this.payment = 'banktransfer';
-              let index = 0;
-              if (c.cmd[0].products.length === 0) {
-                this.breadcrumbs[1]['active'] = '';
-                this.breadcrumbs[2]['active'] = '';
-                this.breadcrumbs[3]['active'] = '';
-                this.breadcrumbs[4]['active'] = '';
-                this.breadcrumbs[5]['active'] = '';
-              }
-              if (c.cmd[0].state === 'CART' && c.cmd[0].products.length > 0) {
-                this.reviewactive = 'active';
-                this.breadcrumbs[1]['active'] = this.reviewactive;
-              }
-              if (c.cmd[0].state === 'PLI' && c.cmd[0].products.length > 0) {
-                this.reviewactive = 'active';
-                this.licensingactive = 'active';
-                this.breadcrumbs[1]['active'] = this.reviewactive;
-                this.breadcrumbs[2]['active'] = this.licensingactive;
-              }
-              if (c.cmd[0].state === 'PBI' && c.cmd[0].products.length > 0) {
-                this.reviewactive = 'active';
-                this.licensingactive = 'active';
-                this.billingactive = 'active';
-                this.breadcrumbs[1]['active'] = this.reviewactive;
-                this.breadcrumbs[2]['active'] = this.licensingactive;
-                this.breadcrumbs[3]['active'] = this.billingactive;
-              }
-              if (c.cmd[0].state === 'PSC' && c.cmd[0].products.length > 0) {
-                this.reviewactive = 'active';
-                this.licensingactive = 'active';
-                this.billingactive = 'active';
-                this.confirmactive = 'active';
-                this.paymentactive = 'active';
-                this.breadcrumbs[1]['active'] = this.reviewactive;
-                this.breadcrumbs[2]['active'] = this.licensingactive;
-                this.breadcrumbs[3]['active'] = this.billingactive;
-                this.breadcrumbs[4]['active'] = this.confirmactive;
-                this.breadcrumbs[5]['active'] = this.paymentactive;
-              }
-              this.cart = [];
+            this.payment = 'banktransfer';
+            this.countriesService.isUE({ id: this.user['countryBilling'] }).subscribe(res => {
+              this.vatValueApply = (this.user['countryBilling'] == 'FR' || (res.ue == 1 && (this.user['vat'] == '' || !this.checkv)));
 
-              this.totalHTUsd = c.cmd[0].totalHT;
-              this.totalFeesUsd = c.cmd[0].totalExchangeFees;
-              this.discount = c.cmd[0].discount;
-              this.totalAmountUsd = (this.totalHTUsd - (this.totalHTUsd * c.cmd[0].discount / 100)) + c.cmd[0].totalExchangeFees;
-
-              if (this.currency !== 'usd') {
-                this.totalFees = (c.cmd[0].totalExchangeFees / usd) * this.rate;
-                this.totalHT = (c.cmd[0].totalHT / usd) * this.rate;
+              if (!this.vatValueApply) {
+                this.caddy.totalVatUsd = 0;
+                this.caddy.totalVat = 0;
               } else {
-                this.totalFees = c.cmd[0].totalExchangeFees;
-                this.totalHT = c.cmd[0].totalHT;
+                this.caddy.totalVatUsd = this.caddy.totalAmountUsd * this.vat;
+                this.caddy.totalVat = this.caddy.totalHT * this.vat;
               }
-              this.totalAmount = (this.totalHT - (this.totalHT * c.cmd[0].discount / 100)) + this.totalFees;
-              // if(this.totalAmount < this.currencyObj.maxrib) {
-              //   this.minRib = true;
-              //   this.user['payment'] = 'creditcard';
-              // }
-
-              this.countriesService.isUE({ id: this.user['countryBilling'] }).subscribe(res => {
-                this.vatValueApply = (this.user['countryBilling'] == 'FR' || (res.ue == 1 && (this.user['vat'] == '' || !this.checkv)));
-
-                if (!this.vatValueApply) {
-                  // this.vat = null;
-                  this.totalVatUsd = 0;
-                  this.totalVat = 0;
-                } else {
-                  this.totalVatUsd = this.totalAmountUsd * this.vat;
-                  this.totalVat = this.totalAmount * this.vat;
-                }
-                this.totalTTCUsd = this.precisionRound(this.totalAmountUsd + this.totalVatUsd, 2);
-                this.totalTTC = this.precisionRound(this.totalAmount + this.totalVat, 2);
-              });
-
-              c.cmd.forEach((cmd) => {
-                cmd.products.forEach((p) => {
-                  index++;
-                  let ht = 0;
-                  let backfill_fee = 0;
-                  let ongoing_fee = 0;
-                  if (this.currency !== 'usd') {
-                    ht = (p.ht / usd) * this.rate;
-                    backfill_fee = (p.backfill_fee / usd) * this.rate;
-                    ongoing_fee = (p.ongoing_fee / usd) * this.rate;
-                  } else {
-                    ht = p.ht;
-                    backfill_fee = p.backfill_fee;
-                    ongoing_fee = p.ongoing_fee;
-                  }
-                  let prod = {
-                    print: false,
-                    id: index,
-                    idCmd: cmd.id_cmd,
-                    idElem: p.id_undercmd,
-                    quotation_level: p.dataset,
-                    symbol: p.symbol,
-                    exchange: p.exchangeName,
-                    mics: p.mics,
-                    assetClass: p.assetClass,
-                    eid: p.eid,
-                    qhid: p.qhid,
-                    description: p.description,
-                    onetime: p.onetime,
-                    subscription: p.subscription,
-                    period: p.period,
-                    pricingTier: p.pricingTier,
-                    price: p.price,
-                    backfill_fee: backfill_fee,
-                    ongoing_fee: ongoing_fee,
-                    ht: ht,
-                    begin_date_select: p.begin_date,
-                    bdref: this.dateNGB(p.begin_date_ref),
-                    begin_date: p.begin_date_ref,
-                    bds: this.dateNGB(p.begin_date),
-                    end_date_select: p.end_date,
-                    end_date: p.end_date_ref,
-                    edref: this.dateNGB(p.end_date_ref),
-                    eds: this.dateNGB(p.end_date)
-                  };
-                  this.cart.push(prod);
-                  if (p.backfill_fee > 0 || p.ongoing_fee > 0) {
-                    this.cart.push({ print: true, backfill_fee: backfill_fee, ongoing_fee: ongoing_fee });
-                  }
-                });
-              });
-              if (this.router.url === '/order/payment') {
-                this.page = 'payment';
-                // if(this.payment === 'creditcard'){
-                //   this.idCmd = this.cmd['id_cmd'];
-                //   this.submitPayment();
-                // }
-                if (this.payment === 'banktransfer') {
-                  this.getRib();
-                }
-              }
+              this.caddy.totalTTCUsd = this.precisionRound(this.caddy.totalAmountUsd + this.caddy.totalVatUsd, 2);
+              this.caddy.totalTTC = this.caddy.totalHT + this.caddy.totalVat
+            });
+            this.caddy.products.forEach(item => {
+              item.Allproducts = item.subscription.concat(item.onetime)
+            })
+            // if(this.payment === 'creditcard'){
+            //   this.idCmd = this.cmd['id_cmd'];
+            //   this.submitPayment();
+            // }
+            if (this.payment === 'banktransfer') {
+              this.getRib();
             }
           });
         });
@@ -462,14 +236,6 @@ export class CaddiesComponent implements OnInit {
     this.pages++;
   }
 
-  // Function Shopping Cart
-  getCart() {
-    // this.cart[0]["price"] = 105;
-    this.cart.forEach(element => {
-      this.ht += (parseFloat(element['price']) * this.rate);
-    });
-  }
-
   getRib() {
     this.rib = { _id: '', id: '', device: '', name: '', symbol: '', bic: '', iban: { ib1: '', ib2: '', ib3: '', ib4: '', ib5: '', ib6: '', ib7: '' }, rib: { cb: '', cg: '', nc: '', cr: '', domiciliation: '' }, maxrib: '', taux: '' };
     this.currencyService.getRib(this.currency).subscribe(res => {
@@ -477,61 +243,19 @@ export class CaddiesComponent implements OnInit {
     });
   }
 
-  updateCaddies(idCmd, idElem, begin_date, end_date, begin_date_ref, end_date_ref, price, status = '') {
-    let valid = false;
-    let updt = {};
-    updt['idCmd'] = idCmd;
-    updt['idElem'] = idElem;
-    updt['totalHT'] = 0;
-    if (new Date(this.yyyymmdd(begin_date)) >= new Date(begin_date_ref) && new Date(this.yyyymmdd(begin_date)) <= new Date(this.yyyymmdd(end_date))) {
-      updt['begin_date'] = new Date(this.yyyymmdd(begin_date));
-      valid = true;
-    } else {
-      valid = true;
-    }
-    if (new Date(this.yyyymmdd(end_date)) <= new Date(end_date_ref) && new Date(this.yyyymmdd(begin_date)) <= new Date(this.yyyymmdd(end_date))) {
-      updt['end_date'] = new Date(this.yyyymmdd(end_date));
-      valid = true;
-    } else {
-      valid = true;
-    }
-    let diff = this.dateDiff(updt['begin_date'], updt['end_date']).day + 1;
-    if (diff < 20) {
-      updt['period'] = 20;
-      updt['ht'] = 20 * parseFloat(price);
-    } else {
-      updt['period'] = diff;
-      updt['ht'] = diff * parseFloat(price);
-    }
-    if (status !== '') {
-      updt['status'] = status;
-    }
-    if (valid) {
-      this.orderService.updtProductCaddy(updt).subscribe(() => {
-        this.cart = [];
-        this.getCaddy(this.user['_id']);
-      });
-    }
-  }
-  delCaddies(idCmd, idElem, ht, backfill_fee, ongoing_fee) {
-    this.totalFees = this.totalFees - backfill_fee - ongoing_fee;
-    this.totalHT = this.totalHT - ht;
-    this.orderService.delElemOrder({ id_cmd: idCmd, id_product: idElem, backfill_fee: backfill_fee, totalFees: this.totalFees, totalHT: this.totalHT }).subscribe(() => {
-      this.cart = [];
-      this.getCaddy(this.user['_id']);
+  delCaddies(id_undercmd) {
+    this.orderService.delElemOrder({ id_product: id_undercmd }).subscribe((res) => {
+      if (res['message'] == 'Order deleted') {
+        this.caddy = null;
+      }
+      else if (res['error']) {
+        console.log(`An error occured ${res['error']}`)
+      }
+      else {
+        this.getCaddy();
+      }
     });
   }
-  dateNGB(d) {
-    let dm = this.calenda.getToday();
-    let dsplit = d.split('-');
-    dm.year = parseInt(dsplit[0]);
-    dm.month = parseInt(dsplit[1]);
-    dm.day = parseInt(dsplit[2]);
-    return dm;
-  }
-
-
-  //Function Review
 
   // Function Licensing
 
@@ -544,36 +268,19 @@ export class CaddiesComponent implements OnInit {
   }
   termsCheckbox(element: HTMLInputElement): void {
     this.term = element.checked;
-    if (element.checked) {
-      sessionStorage.setItem('tc', JSON.stringify(this.term));
-    } else {
+    if (!element.checked) {
       sessionStorage.removeItem('surveyForm');
-      this.surveyForm = { dd: '', dt: '', du: { cb: [], other: '' } };
     }
   }
-  next() {
-    this.survey++;
-  }
-  previous() {
-    this.survey--;
-  }
   updtSurvey(event) {
-    this.surveyForm = event.value;
+    this.caddy.survey = event.value;
   }
   saveOrderView() {
-    this.orderService.updtCaddy({ idCmd: this.idCmd, state: 'PLI' }).subscribe(res => { });
-  }
-  saveSurvey() {
-    sessionStorage.setItem('surveyForm', JSON.stringify(this.surveyForm));
-    this.orderService.updtCaddy({ idCmd: this.idCmd, state: 'PBI', survey: this.surveyForm }).subscribe(res => { });
+    this.orderService.updtCaddy({ idCmd: this.caddy.id_cmd, state: 'PLI' }).subscribe(res => { });
   }
 
   //Function Billing
-  getCountry() {
-    this.countriesService.getCountries().subscribe(res => {
-      this.country = res.countries;
-    });
-  }
+
   saveBilling() {
     let modify = {};
     let billingCart = {};
@@ -594,106 +301,31 @@ export class CaddiesComponent implements OnInit {
       if (this.paymentchange) {
         modify['payment'] = this.user['payment'];
       }
-
-      billingCart['vatValide'] = this.checkv;
-      billingCart['vat'] = this.user['vat'];
-      billingCart['addressBilling'] = this.user['addressBilling'];
-      billingCart['cityBilling'] = this.user['cityBilling'];
-      billingCart['postalCodeBilling'] = this.user['postalCodeBilling'];
-      billingCart['countryBilling'] = this.user['countryBilling'];
-      if (this.addresschange) {
-        modify['checkvat'] = this.checkv;
-        modify['vat'] = this.user['vat'];
-        modify['addressBilling'] = this.user['addressBilling'];
-        modify['cityBilling'] = this.user['cityBilling'];
-        modify['postalCodeBilling'] = this.user['postalCodeBilling'];
-        modify['countryBilling'] = this.user['countryBilling'];
-        modify['token'] = this.user['token'];
-        this.userService.preferBilling(modify).subscribe(res => { });
-      }
-
-      for (let index = 0; index < this.cart.length; index++) {
-        this.cart[index].status = 'PSC';
-      }
-      this.orderService.updtCaddy({ idCmd: this.idCmd, state: 'PSC', billing: billingCart, cart: this.cart }).subscribe(res => { });
+      this.orderService.updtCaddy({ idCmd: this.caddy.id_cmd, state: 'PSC', billing: billingCart, cart: this.caddy.products }).subscribe(res => { });
     });
   }
 
   saveAmount() {
     this.orderService.updtCaddy({
-      idCmd: this.idCmd,
+      idCmd: this.caddy.id_cmd,
       state: 'PSC',
       totaux: {
-        totalExchangeFees: this.totalFeesUsd,
-        totalHT: this.totalHTUsd,
+        totalHT: this.caddy['totalHT'],
         currencyTx: this.rate,
         currencyTxUsd: this.currencyTxUsd,
         currency: this.currency,
-        totalTTC: this.precisionRound(this.totalTTCUsd, 2),
+        totalTTC: this.precisionRound(this.caddy.totalTTCUsd, 2),
       }
-    }).subscribe(res => { });
+    }).subscribe();
   }
-
-  sameAddress() {
-    if (this.user['sameAddress']) {
-      this.user['addressBilling'] = this.user['address'];
-      this.user['cityBilling'] = this.user['city'];
-      this.user['postalCodeBilling'] = this.user['postalCode'];
-      this.user['countryBilling'] = this.user['country'];
-    }
-    else {
-      this.user['addressBilling'] = this.oldAddressBilling['addressBilling'];
-      this.user['cityBilling'] = this.oldAddressBilling['cityBilling'];
-      this.user['postalCodeBilling'] = this.oldAddressBilling['postalCodeBilling'];
-      this.user['countryBilling'] = this.oldAddressBilling['countryBilling'];
-    }
-  }
-  changedAddress() {
-    if (this.oldAddressBilling) {
-      if (this.user['vat'] != this.oldAddressBilling['vat'])
-        return true;
-      if (this.user['addressBilling'] != this.oldAddressBilling['addressBilling'])
-        return true;
-      if (this.user['cityBilling'] != this.oldAddressBilling['cityBilling'])
-        return true;
-      if (this.user['postalCodeBilling'] != this.oldAddressBilling['postalCodeBilling'])
-        return true;
-      if (this.user['countryBilling'] != this.oldAddressBilling['countryBilling'])
-        return true;
-    }
-    return false;
-  }
-  checkVat() {
-    if (this.user['vat'] !== '' && this.user['vat']) {
-      let c = this.user['vat'].substring(0, 2);
-      let v = this.user['vat'].substring(2, this.user['vat'].length);
-      this.loadvat = 'form-control loading';
-      this.vatService.checkVat(c + '|' + v).subscribe(data => {
-        this.checkv = data.valid;
-        this.loadvat = 'form-control';
-      },
-        error => {
-          console.error(error);
-        });
-    }
-  }
-
-  //Function Order Confirmation
-  getRate() {
-    this.fluxService.rate({ currency: this.currency }).subscribe(res => {
-      this.rate = parseFloat(res.rate);
-      this.getCart();
-    });
-  }
-
   //Function Payment
   submitPayment() {
     // let user = JSON.parse(sessionStorage.getItem('user'));
     const that = this;
     this.orderService.payment({
       cart: {
-        idCmd: this.idCmd,
-        total: this.totalTTCUsd,
+        idCmd: this.caddy.id_cmd,
+        total: this.caddy.totalTTCUsd,
         vatValue: this.vat,
         currency: this.currency,
         currencyTx: this.rate,
@@ -726,19 +358,10 @@ export class CaddiesComponent implements OnInit {
   }
 
   submitRib() {
-    // this.pdfService.setPdf(this.cmd, this.user['id'], this.rib);
-    // this.pdfService.setHeader('', this.user['id'], this.numVat, '', '', this.id, this.currency);
-    // this.pdfService.setBillinAddress(companyName, address, cp, city, country);
-    // this.pdfService.link('QH-ORDER-'+ this.id);
-    // this.uploadService.pdfOrderFrom({
-    //   type: 'order',
-    //   id: this.id,
-    //   cmd: this.cmd,
-    //   token: this.user['token']
-    // }).subscribe(() => { });
+
     this.orderService.rib({
-      idCmd: this.idCmd,
-      total: this.totalTTCUsd,
+      idCmd: this.caddy.id_cmd,
+      total: this.caddy.totalTTCUsd,
       vatValue: this.vat,
       currency: this.currency,
       currencyTx: this.rate,
@@ -750,10 +373,8 @@ export class CaddiesComponent implements OnInit {
       sessionStorage.removeItem('surveyForm');
       this.surveyForm = { dd: '', dt: '', du: { cb: [], other: '' } };
       this.open();
-      // this.pdfService.header('', this.user['id'], this.numVat, '', '', this.id, this.currency);
-      // this.pdfService.link('QH-CMD-'+ this.id);
     });
-    this.orderService.sortProducts({ idCmd: this.idCmd }).subscribe(res => { });
+    this.orderService.sortProducts({ idCmd: this.caddy.id_cmd }).subscribe(res => { });
   }
 
   open() {
@@ -773,47 +394,65 @@ export class CaddiesComponent implements OnInit {
   getCurrency() {
     this.currencyService.getCurrencies().subscribe(res => {
       this.currencies = res.currencies;
-      // if(this.page === 'orderconfirm'){
       this.getSymbol();
-      // }
     });
   }
   getSymbol() {
     for (var i = 0; i < this.currencies.length; i++) {
-      if (this.currencies[i]['id'] === this.user['currency']) {
+      if (this.currencies[i]['id'] === this.currency) {
         this.symbol = this.currencies[i]['symbol'];
       }
       this.taux[this.currencies[i]['id']] = this.currencies[i]['taux'];
     }
   }
-  dateDiff(date1, date2) {
-    let diff = { sec: 0, min: 0, hour: 0, day: 0 };  // Initialisation du retour
-    let tmp = date2 - date1;
-    tmp = Math.floor(tmp / 1000);                     // Nombre de secondes entre les 2 dates
-    diff.sec = tmp % 60;                            // Extraction du nombre de secondes
-    tmp = Math.floor((tmp - diff.sec) / 60);            // Nombre de minutes (partie entière)
-    diff.min = tmp % 60;                            // Extraction du nombre de minutes
-    tmp = Math.floor((tmp - diff.min) / 60);            // Nombre d'heures (entières)
-    diff.hour = tmp % 24;                           // Extraction du nombre d'heures
-    tmp = Math.floor((tmp - diff.hour) / 24);           // Nombre de jours restants
-    diff.day = tmp;
-    return diff;
-  }
+
   searchCurrency(nameKey, myArray) {
-    for (var i = 0; i < myArray.length; i++) {
-      if (myArray[i].id === nameKey) {
-        return myArray[i];
-      }
-    }
+    return myArray.find(item => item.id == nameKey);
   }
-  yyyymmdd(d) {
-    var mm = d.month;
-    var dd = d.day;
-    return [d.year, (mm > 9 ? '' : '0') + mm, (dd > 9 ? '' : '0') + dd].join('-');
-  };
+
 
   precisionRound(number, precision) {
     var factor = Math.pow(10, precision);
     return Math.round(number * factor) / factor;
   }
+
+  DateChange(event) {
+    if (event.dateToChange == "begin_date") {
+      if (event.date.setHours(0, 0, 0, 0) >= new Date(event.product.begin_date_ref).setHours(0, 0, 0, 0) && event.date.setHours(0, 0, 0, 0) <= new Date(event.product.end_date).setHours(0, 0, 0, 0)) {
+        this.changetheDate(event.product.id_undercmd, event.dateToChange, event.date)
+      }
+      else {
+        event.product.begin_date = event.product.begin_date_ref
+      }
+    }
+    else {
+      if (event.date.setHours(0, 0, 0, 0) <= new Date(event.product.end_date_ref).setHours(0, 0, 0, 0) && event.date.setHours(0, 0, 0, 0) >= new Date(event.product.begin_date).setHours(0, 0, 0, 0)) {
+        this.changetheDate(event.product.id_undercmd, event.product, event.date)
+      }
+      else {
+        event.product.end_date = event.product.end_date_ref
+      }
+    }
+
+  }
+  changetheDate(idprod, dateTochange, date) {
+    this.orderService.updateProductDate({ idproduct: idprod, dateToChange: dateTochange, date: date }).subscribe((res) => {
+      if (res.error) {
+        console.log('an error occured' + res.error)
+      }
+      else {
+        this.getCaddy();
+      }
+    });
+  }
+  ChangeDefaultCurrency(event) {
+    this.IsChangeDefaultCurrency = event
+  }
+  ChangeCurrency(event) {
+    this.IsChangeCurrency = event
+  }
+  ChangeDefaultAdress(event) {
+    this.IsChangeDefaultAdress = event;
+  }
+
 }

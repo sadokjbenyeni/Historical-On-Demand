@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { routes } from './app.routing';
 import { NoopAnimationsModule, BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FileSelectDirective, FileDropDirective } from 'ng2-file-upload';
+import { MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 //Angular Material
 
 import { MatTableModule } from '@angular/material/table';
@@ -48,11 +49,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { GuardGuard } from './guard.guard';
 
 // Validate Form
-import { ShowErrorsComponent } from './show-errors.component';
-import { EmailValidatorDirective } from './validators/email-validator.directive';
 import { EqualValidatorDirective } from './validators/equal-validator.directive';
-import { TelephoneValidatorDirective } from './validators/telephone-validator.directive';
-import { MdpValidatorDirective } from './validators/mdp-validator.directive';
 // Components
 // All
 import { MenuComponent } from './components/menu/menu.component';
@@ -141,7 +138,6 @@ import { AdtvComponent } from './components/product/adtv/adtv.component';
 import { CallbackPipe } from './callback.pipe';
 import { ConfigElasticComponent } from './components/admin/config-elastic/config-elastic.component';
 import { PurchaseTypePipe } from './purchaseType.pipe';
-import { DateValidatorDirective } from './validators/date-validator.directive';
 import { SalesService } from './services/sales.service';
 import { MenusupportComponent } from './components/support/menusupport/menusupport.component';
 import { CommonModule } from '@angular/common';
@@ -150,6 +146,10 @@ import { CancelOrderDialogComponent } from './components/client/cancel-order-dia
 import { TokenInterceptor } from './interceptors/authentification/token.interceptor';
 import { DeliverablesService } from './services/deliverables.service';
 import { DownloadInvoiceService } from './services/Intern/download-invoice.service';
+import { CaddyTableComponent } from './components/order/caddies/caddy-table/caddy-table.component';
+import { BillingComponent } from './components/order/caddies/billing/billing.component';
+import { PriceComponent } from './components/order/caddies/price/price.component';
+import { PaymentComponent } from './components/order/caddies/payment/payment.component';
 // lazy loading
 
 @NgModule({
@@ -164,12 +164,7 @@ import { DownloadInvoiceService } from './services/Intern/download-invoice.servi
     UsersComponent,
     UserDetailComponent,
     UsersListComponent,
-    ShowErrorsComponent,
-    EmailValidatorDirective,
     EqualValidatorDirective,
-    TelephoneValidatorDirective,
-    MdpValidatorDirective,
-    DateValidatorDirective,
     ConfigurationComponent,
     VariableComponent,
     RoleComponent,
@@ -215,9 +210,14 @@ import { DownloadInvoiceService } from './services/Intern/download-invoice.servi
     OrderHistoryDetailsComponent,
     CancelOrderDialogComponent,
     FileSelectDirective,
+    CaddyTableComponent,
+    BillingComponent,
+    PriceComponent,
+    PaymentComponent,
   ],
   entryComponents: [NgbdModalContent],
   imports: [
+
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,

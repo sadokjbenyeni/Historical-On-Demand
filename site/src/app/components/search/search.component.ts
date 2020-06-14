@@ -182,7 +182,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.search = this.dataset.title;
     this.user = JSON.parse(sessionStorage.getItem('user'));
     this.getInfoUser(this.user['token']);
-    this.getCaddy(this.user['_id']);
+    this.getCaddy();
     this.exchanges = [];
     this.assets = [];
     this.tabsearch = 'instrument';
@@ -275,12 +275,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getCaddy(iduser) {
-    this.orderService.getCaddies({ id: iduser }).subscribe((c) => {
+  getCaddy() {
+    this.orderService.getCaddy().subscribe((caddy) => {
       this.caddies = [];
-      if (c.cmd.length > 0) {
-        c.cmd.forEach((cmd) => {
-          cmd.products.forEach((p) => {
+      if (caddy) {
+        caddy.products.forEach((p) => {
             let prod = {
               id: p.idx,
               quotation_level: p.dataset,
@@ -298,7 +297,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
             };
             this.caddies.push(prod);
           });
-        });
       }
     });
   }
@@ -795,7 +793,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     }
   }
 
-
   dateChangeFrom() {
     let convOneTimeFrom = new Date();
     let convOneTimeTo = new Date();
@@ -1089,7 +1086,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   verifExist(p) {
     let resp = false;
-    if (this.caddies.length > 0) {
+    if (this.caddies) {
       this.caddies.forEach(cp => {
         if (p.quotation_level === cp['quotation_level'] &&
           p.idx === cp['id'] &&

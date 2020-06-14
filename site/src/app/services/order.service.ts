@@ -30,6 +30,9 @@ export class OrderService {
   updateOrder(order) {
     return this.http.put<any>(environment.api + '/order/update', order);// .map( res => res.json() );
   }
+  updateProductDate(order) {
+    return this.http.put<any>(environment.api + '/order/updateProductDate', order);// .map( res => res.json() );
+  }
 
   updtProductCaddy(order) {
     return this.http.put<any>(environment.api + '/order/updtProductCaddy', order);// .map( res => res.json() );
@@ -70,8 +73,11 @@ export class OrderService {
     return this.http.post<any>(environment.api + '/order/listExport', requete);// .map( res => res.json() );
   }
 
-  getCaddies(user) {
-    return this.http.post<any>(environment.api + '/order/caddies', user);// .map( res => res.json() );
+  getCaddies() {
+    return this.http.get<any>(environment.api + '/order/caddies');// .map( res => res.json() );
+  }
+  getCaddy() {
+    return this.http.get<any>(environment.api + '/order/caddy');// .map( res => res.json() );
   }
 
   getListStates(requete) {
