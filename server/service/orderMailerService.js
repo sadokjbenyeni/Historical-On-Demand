@@ -2,6 +2,7 @@ const config = require('../config/config.js');
 const domain = config.domain();
 const SMTP = config.smtpconf();
 const nodemailer = require("nodemailer");
+const loggerFactory = require('../../logger');
 
 const smtpTransport = nodemailer.createTransport({
     host: SMTP.host,
@@ -11,11 +12,11 @@ const smtpTransport = nodemailer.createTransport({
     debug: SMTP.debug
   });
 
-module.exports = function (logger, order) {    
+module.exports = function (logger, order) {
   this.logger = logger;
   this.order = order;
 
-  this.newOrder = function(email)
+  this.newOrder = async function(email)
   {
     let date = this.order.submissionDate;
     if(this.order.paymentdate)
@@ -45,12 +46,12 @@ module.exports = function (logger, order) {
         <br><br>
         <b>Thank you,<br>Quanthouse</b>`
       };
-      smtpTransport.sendMail(mailOptions, (error, info) => {
-        this.logger.debug({ message: JSON.stringify(info), className: 'Order Mailer Service'});
+      // let loggerPersitent = this.logger;
+      await smtpTransport.sendMail(mailOptions, (error, info) => {        
         if (error) {
-          this.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
-          this.logger.error({ message: JSON.stringify(error), className:'Order Mailer Service'});
-          throw error;
+          var loggerP = new loggerFactory().createLogger('MAILER');
+          loggerP.error({ message: error.message, className: 'Order Mailer Service' });
+          loggerP.error({ message: error.stack, className:'Order Mailer Service'});
         }
         return true;
       });
@@ -82,10 +83,10 @@ module.exports = function (logger, order) {
       </ul>`
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {
-      this.logger.debug({ message: JSON.stringify(info), className: 'Order Mailer Service'});
       if (error) {
-        this.logger.error({ className: 'Order Mailer Service' });
-        this.logger.error({ message: JSON.stringify(error), className:'Order Mailer Service'});
+        var loggerP = new loggerFactory().createLogger('MAILER');
+        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
+        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
         return false;
       }
       return true;
@@ -114,11 +115,11 @@ module.exports = function (logger, order) {
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
-        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
-        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
+        var loggerP = new loggerFactory().createLogger('MAILER');
+        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
+        loggerP.error({ message: error.stack, className: 'Order Mailer Service'});
         return console.log(error);
       }
-      return res.status(200).json({ mail: true });
     });
   }
 
@@ -145,11 +146,11 @@ module.exports = function (logger, order) {
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
-        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
-        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
+        var loggerP = new loggerFactory().createLogger('MAILER');
+        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
+        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
         return console.log(error);
       }
-      return res.status(200).json({ mail: true });
     });
   }
 
@@ -174,11 +175,11 @@ module.exports = function (logger, order) {
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
-        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
-        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
+        var loggerP = new loggerFactory().createLogger('MAILER');
+        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
+        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
         return console.log(error);
       }
-      return res.status(200).json({ mail: true });
     });
   }
 
@@ -212,11 +213,10 @@ module.exports = function (logger, order) {
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
-        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
-        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
+        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
+        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
         return console.log(error);
       }
-      return res.status(200).json({ mail: true });
     });
   }
 
@@ -256,9 +256,8 @@ module.exports = function (logger, order) {
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
-        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
-        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
-        throw error;
+        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
+        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
       }
     });
   }
@@ -285,9 +284,9 @@ module.exports = function (logger, order) {
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
-        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
-        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
-        throw error;
+        var loggerP = new loggerFactory().createLogger('MAILER');
+        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
+        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
       }
     });
   }
@@ -313,11 +312,10 @@ module.exports = function (logger, order) {
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
-        req.logger.error({ message: err.message, className: 'Order Mailer Service', error: error });
-        req.logger.error({ message: JSON.stringify(error), className: 'Order Mailer Service'});
-        return console.log(error);
+        var loggerP = new loggerFactory().createLogger('MAILER');
+        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
+        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
       }
-      return res.status(200).json({ mail: true });
     });
   }
 }

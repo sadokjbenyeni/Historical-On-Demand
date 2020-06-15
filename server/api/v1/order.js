@@ -72,7 +72,7 @@ router.post('/verify', (req, res) => {
     let log = body;
     log.date = new Date();
 
-    autoValidation(body.merchantReference, log, body, res);
+    autoValidation(body.merchantReference, log, body, res, req.logger);
   });
 });
 
@@ -99,17 +99,7 @@ router.post('/logPayement', (req, res) => {
 });
 
 router.post('/rib', (req, res) => {
-  // Order.updateOne( { id_cmd: req.body.idCmd }, { $set:{
-  //   total: req.body.total,
-  //   vatValue: req.body.vatValue,
-  //   currency: req.body.currency,
-  //   currencyTx: req.body.currencyTx,
-  //   currencyTxUsd: req.body.currencyTxUsd
-  //  } } )
-  // .then((r)=>{
-
   autoValidation(req.body.idCmd, { token: req.body.token, email: req.body.email, payment: 'RIB', date: new Date() }, { ok: true }, res, req.logger);
-  // });
 });
 
 
@@ -305,13 +295,13 @@ router.put('/state', async (req, res) => {
     await UpdateStateCompliance(updt, corp, req);
   }
   if (req.body.referer === 'Product') {
-    try{
+    try {
       await UpdateStateProduct(updt, req, corp);
     }
-    catch(err){
-      req.logger.error({ message: JSON.stringify(err), className: 'Order API'});
-      req.logger.error({ message: JSON.stringify(error), className:'Order API'});
-      return res.status(503).json({message: 'An error has been thrown, please contact support with \''+req.loggerToken+"'"});
+    catch (err) {
+      req.logger.error({ message: JSON.stringify(err), className: 'Order API' });
+      req.logger.error({ message: JSON.stringify(error), className: 'Order API' });
+      return res.status(503).json({ message: 'An error has been thrown, please contact support with \'' + req.loggerToken + "'" });
     }
   }
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
@@ -406,8 +396,14 @@ router.put('/state', async (req, res) => {
       "email": req.body.email,
       "idCmd": req.body.id
     };
-    var mailer = new OrderMailService(req.logger, { id: req.body.id });
-    mailer.orderValidated(corp);
+    try {
+      var mailer = new OrderMailService(req.logger, { id: req.body.id });
+      mailer.orderValidated(corp);
+    }
+    catch (error) {
+      logger.error({ message: error.message, className: "Order API" });
+      logger.error({ message: error.stack, className: "Order API" });
+    }
   }
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
     req.logger.info("validating order...");
@@ -431,11 +427,11 @@ router.put('/state', async (req, res) => {
             res.status(201).json({ ok: true });
           });
       });
-      Order.findOne({ id: id }).then(order => {
-        return res.status(200).json({
-          ok: InvoiceService.insertInvoice(order._id, order.id_cmd, order.idUser)
-        });
-      })
+      // Order.findOne({ id: id }).then(order => {
+      //   return res.status(200).json({
+      //     ok: InvoiceService.insertInvoice(order._id, order.id_cmd, order.idUser)
+      //   });
+      // })
     });
   }
   else {
@@ -586,7 +582,7 @@ router.put('/update', async (request, res) => {
     }
     catch (error) {
       request.logger.error({ message: error.message, error: error, className: 'Order API' });
-      request.logger.error({ message: JSON.stringify(error), className:'Order API'});
+      request.logger.error({ message: JSON.stringify(error), className: 'Order API' });
       return res.status(503).json({ message: "Unhandle exception, please contact support with '" + request.headers.loggerToken + "' identifier" });
     }
     return res.status(201).json({ ok: true });
@@ -687,7 +683,7 @@ router.get('/details/:id', async (req, res) => {
   }
   catch (error) {
     req.logger.error({ message: error.message, className: "Order API" });
-    req.logger.error({ message: JSON.stringify(error), className:'Order API'});
+    req.logger.error({ message: JSON.stringify(error), className: 'Order API' });
     // console.error("[" + req.headers.loggerToken + "] unhandle exception: " + error);
     return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
   }
@@ -853,7 +849,7 @@ router.post('/list', async (req, res) => {
       .exec();
   } catch (error) {
     req.logger.error({ message: error.message, className: "Order API" });
-    req.logger.error({ message: JSON.stringify(error), className:'Order API'});
+    req.logger.error({ message: JSON.stringify(error), className: 'Order API' });
     // console.error("["+req.headers.loggerToken + "] unhandle exception: " + error); 
     return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
   }
@@ -991,26 +987,16 @@ buildSearch = function (req) {
 }
 
 pdfpost = async function (id, logger) {
-  // logger.info({message: "invoice creating....", className: 'Order API'});
-  // let options = {
-  //   url: LOCALDOMAIN + '/api/pdf',
-  //   headers: {
-  //     'content-type': 'application/json',
-  //   },
-  //   body: {
-  //     id: id
-  //   },
-  //   json: true
-  // };
-
-  // request.post(options, function (error, response, body) {
-  //   if (error){
-  //     logger.error({message: "Error during invoice creation. " + error.message, className: 'Order API'});
-  //     throw new Error(error);
-  //   }
-  // });
-  var order = await Order.findOne({ id: id}).exec();
-  await new OrderPdfService(order, logger).createInvoicePdf();
+  try {
+    var order = await Order.findOne({ id: id }).exec();
+    await new OrderPdfService(order).createInvoicePdf(logger);
+  }
+  catch (error) {
+    logger.error({ message: error.message, className: "Order API" });
+    logger.error({ message: error.stack, className: "Order API" });
+    return false;
+  }
+  return true;
 };
 
 Date.prototype.previousDay = function () {
@@ -1210,11 +1196,11 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
     if (order.state === "PVP") {
       logger.info("PVP autovalidation");
       // Envoi email aux products
-       autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger);
+      autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger);
     }
     if (order.state === "PVF") {
       logger.info("PVF autovalidation");
-       autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment, logger);
+      autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment, logger);
     }
     // var updateStatus = await Order.updateOne({ id_cmd: idCmd },
     //   {
@@ -1230,23 +1216,23 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
     //   }).exec();
     //   return res.status(201).json(updateStatus);
     return Order.updateOne({ id_cmd: idCmd },
-        {
-          $push: {
-            logsPayment: logsPayment,
-            logs: log
-          },
-          $set: {
-            validationCompliance: order.validationCompliance,
-            submissionDate: new Date(),
-            state: order.state
-          }
-        })
-        .then(updateStatus => res.status(201).json(updateStatus));
+      {
+        $push: {
+          logsPayment: logsPayment,
+          logs: log
+        },
+        $set: {
+          validationCompliance: order.validationCompliance,
+          submissionDate: new Date(),
+          state: order.state
+        }
+      })
+      .then(updateStatus => res.status(201).json(updateStatus));
   });
 };
 
 async function UpdateStateProduct(orderUpdate, req, corp) {
-  req.logger.info({message: 'updating state product...'});
+  req.logger.info({ message: 'updating state product...' });
   orderUpdate.validationProduct = true;
   orderUpdate.reason = req.body.reason;
   corp = {
@@ -1261,39 +1247,57 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
   let eids = [];
   if (req.body.status === "cancelled") {
     await Pool.remove({ id: req.body.idCmd.split("-")[0] }).exec()
-    return true;  
+    return true;
   }
   if (req.body.status === 'rejected') {
-    var mailer = new OrderMailService(req.logger, order);
-    corp.reason = "order is rejected by the system"; // generic message
-    if(req.body.reason){
-      corp.reason = req.body.reason;
+    try {
+      var mailer = new OrderMailService(req.logger, order);
+      corp.reason = "order is rejected by the system"; // generic message
+      if (req.body.reason) {
+        corp.reason = req.body.reason;
+      }
+      mailer.orderRejected(corp);
     }
-    mailer.orderRejected(corp);
+    catch (error) {
+      logger.error({ message: error.message, className: "Order API" });
+      logger.error({ message: error.stack, className: "Order API" });
+    }
     return true;
   }
   if (req.body.status === 'cancelled') {
-    var mailer = new OrderMailService(req.logger, order);
-    mailer.orderCancelled(corp);
+    try {
+      var mailer = new OrderMailService(req.logger, order);
+      mailer.orderCancelled(corp);
+    }
+    catch (error) {
+      logger.error({ message: error.message, className: "Order API" });
+      logger.error({ message: error.stack, className: "Order API" });
+    }
     return true;
   }
   order.products.forEach(p => {
     eids.push(p.eid);
   });
-  req.logger.info({message: 'sending email...'});
+  req.logger.info({ message: 'sending email...' });
   if (req.body.status !== "cancelled") {
-    var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();      
+    var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
     var mailer = new OrderMailService(req.logger, order);
     users.forEach(user => {
-      mailer.newOrderHod(user.email, 
-                         user.firstname, 
-                         user.lastname, 
-                         "Finance", 
-                         eids.join(),
-                         totalttc(order),
-                         order.submissionDate.toString());
+      try {
+        mailer.newOrderHod(user.email,
+          user.firstname,
+          user.lastname,
+          "Finance",
+          eids.join(),
+          totalttc(order),
+          order.submissionDate.toString());
+      }
+      catch (error) {
+        logger.error({ message: error.message, className: "Order API" });
+        logger.error({ message: error.stack, className: "Order API" });
+      }
     });
-    req.logger.info({message: 'email sent'});    
+    req.logger.info({ message: 'email sent' });
   }
 }
 
@@ -1313,13 +1317,19 @@ async function UpdateStateCompliance(updt, corp, req) {
   });
   var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
   users.forEach(user => {
-    mailer.newOrderHod(user.email, 
-      user.firstname, 
-      user.lastname, 
-      "Product", 
+    try{
+    mailer.newOrderHod(user.email,
+      user.firstname,
+      user.lastname,
+      "Product",
       order.eid.join(),
       totalttc(order),
       order.submissionDate.toString());
+    }
+    catch (error) {
+      logger.error({ message: error.message, className: "Order API" });
+      logger.error({ message: error.stack, className: "Order API" });
+    }
   });
 }
 
@@ -1328,31 +1338,43 @@ function autoValidationOrderStatePendingValidationByFinance(corp, order, logsPay
   User.find({ roleName: "Finance" }, { email: true, _id: false }).then(users => {
     var mailer = new OrderMailService(logger, order);
     users.forEach(user => {
-      mailer.newOrderHod(user.email, 
-                        user.firstname, 
-                        user.lastname, 
-                        "Finance", 
-                        order.eid.join(),
-                        totalttc(order),
-                        order.submissionDate.toString());
+      try {
+        mailer.newOrderHod(user.email,
+          user.firstname,
+          user.lastname,
+          "Finance",
+          order.eid.join(),
+          totalttc(order),
+          order.submissionDate.toString());
+      }
+      catch (error) {
+        logger.error({ message: error.message, className: "Order API" });
+        logger.error({ message: error.stack, className: "Order API" });
+      }
     });
-    req.logger.info({message: 'new order hod email sent'});
+    req.logger.info({ message: 'new order hod email sent' });
   });
 }
 
- function autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger) {
+function autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger) {
   // var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
   User.find({ roleName: "Product" }, { email: true, _id: false }).then(users => {
     var mailer = new OrderMailService(logger, order);
-      users.forEach(user => {
-        mailer.newOrderHod(user.email, 
-                          user.firstname, 
-                          user.lastname, 
-                          "Product", 
-                          order.eid.join(),
-                          totalttc(order),
-                          order.submissionDate.toString());
-      });
+    users.forEach(user => {
+      try {
+        mailer.newOrderHod(user.email,
+          user.firstname,
+          user.lastname,
+          "Product",
+          order.eid.join(),
+          totalttc(order),
+          order.submissionDate.toString());
+      }
+      catch (error) {
+        logger.error({ message: error.message, className: "Order API" });
+        logger.error({ message: error.stack, className: "Order API" });
+      }
+    });
   });
 }
 
@@ -1360,26 +1382,38 @@ function autovalidationOrderStateIsPendingValidationByCompliance(corp, order, lo
   // var users = await User.find({ roleName: "Compliance" }, { email: true, _id: false }).exec();
   User.find({ roleName: "Compliance" }, { email: true, _id: false }).then(users => {
     var mailer = new OrderMailService(logger, order);
-      users.forEach(user => {
-        mailer.newOrderHod(user.email, 
-                          user.firstname, 
-                          user.lastname, 
-                          "Compliance", 
-                          order.eid.join(),
-                          totalttc(order),
-                          order.submissionDate.toString());
-      });
+    users.forEach(user => {
+      try {
+        mailer.newOrderHod(user.email,
+          user.firstname,
+          user.lastname,
+          "Compliance",
+          order.eid.join(),
+          totalttc(order),
+          order.submissionDate.toString());
+      }
+      catch (error) {
+        logger.error({ message: error.message, className: "Order API" });
+        logger.error({ message: error.stack, className: "Order API" });
+      }
+    });
   });
 }
 
 function autoValidationOrderStateIsPSC(corp, order, logsPayment, url, log, logger) {
-  var mailer = new OrderMailService(logger, order);
-  mailer.newOrder(order.email);
+  try {
+    var mailer = new OrderMailService(logger, order);
+    mailer.newOrder(order.email);
+  }
+  catch (error) {
+    logger.error({ message: error.message, className: "Order API" });
+    logger.error({ message: error.stack, className: "Order API" });
+  }
   order.products.forEach(product => {
     if (((product.historical_data
-      && (product.historical_data.backfill_agreement 
-          || product.historical_data.backfill_applyfee))
-          || order.survey[0].dd === "1") 
+      && (product.historical_data.backfill_agreement
+        || product.historical_data.backfill_applyfee))
+      || order.survey[0].dd === "1")
       && product.onetime === 1) {
       order.state = 'PVC';
       log.status = 'PVC';

@@ -26,7 +26,7 @@ module.exports.getLinks = async (user, order, logger) => {
     var result = products.map(product => 
         {
             logger.debug({message: 'product: ' + product.id_undercmd + ' => links: ' + JSON.stringify(product.links), className: 'Order Service'});
-            if (product.subscription == 1) {                
+            if (product.subscription === 1) {                
                 product.links = [product.links.filter(link => link !== undefined && link.status === "active" && link.links !== undefined && link.links.length > 0).pop()];
                 //link.links = [link.links[0]];
             }
@@ -37,7 +37,7 @@ module.exports.getLinks = async (user, order, logger) => {
                         .reduce((left, right) => left.concat(right))
                         .map(links => links.link.split('|').map(elem => dnwfile + '/api/user/download/' + user.token + '/' + product.id_undercmd + '/' + elem));                                                                            
         });
-    logger.debug({message: 'result: '+ JSON.stringify(result), className: 'Order Service'}); 
+    logger.info({message: 'result: '+ JSON.stringify(result), className: 'Order Service'}); 
     return result[0];
 }
 

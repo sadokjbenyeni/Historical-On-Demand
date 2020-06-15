@@ -302,7 +302,8 @@ export class OrderHistoryDetailsComponent implements OnInit {
   downloadLinks() {
     let fileName = this.idOrder + "_Manifest";
     let downloadablelinks = [];
-    this.deliverablesService.getLinks(this.idOrder).subscribe(productslinks => {
+    this.deliverablesService.getLinks(this.idOrder)
+                            .subscribe(productslinks => {
       productslinks.forEach(links => {
         links.forEach(link => {
           downloadablelinks.push(link);
