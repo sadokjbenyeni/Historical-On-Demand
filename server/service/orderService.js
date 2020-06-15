@@ -22,10 +22,12 @@ module.exports.getLinks = async (user, order, logger) => {
     }
     logger.info({message: 'getting links...: ' + order.id, className: 'Order Service'});
     var products = order.products.filter(product => product !== undefined);    
-    products = products.filter(product => product.links !== undefined && product.links.length > 0);    
+    products = products.filter(product => product.links !== undefined && product.links.length > 0);
+    logger.warn({message: JSON.stringify(products), className: 'Order Service'});
     var result = products.map(product => 
         {
             logger.debug({message: 'product: ' + product.id_undercmd + ' => links: ' + JSON.stringify(product.links), className: 'Order Service'});
+            logger.warn({message: JSON.stringify(product), className: 'Order Service'});
             if (product.subscription === 1) {                
                 product.links = [product.links.filter(link => link !== undefined && link.status === "active" && link.links !== undefined && link.links.length > 0).pop()];
                 //link.links = [link.links[0]];
@@ -36,9 +38,10 @@ module.exports.getLinks = async (user, order, logger) => {
                         .map(linkObj => linkObj.links.filter(element => element && element.link !== undefined))
                         .reduce((left, right) => left.concat(right))
                         .map(links => links.link.split('|').map(elem => dnwfile + '/api/user/download/' + user.token + '/' + product.id_undercmd + '/' + elem));                                                                            
-        });
+        })
+        .map(master => master.reduce((left, right) => left.concat(right)));
     logger.info({message: 'result: '+ JSON.stringify(result), className: 'Order Service'}); 
-    return result[0];
+    return result;
 }
 
 
