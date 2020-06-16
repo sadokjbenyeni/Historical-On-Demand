@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const request = require("request");
 const mongoose = require('mongoose');
-
+const invoiceDirectory = require('../../config/config.js').InvoiceDirectory();
 var path = require('path');
 var fs = require('fs');
 var pdfMake = require('pdfmake/src/printer');
@@ -14,7 +14,7 @@ const http = require('http');
 const config = require('../../config/config.js');
 const DOMAIN = config.domain();
 const LOCALDOMAIN = config.localdomain();
-const PdfService = require('../../service/pdfService');
+const OrderPdfService = require('../../service/orderPdfService');
 
 router.post('/', async (req, res) => {
   if (!req.headers.authorization) {
@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
     return res.status(403).json({ message: "Access denied. Please contact support with identifier: [" + req.headers.loggerToken + "]" });
   }
   try {
-    await new PdfService().generateInvoice(order.id, log);
+    await new OrderPdfService().generateInvoice(order.id, log);
   }
   catch (error) {
     req.logger.error({ error: error, message: error.message, className: "PDF API" });
@@ -149,14 +149,11 @@ pdf = function (logger, cmd, currency, user, country) {
   //Création du document PDF
   let pdfDoc = printer.createPdfKitDocument(invoice);
 
-  var dir = 'files/invoice';
-  // if (clientAddress() == DOMAIN) {
-  //   dir = "/mapr/client_invoices"
-  // }
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+  var directory = invoiceDirectory;
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
   }
-  pdfDoc.pipe(fs.createWriteStream(path.join(dir, cmd.idCommande + '.pdf')));
+  pdfDoc.pipe(fs.createWriteStream(path.join(directory, invoiceId + '.pdf')));
   pdfDoc.end();
 };
 

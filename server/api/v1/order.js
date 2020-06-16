@@ -426,7 +426,7 @@ router.put('/state', async (req, res) => {
     await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } }).exec()
     // .then((r) => {
     req.logger.info("Order updated");
-    var order = await Order.findOne({ id: id }).exec();
+    var order = await Order.findOne({ id: req.body.id }).exec();
     try {
       await new OrderPdfService(order).createInvoicePdf(req.logger, updt.idCommande);
       await InvoiceService.insertInvoice(order.id, updt.idCommande, order.idUser);

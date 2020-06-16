@@ -112,7 +112,7 @@ app.set('port', port);
 
 var server = app.listen(port, function () {
   logger.info({ message: `API running on localhost:${server.address().port}`, className: "Server" });
-  logger.info({ message: "HoD web site backend available in "+ Config.environment(), className: "Server" });
+  logger.info({ message: "HoD web site backend available in " + Config.environment(), className: "Server" });
   logger.close();
 });
 

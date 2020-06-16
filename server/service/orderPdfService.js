@@ -6,7 +6,7 @@ var pdfMake = require('pdfmake/src/printer');
 const User = mongoose.model('User');
 const Currency = mongoose.model('Currency');
 const Countrie = mongoose.model('Countrie');
-
+const invoiceDirectory = require('../config/config.js').InvoiceDirectory();
 const config = require('../config/config.js');
 const DOMAIN = config.domain();
 
@@ -131,11 +131,11 @@ module.exports = function (order) {
     //Création du document PDF
     let pdfDoc = printer.createPdfKitDocument(invoice);
 
-    var dir = 'files/invoice';
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+    var directory = invoiceDirectory;
+    if (!fs.existsSync(directory)) {
+      fs.mkdirSync(directory, { recursive: true });
     }
-    pdfDoc.pipe(fs.createWriteStream(path.join(dir, invoiceId + '.pdf')));
+    pdfDoc.pipe(fs.createWriteStream(path.join(invoiceDirectory, invoiceId + '.pdf')));
     pdfDoc.end();
   };
 

@@ -1,11 +1,16 @@
 // Access for Jobs
-exports.rtconfig = () => { const urls = [ "192.168.10.10" ]; }
+exports.rtconfig = () => { const urls = ["192.168.10.10"]; }
 
 // Domain of site
 exports.domain = () => { return "https://hod-lab.quanthouse.com"; }
 
 exports.localdomain = () => { return "http://gateway01.hod-lab.quanthouse.com"; }
 
+exports.localhost = () => { return "localhost:4200" }
+exports.InvoiceDirectory = () => {
+    if (this.domain) return "files/invoice/";
+    else if (this.localdomain) return "/mapr/client_invoices/";
+}
 // IPs ElastcSearch
 exports.hostsES = () => { return ['10.0.10.102:9200']; }
 
@@ -17,7 +22,7 @@ exports.smtpconf = () => {
         host: 'quanthouse-com.mail.protection.outlook.com',
         port: 25,
         secure: false,
-        tls: { rejectUnauthorized: false},
+        tls: { rejectUnauthorized: false },
         debug: false
     };
 }
@@ -67,6 +72,6 @@ exports.config = () => {
 // 			emailAdm.push(e.email);
 // 		});
 // 	});
-	
+
 // 	return emailAdm;
 // }
