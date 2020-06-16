@@ -67,12 +67,12 @@ router.post('/verify', (req, res) => {
     }, json: true
   };
 
-  request.post(options, function (error, response, body) {
+  request.post(options, async function (error, response, body) {
     if (error) throw new Error(error);
     let log = body;
     log.date = new Date();
 
-    autoValidation(body.merchantReference, log, body, res, req.logger);
+    await autoValidation(body.merchantReference, log, body, res, req.logger);
   });
 });
 
@@ -98,8 +98,16 @@ router.post('/logPayement', (req, res) => {
   });
 });
 
-router.post('/rib', (req, res) => {
-  autoValidation(req.body.idCmd, { token: req.body.token, email: req.body.email, payment: 'RIB', date: new Date() }, { ok: true }, res, req.logger);
+router.post('/rib', async (req, res) => {
+  req.logger.info({ message: "rib is calling...", className: 'Order API' });
+  try {
+    await autoValidation(req.body.idCmd, { token: req.body.token, email: req.body.email, payment: 'RIB', date: new Date() }, { ok: true }, res, req.logger);
+    return res.status(200).json({ message: 'Order is submitted' });
+  }
+  catch (error) {
+    req.logger.error({ message: error.message + '\n' + error.stack, className: 'Order API' });
+    return res.status(503).json("An error has been raised, please contact support with identifier error: '" + req.headers.tokenLogger + "'");
+  }
 });
 
 
@@ -397,7 +405,7 @@ router.put('/state', async (req, res) => {
     };
     try {
       var mailer = new OrderMailService(req.logger, { id: req.body.id });
-      mailer.orderValidated(corp);
+      await mailer.orderValidated(corp);
     }
     catch (error) {
       logger.error({ message: error.message, className: "Order API" });
@@ -406,38 +414,38 @@ router.put('/state', async (req, res) => {
   }
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
     req.logger.info("validating order...");
-    Config.findOne({ id: "counter" }).then((cnt) => {
+    var cnt = await Config.findOne({ id: "counter" }).exec(); //.then((cnt) => {
 
-      let id = cnt.value;
-      let prefix = "QH_HISTO_";
-      let nbcar = 7;
-      let idnew = id + 1;
-      let nbid = nbcar - idnew.toString().length;
-      for (let i = 0; i < nbid; i++) {
-        prefix += "0";
-      }
-      updt.idCommande = prefix + idnew.toString();
-      req.logger.info("id commande: " + updt.idcommande);
-      Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).then(() => {
-        Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } })
-          .then((r) => {
-            req.logger.info("Order updated");
-            pdfpost(req.body.id, req.logger);
-            res.status(201).json({ ok: true });
-          });
-      });
-      // Order.findOne({ id: id }).then(order => {
-      //   return res.status(200).json({
-      //     ok: InvoiceService.insertInvoice(order._id, order.id_cmd, order.idUser)
-      //   });
-      // })
-    });
+    let id = cnt.value;
+    let prefix = "QH_HISTO_";
+    let nbcar = 7;
+    let idnew = id + 1;
+    let nbid = nbcar - idnew.toString().length;
+    for (let i = 0; i < nbid; i++) {
+      prefix += "0";
+    }
+    updt.idCommande = prefix + idnew.toString();
+    req.logger.info("id commande: " + updt.idcommande);
+    await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec(); //.then(() => {
+    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } }).exec()
+    // .then((r) => {
+    req.logger.info("Order updated");
+    await pdfpost(req.body.id, req.logger);
+    res.status(201).json({ ok: true });
+    //     });
+    // });
+    // Order.findOne({ id: id }).then(order => {
+    //   return res.status(200).json({
+    //     ok: InvoiceService.insertInvoice(order._id, order.id_cmd, order.idUser)
+    //   });
+    // })
+    // });
   }
   else {
-    Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } })
-      .then((r) => {
-        res.status(201).json({ ok: true });
-      });
+    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } }).exec();
+    // .then((r) => {
+    return res.status(201).json({ ok: true });
+    // });
   }
 });
 
@@ -1171,58 +1179,58 @@ ComputeTotalTtcUsd = function (order) {
 
 autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   let log = {};
-  // var order = await Order.findOne({ id_cmd: idCmd }).exec();
-  Order.findOne({ id_cmd: idCmd }).then(order => {
-    log.date = new Date();
-    let eids = [];
-    let corp = {};
-    order.products.forEach(product => { eids.push(product.eid); });
-    if (order.state === 'PSC') {
-      logger.info("PSC autovalidation");
-      autoValidationOrderStateIsPSC(corp, order, logsPayment, log, logger);
-    }
-    order.eid = eids;
-    if (order.state === "PVC") {
-      logger.info("PVC autovalidation");
-      // Envoi email aux compliances
-      autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment, logger);
-    }
-    if (order.state === "PVP") {
-      logger.info("PVP autovalidation");
-      // Envoi email aux products
-      autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger);
-    }
-    if (order.state === "PVF") {
-      logger.info("PVF autovalidation");
-      autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment, logger);
-    }
-    // var updateStatus = await Order.updateOne({ id_cmd: idCmd },
-    //   {
-    //     $push: {
-    //       logsPayment: logsPayment,
-    //       logs: log
-    //     },
-    //     $set: {
-    //       validationCompliance: order.validationCompliance,
-    //       submissionDate: new Date(),
-    //       state: order.state
-    //     }
-    //   }).exec();
-    //   return res.status(201).json(updateStatus);
-    return Order.updateOne({ id_cmd: idCmd },
-      {
-        $push: {
-          logsPayment: logsPayment,
-          logs: log
-        },
-        $set: {
-          validationCompliance: order.validationCompliance,
-          submissionDate: new Date(),
-          state: order.state
-        }
-      })
-      .then(updateStatus => res.status(201).json(updateStatus));
-  });
+  var order = await Order.findOne({ id_cmd: idCmd }).exec();
+  // Order.findOne({ id_cmd: idCmd }).then(order => {
+  log.date = new Date();
+  let eids = [];
+  let corp = {};
+  order.products.forEach(product => { eids.push(product.eid); });
+  if (order.state === 'PSC') {
+    logger.info({ message: "PSC autovalidation", className: "Order API" });
+    await autoValidationOrderStateIsPSC(order, log, logger);
+  }
+  order.eid = eids;
+  if (order.state === "PVC") {
+    logger.info("PVC autovalidation");
+    // Envoi email aux compliances
+    await autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment, logger);
+  }
+  if (order.state === "PVP") {
+    logger.info("PVP autovalidation");
+    // Envoi email aux products
+    await autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger);
+  }
+  if (order.state === "PVF") {
+    logger.info("PVF autovalidation");
+    await autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment, logger);
+  }
+  // var updateStatus = await Order.updateOne({ id_cmd: idCmd },
+  //   {
+  //     $push: {
+  //       logsPayment: logsPayment,
+  //       logs: log
+  //     },
+  //     $set: {
+  //       validationCompliance: order.validationCompliance,
+  //       submissionDate: new Date(),
+  //       state: order.state
+  //     }
+  //   }).exec();
+  //   return res.status(201).json(updateStatus);
+  await Order.updateOne({ id_cmd: idCmd },
+    {
+      $push: {
+        logsPayment: logsPayment,
+        logs: log
+      },
+      $set: {
+        validationCompliance: order.validationCompliance,
+        submissionDate: new Date(),
+        state: order.state
+      }
+    }).exec();
+  // .then(updateStatus => res.status(201).json(updateStatus));
+  // });
 };
 
 async function UpdateStateProduct(orderUpdate, req, corp) {
@@ -1250,7 +1258,7 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
       if (req.body.reason) {
         corp.reason = req.body.reason;
       }
-      mailer.orderRejected(corp);
+      await mailer.orderRejected(corp);
     }
     catch (error) {
       req.logger.error({ message: error.message, className: "Order API" });
@@ -1261,7 +1269,7 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
   if (req.body.status === 'cancelled') {
     try {
       var mailer = new OrderMailService(req.logger, order);
-      mailer.orderCancelled(corp);
+      await mailer.orderCancelled(corp);
     }
     catch (error) {
       req.logger.error({ message: error.message, className: "Order API" });
@@ -1276,9 +1284,9 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
   if (req.body.status !== "cancelled") {
     var users = await User.find({ roleName: "Product" }).exec();
     var mailer = new OrderMailService(req.logger, order);
-    users.forEach(user => {
+    users.forEach(async user => {
       try {
-        mailer.newOrderHod(user.email,
+        await mailer.newOrderHod(user.email,
           "Finance",
           totalttc(order));
       }
@@ -1306,9 +1314,9 @@ async function UpdateStateCompliance(updt, corp, req) {
     eids.push(p.eid);
   });
   var users = await User.find({ roleName: "Product" }).exec();
-  users.forEach(user => {
+  users.forEach(async user => {
     try {
-      mailer.newOrderHod(user.email,
+      await mailer.newOrderHod(user.email,
         "Product",
         totalttc(order));
     }
@@ -1319,13 +1327,13 @@ async function UpdateStateCompliance(updt, corp, req) {
   });
 }
 
-function autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment, logger) {
+async function autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment, logger) {
   // var users = await User.find({ roleName: "Finance" }, { email: true, _id: false, firstname: true, lastname: true }).exec();
   User.find({ roleName: "Finance" }).then(users => {
     var mailer = new OrderMailService(logger, order);
-    users.forEach(user => {
+    users.forEach(async user => {
       try {
-        mailer.newOrderHod(user.email,
+        await mailer.newOrderHod(user.email,
           "Finance",
           totalttc(order));
       }
@@ -1338,13 +1346,13 @@ function autoValidationOrderStatePendingValidationByFinance(corp, order, logsPay
   });
 }
 
-function autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger) {
+async function autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger) {
   // var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
   User.find({ roleName: "Product" }).then(users => {
     var mailer = new OrderMailService(logger, order);
-    users.forEach(user => {
+    users.forEach(async user => {
       try {
-        mailer.newOrderHod(user.email,
+        await mailer.newOrderHod(user.email,
           "Product",
           totalttc(order));
       }
@@ -1356,13 +1364,13 @@ function autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsP
   });
 }
 
-function autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment, logger) {
+async function autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment, logger) {
   // var users = await User.find({ roleName: "Compliance" }, { email: true, _id: false , firstname: true, lastname: true}).exec();
   User.find({ roleName: "Compliance" }).then(users => {
     var mailer = new OrderMailService(logger, order);
-    users.forEach(user => {
+    users.forEach(async user => {
       try {
-        mailer.newOrderHod(user.email,
+        await mailer.newOrderHod(user.email,
           "Compliance",
           totalttc(order));
       }
@@ -1374,10 +1382,10 @@ function autovalidationOrderStateIsPendingValidationByCompliance(corp, order, lo
   });
 }
 
-function autoValidationOrderStateIsPSC(corp, order, logsPayment, url, log, logger) {
+async function autoValidationOrderStateIsPSC(order, log, logger) {
   try {
     var mailer = new OrderMailService(logger, order);
-    mailer.newOrder(order.email);
+    await mailer.newOrder(order.email);
   }
   catch (error) {
     logger.error({ message: error.message, className: "Order API" });

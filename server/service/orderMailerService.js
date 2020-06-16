@@ -5,35 +5,32 @@ const nodemailer = require("nodemailer");
 const loggerFactory = require('../../logger');
 
 const smtpTransport = nodemailer.createTransport({
-    host: SMTP.host,
-    port: SMTP.port,
-    secure: SMTP.secure,
-    tls: SMTP.tls,
-    debug: SMTP.debug
-  });
+  host: SMTP.host,
+  port: SMTP.port,
+  secure: SMTP.secure,
+  tls: SMTP.tls,
+  debug: SMTP.debug
+});
 
 module.exports = function (logger, order) {
   this.logger = logger;
   this.order = order;
 
-  this.newOrder = async function(email)
-  {    
+  this.newOrder = async function (email) {
     let dateTime = this.order.submissionDate;
-    if(this.order.paymentdate)
-    {
+    if (this.order.paymentdate) {
       dateTime = this.order.paymentdate;
     }
-    dateTime = date.toString()
-    var optionsDate = {weekday: "long", year: "numeric", month: "long", day: "numeric"};
+    var optionsDate = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
     let date = new Intl.DateTimeFormat("en-gb", optionsDate).format(dateTime);
-    var optionsTime = {hour: "numeric", minute: "numeric", hour12: true};
+    var optionsTime = { hour: "numeric", minute: "numeric", hour12: true };
     let time = new Intl.DateTimeFormat("en-gb", optionsTime).format(dateTime);
 
     let mailOptions = {
-        from: 'no-reply@quanthouse.com',
-        to: email,
-        subject: config.environment() + 'Order # ' + this.order.id + ' Confirmation',
-        text: `Hello,
+      from: 'no-reply@quanthouse.com',
+      to: email,
+      subject: config.environment() + 'Order # ' + this.order.id + ' Confirmation',
+      text: `Hello,
     
     
         Thank you for choosing the QH's Historical Data On-Demand product.
@@ -43,32 +40,34 @@ module.exports = function (logger, order) {
         
         Thank you,
         Quanthouse`,
-    
-        html: `Hello,<br><br>
+
+      html: `Hello,<br><br>
         Thank you for choosing the QH's Historical Data On-Demand product.<br>
         You Order <b># `+ this.order.id + `</b> has been received on ` + date + " " + time + ` CET and is currently pending validation.<br>
         For any further information about your order, please use the following link: <a href="`+ domain + `/order/history` + this.order._id + `"> Click here</a>
         <br><br>
         <b>Thank you,<br>Quanthouse</b>`
-      };
-      // let loggerPersitent = this.logger;
-      await smtpTransport.sendMail(mailOptions, (error, info) => {        
-        if (error) {
-          var loggerP = new loggerFactory().createLogger('MAILER');
-          loggerP.error({ message: error.message, className: 'Order Mailer Service' });
-          loggerP.error({ message: error.stack, className:'Order Mailer Service'});
-        }
-        return true;
-      });
-  }    
+    };
+    // let loggerPersitent = this.logger;
+    try {
+      this.logger.info("Sending email for newOrder");
+      var info = await smtpTransport.sendMail(mailOptions); //, (error, info) => {
+    } 
+    catch (error) {
+      // var loggerP = new loggerFactory().createLogger('MAILER');
+      this.logger.error({ message: error.message, className: 'Order Mailer Service' });
+      this.logger.error({ message: error.stack, className: 'Order Mailer Service' });
+      return console.log(error);
+    }
+  }
 
-  this.newOrderHod = function(email, service, total) {
+  this.newOrderHod = async function (email, service, total) {
     let eids = this.order.products.map(product => product.eid);
     let firstname = this.order.firstname;
     let lastname = this.order.lastname;
-    var optionsDate = {weekday: "long", year: "numeric", month: "long", day: "numeric"};
+    var optionsDate = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
     let date = new Intl.DateTimeFormat("en-gb", optionsDate).format(this.order.submissionDate);
-    var optionsTime = {hour: "numeric", minute: "numeric", hour12: true};
+    var optionsTime = { hour: "numeric", minute: "numeric", hour12: true };
     let time = new Intl.DateTimeFormat("en-gb", optionsTime).format(this.order.submissionDate);
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
@@ -82,7 +81,7 @@ module.exports = function (logger, order) {
         - Submission date: `+ date + " " + time + `
         - List of EIDs: `+ eids + `
         - TOTAL Order amount (including taxes): `+ total,
-  
+
       html: `
       New Client Order has been received and it is currently pending approval from QH ` + service + ` department.<br><br>
       Order characteristics:<br>
@@ -94,19 +93,18 @@ module.exports = function (logger, order) {
         <li>TOTAL Order amount (including taxes): `+ total + `</li>
       </ul>`
     };
-    smtpTransport.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        var loggerP = new loggerFactory().createLogger('MAILER');
-        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
-        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
-        return false;
-      }
-      return true;
-    });
-  } 
+    try {
+      var info = await smtpTransport.sendMail(mailOptions); //, (error, info) => {
+    } 
+    catch (error) {
+      // var loggerP = new loggerFactory().createLogger('MAILER');
+      this.logger.error({ message: error.message, className: 'Order Mailer Service' });
+      this.logger.error({ message: error.stack, className: 'Order Mailer Service' });
+      return console.log(error);
+    }
+  }
 
-  this.orderValidated = function(corp)
-  {
+  this.orderValidated = async function (corp) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
@@ -118,24 +116,25 @@ module.exports = function (logger, order) {
       
       Thank you,
       Quanthouse`,
-  
+
       html: `Hello,<br><br>
       You Order <b># `+ this.order.id + `</b> has been validated.<br>
       You will receive shortly an email notification with all relevant information allowing you to access your data.
       <br><br>
       <b>Thank you,<br>Quanthouse</b>`
     };
-    smtpTransport.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        var loggerP = new loggerFactory().createLogger('MAILER');
-        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
-        loggerP.error({ message: error.stack, className: 'Order Mailer Service'});
-        return console.log(error);
-      }
-    });
+    try {
+      var info = await smtpTransport.sendMail(mailOptions); //, (error, info) => {
+    } 
+    catch (error) {
+      // var loggerP = new loggerFactory().createLogger('MAILER');
+      this.logger.error({ message: error.message, className: 'Order Mailer Service' });
+      this.logger.error({ message: error.stack, className: 'Order Mailer Service' });
+      return console.log(error);
+    }
   }
 
-  this.orderRejected = function(corp) {
+  this.orderRejected = async function (corp) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
@@ -149,24 +148,25 @@ module.exports = function (logger, order) {
   
       Thank you,
       Quanthouse`,
-  
+
       html: `Hello,<br><br>
       Your Order <b># `+ this.order.id + `</b> has been rejected with the following reason:<br>
       `+ corp.reason + `<br><br>
       Please contact your local support should you need any further information.<br><br>
       <b>Thank you,<br>Quanthouse</b>`
     };
-    smtpTransport.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        var loggerP = new loggerFactory().createLogger('MAILER');
-        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
-        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
-        return console.log(error);
-      }
-    });
+    try {
+      var info = await smtpTransport.sendMail(mailOptions); //, (error, info) => {
+    } 
+    catch (error) {
+      // var loggerP = new loggerFactory().createLogger('MAILER');
+      this.logger.error({ message: error.message, className: 'Order Mailer Service' });
+      this.logger.error({ message: error.stack, className: 'Order Mailer Service' });
+      return console.log(error);
+    }
   }
 
-  this.orderCancelled = function(corp) {
+  this.orderCancelled = async function (corp) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
@@ -179,24 +179,25 @@ module.exports = function (logger, order) {
   
       Thank you,
       Quanthouse`,
-  
+
       html: `Hello,<br><br>
       Your Order <b># `+ this.order.id + `</b> has been rejected with the following reason:<br><br>
       Please contact your local support should you need any further information.<br><br>
       <b>Thank you,<br>Quanthouse</b>`
     };
-    smtpTransport.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        var loggerP = new loggerFactory().createLogger('MAILER');
-        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
-        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
-        return console.log(error);
-      }
-    });
+    try {
+      var info = await smtpTransport.sendMail(mailOptions); //, (error, info) => {
+    } 
+    catch (error) {
+      // var loggerP = new loggerFactory().createLogger('MAILER');
+      this.logger.error({ message: error.message, className: 'Order Mailer Service' });
+      this.logger.error({ message: error.stack, className: 'Order Mailer Service' });
+      return console.log(error);
+    }
   }
 
-  this.orderExecuted = async function(corp) {
-    var downloadSetting = await Config.findOne({id: "downloadSetting"}).exec();      
+  this.orderExecuted = async function (corp) {
+    var downloadSetting = await Config.findOne({ id: "downloadSetting" }).exec();
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
@@ -223,16 +224,18 @@ module.exports = function (logger, order) {
     <br><br>
     <b>Thank you,<br>Quanthouse</b>`
     };
-    smtpTransport.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
-        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
-        return console.log(error);
-      }
-    });
+    try {
+      var info = await smtpTransport.sendMail(mailOptions); //, (error, info) => {
+    } 
+    catch (error) {
+      // var loggerP = new loggerFactory().createLogger('MAILER');
+      this.logger.error({ message: error.message, className: 'Order Mailer Service' });
+      this.logger.error({ message: error.stack, className: 'Order Mailer Service' });
+      return console.log(error);
+    }
   }
 
-  this.orderFailedJob = function(corp){
+  this.orderFailedJob = async function (corp) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
@@ -251,7 +254,7 @@ module.exports = function (logger, order) {
       
       
       This is an automated email, sent by the HoD Web Portal`,
-  
+
       html: `Hello,<br><br>
       Client Order <b># `+ this.order.id.split('-')[0] + ` -> ` + this.order.id + `</b> execution has failed with the following error:<br>
       <br>
@@ -266,15 +269,18 @@ module.exports = function (logger, order) {
       <br>
       This is an automated email, sent by the HoD Web Portal`
     };
-    smtpTransport.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
-        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
-      }
-    });
+    try {
+      var info = await smtpTransport.sendMail(mailOptions); //, (error, info) => {
+    } 
+    catch (error) {
+      // var loggerP = new loggerFactory().createLogger('MAILER');
+      this.logger.error({ message: error.message, className: 'Order Mailer Service' });
+      this.logger.error({ message: error.stack, className: 'Order Mailer Service' });
+      return console.log(error);
+    }
   }
 
-  this.orderFailed = function(corp) {
+  this.orderFailed = async function (corp) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
@@ -287,23 +293,25 @@ module.exports = function (logger, order) {
       
       Thank you,
       Quanthouse`,
-  
+
       html: `Hello,<br><br>
       An issue has been encountered executing your Order <b># `+ this.order.id + `</b> Our teams are working actively to resolve the issue as quickly as possible.<br><br>
       Please contact your local support should you need any further information.
       <br><br>
       <b>Thank you,<br>Quanthouse</b>`
     };
-    smtpTransport.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        var loggerP = new loggerFactory().createLogger('MAILER');
-        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
-        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
-      }
-    });
+    try {
+      var info = await smtpTransport.sendMail(mailOptions); //, (error, info) => {
+    } 
+    catch (error) {
+      // var loggerP = new loggerFactory().createLogger('MAILER');
+      this.logger.error({ message: error.message, className: 'Order Mailer Service' });
+      this.logger.error({ message: error.stack, className: 'Order Mailer Service' });
+      return console.log(error);
+    }
   }
 
-  this.reminder = function(corp) {
+  this.reminder = async function (corp) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
@@ -315,19 +323,21 @@ module.exports = function (logger, order) {
       
       Thank you,
       Quanthouse`,
-  
+
       html: `Hello,<br><br>
       You Order # `+ this.order.id + ` received on ` + corp.logsPayment + ` CET is currently pending completion of the billing process.<br>
       To complete the billing process, please use the following link: <a href="`+ domain + `order/history/` + corp.token + `">click here</a>
       <br><br>
       <b>Thank you,<br>Quanthouse</b>`
     };
-    smtpTransport.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        var loggerP = new loggerFactory().createLogger('MAILER');
-        loggerP.error({ message: error.message, className: 'Order Mailer Service' });
-        loggerP.error({ message: error.stack, className:'Order Mailer Service'});
-      }
-    });
+    try {
+      var info = await smtpTransport.sendMail(mailOptions); //, (error, info) => {
+    } 
+    catch (error) {
+      // var loggerP = new loggerFactory().createLogger('MAILER');
+      this.logger.error({ message: error.message, className: 'Order Mailer Service' });
+      this.logger.error({ message: error.stack, className: 'Order Mailer Service' });
+      return console.log(error);
+    }
   }
 }
