@@ -404,8 +404,8 @@ router.put('/state', async (req, res) => {
       await mailer.orderValidated(corp);
     }
     catch (error) {
-      logger.error({ message: error.message, className: "Order API" });
-      logger.error({ message: error.stack, className: "Order API" });
+      req.logger.error({ message: error.message, className: "Order API" });
+      req.logger.error({ message: error.stack, className: "Order API" });
     }
   }
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
@@ -428,14 +428,14 @@ router.put('/state', async (req, res) => {
     req.logger.info("Order updated");
     var order = await Order.findOne({ id: id }).exec();
     try {
-      await new PdfService(order).createInvoicePdf(req.logger);
+      await new OrderPdfService(order).createInvoicePdf(req.logger, updt.idCommande);
       await InvoiceService.insertInvoice(order.id, updt.idCommande, order.idUser);
     }
     catch (error) {
       req.logger.error({ message: error.message + '\n' + error.stack, className: 'Order API' });
       return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
     }
-    return res.status(201);
+    return res.status(201).json({ ok: true });
 
     //   let id = cnt.value;
     //   let prefix = "QH_HISTO_";
@@ -1006,10 +1006,10 @@ buildSearch = function (req) {
   return search;
 }
 
-pdfpost = async function (id, logger) {
+pdfpost = async function (id, logger, invoiceId) {
   try {
     var order = await Order.findOne({ id: id }).exec();
-    await new OrderPdfService(order).createInvoicePdf(logger);
+    await new OrderPdfService(order).createInvoicePdf(logger, invoiceId);
   }
   catch (error) {
     logger.error({ message: error.message, className: "Order API" });

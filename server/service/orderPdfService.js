@@ -13,16 +13,16 @@ const DOMAIN = config.domain();
 module.exports = function (order) {
   this.order = order;
 
-  this.createInvoicePdf = async function (logger) {
+  this.createInvoicePdf = async function (logger, invoiceId) {
     logger.info({ message: "creating invoice in pdf...", className: "Order PDF Service" });
     var user = await User.findOne({ _id: this.order.idUser }).exec(); //.then(u => {    
     var country = await Countrie.findOne({ id: this.order.countryBilling }).exec(); //.then(cnt => {
     var currency = await Currency.findOne({ id: this.order.currency }).exec(); // .then(c => {
-    this.generatePdfFile(logger, currency, user, country);
-    return true;    
+    this.generatePdfFile(logger, currency, user, country, invoiceId);
+    return true;
   }
 
-  this.generatePdfFile = function (logger, currency, user, country) {
+  this.generatePdfFile = function (logger, currency, user, country, invoiceId) {
     let fonts = {
       Roboto: {
         normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Regular.ttf'], 'base64'),
@@ -84,7 +84,7 @@ module.exports = function (order) {
     let defaultStyle = {};
     // Header
     content.push(
-      adresse(this.order.idCommande, user.id, this.order.vat, new Date(), this.order.logsPayment[0].date.yyyymmdd(), this.order.id, currency.name),
+      adresse(invoiceId, user.id, this.order.vat, new Date(), this.order.logsPayment[0].date.yyyymmdd(), this.order.id, currency.name),
       // Billing Address
       '\n',
       billinAddress(this.order.companyName, this.order.addressBilling, this.order.postalCodeBilling, this.order.cityBilling, this.order.countryBilling),
@@ -132,17 +132,14 @@ module.exports = function (order) {
     let pdfDoc = printer.createPdfKitDocument(invoice);
 
     var dir = 'files/invoice';
-    // if (clientAddress() == DOMAIN) {
-    //   dir = "mapr/invoices"
-    // }
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    pdfDoc.pipe(fs.createWriteStream(path.join(dir, this.order.idCommande + '.pdf')));
+    pdfDoc.pipe(fs.createWriteStream(path.join(dir, invoiceId + '.pdf')));
     pdfDoc.end();
   };
 
-  this.adresse = function (numInvoice, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency) {
+  this.adresse = function (invoiceId, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency) {
     return {
       columns: [
         [{ image: logo(), width: 200, height: 60 },
@@ -156,7 +153,7 @@ module.exports = function (order) {
           'VAT : FR00449703248'
         )],
         { text: '', width: 105 },
-        head(numInvoice, numAccount, idTax, invoiceDate.toISOString().split("T")[0], paymentDate, numCmd, currency)
+        head(invoiceId, numAccount, idTax, invoiceDate.toISOString().split("T")[0], paymentDate, numCmd, currency)
       ],
     }
   };
@@ -238,7 +235,7 @@ module.exports = function (order) {
     };
   };
 
-  this.head = function (numInvoice, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency) {
+  this.head = function (invoiceId, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency) {
     let width = '50%';
     return {
       table: {
@@ -246,7 +243,7 @@ module.exports = function (order) {
         body: [
           [
             { text: 'Invoice Nbr', style: 'invoiceSubTitle', width: width },
-            { text: numInvoice, style: 'invoiceSubValue', width: width }
+            { text: invoiceId, style: 'invoiceSubValue', width: width }
           ],
           [
             { text: 'Account n°', style: 'invoiceSubTitle', width: width },
