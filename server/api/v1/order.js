@@ -426,22 +426,49 @@ router.put('/state', async (req, res) => {
     await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } }).exec()
     // .then((r) => {
     req.logger.info("Order updated");
-    await pdfpost(req.body.id, req.logger);
-    res.status(201).json({ ok: true });
-    //     });
+    var order = await Order.findOne({ id: id }).exec();
+    try {
+      await new PdfService(order).createInvoicePdf(req.logger);
+      await InvoiceService.insertInvoice(order.id, updt.idCommande, order.idUser);
+    }
+    catch (error) {
+      req.logger.error({ message: error.message + '\n' + error.stack, className: 'Order API' });
+      return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
+    }
+    return res.status(201);
+
+    //   let id = cnt.value;
+    //   let prefix = "QH_HISTO_";
+    //   let nbcar = 7;
+    //   let idnew = id + 1;
+    //   let nbid = nbcar - idnew.toString().length;
+    //   for (let i = 0; i < nbid; i++) {
+    //     prefix += "0";
+    //   }
+    //   updt.idCommande = prefix + idnew.toString();
+    //   Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).then(() => {
+    //     Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } })
+
+    //       .then((r) => {
+    //         pdfpost(req.body.id);
+    //         Order.findOne({ id: id }).then(order => {
+    //           return res.status(201).json({
+    //             ok: InvoiceService.insertInvoice(order.id, updt.idCommande, order.idUser),
+    //           });
+    //         })
+    //         await PdfService.generateInvoice(order.id, log);
+    //         res.status(201).json({ ok: true });
+    //       });
+    //   });
+
     // });
-            Order.findOne({ id: id }).then(order => {
-              return res.status(201).json({
-                ok: InvoiceService.insertInvoice(order.id, updt.idCommande, order.idUser)
-              });
-            })
-            res.status(201).json({ ok: true });
   }
   else {
     await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } }).exec();
     // .then((r) => {
     return res.status(201).json({ ok: true });
     // });
+    //   });
   }
 });
 

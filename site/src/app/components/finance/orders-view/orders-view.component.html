@@ -119,7 +119,7 @@
         <div class="table-responsive text-center">
           <div class="btn-action">
             <span class="btn btn-success fa fa-handshake" *ngIf="verifState()"
-              (click)="openModal(content); actions('Confirm Client Order Validation'); getInvoice()"> Validate</span>
+              (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
             <span class="btn btn-danger fa fa-power-off" [routerLink]='["/finance/orders"]'> Close</span>
           </div>
         </div>

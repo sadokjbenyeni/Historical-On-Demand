@@ -228,9 +228,4 @@ export class OrdersViewComponent implements OnInit {
       return stateId;
     return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
-  getInvoice() {
-    this.pdfService.pdf({ id: this.idOrder }).subscribe(res => {
-      console.log(res.file);
-    });
-  }
 }
