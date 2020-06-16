@@ -17,13 +17,18 @@ module.exports = function (logger, order) {
   this.order = order;
 
   this.newOrder = async function(email)
-  {
-    let date = this.order.submissionDate;
+  {    
+    let dateTime = this.order.submissionDate;
     if(this.order.paymentdate)
     {
-      date = this.order.paymentdate;
+      dateTime = this.order.paymentdate;
     }
-    date = date.toString()
+    dateTime = date.toString()
+    var optionsDate = {weekday: "long", year: "numeric", month: "long", day: "numeric"};
+    let date = new Intl.DateTimeFormat("en-gb", optionsDate).format(dateTime);
+    var optionsTime = {hour: "numeric", minute: "numeric", hour12: true};
+    let time = new Intl.DateTimeFormat("en-gb", optionsTime).format(dateTime);
+
     let mailOptions = {
         from: 'no-reply@quanthouse.com',
         to: email,
@@ -32,7 +37,7 @@ module.exports = function (logger, order) {
     
     
         Thank you for choosing the QH's Historical Data On-Demand product.
-        You Order # `+ this.order.id + ` has been received on ` + date.substring(0, 10) + " " + date.substring(11, 19) + ` CET and is currently pending validation.
+        You Order # `+ this.order.id + ` has been received on ` + date + " " + time + ` CET and is currently pending validation.
         For any further information about your order, please use the following link: `+ domain + `/order/history/` + this.order._id + `
     
         
@@ -41,7 +46,7 @@ module.exports = function (logger, order) {
     
         html: `Hello,<br><br>
         Thank you for choosing the QH's Historical Data On-Demand product.<br>
-        You Order <b># `+ this.order.id + `</b> has been received on ` + date.substring(0, 10) + " " + date.substring(11, 19) + ` CET and is currently pending validation.<br>
+        You Order <b># `+ this.order.id + `</b> has been received on ` + date + " " + time + ` CET and is currently pending validation.<br>
         For any further information about your order, please use the following link: <a href="`+ domain + `/order/history` + this.order._id + `"> Click here</a>
         <br><br>
         <b>Thank you,<br>Quanthouse</b>`
@@ -57,7 +62,14 @@ module.exports = function (logger, order) {
       });
   }    
 
-  this.newOrderHod = function(email, firstname, lastname, service, eids, total, submission) {
+  this.newOrderHod = function(email, service, total) {
+    let eids = this.order.products.map(product => product.eid);
+    let firstname = this.order.firstname;
+    let lastname = this.order.lastname;
+    var optionsDate = {weekday: "long", year: "numeric", month: "long", day: "numeric"};
+    let date = new Intl.DateTimeFormat("en-gb", optionsDate).format(this.order.submissionDate);
+    var optionsTime = {hour: "numeric", minute: "numeric", hour12: true};
+    let time = new Intl.DateTimeFormat("en-gb", optionsTime).format(this.order.submissionDate);
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: email,
@@ -65,21 +77,21 @@ module.exports = function (logger, order) {
       text: `
       New Client Order has been received and it is currently pending approval from QH ` + service + ` department.
       Order characteristics:
-        - Client Name : `+ firstname + ` ` + lastname + `
-        - Order ID : `+ this.order.id + `
-        - Submission date : `+ submission.substring(0, 10) + " " + submission.substring(11, 19) + `
-        - List of EIDs : `+ eids + `
-        - TOTAL Order amount (including taxes) : `+ total,
+        - Client Name: `+ firstname + ` ` + lastname + `
+        - Order ID: `+ this.order.id + `
+        - Submission date: `+ date + " " + time + `
+        - List of EIDs: `+ eids + `
+        - TOTAL Order amount (including taxes): `+ total,
   
       html: `
       New Client Order has been received and it is currently pending approval from QH ` + service + ` department.<br><br>
       Order characteristics:<br>
       <ul>
-        <li>Client Name : `+ firstname + ` ` + lastname + `</li>
-        <li>Order ID : `+ this.order.id + `</li>
-        <li>Submission date : `+ submission.substring(0, 10) + " " + submission.substring(11, 19) + `</li>
-        <li>List of EIDs : `+ eids + `</li>
-        <li>TOTAL Order amount (including taxes) : `+ total + `</li>
+        <li>Client Name: `+ firstname + ` ` + lastname + `</li>
+        <li>Order ID: `+ this.order.id + `</li>
+        <li>Submission date: `+ date + " " + time + `</li>
+        <li>List of EIDs: `+ eids + `</li>
+        <li>TOTAL Order amount (including taxes): `+ total + `</li>
       </ul>`
     };
     smtpTransport.sendMail(mailOptions, (error, info) => {

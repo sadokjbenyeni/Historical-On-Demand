@@ -314,7 +314,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
       }
       const element = this.setting.element.dynamicDownload;
       const fileType = 'text/plain';
-      element.setAttribute('href', `data:${fileType};charset=utf-8,${downloadablelinks.join('\r\n')}`);
+      element.setAttribute('href', `data:${fileType};charset=utf-8,` + downloadablelinks.join('\n'));
       element.setAttribute('download', fileName + '.txt');
       var event = new MouseEvent("click");
       element.dispatchEvent(event);

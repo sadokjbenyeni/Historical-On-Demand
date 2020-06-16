@@ -299,8 +299,7 @@ router.put('/state', async (req, res) => {
       await UpdateStateProduct(updt, req, corp);
     }
     catch (err) {
-      req.logger.error({ message: JSON.stringify(err), className: 'Order API' });
-      req.logger.error({ message: JSON.stringify(error), className: 'Order API' });
+      req.logger.error({ message: err.message + '\n' + err.stack, className: 'Order API' });
       return res.status(503).json({ message: 'An error has been thrown, please contact support with \'' + req.loggerToken + "'" });
     }
   }
@@ -581,8 +580,7 @@ router.put('/update', async (request, res) => {
       await serviceLogs.addAllLogInUpdateOrder(orderProductLogs);
     }
     catch (error) {
-      request.logger.error({ message: error.message, error: error, className: 'Order API' });
-      request.logger.error({ message: JSON.stringify(error), className: 'Order API' });
+      request.logger.error({ message: error.message + '\n' + error.stack, className: 'Order API' });
       return res.status(503).json({ message: "Unhandle exception, please contact support with '" + request.headers.loggerToken + "' identifier" });
     }
     return res.status(201).json({ ok: true });
@@ -682,9 +680,7 @@ router.get('/details/:id', async (req, res) => {
     order = clientOrderDetails(order);
   }
   catch (error) {
-    req.logger.error({ message: error.message, className: "Order API" });
-    req.logger.error({ message: JSON.stringify(error), className: 'Order API' });
-    // console.error("[" + req.headers.loggerToken + "] unhandle exception: " + error);
+    req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
     return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
   }
   return res.status(200).json({ details: order });
@@ -848,9 +844,7 @@ router.post('/list', async (req, res) => {
       .collation({ locale: "en" })
       .exec();
   } catch (error) {
-    req.logger.error({ message: error.message, className: "Order API" });
-    req.logger.error({ message: JSON.stringify(error), className: 'Order API' });
-    // console.error("["+req.headers.loggerToken + "] unhandle exception: " + error); 
+    req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
     return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
   }
   return res.status(200).json({ recordsFiltered: orderCount, recordsTotal: orderTotalCount, draw: req.body.draw, listorders: orders });
@@ -1259,8 +1253,8 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
       mailer.orderRejected(corp);
     }
     catch (error) {
-      logger.error({ message: error.message, className: "Order API" });
-      logger.error({ message: error.stack, className: "Order API" });
+      req.logger.error({ message: error.message, className: "Order API" });
+      req.logger.error({ message: error.stack, className: "Order API" });
     }
     return true;
   }
@@ -1270,31 +1264,27 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
       mailer.orderCancelled(corp);
     }
     catch (error) {
-      logger.error({ message: error.message, className: "Order API" });
-      logger.error({ message: error.stack, className: "Order API" });
+      req.logger.error({ message: error.message, className: "Order API" });
+      req.logger.error({ message: error.stack, className: "Order API" });
     }
     return true;
   }
   order.products.forEach(p => {
     eids.push(p.eid);
   });
-  req.logger.info({ message: 'sending email...' });
+  req.logger.info({ message: 'sending email...', className: 'Order API' });
   if (req.body.status !== "cancelled") {
-    var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
+    var users = await User.find({ roleName: "Product" }).exec();
     var mailer = new OrderMailService(req.logger, order);
     users.forEach(user => {
       try {
         mailer.newOrderHod(user.email,
-          user.firstname,
-          user.lastname,
           "Finance",
-          eids.join(),
-          totalttc(order),
-          order.submissionDate.toString());
+          totalttc(order));
       }
       catch (error) {
-        logger.error({ message: error.message, className: "Order API" });
-        logger.error({ message: error.stack, className: "Order API" });
+        req.logger.error({ message: error.message, className: "Order API" });
+        req.logger.error({ message: error.stack, className: "Order API" });
       }
     });
     req.logger.info({ message: 'email sent' });
@@ -1315,16 +1305,12 @@ async function UpdateStateCompliance(updt, corp, req) {
   order.products.forEach(p => {
     eids.push(p.eid);
   });
-  var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
+  var users = await User.find({ roleName: "Product" }).exec();
   users.forEach(user => {
-    try{
-    mailer.newOrderHod(user.email,
-      user.firstname,
-      user.lastname,
-      "Product",
-      order.eid.join(),
-      totalttc(order),
-      order.submissionDate.toString());
+    try {
+      mailer.newOrderHod(user.email,
+        "Product",
+        totalttc(order));
     }
     catch (error) {
       logger.error({ message: error.message, className: "Order API" });
@@ -1334,18 +1320,14 @@ async function UpdateStateCompliance(updt, corp, req) {
 }
 
 function autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment, logger) {
-  // var users = await User.find({ roleName: "Finance" }, { email: true, _id: false }).exec();
-  User.find({ roleName: "Finance" }, { email: true, _id: false }).then(users => {
+  // var users = await User.find({ roleName: "Finance" }, { email: true, _id: false, firstname: true, lastname: true }).exec();
+  User.find({ roleName: "Finance" }).then(users => {
     var mailer = new OrderMailService(logger, order);
     users.forEach(user => {
       try {
         mailer.newOrderHod(user.email,
-          user.firstname,
-          user.lastname,
           "Finance",
-          order.eid.join(),
-          totalttc(order),
-          order.submissionDate.toString());
+          totalttc(order));
       }
       catch (error) {
         logger.error({ message: error.message, className: "Order API" });
@@ -1358,17 +1340,13 @@ function autoValidationOrderStatePendingValidationByFinance(corp, order, logsPay
 
 function autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger) {
   // var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
-  User.find({ roleName: "Product" }, { email: true, _id: false }).then(users => {
+  User.find({ roleName: "Product" }).then(users => {
     var mailer = new OrderMailService(logger, order);
     users.forEach(user => {
       try {
         mailer.newOrderHod(user.email,
-          user.firstname,
-          user.lastname,
           "Product",
-          order.eid.join(),
-          totalttc(order),
-          order.submissionDate.toString());
+          totalttc(order));
       }
       catch (error) {
         logger.error({ message: error.message, className: "Order API" });
@@ -1379,18 +1357,14 @@ function autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsP
 }
 
 function autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment, logger) {
-  // var users = await User.find({ roleName: "Compliance" }, { email: true, _id: false }).exec();
-  User.find({ roleName: "Compliance" }, { email: true, _id: false }).then(users => {
+  // var users = await User.find({ roleName: "Compliance" }, { email: true, _id: false , firstname: true, lastname: true}).exec();
+  User.find({ roleName: "Compliance" }).then(users => {
     var mailer = new OrderMailService(logger, order);
     users.forEach(user => {
       try {
         mailer.newOrderHod(user.email,
-          user.firstname,
-          user.lastname,
           "Compliance",
-          order.eid.join(),
-          totalttc(order),
-          order.submissionDate.toString());
+          totalttc(order));
       }
       catch (error) {
         logger.error({ message: error.message, className: "Order API" });
