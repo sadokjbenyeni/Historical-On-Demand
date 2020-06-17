@@ -135,7 +135,7 @@ module.exports = function (order) {
     if (!fs.existsSync(directory)) {
       fs.mkdirSync(directory, { recursive: true });
     }
-    pdfDoc.pipe(fs.createWriteStream(path.join(invoiceDirectory, invoiceId + '.pdf')));
+    pdfDoc.pipe(fs.createWriteStream(path.join(directory, invoiceId + '.pdf')));
     pdfDoc.end();
   };
 

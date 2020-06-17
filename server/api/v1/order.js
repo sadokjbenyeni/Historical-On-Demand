@@ -429,7 +429,7 @@ router.put('/state', async (req, res) => {
     var order = await Order.findOne({ id: req.body.id }).exec();
     try {
       await new OrderPdfService(order).createInvoicePdf(req.logger, updt.idCommande);
-      await InvoiceService.insertInvoice(order.id, updt.idCommande, order.idUser);
+      await new InvoiceService().insertInvoice(order.id, updt.idCommande, order.idUser);
     }
     catch (error) {
       req.logger.error({ message: error.message + '\n' + error.stack, className: 'Order API' });
