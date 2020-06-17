@@ -8,8 +8,8 @@ exports.localdomain = () => { return "http://gateway01.hod-lab.quanthouse.com"; 
 
 exports.localhost = () => { return "localhost:4200" }
 exports.InvoiceDirectory = () => {
-    if (this.domain) return "files/invoice/";
-    else if (this.localdomain) return "/mapr/client_invoices/";
+    if (this.localhost) return "files/invoice/";
+    else if (this.domain) return "mapr/client_invoices/";
 }
 // IPs ElastcSearch
 exports.hostsES = () => { return ['10.0.10.102:9200']; }

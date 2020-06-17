@@ -4,6 +4,8 @@ const InvoiceService = require('../../service/invoiceService');
 const Orders = mongoose.model('Order');
 path = require('path');
 var mime = require('mime');
+const invoiceDirectory = require('../../config/config.js').InvoiceDirectory();
+
 
 router.post('/', (req, res) => {
     return res.status(200).json({
@@ -20,15 +22,14 @@ router.get('/download/:orderId', async (req, res) => {
     }
     // var user = await User.findOne({ token: req.headers.authorization }).exec();
     var order = await Orders.findOne({ id: req.params.orderId }).exec();
-
-    let file = 'C://Source/histodata-web/files/invoice/' + order.idCommande + '.pdf';
+    let file = '/' + invoiceDirectory + order.idCommande + '.pdf';
     var filename = path.basename(file);
     var mimetype = mime.lookup(file);
     res.setHeader('File-name', filename);
     res.setHeader('Content-disposition', 'attachment; filename=' + filename);
     res.setHeader('Content-type', mimetype);
 
-    return res.sendFile(file);
+    return res.sendFile(process.cwd() + file);
 
 });
 module.exports = router;
