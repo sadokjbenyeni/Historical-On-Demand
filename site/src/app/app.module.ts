@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { HttpClientModule, HTTP_INTERCEPTORS  } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 //import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { routes } from './app.routing';
@@ -149,6 +149,7 @@ import { OrderHistoryDetailsComponent } from './components/client/order-history-
 import { CancelOrderDialogComponent } from './components/client/cancel-order-dialog/cancel-order-dialog.component';
 import { TokenInterceptor } from './interceptors/authentification/token.interceptor';
 import { DeliverablesService } from './services/deliverables.service';
+import { DownloadInvoiceService } from './services/Intern/download-invoice.service';
 // lazy loading
 
 @NgModule({
@@ -290,6 +291,7 @@ import { DeliverablesService } from './services/deliverables.service';
     CompanytypesService,
     SalesService,
     DeliverablesService,
+    DownloadInvoiceService,
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]

@@ -17,7 +17,8 @@
           <input matInput (keyup)="applyFilter($event)" placeholder="Type here ...">
         </mat-form-field>
 
-        <table mat-table [dataSource]="dataSource" matSort matSortActive="submissionDateTime" matSortDirection="desc" class="mat-elevation-z8">
+        <table mat-table [dataSource]="dataSource" matSort matSortActive="submissionDateTime" matSortDirection="desc"
+          class="mat-elevation-z8">
 
           <ng-container matColumnDef="orderId">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Order ID </th>
@@ -42,8 +43,9 @@
 
           <ng-container matColumnDef="invoice">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Invoice </th>
-            <td mat-cell *matCellDef="let element"> <a *ngIf="element.invoice!=undefined" target="_blank"
-                [href]="'/files/invoice/' + element.invoice + '.pdf'">Download Invoice</a></td>
+            <td mat-cell *matCellDef="let element"> <a target="_blank"
+                (click)="downloadInvoice(element.invoice.id, element.invoice.idCommande)">Download Invoice</a>
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="details">

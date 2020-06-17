@@ -18,9 +18,7 @@ import { CancelOrderDialogComponent } from '../cancel-order-dialog/cancel-order-
 import { HttpHeaders } from '@angular/common/http';
 import { DeliverablesService } from '../../../../app/services/deliverables.service';
 import { InvoiceService } from '../../../../app/services/invoice.service';
-import { invalid } from '@angular/compiler/src/render3/view/util';
-import { catchError } from 'rxjs/internal/operators/catchError';
-import { newArray } from '@angular/compiler/src/util';
+import { DownloadInvoiceService } from '../../../../app/services/Intern/download-invoice.service';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -85,8 +83,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
     private currencyService: CurrencyService,
     private configService: ConfigService,
     private deliverablesService: DeliverablesService,
-    private invoiceService: InvoiceService,
-    private http: HttpClient
+    private downloadInvoiceService: DownloadInvoiceService
   ) {
     this.route.params.subscribe(_ => { this.idCmd = _.id; });
   }
@@ -334,6 +331,8 @@ export class OrderHistoryDetailsComponent implements OnInit {
             downloadablelinks.push(link);
           });
         });
+      	//if (!this.setting.element.dynamicDownload) {
+        //this.setting.element.dynamicDownload = document.createElement('a');
         const downloadeLinksString = downloadablelinks.join('\n');
         var textFileAsBlob = new Blob([downloadeLinksString], { type: 'text/plain', endings: 'native' });
 
@@ -342,15 +341,16 @@ export class OrderHistoryDetailsComponent implements OnInit {
         downloadLink.innerHTML = "Download File";
         if (window.webkitURL != null) {
           // Chrome allows the link to be clicked
-          // without actually adding it to the DOM.
+              if (!this.setting.element.dynamicDownload) {
+        this.setting.element.dynamicDownload = document.createElement('a');  // without actually adding it to the DOM.
           downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-        }
-        else {
-          // Firefox requires the link to be added to the DOM
-          // before it can be clicked.
-          downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
-          downloadLink.onclick = ((mouseEvent) => document.body.removeChild(downloadLink));
-          downloadLink.style.display = "none";
+        //}
+        //const element = this.setting.element.dynamicDownload;
+        //const fileType = 'text/plain';
+        //element.setAttribute('href', `data:${fileType};charset=utf-8,` + downloadablelinks.join('\n'));
+        //element.setAttribute('download', fileName + '.txt');
+        //var event = new MouseEvent("click");
+        //element.dispatchEvent(event);
           document.body.appendChild(downloadLink);
         }
 
@@ -359,19 +359,9 @@ export class OrderHistoryDetailsComponent implements OnInit {
   }
 
   downloadInvoice() {
-    this.invoiceService.downloadInvoice(this.idOrder).subscribe(blobResponse => {
-      let fileName = this.invoice;
-      var downloadURL = window.URL.createObjectURL(blobResponse.body);
-      if (!this.setting.element.dynamicDownload) {
-        this.setting.element.dynamicDownload = document.createElement('a');
-      }
-      const element = this.setting.element.dynamicDownload;
-      element.setAttribute('href', downloadURL);
-      element.setAttribute('download', fileName + '.pdf');
-      var event = new MouseEvent("click");
-      element.dispatchEvent(event);
-    });
+    this.downloadInvoiceService.getInvoice(this.idOrder, this.invoice);
   }
+
   handleError(error): ObservableInput<any> {
     console.log(error);
     return Promise.all(new Array<any>());

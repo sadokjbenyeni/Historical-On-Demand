@@ -10,6 +10,7 @@ import { MatSort } from '@angular/material/sort';
 
 import { map } from 'rxjs/operators';
 import { Order } from '../../../../app/Models/Order/Order';
+import { DownloadInvoiceService } from '../../../../app/services/Intern/download-invoice.service';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -45,6 +46,7 @@ export class OrderHistoryComponent implements OnInit {
   constructor(
     private orderService: OrderService,
     private currencyService: CurrencyService,
+    private downloadInvoiceService: DownloadInvoiceService
   ) {
   }
 
@@ -63,7 +65,7 @@ export class OrderHistoryComponent implements OnInit {
     httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
     this.orderService.getClientOrders(httpOptions).pipe(map(
       orderTable =>
-        orderTable['listorders'].map(order => new Order(order['id'], order['submissionDate'], this.getStatusName(order['state']), this.getTTCWithCurrency(order, order['currency']), order['idCommande'], order['_id']))
+        orderTable['listorders'].map(order => new Order(order['id'], order['submissionDate'], this.getStatusName(order['state']), this.getTTCWithCurrency(order, order['currency']), order, order['_id']))
     ))
       .subscribe(result => {
         this.dataSource.data = result;
@@ -116,6 +118,10 @@ export class OrderHistoryComponent implements OnInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.toLowerCase();
+  }
+
+  downloadInvoice(orderId, invoiceId) {
+    this.downloadInvoiceService.getInvoice(orderId, invoiceId);
   }
 }
 
