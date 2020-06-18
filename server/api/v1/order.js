@@ -1278,7 +1278,7 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
 
 async function UpdateStateCompliance(updt, corp, req) {
   updt.validationCompliance = true;
-  let corp = {
+   corp = {
     "email": req.body.email,
     "idCmd": req.body.idCmd,
     "paymentdate": new Date(),
