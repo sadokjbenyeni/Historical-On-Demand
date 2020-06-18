@@ -110,13 +110,9 @@ router.post('/rib', async (req, res) => {
   }
 });
 
-
 router.post('/autovalidation', (req, res) => {
   Order.findOne({ state: 'PVF' });
 });
-
-
-
 
 router.post('/save', (req, res) => {
 
@@ -631,7 +627,6 @@ router.post('/usercaddy', (req, res) => {
     });
 });
 
-
 router.get('/listStates', (req, res) => {
   let states = [
     { id: 'CART', name: 'Cart' },
@@ -749,7 +744,6 @@ clientOrderDetails = function (order) {
   return container;
 }
 
-
 router.get('/:id', (req, res) => {
   Order.find({ idUser: req.params.id })
     .then((cmd) => {
@@ -824,7 +818,6 @@ router.get('/retry/:id/:export', (req, res) => {
   });
 });
 
-
 router.post('/listExport', async (req, res) => {
   let sort = {};
   sort.id = 1;
@@ -857,8 +850,6 @@ router.post('/list', async (req, res) => {
   }
   return res.status(200).json({ recordsFiltered: orderCount, recordsTotal: orderTotalCount, draw: req.body.draw, listorders: orders });
 });
-
-
 
 router.post('/history', (req, res) => {
   if (req.headers.authorization) {
@@ -1006,18 +997,15 @@ Date.prototype.previousDay = function () {
   return this;
 };
 
-
 Date.prototype.nextDay = function () {
   this.setDate(this.getDate() + 1);
   return this;
 };
 
-
 Date.prototype.nextMonth = function (period) {
   this.setMonth(this.getMonth() + period);
   return this;
 };
-
 
 verifWeek = function (dt) {
   dt.previousDay();
@@ -1027,7 +1015,6 @@ verifWeek = function (dt) {
   return dt;
 };
 
-
 verifWeekNext = function (dt) {
   dt.nextDay();
   while (dt.getDay() === 0 || dt.getDay() === 6) {
@@ -1036,13 +1023,11 @@ verifWeekNext = function (dt) {
   return dt;
 };
 
-
 Date.prototype.yyyymmdd = function () {
   var mm = this.getMonth() + 1;
   var dd = this.getDate();
   return [this.getFullYear(), (mm > 9 ? '' : '0') + mm, (dd > 9 ? '' : '0') + dd].join('');
 };
-
 
 yyyymmdd = function (d) {
   let dat = d.split('-');
@@ -1055,8 +1040,6 @@ yyyymmdd = function (d) {
     (dd > 9 ? '-' : '-0') + dd
   ].join('');
 };
-
-
 
 idcommande = function (prefix, nbcar) {
   Config.findOne({ id: "counter" }).then((cnt) => {
@@ -1074,19 +1057,16 @@ idcommande = function (prefix, nbcar) {
   });
 };
 
-
 endperiod = function (data, periode) {
 
   let dateclone = new Date(clone(data));
   return dateclone.setMonth(dateclone.getMonth() + periode);
 };
 
-
 precisionRound = function (number, precision) {
   var factor = Math.pow(10, precision);
   return Math.round(number * factor) / factor;
 };
-
 
 totalttc = function (order) {
   if (order.currency !== 'usd') {
@@ -1095,7 +1075,6 @@ totalttc = function (order) {
   return ComputeTotalTtcUsd(order);
 };
 
-
 addPool = function (data) {
   Pool.findOne({ id_cmd: data.id_cmd, begin_date: data.begin_date }).then(p => {
     if (!p) {
@@ -1103,8 +1082,6 @@ addPool = function (data) {
     }
   });
 };
-
-
 
 clone = function (obj) {
   try {
@@ -1410,7 +1387,5 @@ async function autoValidationOrderStateIsPSC(order, log, logger) {
     }
   });
 }
-
-
 
 module.exports = router;

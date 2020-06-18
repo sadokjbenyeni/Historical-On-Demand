@@ -172,13 +172,28 @@ export class OrderHistoryDetailsComponent implements OnInit {
         liens.push(environment.gateway + '/api/user/download/' + this.token + '/' + path + '/' + lien);
       });
     });
-    const element = this.setting.element.dynamicDownload;
-    const fileType = 'text/plain';
-    element.setAttribute('href', `data:${fileType};charset=utf-8,${liens.join('\r\n')}`);
-    element.setAttribute('download', fileName + '.txt');
 
-    var event = new MouseEvent("click");
-    element.dispatchEvent(event);
+    const downloadeLinksString = liens.join('\n');
+    var textFileAsBlob = new Blob([downloadeLinksString], { type: 'text/plain', endings: 'native' });
+
+    var downloadLink = document.createElement("a");
+    downloadLink.download = fileName;
+    downloadLink.innerHTML = "Download File";
+    if (window.webkitURL != null) {
+      // Chrome allows the link to be clicked
+      // without actually adding it to the DOM.
+      downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+    }
+    else {
+      // Firefox requires the link to be added to the DOM
+      // before it can be clicked.
+      downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+      downloadLink.onclick = ((mouseEvent) => document.body.removeChild(downloadLink));
+      downloadLink.style.display = "none";
+      document.body.appendChild(downloadLink);
+    }
+
+    downloadLink.click();
   }
 
   yyyymmdd = function (date) {
@@ -303,22 +318,34 @@ export class OrderHistoryDetailsComponent implements OnInit {
     let fileName = this.idOrder + "_Manifest";
     let downloadablelinks = [];
     this.deliverablesService.getLinks(this.idOrder)
-                            .subscribe(productslinks => {
-      productslinks.forEach(links => {
-        links.forEach(link => {
-          downloadablelinks.push(link);
+      .subscribe(productslinks => {
+        productslinks.forEach(links => {
+          links.forEach(link => {
+            downloadablelinks.push(link);
+          });
         });
-      });
-      if (!this.setting.element.dynamicDownload) {
-        this.setting.element.dynamicDownload = document.createElement('a');
-      }
-      const element = this.setting.element.dynamicDownload;
-      const fileType = 'text/plain';
-      element.setAttribute('href', `data:${fileType};charset=utf-8,` + downloadablelinks.join('\n'));
-      element.setAttribute('download', fileName + '.txt');
-      var event = new MouseEvent("click");
-      element.dispatchEvent(event);
-    })
+        const downloadeLinksString = downloadablelinks.join('\n');
+        var textFileAsBlob = new Blob([downloadeLinksString], { type: 'text/plain', endings: 'native' });
+
+        var downloadLink = document.createElement("a");
+        downloadLink.download = fileName;
+        downloadLink.innerHTML = "Download File";
+        if (window.webkitURL != null) {
+          // Chrome allows the link to be clicked
+          // without actually adding it to the DOM.
+          downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+        }
+        else {
+          // Firefox requires the link to be added to the DOM
+          // before it can be clicked.
+          downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+          downloadLink.onclick = ((mouseEvent) => document.body.removeChild(downloadLink));
+          downloadLink.style.display = "none";
+          document.body.appendChild(downloadLink);
+        }
+
+        downloadLink.click();
+      })
   }
 }
 
