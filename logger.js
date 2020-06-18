@@ -3,7 +3,7 @@ const winston = require('winston');
 const { combine, timestamp, label, printf } = winston.format;
 // import { format } from 'winston';
 const baseFormatLogger = printf(({ level, message, label, timestamp, className }) => {
-    return `${timestamp} | ${level} | [${label}] | ${className} | ${message}`;
+  return `${timestamp} | ${level} | [${label}] | ${className} | ${message}`;
 });
 
 class LoggerFactory {
