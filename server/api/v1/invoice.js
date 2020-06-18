@@ -4,8 +4,7 @@ const InvoiceService = require('../../service/invoiceService');
 const Orders = mongoose.model('Order');
 path = require('path');
 var mime = require('mime');
-// const invoiceDirectory = require('../../config/config.js').InvoiceDirectory();
-
+const OrderPdfService = require('../../service/orderPdfService');
 
 router.post('/', async (req, res) => {
     var result = await new InvoiceService().insertInvoice(order.id, updt.idCommande, order.idUser);
@@ -21,15 +20,22 @@ router.get('/download/:orderId', async (req, res) => {
     }
     // var user = await User.findOne({ token: req.headers.authorization }).exec();
     var order = await Orders.findOne({ id: req.params.orderId }).exec();
-    let invoiceDirectory = await new InvoiceService().getInvoicePath(order.id);
-    let file = '/' + invoiceDirectory;
+    let directory = await new InvoiceService().getInvoicePath(order.id);
+    if (directory === order.id) {
+        await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande);
+        await new InvoiceService().insertInvoice(order.id, order.idCommande, order.idUser);
+    }
+    let file = '/' + directory;
     var filename = path.basename(file);
     var mimetype = mime.lookup(file);
     res.setHeader('File-name', filename);
     res.setHeader('Content-disposition', 'attachment; filename=' + filename);
     res.setHeader('Content-type', mimetype);
-
-    return res.sendFile(process.cwd() + file);
-
+    try {
+        return res.sendFile(process.cwd() + file);
+    }
+    catch (error) {
+        return res.status(404).json({ error: `Yout invoice doesn't exist, please contact support with order Id ${order.id} to generate a new one` });
+    }
 });
 module.exports = router;

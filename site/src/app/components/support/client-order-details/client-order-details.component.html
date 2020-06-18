@@ -26,11 +26,11 @@
                   <p>Order ID : <b> {{ idOrder }}</b></p>
                   <p>Submission Date and Time : <b> {{ submissionDate | date:'medium' }}</b></p>
                   <p>Payment method : <b>{{ payment }}</b></p>
-                  <p>Invoice : <b><a *ngIf="invoice!=undefined" target="_blank"
-                        [href]="'/files/invoice/' + invoice + '.pdf'">{{invoice}} </a></b></p>
+                  <p>Invoice : <b><a role="button" (click)="downloadInvoice()" *ngIf="invoice!=undefined"
+                        target="_blank">Download Invoice</a></b></p>
                   <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b>
-                    <p>Order Type: <b> {{ type }} </b></p>
-                    <p>Sales: <b> {{sales}}</b></p>
+                  <p>Order Type: <b> {{ type }} </b></p>
+                  <p>Sales: <b> {{sales}}</b></p>
                 </div>
                 <div class="col-md-6">
                   <p>Company Name: <b>{{ company }}</b></p>

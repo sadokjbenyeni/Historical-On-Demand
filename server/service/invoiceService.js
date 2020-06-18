@@ -14,8 +14,11 @@ module.exports = function () {
 
     this.getInvoicePath = async function (orderId) {
         var invoice = await Invoice.findOne({ orderId: orderId }).exec();
-        invoicePath = invoice.path;
-        if (invoicePath) {
+        if (!invoice) {
+            return orderId;
+        }
+        else {
+            invoicePath = invoice.path;
             return invoicePath;
         }
     }

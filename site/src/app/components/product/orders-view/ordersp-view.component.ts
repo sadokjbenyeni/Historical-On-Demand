@@ -8,6 +8,7 @@ import { AlertService, Alert } from '../../../_alert';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SalesService } from '../../../services/sales.service';
+import { DownloadInvoiceService } from '../../../../app/services/Intern/download-invoice.service';
 
 @Component({
   selector: 'app-ordersp-view',
@@ -66,7 +67,8 @@ export class OrderspViewComponent implements OnInit {
     private currencyService: CurrencyService,
     private orderService: OrderService,
     private salesService: SalesService,
-    protected alertService: AlertService
+    protected alertService: AlertService,
+    private downloadInvoiceService: DownloadInvoiceService
   ) {
     route.params.subscribe(_ => this.idCmd = _.id);
   }
@@ -312,9 +314,12 @@ export class OrderspViewComponent implements OnInit {
     return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
 
+  downloadInvoice() {
+    this.downloadInvoiceService.getInvoice(this.idOrder, this.invoice);
+  }
+
   updateChanges() {
-    this.orderService.SaveOrderMetadata(this.idOrder, this.internalNote, this.choosenSale, this.choosedOrderType).subscribe(()=>
-    {
+    this.orderService.SaveOrderMetadata(this.idOrder, this.internalNote, this.choosenSale, this.choosedOrderType).subscribe(() => {
       this.alertService.success('Changes Saved Successfully', this.options)
     }
     );

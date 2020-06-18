@@ -10,6 +10,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from '../../../../environments/environment';
 import { OrderDetails } from '../../../Models/Order/OrderDetails';
 import { OrderHistoryDetailsComponent } from '../../client/order-history-details/order-history-details.component';
+import { DownloadInvoiceService } from '../../../../app/services/Intern/download-invoice.service';
 
 @Component({
   selector: 'app-client-order-details',
@@ -68,13 +69,12 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
   productsLogs: Array<any>;
 
   constructor(
-    private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
     private modalService: NgbModal,
-    private configService: ConfigService,
     private currencyService: CurrencyService,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private downloadInvoiceService: DownloadInvoiceService
   ) {
     route.params.subscribe(_ => { this.idCmd = _.id; });
   }
@@ -115,7 +115,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
 
   detail(c) {
     this.item = c;
-    this.loadLogsAndSetupOrderDetails(c);    
+    this.loadLogsAndSetupOrderDetails(c);
     if (this.item.onetime === 1) {
       this.item.reference = this.item.idElem;
     }
@@ -165,7 +165,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
       this.type = order.type;
       this.internalNote = order.internalNote;
       this.productsLogs = responseLogs.logs;
-      let index = 0;      
+      let index = 0;
       this.cart = [];
       if (order.products.length > 0) {
         order.products.forEach((product) => {
@@ -292,6 +292,9 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
     return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
 
+  downloadInvoice() {
+    this.downloadInvoiceService.getInvoice(this.idOrder, this.invoice);
+  }
 
   private loadOrderDetailsAndLogsAndSetupOrderDetails() {
     this.orderService.getSupportOrderDetailsById(this.idCmd).subscribe(order => {

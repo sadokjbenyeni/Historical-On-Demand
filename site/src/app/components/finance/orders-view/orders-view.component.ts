@@ -6,6 +6,7 @@ import { ConfigService } from '../../../services/config.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { PdfService } from '../../../../app/services/pdf.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
+import { DownloadInvoiceService } from '../../../../app/services/Intern/download-invoice.service';
 
 @Component({
   selector: 'app-orders-view',
@@ -56,7 +57,8 @@ export class OrdersViewComponent implements OnInit {
     private modalService: NgbModal,
     private currencyService: CurrencyService,
     private orderService: OrderService,
-    private pdfService: PdfService
+    private downloadInvoiceService: DownloadInvoiceService
+
   ) {
     route.params.subscribe(_ => this.idCmd = _.id);
   }
@@ -227,5 +229,8 @@ export class OrdersViewComponent implements OnInit {
     if (!this.states)
       return stateId;
     return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
+  }
+  downloadInvoice() {
+    this.downloadInvoiceService.getInvoice(this.idOrder, this.invoice);
   }
 }
