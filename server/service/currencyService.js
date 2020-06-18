@@ -15,6 +15,7 @@ module.exports.convertproductsFeestoCurrency = (products, userCurrency, cube) =>
         }
         else if (userCurrency != item.feesCurrency) {
             var ratio = getRatio(item.feesCurrency, userCurrency, cube)
+            item.currencyTx = ratio;
             item.TotalFees *= ratio;
             item.exchangefee *= ratio;
             item.feesCurrency = userCurrency;
@@ -22,16 +23,20 @@ module.exports.convertproductsFeestoCurrency = (products, userCurrency, cube) =>
     })
 }
 module.exports.convertproductstoCurrency = (order, currency, cube) => {
-    ratio = getRatio("usd", currency, cube);
-    order.products.forEach(item => {
-        item.subscription.forEach(subsc => {
-            subsc.ht *= ratio
-        })
-        item.onetime.forEach(oneoff => {
-            oneoff.ht *= ratio
-        })
-    })
-    order.totalHT = (order.totalHT * ratio) + order.totalExchangeFees
+    if (currency != "usd".toUpperCase()) {
+
+        ratio = getRatio("usd", currency, cube);
+        order.currencyTxUsd =ratio;
+            order.products.forEach(item => {
+                item.subscription.forEach(subsc => {
+                    subsc.ht *= ratio
+                })
+                item.onetime.forEach(oneoff => {
+                    oneoff.ht *= ratio
+                })
+            })
+        order.totalHT = (order.totalHT * ratio) + order.totalExchangeFees
+    }
 }
 function getRatio(currencyfrom, currencyTo, cube) {
     var ratio = 1;

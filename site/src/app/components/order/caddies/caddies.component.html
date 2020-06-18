@@ -53,16 +53,16 @@
       <button mat-button matStepperPrevious>Back</button>
       <button mat-button matStepperNext>Next</button>
     </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Payment</ng-template>
+      <app-payment *ngIf="rib" [rib]="rib"></app-payment>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button matStepperNext>Next</button>
+    </mat-step>
     <mat-step *ngIf="caddy">
       <ng-template matStepLabel>Order Confirmation</ng-template>
       <app-caddy-table [caddy]='caddy' [symbol]='symbol'></app-caddy-table>
       <app-price [caddy]='caddy' [symbol]='symbol' [vatValueApply]="vatValueApply"></app-price>
-      <button mat-button matStepperPrevious>Back</button>
-      <button mat-button matStepperNext>Next</button>
-    </mat-step>
-    <mat-step>
-      <ng-template matStepLabel>Payment</ng-template>
-      <app-payment *ngIf="rib" [rib]="rib"></app-payment>
       <button mat-button matStepperPrevious>Back</button>
       <button mat-button matStepperNext>Next</button>
     </mat-step>

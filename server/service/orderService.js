@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
 const Orders = mongoose.model('Order');
-const Users = mongoose.model('User')
+const Users = mongoose.model('User');
+const Invoices = mongoose.model('Invoice')
 const dnwfile = require('../config/config').dnwfile();
 const currencyService = require('./currencyService');
 const feesService = require('./feesService');
 const fluxService = require('./fluxService');
+const { invoice } = require('paypal-rest-sdk');
+const { compareSync } = require('bcrypt-nodejs');
 
 module.exports.updateOrderMetaData = async (id, note, sales, type) => {
     var orderToUpdate = await Orders.findOne({ id: id }).exec();    
@@ -128,3 +131,140 @@ module.exports.UpdateProductDate = async (caddy, id_product, dateToChange, date)
 daysDiff = function (start, end) {
     return end - start > 0 ? Math.ceil((end - start) / (1000 * 3600 * 24)) : 0;
 }
+
+
+module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
+
+    let log = {};
+    let url = '/api/mail/newOrder';
+    let corp = {};
+    caddy = await this.getCaddy(token)
+    // Autovalidation Compliance
+    log.date = new Date();
+    let eids = [];
+    //set final billing adress
+    caddy.cityBilling = billingInfo.cityBilling;
+    caddy.countryBilling = billingInfo.countryBilling;
+    caddy.postalCodeBilling = billingInfo.postalCode;
+    caddy.vat = billingInfo.vatNumber;
+    caddy.addressBilling = billingInfo.addressBilling;
+    //
+    eids = caddy.products.map(item => item.eid)
+    corp = {
+        "email": caddy.email,
+        "idCmd": caddy.id,
+        "paymentdate": new Date(),
+        "token": token,
+        "service": 'Compliance'
+    };
+    //ezjfruizehfuezifhzeuifhzeufizehfuzeifhzeufoehfgyuferçohg_àerghu_zeghazeryugh enleve le commentaire du sendmail avant de push !!!!!!!
+    // sendMail(url, corp);
+    let index = caddy.products.indexOf(product => (product.onetime === 1 && product.historical_data && (product.historical_data.backfill_agreement ||
+        product.historical_data.backfill_applyfee)))
+
+    if (index != -1 || survey.dd === "1") {
+        caddy.state = 'PVC';
+        log.status = 'PVC';
+        log.referer = 'Client';
+    } else {
+        caddy.validationCompliance = true;
+        log.referer = 'Autovalidation';
+        caddy.state = 'PVP';
+        log.status = 'PVP';
+        // Envoi email aux products
+    }
+    if (caddy.state === "PVC") {
+        // Envoi email aux compliances
+        const compliances = await Users.find({ roleName: "Compliance" }, { email: true, _id: false }).exec()
+        compliances.forEach(compliance => {
+            //   sendMail('/api/mail/newOrderHoD',
+            //     {
+            //       idCmd: corp.idCmd,
+
+            //       email: compliance.email,
+
+            //       lastname: caddy.lastname,
+
+            //       firstname: caddy.firstname,
+
+            //       eid: caddy.eid.join(),
+            //       date: logsPayment.date,
+
+            //       total: totalttc(caddy),
+            //       service: "Compliance"
+            //     });
+        });
+    }
+
+    if (caddy.state === "PVP") {
+        // Envoi email aux products
+        const products = await Users.find({ roleName: "Product" }, { email: true, _id: false }).exec()
+        products.forEach(prod => {
+            // sendMail('/api/mail/newOrderHoD',
+            //   {
+            //     idCmd: corp.idCmd,
+            //     email: prod.email,
+            //     lastname: caddy.lastname,
+            //     firstname: caddy.firstname,
+            //     eid: caddy.eid.join(),
+            //     date: logsPayment.date,
+            //     total: totalttc(caddy),
+            //     service: "Product"
+            //   });
+        });
+    }
+
+
+    let cube = await fluxService.getCube();
+    caddy.totalExchangeFees = await feesService.calculatefeesOfOrder(caddy, currency, cube);
+    currencyService.convertproductstoCurrency(caddy, currency, cube)
+    caddy.currency = currency
+    caddy.total = totalttcv2(caddy);
+    await Orders.updateOne({ id: caddy.id },
+        {
+            $set: {
+                total: caddy.total,
+                currency: caddy.currency,
+                survey: survey,
+                validationCompliance: caddy.validationCompliance,
+                submissionDate: new Date(),
+                state: caddy.state,
+            }
+        }).exec();
+    var invoice = new Invoices(
+        {
+            totalHT: caddy.totalHT,
+            total: caddy.total,
+            currency: caddy.currency,
+            survey: caddy.survey,
+            validationCompliance: caddy.validationCompliance,
+            submissionDate: new Date(),
+            state: caddy.state,
+            products: caddy.products,
+            addressBilling: caddy.addressBilling,
+            cityBilling: caddy.cityBilling,
+            postalCodeBilling: caddy.postalCodeBilling,
+            countryBilling: caddy.countryBilling,
+            vatNumber: caddy.vcaddyatNumber,
+            state: caddy.state,
+            totalExchangeFees: caddy.totalExchangeFees,
+            currencyTxUsd: caddy.currencyTxUsd,
+            email: caddy.email,
+            id_cmd: caddy.id_cmd,
+            companyName: caddy.companyName,
+            idUser: caddy.idUser,
+            payment: caddy.payment
+        });
+    await invoice.save((error, pnerf) => {
+        if (error) {
+            console.log(error);
+        }
+    })
+    return true;
+}
+
+
+totalttcv2 = function (o) {
+    totalVat = o.totalHT * o.vatValue;
+    return precisionRound((o.totalHT * (1 + o.vatValue)), 2);
+};
