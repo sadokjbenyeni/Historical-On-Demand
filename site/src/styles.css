@@ -464,3 +464,5 @@ re-captcha > div {
 
 /* html, body { height: 100%; } */
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+a { cursor: pointer; }
