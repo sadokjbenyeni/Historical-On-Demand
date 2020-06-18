@@ -43,7 +43,7 @@
 
           <ng-container matColumnDef="invoice">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Invoice </th>
-            <td mat-cell *matCellDef="let element"> <a target="_blank"
+            <td mat-cell *matCellDef="let element"> <a target="_blank" *ngIf="element.invoice.idCommande!=undefined"
                 (click)="downloadInvoice(element.invoice.id, element.invoice.idCommande)">Download Invoice</a>
             </td>
           </ng-container>

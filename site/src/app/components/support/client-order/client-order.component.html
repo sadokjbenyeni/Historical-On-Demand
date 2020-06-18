@@ -16,19 +16,25 @@
           <table datatable [dtOptions]="dtOptions" class="row-border hover" width="100%">
             <thead>
               <tr class='searchRow'>
-                <th><input type="text" placeholder="Client" name="search-client" class="form-control input-border-color" (keyup)="onKey($event, 0)"></th>
-                <th><input type="number" min="0" placeholder="Order Id" name="search-orderId" class="form-control input-border-color" (keyup)="onKey($event, 1)"></th>
+                <th><input type="text" placeholder="Client" name="search-client" class="form-control input-border-color"
+                    (keyup)="onKey($event, 0)"></th>
+                <th><input type="number" min="0" placeholder="Order Id" name="search-orderId"
+                    class="form-control input-border-color" (keyup)="onKey($event, 1)"></th>
                 <!-- <th><input type="text" placeholder="Order Type" name="search-orderType" class="form-control input-border-color" (keyup)="onKey($event, 2)"></th> -->
                 <th>
-                  <select name="search" class="form-control input-border-color" [(ngModel)]="state" (ngModelChange)="changeState(2)">
+                  <select name="search" class="form-control input-border-color" [(ngModel)]="state"
+                    (ngModelChange)="changeState(2)">
                     <option value="">Select State</option>
                     <option *ngFor='let s of states' [value]="s.id">{{s.name}}</option>
                   </select>
                 </th>
                 <th>
                   <div class="form-group input-group" style="width: 150px; text-align: center; margin: auto">
-                    <input class="form-control input-border-color ng-untouched ng-pristine ng-valid" name="vat" placeholder="yyyy-mm-dd" type="text" name="search-date" ngbDatepicker #sd="ngbDatepicker"  [(ngModel)]="dateSubmission"  (ngModelChange)="changeDate(3)">
-                    <span class="input-group-btn color clickable" (click)="sd.toggle()"><i class="fa fa-calendar"></i></span>
+                    <input class="form-control input-border-color ng-untouched ng-pristine ng-valid" name="vat"
+                      placeholder="yyyy-mm-dd" type="text" name="search-date" ngbDatepicker #sd="ngbDatepicker"
+                      [(ngModel)]="dateSubmission" (ngModelChange)="changeDate(3)">
+                    <span class="input-group-btn color clickable" (click)="sd.toggle()"><i
+                        class="fa fa-calendar"></i></span>
                   </div>
                 </th>
                 <!-- <th><input type="text" placeholder="Purchase Type" name="search-redistribution" class="form-control input-border-color" (keyup)="onKey($event, 4)"></th> -->
@@ -41,9 +47,10 @@
                     <option value=3>One-Off & Subscription</option>
                   </select>
                 </th>
-                <th><input type="text" placeholder="Redistribution" name="search-redistribution" class="form-control input-border-color" (keyup)="onKey($event, 5)"></th>
+                <th><input type="text" placeholder="Redistribution" name="search-redistribution"
+                    class="form-control input-border-color" (keyup)="onKey($event, 5)"></th>
                 <th></th>
-              </tr>   
+              </tr>
               <tr>
                 <th>Client</th>
                 <th>Order Id</th>
