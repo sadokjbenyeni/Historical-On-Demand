@@ -331,7 +331,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
             downloadablelinks.push(link);
           });
         });
-      	//if (!this.setting.element.dynamicDownload) {
+        //if (!this.setting.element.dynamicDownload) {
         //this.setting.element.dynamicDownload = document.createElement('a');
         const downloadeLinksString = downloadablelinks.join('\n');
         var textFileAsBlob = new Blob([downloadeLinksString], { type: 'text/plain', endings: 'native' });
@@ -341,20 +341,21 @@ export class OrderHistoryDetailsComponent implements OnInit {
         downloadLink.innerHTML = "Download File";
         if (window.webkitURL != null) {
           // Chrome allows the link to be clicked
-              if (!this.setting.element.dynamicDownload) {
-        this.setting.element.dynamicDownload = document.createElement('a');  // without actually adding it to the DOM.
-          downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-        //}
-        //const element = this.setting.element.dynamicDownload;
-        //const fileType = 'text/plain';
-        //element.setAttribute('href', `data:${fileType};charset=utf-8,` + downloadablelinks.join('\n'));
-        //element.setAttribute('download', fileName + '.txt');
-        //var event = new MouseEvent("click");
-        //element.dispatchEvent(event);
-          document.body.appendChild(downloadLink);
-        }
+          if (!this.setting.element.dynamicDownload) {
+            this.setting.element.dynamicDownload = document.createElement('a');  // without actually adding it to the DOM.
+            downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+            //}
+            //const element = this.setting.element.dynamicDownload;
+            //const fileType = 'text/plain';
+            //element.setAttribute('href', `data:${fileType};charset=utf-8,` + downloadablelinks.join('\n'));
+            //element.setAttribute('download', fileName + '.txt');
+            //var event = new MouseEvent("click");
+            //element.dispatchEvent(event);
+            document.body.appendChild(downloadLink);
+          }
 
-        downloadLink.click();
+          downloadLink.click();
+        }
       })
   }
 

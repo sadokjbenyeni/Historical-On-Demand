@@ -443,7 +443,7 @@ re-captcha > div {
 }
 /* Close Button */
 .bottom-button.red-color {
-     background-color: #bd010a;  box-shadow: 5px 5px 5px rgba(241, 74, 79, 0.2);
+  background-color: #bd010a;  box-shadow: 5px 5px 5px rgba(241, 74, 79, 0.2);
 }
 
 /* Cancel Order Button */
