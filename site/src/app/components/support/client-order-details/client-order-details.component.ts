@@ -11,6 +11,7 @@ import { environment } from '../../../../environments/environment';
 import { OrderDetails } from '../../../Models/Order/OrderDetails';
 import { OrderHistoryDetailsComponent } from '../../client/order-history-details/order-history-details.component';
 import { DownloadInvoiceService } from '../../../../app/services/Intern/download-invoice.service';
+import { InvoiceService } from '../../../../app/services/invoice.service';
 
 @Component({
   selector: 'app-client-order-details',
@@ -74,7 +75,8 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
     private modalService: NgbModal,
     private currencyService: CurrencyService,
     private orderService: OrderService,
-    private downloadInvoiceService: DownloadInvoiceService
+    private downloadInvoiceService: DownloadInvoiceService,
+    private invoiceService: InvoiceService
   ) {
     route.params.subscribe(_ => { this.idCmd = _.id; });
   }
@@ -294,6 +296,10 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
 
   downloadInvoice() {
     this.downloadInvoiceService.getInvoice(this.idOrder, this.invoice);
+  }
+
+  generateInvoice() {
+    this.invoiceService.generateInvoice(this.idOrder).subscribe();
   }
 
   private loadOrderDetailsAndLogsAndSetupOrderDetails() {

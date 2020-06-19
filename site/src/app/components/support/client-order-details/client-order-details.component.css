@@ -54,6 +54,10 @@
      background-color: #ff5e00;
    }
 
-   .fa-chevron-left{
+  .fa-chevron-left{
     padding-right: 5px;
-}
+  }
+
+  .fa-file-pdf-o{
+    padding-right: 5px;
+  }

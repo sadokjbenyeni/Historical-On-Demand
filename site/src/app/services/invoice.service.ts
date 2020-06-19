@@ -22,6 +22,10 @@ export class InvoiceService {
       .map((resObj: Blob) => resObj)
       .catch((errorObj: any) => Observable.throw(errorObj || 'Server error'));
   }
+
+  generateInvoice(orderId: any): Observable<any> {
+    return this.http.get<any>(environment.api + "/invoice/generate/" + orderId);
+  }
 }
 
 

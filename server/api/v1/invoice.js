@@ -38,4 +38,22 @@ router.get('/download/:orderId', async (req, res) => {
         return res.status(404).json({ error: `Yout invoice doesn't exist, please contact support with order Id ${order.id} to generate a new one` });
     }
 });
+
+router.get('/generate/:orderId', async (req, res) => {
+    if (!req.headers.authorization) {
+        return res.status(401).json({ error: "No token provided in header" })
+    }
+    if (!req.params.orderId) {
+        return res.status(400).json({ error: "No order id provided" })
+    }
+    var order = await Orders.findOne({ id: req.params.orderId }).exec();
+    try {
+        await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande);
+    }
+    catch (error) {
+        req.logger.error({ error: error, className: "Invoice API" });
+        return res.status(503).json({ message: "An error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
+    }
+    return res.status(200).json({ message: 'Ok' })
+})
 module.exports = router;

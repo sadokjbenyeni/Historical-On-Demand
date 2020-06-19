@@ -443,20 +443,20 @@ re-captcha > div {
 }
 /* Close Button */
 .bottom-button.red-color {
-     background-image: linear-gradient(to right, #ff000d, #e73e44, #e4262d, #700006);  box-shadow: 0 5px 15px rgba(241, 74, 79, 0.4);
+     background-color: #bd010a;  box-shadow: 5px 5px 5px rgba(241, 74, 79, 0.2);
 }
 
 /* Cancel Order Button */
 .bottom-button.yellow-color {
-  background-image: linear-gradient(to right, #ddd905, #dfc13e, #dfd222, #9b8300);  box-shadow: 0 5px 15px rgba(230, 241, 74, 0.4);
+  background-color: #dfc534;  box-shadow: 5px 5px 5px rgba(230, 241, 74, 0.2);
 }
 
 .bottom-button.green-color {
-  background-image: linear-gradient(to right, #00901f, #2caf4d, #1ada5a, #0f5f30);  box-shadow: 0 5px 15px rgba(2, 148, 14, 0.4);
+  background-color:  #0f5f30;  box-shadow: 5px 5px 5px rgba(2, 148, 14, 0.2);
 }
 
 .bottom-button.orange-color {
-  background-image: linear-gradient(to right, #ff5100, #ee7241, #e7964b, #bb4500);  box-shadow: 0 5px 15px rgba(192, 127, 6, 0.4);
+  background-color:  rgb(230, 84, 44);  box-shadow: 5px0 5px 5px rgba(192, 127, 6, 0.2);
 }
 
 
