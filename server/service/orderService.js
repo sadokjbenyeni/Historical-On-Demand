@@ -35,7 +35,7 @@ module.exports.getLinks = async (user, order, logger) => {
                                               && linkContainer.links !== undefined && linkContainer.links && linkContainer.links.length > 0)
                         .map(linkObj => linkObj.links.filter(element => element && element.link !== undefined))
                         .reduce((left, right) => left.concat(right))
-                        .map(links => links.link.split('|').map(elem => dnwfile + '/api/user/download/' + user.token + '/' + product.id_undercmd + '/' + elem));                                                                            
+                        .map(links => links.link.split('|').map(elem => dnwfile + '/api/v1/user/download/' + user.token + '/' + product.id_undercmd + '/' + elem));                                                                            
         })
         .map(master => master.reduce((left, right) => left.concat(right)));
     // logger.debug({message: 'result: '+ JSON.stringify(result), className: 'Order Service'}); 
