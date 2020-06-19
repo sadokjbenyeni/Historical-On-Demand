@@ -25,14 +25,13 @@ router.get('/download/:orderId', async (req, res) => {
         await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande);
         await new InvoiceService().insertInvoice(order.id, order.idCommande, order.idUser);
     }
-    let file = '/' + directory;
-    var filename = path.basename(file);
-    var mimetype = mime.lookup(file);
+    var filename = path.basename(directory);
+    var mimetype = mime.lookup(directory);
     res.setHeader('File-name', filename);
     res.setHeader('Content-disposition', 'attachment; filename=' + filename);
     res.setHeader('Content-type', mimetype);
     try {
-        return res.sendFile(process.cwd() + file);
+        return res.sendFile(directory);
     }
     catch (error) {
         return res.status(404).json({ error: `Yout invoice doesn't exist, please contact support with order Id ${order.id} to generate a new one` });

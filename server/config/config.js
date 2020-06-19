@@ -6,10 +6,12 @@ exports.domain = () => { return "https://hod-lab.quanthouse.com"; }
 
 exports.localdomain = () => { return "http://gateway01.hod-lab.quanthouse.com"; }
 
-exports.localhost = () => { return "localhost:4200" }
+// exports.InvoiceDirectory = () => {
+//     return "/mapr/client_invoices/";
+// }
+
 exports.InvoiceDirectory = () => {
-    if (this.localhost) return "files/invoice/";
-    else if (this.domain) return "mapr/client_invoices/";
+    return "c:/temp/files/invoice/";
 }
 // IPs ElastcSearch
 exports.hostsES = () => { return ['10.0.10.102:9200']; }
