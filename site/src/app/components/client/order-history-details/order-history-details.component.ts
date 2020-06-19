@@ -165,14 +165,14 @@ export class OrderHistoryDetailsComponent implements OnInit {
     if (!this.setting.element.dynamicDownload) {
       this.setting.element.dynamicDownload = document.createElement('a');
     }
-    let liens = [];
+    let links = [];
     text.forEach(ll => {
       ll.link.split('|').forEach(lien => {
-        liens.push(environment.gateway + '/api/user/download/' + this.token + '/' + path + '/' + lien);
+        links.push(environment.gateway + '/api/v1/user/download/' + this.token + '/' + path + '/' + lien);
       });
     });
 
-    const downloadeLinksString = liens.join('\n');
+    const downloadeLinksString = links.join('\n');
     var textFileAsBlob = new Blob([downloadeLinksString], { type: 'text/plain', endings: 'native' });
 
     var downloadLink = document.createElement("a");
