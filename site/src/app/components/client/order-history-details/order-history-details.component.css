@@ -80,7 +80,8 @@ table {
 /***********************/
 
 .fa-trash-o, .fa-chevron-left, .fa-cloud-download{
-    padding-right: 5px;
+    padding-right: 3px;
+    padding-bottom: 2px;
 }
 
 /*Accordion Styling code*/
