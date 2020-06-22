@@ -10,9 +10,8 @@ const { invoice } = require('paypal-rest-sdk');
 const { compareSync } = require('bcrypt-nodejs');
 
 module.exports.updateOrderMetaData = async (id, note, sales, type) => {
-    var orderToUpdate = await Orders.findOne({ id: id }).exec();    
-    if (!orderToUpdate)
-    {
+    var orderToUpdate = await Orders.findOne({ id: id }).exec();
+    if (!orderToUpdate) {
         throw new Error('Order with Id ' + id + ' not found')
     }
     orderToUpdate.internalNote = note;
@@ -21,31 +20,28 @@ module.exports.updateOrderMetaData = async (id, note, sales, type) => {
     await Orders.update({ _id: orderToUpdate._id }, { $set: orderToUpdate }).exec();
 };
 module.exports.getLinks = async (user, order, logger) => {
-    if(!user || user === undefined)
-    {
+    if (!user || user === undefined) {
         throw Error('User is undefined');
     }
-    if(!order || order === undefined)
-    {
+    if (!order || order === undefined) {
         throw Error('Order is undefined');
     }
-    logger.info({message:  order.id + ': getting links... ', className: 'Order Service'});
-    var products = order.products.filter(product => product !== undefined);    
+    logger.info({ message: order.id + ': getting links... ', className: 'Order Service' });
+    var products = order.products.filter(product => product !== undefined);
     products = products.filter(product => product.links !== undefined && product.links.length > 0);
-    var result = products.map(product => 
-        {
-            logger.debug({message: 'product: ' + product.id_undercmd + ' => links: ' + JSON.stringify(product.links), className: 'Order Service'});
-            if (product.subscription === 1) {                
-                product.links = [product.links.filter(link => link !== undefined && link.status === "active" && link.links !== undefined && link.links.length > 0).pop()];
-                //link.links = [link.links[0]];
-            }
-            return product.links
-                        .filter(linkContainer => linkContainer && linkContainer !== undefined &&  linkContainer.status === "active" 
-                                              && linkContainer.links !== undefined && linkContainer.links && linkContainer.links.length > 0)
-                        .map(linkObj => linkObj.links.filter(element => element && element.link !== undefined))
-                        .reduce((left, right) => left.concat(right))
-                        .map(links => links.link.split('|').map(elem => dnwfile + '/api/user/download/' + user.token + '/' + product.id_undercmd + '/' + elem));                                                                            
-        })
+    var result = products.map(product => {
+        logger.debug({ message: 'product: ' + product.id_undercmd + ' => links: ' + JSON.stringify(product.links), className: 'Order Service' });
+        if (product.subscription === 1) {
+            product.links = [product.links.filter(link => link !== undefined && link.status === "active" && link.links !== undefined && link.links.length > 0).pop()];
+            //link.links = [link.links[0]];
+        }
+        return product.links
+            .filter(linkContainer => linkContainer && linkContainer !== undefined && linkContainer.status === "active"
+                && linkContainer.links !== undefined && linkContainer.links && linkContainer.links.length > 0)
+            .map(linkObj => linkObj.links.filter(element => element && element.link !== undefined))
+            .reduce((left, right) => left.concat(right))
+            .map(links => links.link.split('|').map(elem => dnwfile + '/api/user/download/' + user.token + '/' + product.id_undercmd + '/' + elem));
+    })
         .map(master => master.reduce((left, right) => left.concat(right)));
     // logger.debug({message: 'result: '+ JSON.stringify(result), className: 'Order Service'}); 
     return result;
@@ -57,17 +53,17 @@ module.exports.getOrderById = async (token, OrderId) => {
         return currencyService.convertOrderPricesToCurrencie(order);
     }
 }
-module.exports.getCaddy = async (token) => {
+module.exports.getCaddy = async (token, currency) => {
     var user = await Users.findOne({ token: token }).exec();
     var caddy = await Orders.findOne({ idUser: user._id, state: { $in: ['CART', 'PLI', 'PBI', 'PSC'] } }).exec();
     if (caddy) {
-        // if (!currency) {
-        //     currency = user.currency;
-        // }
+        if (!currency) {
+            currency = user.currency;
+        }
         const cube = await fluxService.getCube();
-        const exchangefees = await feesService.calculatefeesOfOrder(caddy, user.currency, cube)
+        const exchangefees = await feesService.calculatefeesOfOrder(caddy, currency, cube)
         caddy.totalExchangeFees = exchangefees
-        currencyService.convertproductstoCurrency(caddy, user.currency, cube)
+        currencyService.convertproductstoCurrency(caddy, currency, cube)
     }
 
     return caddy
@@ -243,6 +239,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     });
     var invoice = new Invoices(
         {
+            orderId: caddy._id,
             totalHT: caddy.totalHT,
             total: caddy.total,
             currency: caddy.currency,
@@ -260,16 +257,15 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
             totalExchangeFees: caddy.totalExchangeFees,
             currencyTxUsd: caddy.currencyTxUsd,
             email: caddy.email,
-            id_cmd: caddy.id_cmd,
             companyName: caddy.companyName,
-            idUser: caddy.idUser,
+            userId: caddy.idUser,
             payment: caddy.payment
         });
-    await invoice.save((error, pnerf) => {
+    invoice.save((error) => {
         if (error) {
             console.log(error);
         }
-    })
+    });
     return true;
 }
 

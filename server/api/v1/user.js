@@ -114,7 +114,7 @@ router.get('/:user', (req, res) => {
     // }
 });
 
-router.post('/info', (req, res) => {
+router.post('/info', async (req, res) => {
     // let test = req.headers.referer.replace(idd, "");
     // if(URLS.indexOf(test) !== -1){
     let u = {};
@@ -128,11 +128,10 @@ router.post('/info', (req, res) => {
             u[field] = true;
         });
     }
-    User.findOne({ token: req.body.token }, u)
-        .then((user) => {
-            if (!user) { res.status(202).json({}) }
-            return res.status(200).json({ user: user });
-        });
+    var user = await User.findOne({ token: req.headers.authorization }, u).exec();
+    if (!user) { return res.status(202).json({}) }
+    return res.status(200).json({ user: user });
+
     // }
     // else{
     //     return res.sendStatus(404);

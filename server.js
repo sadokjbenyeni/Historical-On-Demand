@@ -16,8 +16,8 @@ const MDB = require('./server/config/configmdb.js').mdb;
 const Config = require('./server/config/config.js');
 
 //Connect to mongoDB server
-//mongoose.connect('mongodb://localhost:27017/histodataweb', { useNewUrlParser: true, useUnifiedTopology: true });
-mongoose.connect('mongodb://' + MDB.userdb + ':' + MDB.passdb + '@localhost:27017/histodataweb?authSource=' + MDB.authdb, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb://localhost:27017/histodataweb', { useNewUrlParser: true, useUnifiedTopology: true });
+// mongoose.connect('mongodb://' + MDB.userdb + ':' + MDB.passdb + '@localhost:27017/histodataweb?authSource=' + MDB.authdb, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.set('debug', true);
 
 logger.info({ message: "Starting hod web site backend version 1.1.4...", className: "Server" });

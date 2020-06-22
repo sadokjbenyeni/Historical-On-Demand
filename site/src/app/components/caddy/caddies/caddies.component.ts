@@ -221,6 +221,7 @@ export class CaddiesComponent implements OnInit {
               this.caddy.totalTTCUsd = this.precisionRound(this.caddy.totalAmountUsd + this.caddy.totalVatUsd, 2);
               this.caddy.totalTTC = this.caddy.totalHT + this.caddy.totalVat
             });
+            debugger
             this.caddy.products.forEach(item => {
               item.Allproducts = item.subscription.concat(item.onetime)
             })

@@ -1,5 +1,4 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Rib } from 'src/app/components/finance/rib/rib.component';
 
 @Component({
   selector: 'app-payment',

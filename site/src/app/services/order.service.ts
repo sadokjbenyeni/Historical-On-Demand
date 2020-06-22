@@ -4,9 +4,14 @@ import { HttpClient } from '@angular/common/http';
 
 
 import { environment } from '../../environments/environment';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class OrderService {
+
+  submitCaddy(currency: string, survey: any, billingInfo: any): Observable<any> {
+    return this.http.post(environment.api + '/order/submitCaddy', { currency: currency, survey: survey, billingInfo: billingInfo })
+  }
 
   constructor(private http: HttpClient) { }
 
@@ -73,8 +78,9 @@ export class OrderService {
     return this.http.post<any>(environment.api + '/order/listExport', requete);// .map( res => res.json() );
   }
 
-  getCaddies() {
-    return this.http.get<any>(environment.api + '/order/caddies');// .map( res => res.json() );
+  getCaddies(currency = null) {
+    debugger
+    return this.http.post<any>(environment.api + '/order/caddies', { currency: currency });// .map( res => res.json() );
   }
   getCaddy() {
     return this.http.get<any>(environment.api + '/order/caddy');// .map( res => res.json() );
@@ -99,7 +105,7 @@ export class OrderService {
   getOrderDetailsById(orderId, httpOptions) {
     return this.http.get<any>(environment.api + '/order/details/' + orderId);
   }
-  
+
   getSupportOrderDetailsById(orderId) {
     return this.http.get<any>(environment.api + '/support/order/details/' + orderId);
   }

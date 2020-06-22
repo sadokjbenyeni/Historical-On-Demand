@@ -43,4 +43,4 @@ let OrderSchema = new mongoose.Schema({
   paid: { type: Boolean, default: false },
 }, { timestamps: true });
 
-mongoose.model('Invoice', InvoiceSchema);
+mongoose.model('Order', OrderSchema);

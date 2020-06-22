@@ -664,11 +664,16 @@ router.get('/listStates', (req, res) => {
   return res.status(200).json({ states: states });
 });
 
-router.get('/caddies', async (req, res) => {
+router.post('/submitCaddy', async (req, res) => {
+  await OrderService.submitCaddy(req.headers.authorization, req.body.survey, req.body.currency, req.body.billingInfo);
+  res.status(200).json({ ok: "true" });
+});
+
+router.post('/caddies', async (req, res) => {
   if (!req.headers.authorization) {
     return res.sendStatus(401)
   }
-  const order = await OrderService.getCaddy(req.headers.authorization);
+  const order = await OrderService.getCaddy(req.headers.authorization, req.body.currency);
   return res.status(200).json(order);
 });
 //this is a temporary web service, it will be cleared on the rework of search page
@@ -924,12 +929,12 @@ router.post('/history', (req, res) => {
   }
 });
 
-router.post('/caddies', (req, res) => {
-  Order.find({ idUser: req.body.id, state: { $in: ['CART', 'PLI', 'PBI', 'PSC'] } })
-    .then((cmd) => {
-      return res.status(200).json({ cmd: cmd });
-    });
-});
+// router.post('/caddies', (req, res) => {
+//   Order.find({ idUser: req.body.id, state: { $in: ['CART', 'PLI', 'PBI', 'PSC'] } })
+//     .then((cmd) => {
+//       return res.status(200).json({ cmd: cmd });
+//     });
+// });
 
 router.post('/sortProducts', (req, res) => {
   Order.findOne({ id_cmd: req.body.idCmd })

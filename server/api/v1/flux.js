@@ -8,7 +8,7 @@ const APIQF = config.apiqf();
 
 const Asset = mongoose.model('Asset');
 const Exchange = mongoose.model('Exchange');
-const fluxservice = require('../service/fluxService')
+const fluxservice = require('../../service/fluxService')
 
 //Prix exprimé en dollar
 
