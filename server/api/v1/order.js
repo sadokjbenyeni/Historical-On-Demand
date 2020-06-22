@@ -1076,7 +1076,7 @@ setInvoiceId = async function (prefix) {
   }
   let idnew = id + 1;
   prefix += idnew;
-  await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec();
+  // await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec();
   return prefix;
 };
 

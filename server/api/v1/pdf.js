@@ -15,6 +15,7 @@ const config = require('../../config/config.js');
 const DOMAIN = config.domain();
 const LOCALDOMAIN = config.localdomain();
 const OrderPdfService = require('../../service/orderPdfService');
+const DateService = require('../../service/dateService');
 var moment = require('moment');
 moment().format();
 
@@ -484,7 +485,7 @@ clone = function (obj) {
 };
 
 calendar = function (date) {
-  return moment(date).format('DD/MM/YYYY');
+  return await new DateService().calenderFormat(date)
 }
 
 module.exports = router;

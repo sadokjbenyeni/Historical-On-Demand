@@ -11,6 +11,7 @@ const config = require('../config/config.js');
 const DOMAIN = config.domain();
 var moment = require('moment');
 moment().format();
+const DateService = require('../service/dateService');
 
 module.exports = function (order) {
   this.order = order;
@@ -365,8 +366,8 @@ module.exports = function (order) {
   //   ].join('');
   // };
 
-  this.calendar = function (date) {
-    return moment(date).format('DD/MM/YYYY');
+  calendar = function (date) {
+    return await new DateService().calenderFormat(date)
   }
 
   this.precisionRound = function (number, precision) {
