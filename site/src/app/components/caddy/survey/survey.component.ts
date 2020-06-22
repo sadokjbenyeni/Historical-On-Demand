@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-survey',
@@ -8,11 +9,15 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 export class SurveyComponent implements OnInit {
   surveyForm: { dd: string; dt: string; du: { cb: any[]; other: string; }; };
   @Output() surveyChange = new EventEmitter();
-  survey: number = 0
+  @Input() surveyPage: number = 0
+  @Input() getSurvey: BehaviorSubject<any>;
 
   ngOnInit() {
-    this.survey = 0;
     this.surveyForm = { dd: '', dt: '', du: { cb: [], other: '' } };
+    this.getSurvey.subscribe((result) => {
+      if (!result)
+        this.surveyChange.emit(this.surveyForm);
+    })
   }
 
   logCheckbox(element: HTMLInputElement): void {
@@ -24,13 +29,12 @@ export class SurveyComponent implements OnInit {
     }
   }
 
-  updtSurvey() {
-    this.surveyChange.emit(this.surveyForm);}
-  next() {
-    this.survey++
-  }
-  previous() {
-    this.survey--
-  }
+
+  // next() {
+  //   this.survey++
+  // }
+  // previous() {
+  //   this.survey--
+  // }
 
 }

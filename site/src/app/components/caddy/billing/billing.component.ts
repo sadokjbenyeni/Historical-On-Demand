@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { CountriesService } from '../../../../services/countries.service';
-import { PaymentService } from '../../../../services/payment.service';
-import { VatService } from '../../../../services/vat.service';
+import { CountriesService } from '../../../services/countries.service';
+import { PaymentService } from '../../../services/payment.service';
+import { VatService } from '../../../services/vat.service';
 import { FormGroup, Validators, FormBuilder, FormControl } from '@angular/forms';
 import { VatValidator } from '../../../../validators/vat-validator.directive';
 

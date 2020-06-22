@@ -26,6 +26,7 @@
     "@angular/platform-browser-dynamic": "^9.1.7",
     "@angular/router": "^9.1.7",
     "@ng-bootstrap/ng-bootstrap": "^6.1.0",
+    "@ng-bootstrap/schematics": "^2.0.0-alpha.1",
     "ajv": "^6.12.2",
     "angular-datatables": "^9.0.2",
     "angular-material": "^1.1.22",
@@ -47,7 +48,8 @@
     "tslint-angular": "^3.0.2",
     "xlsx": "^0.16.1",
     "xlsx-style": "^0.8.13",
-    "zone.js": "^0.10.3"
+    "zone.js": "^0.10.3",
+    "bootstrap": "^4.0.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^0.901.6",

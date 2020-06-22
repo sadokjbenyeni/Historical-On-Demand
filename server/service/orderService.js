@@ -57,7 +57,7 @@ module.exports.getOrderById = async (token, OrderId) => {
         return currencyService.convertOrderPricesToCurrencie(order);
     }
 }
-module.exports.getCaddyv2 = async (token) => {
+module.exports.getCaddy = async (token) => {
     var user = await Users.findOne({ token: token }).exec();
     var caddy = await Orders.findOne({ idUser: user._id, state: { $in: ['CART', 'PLI', 'PBI', 'PSC'] } }).exec();
     if (caddy) {
@@ -73,7 +73,7 @@ module.exports.getCaddyv2 = async (token) => {
     return caddy
 }
 //this method is going to be removed after search rework
-module.exports.getCaddy = async (token) => {
+module.exports.getRawCaddy = async (token) => {
     var user = await Users.findOne({ token: token }).exec();
     var caddy = await Orders.findOne({ idUser: user._id, state: { $in: ['CART', 'PLI', 'PBI', 'PSC'] } }).exec();
     return caddy
@@ -138,7 +138,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     let log = {};
     let url = '/api/mail/newOrder';
     let corp = {};
-    caddy = await this.getCaddy(token)
+    caddy = await this.getRawCaddy(token)
     // Autovalidation Compliance
     log.date = new Date();
     let eids = [];
@@ -231,6 +231,16 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
                 state: caddy.state,
             }
         }).exec();
+    //delete useless invoice fields
+    caddy.products.forEach(item => {
+
+        item.subscription.forEach(item => {
+            deleteuselessfields(item);
+        })
+        item.onetime.forEach(item => {
+            deleteuselessfields(item);
+        });
+    });
     var invoice = new Invoices(
         {
             totalHT: caddy.totalHT,
@@ -268,3 +278,8 @@ totalttcv2 = function (o) {
     totalVat = o.totalHT * o.vatValue;
     return precisionRound((o.totalHT * (1 + o.vatValue)), 2);
 };
+deleteuselessfields = function (order) {
+    delete order.historical_data;
+    delete order.logs;
+    delete order.eid;
+}

@@ -62,10 +62,9 @@ import { SearchComponent } from './components/search/search.component';
 import { OrderHistoryComponent } from './components/client/order-history/order-history.component';
 import { AboutComponent } from './components/about/about.component';
 import { HelpPageComponent } from './components/help-page/help-page.component';
-import { OrderComponent } from './components/order/order.component';
-import { SurveyComponent } from './components/survey/survey.component';
+import { SurveyComponent } from './components/caddy/survey/survey.component';
 import { StatementsComponent } from './components/statements/statements.component';
-import { CaddiesComponent } from './components/order/caddies/caddies.component';
+import { CaddiesComponent } from './components/caddy/caddies/caddies.component';
 // Administrators
 import { ConfigurationComponent } from './components/admin/configuration/configuration.component';
 import { VariableComponent } from './components/admin/variable/variable.component';
@@ -146,10 +145,10 @@ import { CancelOrderDialogComponent } from './components/client/cancel-order-dia
 import { TokenInterceptor } from './interceptors/authentification/token.interceptor';
 import { DeliverablesService } from './services/deliverables.service';
 import { DownloadInvoiceService } from './services/Intern/download-invoice.service';
-import { CaddyTableComponent } from './components/order/caddies/caddy-table/caddy-table.component';
-import { BillingComponent } from './components/order/caddies/billing/billing.component';
-import { PriceComponent } from './components/order/caddies/price/price.component';
-import { PaymentComponent } from './components/order/caddies/payment/payment.component';
+import { CaddyTableComponent } from './components/caddy/caddy-table/caddy-table.component';
+import { BillingComponent } from './components/caddy/billing/billing.component';
+import { PriceComponent } from './components/caddy/price/price.component';
+import { PaymentComponent } from './components/caddy/payment/payment.component';
 // lazy loading
 
 @NgModule({
@@ -187,7 +186,6 @@ import { PaymentComponent } from './components/order/caddies/payment/payment.com
     OrderHistoryComponent,
     AboutComponent,
     HelpPageComponent,
-    OrderComponent,
     SurveyComponent,
     StatementsComponent,
     CeilPipe,
@@ -268,7 +266,8 @@ import { PaymentComponent } from './components/order/caddies/payment/payment.com
     MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
-    MatTreeModule
+    MatTreeModule,
+    // NgbModule.forRoot()
   ],
   providers: [
     GuardGuard,

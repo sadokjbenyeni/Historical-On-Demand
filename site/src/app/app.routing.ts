@@ -36,8 +36,8 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { SearchComponent } from './components/search/search.component';
 import { OrderHistoryComponent } from './components/client/order-history/order-history.component';
-import { CaddiesComponent } from './components/order/caddies/caddies.component';
-import { SurveyComponent } from './components/survey/survey.component';
+import { CaddiesComponent } from './components/caddy/caddies/caddies.component';
+import { SurveyComponent } from './components/caddy/survey/survey.component';
 
 // Site Supports
 import { ClientOrderComponent } from './components/support/client-order/client-order.component';

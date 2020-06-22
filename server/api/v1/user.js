@@ -9,6 +9,10 @@ const User = mongoose.model('User');
 const Order = mongoose.model('Order');
 const Role = mongoose.model('Role');
 
+//services 
+const userService = require("../../service/userService")
+
+
 const config = require('../../config/config.js');
 const URLS = config.config();
 const domain = config.domain();
@@ -21,6 +25,47 @@ router.param('user', function (req, res, next, id) {
     }
     idd = id;
     return next();
+});
+
+
+router.post('/changedefaultaddress', async (req, res) => {
+
+    if (!req.headers.authorization) {
+        return res.status(401).json({ error: "No token provided" })
+    }
+    if (!req.body.vat) {
+        return res.status(401).json({ error: "No vat number provided" })
+    }
+    if (!req.body.address) {
+        return res.status(401).json({ error: "No address provided" })
+    }
+    if (!req.body.city) {
+        return res.status(401).json({ error: "No city provided" })
+    }
+    if (!req.body.country) {
+        return res.status(401).json({ error: "No country provided" })
+    }
+    if (!req.body.postalCode) {
+        return res.status(401).json({ error: "No postalCode provided" })
+    }
+    await userService.UpdateUserDefaultBillingInfo(
+        req.headers.authorization,
+        req.body.vat,
+        req.body.address,
+        req.body.city,
+        req.body.country,
+        req.body.postalCode);
+    return res.status(200).json({ ok: true })
+});
+router.post('/changeDefaultCurrency', async (req, res) => {
+    if (!req.headers.authorization) {
+        return res.status(401).json({ error: "No token provided" })
+    }
+    if (!req.body.currency) {
+        return res.status(401).json({ error: "No currency provided" })
+    }
+    await userService.UpdateUserDefaultCurrency(req.headers.authorization, req.body.currency);
+    return res.status(200).json({ ok: true })
 });
 
 router.get('/', (req, res) => {
@@ -99,50 +144,48 @@ router.post('/', async (req, res) => {
     var count = await User.countDocuments().exec();
     let user = new User();
     let d = new Date();
-    let concatoken = req.body.password+req.body.email+ d;
+    let concatoken = req.body.password + req.body.email + d;
     let pass = req.body.password;
     let cipher = crypto.createCipher(algorithm, pass);
-    let crypted = cipher.update(PHRASE,'utf8','hex');
+    let crypted = cipher.update(PHRASE, 'utf8', 'hex');
     crypted += cipher.final('hex');
     user.password = crypted;
     cipher = crypto.createCipher(algorithm, concatoken);
-    crypted = cipher.update(PHRASE,'utf8','hex');
+    crypted = cipher.update(PHRASE, 'utf8', 'hex');
     crypted += cipher.final('hex');
-    user.token = crypted;        
+    user.token = crypted;
     user.id = count + 1;
     user.email = req.body.email;
     user.lastname = req.body.lastname;
     user.firstname = req.body.firstname;
     user.job = req.body.job;
     user.companyName = req.body.companyName;
-    user.companyType = req.body.companyType?req.body.companyType:'';
-    user.country = req.body.country?req.body.country:'';
-    user.address = req.body.address?req.body.address:'';
-    user.postalCode = req.body.postalCode?req.body.postalCode:'';
-    user.city = req.body.city?req.body.city:'';
-    user.region = req.body.region?req.body.region:'';
-    user.phone = req.body.phone?req.body.phone:'';
-    user.website = req.body.website?req.body.website:'';    
-    
-    user.save((error, info) => 
-    {
-        if(error){
-            req.logger.error({ message: JSON.stringify(error), error: error, className: "User API"});
-            
-            return req.logger.error({ message: JSON.stringify(error), className:"User API"});
+    user.companyType = req.body.companyType ? req.body.companyType : '';
+    user.country = req.body.country ? req.body.country : '';
+    user.address = req.body.address ? req.body.address : '';
+    user.postalCode = req.body.postalCode ? req.body.postalCode : '';
+    user.city = req.body.city ? req.body.city : '';
+    user.region = req.body.region ? req.body.region : '';
+    user.phone = req.body.phone ? req.body.phone : '';
+    user.website = req.body.website ? req.body.website : '';
+
+    user.save((error, info) => {
+        if (error) {
+            req.logger.error({ message: JSON.stringify(error), error: error, className: "User API" });
+
+            return req.logger.error({ message: JSON.stringify(error), className: "User API" });
         }
-        try 
-        {
+        try {
             var mailer = new UserMailService(req.logger, user);
             mailer.SendMailForInscription();
             return res.status(200).json({ mail: true });
         }
-        catch(error) {
+        catch (error) {
             req.logger.error({ message: error.message, className: 'Mailer API' });
-            req.logger.error({ message: JSON.stringify(error) + '\n'+ error.stacktrace, className:"User API"});
+            req.logger.error({ message: JSON.stringify(error) + '\n' + error.stacktrace, className: "User API" });
             return res.status(501).json({ mail: false });
         }
-        });
+    });
 });
 
 router.post('/logout/', (req, res) => {
@@ -152,8 +195,8 @@ router.post('/logout/', (req, res) => {
             res.status(200).json({});
         })
         .catch((err) => {
-        req.logger.error({ message: err.message, className: "User API"});
-	req.logger.error({ message: err.stack, className: "User API"});
+            req.logger.error({ message: err.message, className: "User API" });
+            req.logger.error({ message: err.stack, className: "User API" });
         });
 });
 
@@ -174,7 +217,7 @@ router.post('/islogin/', async (req, res) => {
         }
     }
     catch (error) {
-        req.logger.error({ message: error.message + "\n" + error.stack, className: "User API"});        
+        req.logger.error({ message: error.message + "\n" + error.stack, className: "User API" });
         return res.status(500).json({ message: "Unhandle error id " + req.headers.loggerToken });
     }
 });
@@ -185,68 +228,67 @@ router.post('/check/', (req, res) => {
     crypted += cipher.final('hex');
 
     User.findOne(
-        { email:req.body.email, password:crypted})
-    .then((userDbo) => {
-        if (!userDbo) { return res.status(403).json({user:false, message:'Invalid Password or User Not Found'}) }
-        if(userDbo.state === 1) {            
-            User.updateOne({_id:userDbo._id}, {$set:{islogin:true}})
-                .then((val)=>{
-                User.findOne(
-                    { _id:userDbo._id},
-                    {
-                        id:true,
-                        roleName:true,
-                        email:true,
-                        token:true,
-                        state:true,
-                        currency:true,
-                        payment:true,
-                        vat:true,
-                        address: true,
-                        city: true,
-                        sameAddress: true,
-                        postalCode: true,
-                        country: true,
-                        addressBilling: true,
-                        cityBilling: true,
-                        postalCodeBilling: true,
-                        countryBilling: true,
-                        state: true
-                    })
-                .then((user) => {            
-                    return res.status(200).json({user: user});
-                });
+        { email: req.body.email, password: crypted })
+        .then((userDbo) => {
+            if (!userDbo) { return res.status(403).json({ user: false, message: 'Invalid Password or User Not Found' }) }
+            if (userDbo.state === 1) {
+                User.updateOne({ _id: userDbo._id }, { $set: { islogin: true } })
+                    .then((val) => {
+                        User.findOne(
+                            { _id: userDbo._id },
+                            {
+                                id: true,
+                                roleName: true,
+                                email: true,
+                                token: true,
+                                state: true,
+                                currency: true,
+                                payment: true,
+                                vat: true,
+                                address: true,
+                                city: true,
+                                sameAddress: true,
+                                postalCode: true,
+                                country: true,
+                                addressBilling: true,
+                                cityBilling: true,
+                                postalCodeBilling: true,
+                                countryBilling: true,
+                                state: true
+                            })
+                            .then((user) => {
+                                return res.status(200).json({ user: user });
+                            });
                     });
             } else {
-            return res.status(401).json({message:'Your account is not activated'})
+                return res.status(401).json({ message: 'Your account is not activated' })
             }
-    })
-    .catch(error => {
-        req.logger.error({message: 'Invalid Password or User Not Found', className: 'User API'});
-        req.logger.error({ message: JSON.stringify(error), className:"User API"});
-        return res.status(403).json({user:false, message:'Invalid Password or User Not Found'})
+        })
+        .catch(error => {
+            req.logger.error({ message: 'Invalid Password or User Not Found', className: 'User API' });
+            req.logger.error({ message: JSON.stringify(error), className: "User API" });
+            return res.status(403).json({ user: false, message: 'Invalid Password or User Not Found' })
         });
 });
 
 router.post('/activation/', async (req, res) => {
-    req.logger.info("activating account "+ req.body.token +" ...");
-    try{
-        await User.update( { token: req.body.token }, { $set:{ state: 1 } } ).exec();
+    req.logger.info("activating account " + req.body.token + " ...");
+    try {
+        await User.update({ token: req.body.token }, { $set: { state: 1 } }).exec();
     }
-    catch(error){
-        req.logger.error({ message: err.message, error: err, className: "User API"});
-        req.logger.error({ message: JSON.stringify(error), className:"User API"});
+    catch (error) {
+        req.logger.error({ message: err.message, error: err, className: "User API" });
+        req.logger.error({ message: JSON.stringify(error), className: "User API" });
         //req.logger.debug({ message: JSON.stringify(err), error: err, className: "User API"});
-        return res.status(503).json({message: "User Not Found, please contact support with '"+ req.headers.loggerToken +"'"}) ;
+        return res.status(503).json({ message: "User Not Found, please contact support with '" + req.headers.loggerToken + "'" });
     }
-    var user = await User.findOne( { token: req.body.token }).exec();
-    if (user.nModified === 0) 
-    { 
-        req.logger.warn("User not found: "+ req.body.token);
-        return res.status(403).json({message: "User Not Found, please contact support with '"+ req.headers.loggerToken +"'"}) ;
+    var user = await User.findOne({ token: req.body.token }).exec();
+    if (user.nModified === 0) {
+        req.logger.warn("User not found: " + req.body.token);
+        return res.status(403).json({ message: "User Not Found, please contact support with '" + req.headers.loggerToken + "'" });
     }
     new UserMailService(req.logger, user).activated();
-    return res.status(200).json({message: "Your account is activated. You can connect"});
+    return res.status(200).json({ message: "Your account is activated. You can connect" });
 });
 
 router.post('/suspendre/', (req, res) => {
@@ -296,8 +338,8 @@ router.post('/preferBilling/', (req, res) => {
             res.status(200).json({});
         })
         .catch((err) => {
-        req.logger.error({ message: err.message, className: "User API"});
-        req.logger.error(err);
+            req.logger.error({ message: err.message, className: "User API" });
+            req.logger.error(err);
         });
 });
 
@@ -365,7 +407,7 @@ router.put('/', (req, res) => {
             return;
         })
         .catch((err) => {
-            req.logger.error({ message: err.message, error: err, className: "User API"});
+            req.logger.error({ message: err.message, error: err, className: "User API" });
             req.logger.error(err);
         });
     // }

@@ -1,6 +1,6 @@
 declare var chckt: any;
 
-import { Component, OnInit, ViewChild, AfterViewChecked, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewChecked, AfterViewInit, ViewChildren } from '@angular/core';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgbdModalContent } from '../../../modal-content';
@@ -13,7 +13,9 @@ import { UserService } from '../../../services/user.service';
 import { ConfigService } from '../../../services/config.service';
 import { AppDateAdapter, APP_DATE_FORMATS } from '../../../format-datepicker';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
-import { BillingComponent } from './billing/billing.component';
+import { BillingComponent } from '../billing/billing.component';
+import { MatStepper } from '@angular/material/stepper';
+import { BehaviorSubject } from 'rxjs';
 
 
 
@@ -26,8 +28,12 @@ import { BillingComponent } from './billing/billing.component';
     { provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS }
   ]
 })
-export class CaddiesComponent implements OnInit, AfterViewInit {
+export class CaddiesComponent implements OnInit {
   @ViewChild(BillingComponent) billingComponent: BillingComponent;
+  @ViewChild('stepper') private stepper: MatStepper;
+
+  getSurvey: BehaviorSubject<any> = new BehaviorSubject<any>("init");
+  surveyPage: number = 0;
   IsChangeDefaultCurrency: boolean = false;
   IsChangeCurrency: boolean = false;
   IsChangeDefaultAdress: boolean = false;
@@ -96,6 +102,8 @@ export class CaddiesComponent implements OnInit, AfterViewInit {
   paymentactive: string;
   closeResult: string;
   billingStep: any;
+  survey: any;
+  noCaddy: boolean;
 
   constructor(
     private configService: ConfigService,
@@ -105,10 +113,9 @@ export class CaddiesComponent implements OnInit, AfterViewInit {
     private currencyService: CurrencyService,
     private countriesService: CountriesService,
     private modalService: NgbModal,
-    private uploadService: UploadService
   ) { }
-  ngAfterViewInit(): void {
-    this.billingStep = this.billingComponent ? this.billingComponent.form : null;
+  get form() {
+    return this.billingComponent ? this.billingComponent.form : null;
   }
 
 
@@ -133,9 +140,6 @@ export class CaddiesComponent implements OnInit, AfterViewInit {
     this.total = 0;
   }
 
-  changeCurrency(id) {
-    this.currencyObj = this.searchCurrency(id, this.currencies);
-  }
 
   getInfoUser() {
     let field = [
@@ -179,9 +183,13 @@ export class CaddiesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getCaddy() {
-    this.orderService.getCaddies().subscribe((order) => {
-      if (order) {
+  getCaddy(currency = null) {
+    let caddysubscription = currency ? this.orderService.getCaddies(currency) : this.orderService.getCaddies();
+    caddysubscription.subscribe((order) => {
+      if (!order) {
+        this.noCaddy = true
+      }
+      else {
         this.caddy = order;
         this.fluxService.rate({ currency: this.currency }).subscribe(result => {
           this.currencyObj = this.searchCurrency(this.currency, this.currencies);
@@ -252,7 +260,7 @@ export class CaddiesComponent implements OnInit, AfterViewInit {
         console.log(`An error occured ${res['error']}`)
       }
       else {
-        this.getCaddy();
+        this.getCaddy(this.currency);
       }
     });
   }
@@ -268,12 +276,26 @@ export class CaddiesComponent implements OnInit, AfterViewInit {
   }
   termsCheckbox(element: HTMLInputElement): void {
     this.term = element.checked;
-    if (!element.checked) {
-      sessionStorage.removeItem('surveyForm');
-    }
   }
   updtSurvey(event) {
-    this.caddy.survey = event.value;
+    if (this.term) {
+      if (!event || !event.dd) {
+        this.surveyPage = 0
+        return
+      }
+      if (!event.dt) {
+        this.surveyPage = 1
+        return
+      }
+      if (event.du.cb.length == 0 || (event.du.cb.indexOf("Other") != -1 && !event.du.other)) {
+        this.surveyPage = 2
+        return
+      }
+      this.survey = event;
+      this.stepper.selected.completed = true;
+      this.stepper.next()
+    }
+
   }
   saveOrderView() {
     this.orderService.updtCaddy({ idCmd: this.caddy.id_cmd, state: 'PLI' }).subscribe(res => { });
@@ -281,100 +303,108 @@ export class CaddiesComponent implements OnInit, AfterViewInit {
 
   //Function Billing
 
-  saveBilling() {
-    let modify = {};
-    let billingCart = {};
-    // sessionStorage.setItem('user', JSON.stringify(this.user));
+  // saveBilling() {
+  //   let modify = {};
+  //   let billingCart = {};
+  //   // sessionStorage.setItem('user', JSON.stringify(this.user));
 
-    this.countriesService.isUE({ id: this.user['countryBilling'] }).subscribe(res => {
-      this.vatValueApply = (this.user['countryBilling'] == 'FR' || (res.ue == 1 && (this.user['vat'] == '' || !this.checkv)));
+  //   this.countriesService.isUE({ id: this.user['countryBilling'] }).subscribe(res => {
+  //     this.vatValueApply = (this.user['countryBilling'] == 'FR' || (res.ue == 1 && (this.user['vat'] == '' || !this.checkv)));
 
-      billingCart['currency'] = this.currency;
-      if (this.currencychange) {
-        modify['currency'] = this.currency;
-      }
-      billingCart['currencyTx'] = this.taux[billingCart['currency']];
-      billingCart['currencyTxUsd'] = this.taux['usd'];
-      billingCart['vatValue'] = this.vatValueApply ? this.vat : null;
+  //     billingCart['currency'] = this.currency;
+  //     if (this.currencychange) {
+  //       modify['currency'] = this.currency;
+  //     }
+  //     billingCart['currencyTx'] = this.taux[billingCart['currency']];
+  //     billingCart['currencyTxUsd'] = this.taux['usd'];
+  //     billingCart['vatValue'] = this.vatValueApply ? this.vat : null;
 
-      billingCart['payment'] = this.user['payment'];
-      if (this.paymentchange) {
-        modify['payment'] = this.user['payment'];
-      }
-      this.orderService.updtCaddy({ idCmd: this.caddy.id_cmd, state: 'PSC', billing: billingCart, cart: this.caddy.products }).subscribe(res => { });
-    });
-  }
+  //     billingCart['payment'] = this.user['payment'];
+  //     if (this.paymentchange) {
+  //       modify['payment'] = this.user['payment'];
+  //     }
+  //     this.orderService.updtCaddy({ idCmd: this.caddy.id_cmd, state: 'PSC', billing: billingCart, cart: this.caddy.products }).subscribe(res => { });
+  //   });
+  // }
 
-  saveAmount() {
-    this.orderService.updtCaddy({
-      idCmd: this.caddy.id_cmd,
-      state: 'PSC',
-      totaux: {
-        totalHT: this.caddy['totalHT'],
-        currencyTx: this.rate,
-        currencyTxUsd: this.currencyTxUsd,
-        currency: this.currency,
-        totalTTC: this.precisionRound(this.caddy.totalTTCUsd, 2),
-      }
-    }).subscribe();
-  }
+  // saveAmount() {
+  //   this.orderService.updtCaddy({
+  //     idCmd: this.caddy.id_cmd,
+  //     state: 'PSC',
+  //     totaux: {
+  //       totalHT: this.caddy['totalHT'],
+  //       currencyTx: this.rate,
+  //       currencyTxUsd: this.currencyTxUsd,
+  //       currency: this.currency,
+  //       totalTTC: this.precisionRound(this.caddy.totalTTCUsd, 2),
+  //     }
+  //   }).subscribe();
+  // }
   //Function Payment
-  submitPayment() {
-    // let user = JSON.parse(sessionStorage.getItem('user'));
-    const that = this;
-    this.orderService.payment({
-      cart: {
-        idCmd: this.caddy.id_cmd,
-        total: this.caddy.totalTTCUsd,
-        vatValue: this.vat,
-        currency: this.currency,
-        currencyTx: this.rate,
-        currencyTxUsd: this.currencyTxUsd
-      },
-      user: this.user
-    }).subscribe(resp => {
-      let sdkConfigObj = {
-        context: 'test' // change it to 'live' when going live.
-      }
-      let checkout = chckt.checkout(resp.body, '#paymentcard', sdkConfigObj);
-      chckt.hooks.beforeComplete = function (node, paymentData) {
-        if (paymentData.resultCode === "authorised") {
-          that.orderService.verify(paymentData).subscribe(r => {
-            if (r.ok === 1) {
-              sessionStorage.removeItem('tc');
-              sessionStorage.removeItem('surveyForm');
-              that.surveyForm = { dd: '', dt: '', du: { cb: [], other: '' } };
-              that.open();
-            }
-            return false;
-          });
-        } else {
-          that.orderService.logPayement(paymentData).subscribe(r => {
-            return false;
-          });
-        }
-      }
-    });
-  }
+  // submitPayment() {
+  //   // let user = JSON.parse(sessionStorage.getItem('user'));
+  //   const that = this;
+  //   this.orderService.payment({
+  //     cart: {
+  //       idCmd: this.caddy.id_cmd,
+  //       total: this.caddy.totalTTCUsd,
+  //       vatValue: this.vat,
+  //       currency: this.currency,
+  //       currencyTx: this.rate,
+  //       currencyTxUsd: this.currencyTxUsd
+  //     },
+  //     user: this.user
+  //   }).subscribe(resp => {
+  //     let sdkConfigObj = {
+  //       context: 'test' // change it to 'live' when going live.
+  //     }
+  //     let checkout = chckt.checkout(resp.body, '#paymentcard', sdkConfigObj);
+  //     chckt.hooks.beforeComplete = function (node, paymentData) {
+  //       if (paymentData.resultCode === "authorised") {
+  //         that.orderService.verify(paymentData).subscribe(r => {
+  //           if (r.ok === 1) {
+  //             sessionStorage.removeItem('tc');
+  //             sessionStorage.removeItem('surveyForm');
+  //             that.surveyForm = { dd: '', dt: '', du: { cb: [], other: '' } };
+  //             that.open();
+  //           }
+  //           return false;
+  //         });
+  //       }
+  //        else {
+  //         that.orderService.logPayement(paymentData).subscribe(r => {
+  //           return false;
+  //         });
+  //       }
+  //     }
+  //   });
+  // }
 
   submitRib() {
-
-    this.orderService.rib({
-      idCmd: this.caddy.id_cmd,
-      total: this.caddy.totalTTCUsd,
-      vatValue: this.vat,
-      currency: this.currency,
-      currencyTx: this.rate,
-      currencyTxUsd: this.currencyTxUsd,
-      email: this.user['email'],
-      token: this.user['token']
-    }).subscribe(resp => {
-      sessionStorage.removeItem('tc');
-      sessionStorage.removeItem('surveyForm');
-      this.surveyForm = { dd: '', dt: '', du: { cb: [], other: '' } };
+    this.orderService.submitCaddy(this.currency, this.survey,
+      {
+        vatNumber: this.billingComponent.form.controls['vatctl'].value,
+        countryBilling: this.billingComponent.form.controls['countryBillingctl'].value,
+        addressBilling: this.billingComponent.form.controls['addressBillingctl'].value,
+        cityBilling: this.billingComponent.form.controls['cityBillingctl'].value,
+        postalCode: this.billingComponent.form.controls['postalCodeBillingctl'].value,
+      }
+    ).subscribe(resp => {
       this.open();
     });
-    this.orderService.sortProducts({ idCmd: this.caddy.id_cmd }).subscribe(res => { });
+    if (this.IsChangeDefaultAdress) {
+      this.userService.changeDefaultAdress(
+        this.billingComponent.form.controls['vatctl'].value,
+        this.billingComponent.form.controls['countryBillingctl'].value,
+        this.billingComponent.form.controls['addressBillingctl'].value,
+        this.billingComponent.form.controls['cityBillingctl'].value,
+        this.billingComponent.form.controls['postalCodeBillingctl'].value
+      ).subscribe();
+    }
+    if (this.IsChangeDefaultCurrency) {
+      this.userService.changeDefaultCurrency(this.currency).subscribe();
+    }
+    // this.orderService.sortProducts({ idCmd: this.caddy.id_cmd }).subscribe(res => { });
   }
 
   open() {
@@ -441,18 +471,34 @@ export class CaddiesComponent implements OnInit, AfterViewInit {
         console.log('an error occured' + res.error)
       }
       else {
-        this.getCaddy();
+        this.getCaddy(this.currency);
       }
     });
   }
   ChangeDefaultCurrency(event) {
     this.IsChangeDefaultCurrency = event
   }
+
   ChangeCurrency(event) {
-    this.IsChangeCurrency = event
+    this.currency = event;
+    this.getCaddy(event);
   }
+
   ChangeDefaultAdress(event) {
     this.IsChangeDefaultAdress = event;
   }
+  stepForward() {
+    if (this.term && this.surveyPage < 2)
+      this.surveyPage++
+    else {
+      this.getSurvey.next(null);
+    }
+  }
 
+  stepBack() {
+    if (this.term && this.surveyPage > 0)
+      this.surveyPage--
+    else
+      this.stepper.previous()
+  }
 }

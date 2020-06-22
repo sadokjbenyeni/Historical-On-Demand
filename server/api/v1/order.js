@@ -167,66 +167,57 @@ router.post('/save', (req, res) => {
 });
 
 router.put('/delProductCaddy', async (req, res) => {
-  await Order.updateOne(
-    { id_cmd: req.body.id_cmd },
-    {
-      $pull: { products: { id_undercmd: req.body.id_product } },
-      $set: { totalExchangeFees: req.body.totalFees, totalHT: req.body.totalHT }
-    }).exec();
-  var order = await Order.findOne({ id_cmd: req.body.id_cmd }).exec();
-  try {
-    await new OrderProductLogService(order.id, req.logger).Delete(req.body.id_product);
+  var caddy = await OrderService.getRawCaddy(req.headers.authorization)
+  var productdeletion = await OrderService.deleteProduct(caddy, req.body.id_product)
+  if (productdeletion == 1) {
+    return res.status(200).json({ message: "Order deleted" });
   }
-  catch (error) {
-    req.logger.warn({ message: "Logs are not be removed, an error has been raised. " + error.message, className: "Order API" });
+  else if (productdeletion == 2) {
+    return res.status(200).json({ message: "Product deleted" });
   }
-  if (order.products.length === 0) {
-    await Order.deleteMany({ id_cmd: req.body.id_cmd }).exec();
-    res.status(201).json({ ok: true });
-  }
-  return res.status(201).json({ ok: true });
+  return res.status(200).json({ error: 'Product Not found' })
 });
 
-router.put('/updtProductCaddy', (req, res) => {
-  let updt = {};
-  if (req.body.begin_date) {
-    updt["products.$.begin_date"] = req.body.begin_date;
-  }
-  if (req.body.end_date) {
-    updt["products.$.end_date"] = req.body.end_date;
-  }
-  if (req.body.period) {
-    updt["products.$.period"] = req.body.period;
-  }
-  if (req.body.ht) {
-    updt["products.$.ht"] = req.body.ht;
-  }
-  // if(req.body.totalHT){
-  //   updt["totalHT"] = req.body.totalHT;
-  // }
-  if (req.body.status) {
-    updt["products.$.status"] = req.body.status;
-  }
-  Order.updateOne(
-    { id_cmd: req.body.idCmd, 'products.id_undercmd': req.body.idElem },
-    { $set: updt }
-  )
+// router.put('/updtProductCaddy', (req, res) => {
+//   let updt = {};
+//   if (req.body.begin_date) {
+//     updt["products.$.begin_date"] = req.body.begin_date;
+//   }
+//   if (req.body.end_date) {
+//     updt["products.$.end_date"] = req.body.end_date;
+//   }
+//   if (req.body.period) {
+//     updt["products.$.period"] = req.body.period;
+//   }
+//   if (req.body.ht) {
+//     updt["products.$.ht"] = req.body.ht;
+//   }
+//   // if(req.body.totalHT){
+//   //   updt["totalHT"] = req.body.totalHT;
+//   // }
+//   if (req.body.status) {
+//     updt["products.$.status"] = req.body.status;
+//   }
+//   Order.updateOne(
+//     { id_cmd: req.body.idCmd, 'products.id_undercmd': req.body.idElem },
+//     { $set: updt }
+//   )
 
-    .then((r) => {
-      Order.findOne({ id_cmd: req.body.idCmd }).then(p => {
-        let totalHT = 0;
+//     .then((r) => {
+//       Order.findOne({ id_cmd: req.body.idCmd }).then(p => {
+//         let totalHT = 0;
 
-        p.products.forEach(prd => {
-          totalHT += prd.ht;
-        });
-        return totalHT;
-      }).then(o => {
-        Order.updateOne({ id_cmd: req.body.idCmd }, { $set: { totalHT: o } }).then(() => {
-          res.status(201).json({ ok: true });
-        });
-      });
-    });
-});
+//         p.products.forEach(prd => {
+//           totalHT += prd.ht;
+//         });
+//         return totalHT;
+//       }).then(o => {
+//         Order.updateOne({ id_cmd: req.body.idCmd }, { $set: { totalHT: o } }).then(() => {
+//           res.status(201).json({ ok: true });
+//         });
+//       });
+//     });
+// });
 
 router.put('/updtCaddy', (req, res) => {
 
@@ -673,6 +664,24 @@ router.get('/listStates', (req, res) => {
   return res.status(200).json({ states: states });
 });
 
+router.get('/caddies', async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.sendStatus(401)
+  }
+  const order = await OrderService.getCaddy(req.headers.authorization);
+  return res.status(200).json(order);
+});
+//this is a temporary web service, it will be cleared on the rework of search page
+//TODO : Rework the api name
+router.get('/caddy', async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.sendStatus(401)
+  }
+  const order = await OrderService.getRawCaddy(req.headers.authorization);
+  return res.status(200).json(order);
+});
+
+
 router.get('/:id', (req, res) => {
   Order.findOne({ _id: req.params.id })
     .then((cmd) => {
@@ -955,6 +964,29 @@ router.put('/updatemetadata', (req, res) => {
     ok: OrderService.updateOrderMetaData(req.body.id, req.body.note, req.body.sales, req.body.type)
   });
 });
+router.put('/updateProductDate', async (req, res) => {
+  if (!req.headers.authorization) {
+    res.statusCode(401).json("authorization token is not provided in header")
+  }
+  if (!req.body.idproduct) {
+    return res.status(200).json({ error: "No id product provided" })
+  }
+  if (!req.body.dateToChange) {
+    return res.status(200).json({ error: "Unknown date field to change" })
+  }
+  if (!req.body.date) {
+    return res.status(200).json({ error: "No date value provided" })
+  }
+  let caddy = await OrderService.getRawCaddy(req.headers.authorization);
+  if (!caddy) {
+    return res.status.json({ error: "Caddy not found with the provided token" })
+  }
+  var result = OrderService.UpdateProductDate(caddy, req.body.idproduct, req.body.dateToChange, new Date(req.body.date))
+  if (result)
+    return res.status(200).json({ message: 'Ok' })
+  else
+    return res.status(200).json({ error: 'Product not found in the caddy' })
+})
 
 buildSearch = function (req) {
   let search = {};
@@ -1305,7 +1337,7 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
 
 async function UpdateStateCompliance(updt, corp, req) {
   updt.validationCompliance = true;
-   corp = {
+  corp = {
     "email": req.body.email,
     "idCmd": req.body.idCmd,
     "paymentdate": new Date(),
