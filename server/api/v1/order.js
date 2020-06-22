@@ -410,7 +410,7 @@ router.put('/state', async (req, res) => {
     req.logger.info("Order updated");
     try {
       await new OrderPdfService(order).createInvoicePdf(req.logger, updt.idCommande, 'Invoice Nbr');
-      await new InvoiceService().insertInvoice(order.id, updt.idCommande, order.idUser);
+      await new InvoiceService().insertInvoice(order.id, updt.idCommande);
     }
     catch (error) {
       req.logger.error({ message: error.message + '\n' + error.stack, className: 'Order API' });

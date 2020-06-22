@@ -5,11 +5,8 @@ const invoiceDirectory = require('../config/config.js').InvoiceDirectory();
 const http = require('http');
 
 module.exports = function () {
-    this.insertInvoice = async function (orderId, invoiceId, userId) {
-        var invoice = new Invoice({ orderId: orderId, invoiceId: invoiceId, userId: userId, path: invoiceDirectory + invoiceId + '.pdf' });
-        invoice.save(function (error) {
-            if (error) return handleError(error);
-        });
+    this.insertInvoice = async function (orderId, invoiceId) {
+        await Invoice.updateOne({ orderId: orderId }, { set: { invoiceId: invoiceId, path: invoiceDirectory + invoiceId + '.pdf' } }).exec();
     }
 
     this.getInvoicePath = async function (orderId) {

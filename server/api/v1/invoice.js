@@ -7,7 +7,7 @@ var mime = require('mime');
 const OrderPdfService = require('../../service/orderPdfService');
 
 router.post('/', async (req, res) => {
-    var result = await new InvoiceService().insertInvoice(order.id, updt.idCommande, order.idUser);
+    var result = await new InvoiceService().insertInvoice(order.id, updt.idCommande);
     return res.status(200).json({ result });
 })
 
@@ -23,7 +23,7 @@ router.get('/download/:orderId', async (req, res) => {
     let directory = await new InvoiceService().getInvoicePath(order.id);
     if (directory === order.id) {
         await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande, 'Invoice Nbr');
-        await new InvoiceService().insertInvoice(order.id, order.idCommande, order.idUser);
+        await new InvoiceService().insertInvoice(order.id, order.idCommande);
     }
     var filename = path.basename(directory);
     var mimetype = mime.lookup(directory);
