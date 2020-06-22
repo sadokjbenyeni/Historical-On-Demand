@@ -286,11 +286,13 @@ router.put('/state', async (req, res) => {
   datedebref = new Date();
   dateFinref = new Date();
   log.date = dateref;
+  var order = await Order.findOne({ id: req.body.id }).exec();
   if (req.body.referer === 'Compliance') {
     await UpdateStateCompliance(updt, corp, req);
   }
   if (req.body.referer === 'Product') {
     try {
+      updt.idCommande = await setInvoiceId("QH_ProFormaInvoice_");
       await UpdateStateProduct(updt, req, corp);
     }
     catch (err) {
@@ -401,25 +403,13 @@ router.put('/state', async (req, res) => {
   }
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
     req.logger.info("validating order...");
-    var cnt = await Config.findOne({ id: "counter" }).exec(); //.then((cnt) => {
-
-    let id = cnt.value;
-    let prefix = "QH_HISTO_";
-    let nbcar = 7;
-    let idnew = id + 1;
-    let nbid = nbcar - idnew.toString().length;
-    for (let i = 0; i < nbid; i++) {
-      prefix += "0";
-    }
-    updt.idCommande = prefix + idnew.toString();
+    updt.idCommande = await setInvoiceId("QH_HISTO_");
     req.logger.info("id commande: " + updt.idcommande);
     await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec(); //.then(() => {
-    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } }).exec()
-    // .then((r) => {
+    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } }).exec();
     req.logger.info("Order updated");
-    var order = await Order.findOne({ id: req.body.id }).exec();
     try {
-      await new OrderPdfService(order).createInvoicePdf(req.logger, updt.idCommande);
+      await new OrderPdfService(order).createInvoicePdf(req.logger, updt.idCommande, 'Invoice Nbr');
       await new InvoiceService().insertInvoice(order.id, updt.idCommande, order.idUser);
     }
     catch (error) {
@@ -427,39 +417,10 @@ router.put('/state', async (req, res) => {
       return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
     }
     return res.status(201).json({ ok: true });
-
-    //   let id = cnt.value;
-    //   let prefix = "QH_HISTO_";
-    //   let nbcar = 7;
-    //   let idnew = id + 1;
-    //   let nbid = nbcar - idnew.toString().length;
-    //   for (let i = 0; i < nbid; i++) {
-    //     prefix += "0";
-    //   }
-    //   updt.idCommande = prefix + idnew.toString();
-    //   Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).then(() => {
-    //     Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } })
-
-    //       .then((r) => {
-    //         pdfpost(req.body.id);
-    //         Order.findOne({ id: id }).then(order => {
-    //           return res.status(201).json({
-    //             ok: InvoiceService.insertInvoice(order.id, updt.idCommande, order.idUser),
-    //           });
-    //         })
-    //         await PdfService.generateInvoice(order.id, log);
-    //         res.status(201).json({ ok: true });
-    //       });
-    //   });
-
-    // });
   }
   else {
     await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } }).exec();
-    // .then((r) => {
     return res.status(201).json({ ok: true });
-    // });
-    //   });
   }
 });
 
@@ -1043,10 +1004,10 @@ buildSearch = function (req) {
   return search;
 }
 
-pdfpost = async function (id, logger, invoiceId) {
+pdfpost = async function (id, logger, invoiceId, invoiceType) {
   try {
     var order = await Order.findOne({ id: id }).exec();
-    await new OrderPdfService(order).createInvoicePdf(logger, invoiceId);
+    await new OrderPdfService(order).createInvoicePdf(logger, invoiceId, invoiceType);
   }
   catch (error) {
     logger.error({ message: error.message, className: "Order API" });
@@ -1105,20 +1066,18 @@ yyyymmdd = function (d) {
   ].join('');
 };
 
-idcommande = function (prefix, nbcar) {
-  Config.findOne({ id: "counter" }).then((cnt) => {
-
-    let id = cnt.value;
-    let nbid = nbcar - id.toString().length;
-    for (let i = 0; i < nbid; i++) {
-      prefix += "0";
-    }
-    let idnew = id + 1;
-    prefix += idnew;
-    Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).then(() => {
-      return prefix;
-    });
-  });
+setInvoiceId = async function (prefix) {
+  let config = await Config.findOne({ id: "counter" }).exec();
+  let nbcar = 7;
+  let id = config.value;
+  let nbid = nbcar - id.toString().length;
+  for (let i = 0; i < nbid; i++) {
+    prefix += "0";
+  }
+  let idnew = id + 1;
+  prefix += idnew;
+  await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec();
+  return prefix;
 };
 
 endperiod = function (data, periode) {
@@ -1325,6 +1284,7 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
   if (req.body.status !== "cancelled") {
     var users = await User.find({ roleName: "Product" }).exec();
     var mailer = new OrderMailService(req.logger, order);
+    await new OrderPdfService(order).createInvoicePdf(req.logger, orderUpdate.idCommande, 'Pro Forma Invoice Nbr');
     users.forEach(async user => {
       try {
         await mailer.newOrderHod(user.email,

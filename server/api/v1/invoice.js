@@ -22,7 +22,7 @@ router.get('/download/:orderId', async (req, res) => {
     var order = await Orders.findOne({ id: req.params.orderId }).exec();
     let directory = await new InvoiceService().getInvoicePath(order.id);
     if (directory === order.id) {
-        await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande);
+        await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande, 'Invoice Nbr');
         await new InvoiceService().insertInvoice(order.id, order.idCommande, order.idUser);
     }
     var filename = path.basename(directory);
@@ -47,7 +47,7 @@ router.get('/generate/:orderId', async (req, res) => {
     }
     var order = await Orders.findOne({ id: req.params.orderId }).exec();
     try {
-        await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande);
+        await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande, 'Invoice Nbr');
     }
     catch (error) {
         req.logger.error({ error: error, className: "Invoice API" });

@@ -9,20 +9,22 @@ const Countrie = mongoose.model('Countrie');
 const invoiceDirectory = require('../config/config.js').InvoiceDirectory();
 const config = require('../config/config.js');
 const DOMAIN = config.domain();
+var moment = require('moment');
+moment().format();
 
 module.exports = function (order) {
   this.order = order;
 
-  this.createInvoicePdf = async function (logger, invoiceId) {
+  this.createInvoicePdf = async function (logger, invoiceId, invoiceType) {
     logger.info({ message: "creating invoice in pdf...", className: "Order PDF Service" });
     var user = await User.findOne({ _id: this.order.idUser }).exec(); //.then(u => {    
     var country = await Countrie.findOne({ id: this.order.countryBilling }).exec(); //.then(cnt => {
     var currency = await Currency.findOne({ id: this.order.currency }).exec(); // .then(c => {
-    this.generatePdfFile(logger, currency, user, country, invoiceId);
+    this.generatePdfFile(logger, currency, user, country, invoiceId, invoiceType);
     return true;
   }
 
-  this.generatePdfFile = function (logger, currency, user, country, invoiceId) {
+  this.generatePdfFile = function (logger, currency, user, country, invoiceId, invoiceType) {
     let fonts = {
       Roboto: {
         normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Regular.ttf'], 'base64'),
@@ -84,7 +86,7 @@ module.exports = function (order) {
     let defaultStyle = {};
     // Header
     content.push(
-      adresse(invoiceId, user.id, this.order.vat, new Date(), this.order.logsPayment[0].date.yyyymmdd(), this.order.id, currency.name),
+      adresse(invoiceId, user.id, this.order.vat, new Date(), this.calendar(order.logsPayment[0].date), this.order.id, currency.name, invoiceType),
       // Billing Address
       '\n',
       billinAddress(this.order.companyName, this.order.addressBilling, this.order.postalCodeBilling, this.order.cityBilling, this.order.countryBilling),
@@ -139,7 +141,7 @@ module.exports = function (order) {
     pdfDoc.end();
   };
 
-  this.adresse = function (invoiceId, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency) {
+  this.adresse = function (invoiceId, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency, invoiceType) {
     return {
       columns: [
         [{ image: logo(), width: 200, height: 60 },
@@ -153,10 +155,11 @@ module.exports = function (order) {
           'VAT : FR00449703248'
         )],
         { text: '', width: 105 },
-        head(invoiceId, numAccount, idTax, invoiceDate.toISOString().split("T")[0], paymentDate, numCmd, currency)
+        head(invoiceId, numAccount, idTax, this.calendar(invoiceDate), paymentDate, numCmd, currency, invoiceType)
       ],
     }
   };
+
 
   this.billinAddress = function (companyName, address, cp, city, country) {
     return {
@@ -235,14 +238,14 @@ module.exports = function (order) {
     };
   };
 
-  this.head = function (invoiceId, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency) {
+  this.head = function (invoiceId, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency, invoiceType) {
     let width = '50%';
     return {
       table: {
         headerRows: 1,
         body: [
           [
-            { text: 'Invoice Nbr', style: 'invoiceSubTitle', width: width },
+            { text: invoiceType, style: 'invoiceSubTitle', width: width },
             { text: invoiceId, style: 'invoiceSubValue', width: width }
           ],
           [
@@ -344,23 +347,27 @@ module.exports = function (order) {
 
 
   // Fonctions Outils
-  Date.prototype.yyyymmdd = function () {
-    var mm = this.getMonth() + 1;
-    var dd = this.getDate();
-    return [this.getFullYear(), (mm > 9 ? '' : '0') + mm, (dd > 9 ? '' : '0') + dd].join('');
-  };
+  // Date.prototype.yyyymmdd = function () {
+  //   var mm = this.getMonth() + 1;
+  //   var dd = this.getDate();
+  //   return [this.getFullYear(), (mm > 9 ? '' : '0') + mm, (dd > 9 ? '' : '0') + dd].join('');
+  // };
 
-  this.yyyymmdd = function (d) {
-    let dat = d.split('-');
-    let mm = parseInt(dat[1]);
-    let dd = parseInt(dat[2]);
+  // this.yyyymmdd = function (d) {
+  //   let dat = d.split('-');
+  //   let mm = parseInt(dat[1]);
+  //   let dd = parseInt(dat[2]);
 
-    return [
-      dat[0],
-      (mm > 9 ? '-' : '-0') + mm,
-      (dd > 9 ? '-' : '-0') + dd
-    ].join('');
-  };
+  //   return [
+  //     dat[0],
+  //     (mm > 9 ? '-' : '-0') + mm,
+  //     (dd > 9 ? '-' : '-0') + dd
+  //   ].join('');
+  // };
+
+  this.calendar = function (date) {
+    return moment(date).format('DD/MM/YYYY');
+  }
 
   this.precisionRound = function (number, precision) {
     var factor = Math.pow(10, precision);

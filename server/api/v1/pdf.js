@@ -15,6 +15,8 @@ const config = require('../../config/config.js');
 const DOMAIN = config.domain();
 const LOCALDOMAIN = config.localdomain();
 const OrderPdfService = require('../../service/orderPdfService');
+var moment = require('moment');
+moment().format();
 
 router.post('/', async (req, res) => {
   if (!req.headers.authorization) {
@@ -40,7 +42,7 @@ testoo = function (logger, order) {
 };
 
 /*** Fonctions PDF */
-pdf = function (logger, cmd, currency, user, country) {
+pdf = function (logger, cmd, currency, user, country, invoiceType) {
   let fonts = {
     Roboto: {
       normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Regular.ttf'], 'base64'),
@@ -102,7 +104,7 @@ pdf = function (logger, cmd, currency, user, country) {
   let defaultStyle = {};
   // Header
   content.push(
-    adresse(cmd.idCommande, user.id, cmd.vat, new Date(), cmd.logsPayment[0].date.yyyymmdd(), cmd.id, currency.name),
+    adresse(cmd.idCommande, user.id, cmd.vat, new Date(), cmd.logsPayment[0].date.yyyymmdd(), cmd.id, currency.name, invoiceType),
     // Billing Address
     '\n',
     billinAddress(cmd.companyName, cmd.addressBilling, cmd.postalCodeBilling, cmd.cityBilling, cmd.countryBilling),
@@ -190,13 +192,13 @@ getOrders = function (orders, vatValue, styl, currency, txUsd, tx, country) {
       }
       if (order.onetime === 1) {
         typeOrder = "One-Off";
-        dateDebut = order.begin_date_select.split("T")[0];
-        dateFin = order.end_date_select.split("T")[0];
+        dateDebut = calendar(order.begin_date_select);
+        dateFin = calendar(order.end_date_select);
       }
       if (order.subscription === 1) {
         typeOrder = "Subscription";
-        dateDebut = order.begin_date_ref.split("T")[0];
-        dateFin = order.end_date_ref.split("T")[0];
+        dateDebut = calendar(order.begin_date_ref);
+        dateFin = calendar(order.end_date_ref);
       }
       if (order.quotation_level === "L1TRADEONLY") {
         dataset = "L1 - Trades"
@@ -234,7 +236,7 @@ getOrders = function (orders, vatValue, styl, currency, txUsd, tx, country) {
 };
 
 
-adresse = function (numInvoice, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency) {
+adresse = function (numInvoice, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency, invoiceType) {
   return {
     columns: [
       [{ image: logo(), width: 200, height: 60 },
@@ -248,7 +250,7 @@ adresse = function (numInvoice, numAccount, idTax, invoiceDate, paymentDate, num
         'VAT : FR00449703248'
       )],
       { text: '', width: 105 },
-      head(numInvoice, numAccount, idTax, invoiceDate.toISOString().split("T")[0], paymentDate, numCmd, currency)
+      head(numInvoice, numAccount, idTax, calendar(invoiceDate), paymentDate, numCmd, currency, invoiceType)
     ],
   }
 };
@@ -330,14 +332,14 @@ wireTransfer = function (vat, delay, c) {
   };
 };
 
-head = function (numInvoice, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency) {
+head = function (numInvoice, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency, invoiceType) {
   let width = '50%';
   return {
     table: {
       headerRows: 1,
       body: [
         [
-          { text: 'Invoice Nbr', style: 'invoiceSubTitle', width: width },
+          { text: invoiceType, style: 'invoiceSubTitle', width: width },
           { text: numInvoice, style: 'invoiceSubValue', width: width }
         ],
         [
@@ -480,5 +482,9 @@ clone = function (obj) {
   }
   return copy;
 };
+
+calendar = function (date) {
+  return moment(date).format('DD/MM/YYYY');
+}
 
 module.exports = router;
