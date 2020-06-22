@@ -285,10 +285,10 @@ router.put('/updtCaddy', (req, res) => {
 });
 
 router.put('/state', async (req, res) => {
-  let updt = {};
+  let orderUpdated = {};
   let log = {};
   let corp = {};
-  updt.state = req.body.status;
+  orderUpdated.state = req.body.status;
   log.status = req.body.status;
   log.referer = req.body.referer;
   dateref = new Date();
@@ -296,11 +296,17 @@ router.put('/state', async (req, res) => {
   dateFinref = new Date();
   log.date = dateref;
   if (req.body.referer === 'Compliance') {
-    await UpdateStateCompliance(updt, corp, req);
+    try {
+      await UpdateStateCompliance(orderUpdated, corp, req);
+    }
+    catch (err) {
+      req.logger.error({ message: err.message + '\n' + err.stack, className: 'Order API' });
+      return res.status(503).json({ message: 'An error has been thrown, please contact support with \'' + req.loggerToken + "'" });
+    }
   }
   if (req.body.referer === 'Product') {
     try {
-      await UpdateStateProduct(updt, req, corp);
+      await UpdateStateProduct(orderUpdated, req, corp);
     }
     catch (err) {
       req.logger.error({ message: err.message + '\n' + err.stack, className: 'Order API' });
@@ -308,137 +314,17 @@ router.put('/state', async (req, res) => {
     }
   }
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
-    updt.validationFinance = true;
-    updt.reason = req.body.reason;
-
-    let deb = datedebref;
-
-    deb = verifWeek(datedebref);
-
-    let debut = new Date(clone(deb));
-
-    let end = dateFinref;
-    let cart = [];
-    req.body.product.forEach(p => {
-      if (!p.print) { //actual product lines without Exchange fees
-        p.dataset = p.quotation_level;
-        p.exchangeName = p.exchange;
-        if (p.subscription === 1) {
-
-          end = new Date(endperiod(deb, p.period));
-
-          end = verifWeekNext(end);
-          p.begin_date = deb;
-          p.end_date = end;
-          let qhid = "";
-          if (p.qhid !== null || p.qhid !== "") {
-            qhid = p.qhid.toString();
-          }
-
-          let c = 0;
-          for (let d = debut; d <= end; d.setDate(d.getDate() + 1)) {
-            id = p.id_undercmd.split("-")[0];
-
-            suffixe = p.id_undercmd.split("§")[1];
-
-            addPool({
-              index: p.index,
-              id: req.body.id,
-              // id_cmd: id + "§" + suffixe,
-              // id_cmd: p.id_undercmd + '|' + c++,
-              id_cmd: p.id_undercmd,
-              onetime: p.onetime,
-              subscription: p.subscription,
-              eid: p.eid,
-              contractID: p.contractid,
-              qhid: qhid,
-              quotation_level: p.dataset,
-
-              searchdate: new Date(d.yyyymmdd()),
-
-              begin_date: d.yyyymmdd(),
-
-              end_date: d.yyyymmdd(),
-              status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
-            });
-          }
-
-          debut = new Date(clone(deb));
-        } else {
-          p.begin_date = p.begin_date_select;
-          p.end_date = p.end_date_select;
-          let qhid = "";
-          if (p.qhid !== null || p.qhid !== "") {
-            qhid = p.qhid.toString();
-          }
-
-          addPool({
-            index: p.index,
-            id: req.body.id,
-            id_cmd: p.id_undercmd,
-            // id_cmd: p.id_undercmd + '|' + c++,
-            onetime: p.onetime,
-            subscription: p.subscription,
-            eid: p.eid,
-            contractID: p.contractid,
-            qhid: qhid,
-            quotation_level: p.dataset,
-            searchdate: p.begin_date,
-
-            begin_date: yyyymmdd(p.begin_date),
-
-            end_date: yyyymmdd(p.end_date),
-            status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
-          });
-        }
-        cart.push(p);
-        updt.products = cart;
-      }
-    });
-    corp = {
-      "email": req.body.email,
-      "idCmd": req.body.id
-    };
     try {
-      var mailer = new OrderMailService(req.logger, { id: req.body.id });
-      await mailer.orderValidated(corp);
+      await UpdateOrderFinance(orderUpdated, req, corp, log, res);
     }
-    catch (error) {
-      logger.error({ message: error.message, className: "Order API" });
-      logger.error({ message: error.stack, className: "Order API" });
+    catch (err) {
+      req.logger.error({ message: err.message + '\n' + err.stack, className: 'Order API' });
+      return res.status(503).json({ message: 'An error has been thrown, please contact support with \'' + req.loggerToken + "'" });
     }
-  }
-  if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
-    req.logger.info("validating order...");
-    var cnt = await Config.findOne({ id: "counter" }).exec(); //.then((cnt) => {
-
-    let id = cnt.value;
-    let prefix = "QH_HISTO_";
-    let nbcar = 7;
-    let idnew = id + 1;
-    let nbid = nbcar - idnew.toString().length;
-    for (let i = 0; i < nbid; i++) {
-      prefix += "0";
-    }
-    updt.idCommande = prefix + idnew.toString();
-    req.logger.info("id commande: " + updt.idcommande);
-    await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec(); //.then(() => {
-    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } }).exec()
-    // .then((r) => {
-    req.logger.info("Order updated");
-    await pdfpost(req.body.id, req.logger);
-    res.status(201).json({ ok: true });
-    //     });
-    // });
-    // Order.findOne({ id: id }).then(order => {
-    //   return res.status(200).json({
-    //     ok: InvoiceService.insertInvoice(order._id, order.id_cmd, order.idUser)
-    //   });
-    // })
-    // });
   }
   else {
-    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } }).exec();
+    req.logger.info("order updating (" + JSON.stringify(orderUpdated) + ")...");
+    await Order.updateOne({ _id: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
     // .then((r) => {
     return res.status(201).json({ ok: true });
     // });
@@ -1210,6 +1096,125 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   // });
 };
 
+async function UpdateOrderFinance(orderUpdated, req, log, res) {
+  let corp = {};
+  orderUpdated.validationFinance = true;
+  orderUpdated.reason = req.body.reason;
+  let deb = verifWeek(new Date());
+  let debut = new Date(clone(deb));
+  let end = new Date();
+  let cart = [];
+  req.body.product.forEach(p => {
+    if (!p.print) { //actual product lines without Exchange fees
+      p.dataset = p.quotation_level;
+      p.exchangeName = p.exchange;
+      if (p.subscription === 1) {
+
+        end = new Date(endperiod(deb, p.period));
+
+        end = verifWeekNext(end);
+        p.begin_date = deb;
+        p.end_date = end;
+        let qhid = "";
+        if (p.qhid !== null || p.qhid !== "") {
+          qhid = p.qhid.toString();
+        }
+
+        let c = 0;
+        for (let d = debut; d <= end; d.setDate(d.getDate() + 1)) {
+          id = p.id_undercmd.split("-")[0];
+
+          suffixe = p.id_undercmd.split("§")[1];
+
+          addPool({
+            index: p.index,
+            id: req.body.id,
+            // id_cmd: id + "§" + suffixe,
+            // id_cmd: p.id_undercmd + '|' + c++,
+            id_cmd: p.id_undercmd,
+            onetime: p.onetime,
+            subscription: p.subscription,
+            eid: p.eid,
+            contractID: p.contractid,
+            qhid: qhid,
+            quotation_level: p.dataset,
+
+            searchdate: new Date(d.yyyymmdd()),
+
+            begin_date: d.yyyymmdd(),
+
+            end_date: d.yyyymmdd(),
+            status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
+          });
+        }
+
+        debut = new Date(clone(deb));
+      }
+      else {
+        p.begin_date = p.begin_date_select;
+        p.end_date = p.end_date_select;
+        let qhid = "";
+        if (p.qhid !== null || p.qhid !== "") {
+          qhid = p.qhid.toString();
+        }
+
+        addPool({
+          index: p.index,
+          id: req.body.id,
+          id_cmd: p.id_undercmd,
+          // id_cmd: p.id_undercmd + '|' + c++,
+          onetime: p.onetime,
+          subscription: p.subscription,
+          eid: p.eid,
+          contractID: p.contractid,
+          qhid: qhid,
+          quotation_level: p.dataset,
+          searchdate: p.begin_date,
+
+          begin_date: yyyymmdd(p.begin_date),
+
+          end_date: yyyymmdd(p.end_date),
+          status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
+        });
+      }
+      cart.push(p);
+      orderUpdated.products = cart;
+    }
+  });
+  corp = {
+    "email": req.body.email,
+    "idCmd": req.body.id
+  };
+  try {
+    var mailer = new OrderMailService(req.logger, { id: req.body.id });
+    await mailer.orderValidated(corp);
+  }
+  catch (error) {
+    logger.error({ message: error.message, className: "Order API" });
+    logger.error({ message: error.stack, className: "Order API" });
+  }
+  req.logger.info("validating order...");
+  var cnt = await Config.findOne({ id: "counter" }).exec(); //.then((cnt) => {
+
+  let id = cnt.value;
+  let prefix = "QH_HISTO_";
+  let nbcar = 7;
+  let idnew = id + 1;
+  let nbid = nbcar - idnew.toString().length;
+  for (let i = 0; i < nbid; i++) {
+    prefix += "0";
+  }
+  orderUpdated.idCommande = prefix + idnew.toString();
+  req.logger.info("id commande: " + orderUpdated.idcommande);
+  await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec(); //.then(() => {
+  await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  // .then((r) => {
+  req.logger.info("Order updated");
+  await pdfpost(req.body.id, req.logger);
+  res.status(201).json({ ok: true });
+  return corp;
+}
+
 async function UpdateStateProduct(orderUpdate, req, corp) {
   req.logger.info({ message: 'updating state product...' });
   orderUpdate.validationProduct = true;
@@ -1226,6 +1231,14 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
   let eids = [];
   if (req.body.status === "cancelled") {
     await Pool.remove({ id: req.body.idCmd.split("-")[0] }).exec()
+    try {
+      var mailer = new OrderMailService(req.logger, order);
+      await mailer.orderCancelled(corp);
+    }
+    catch (error) {
+      req.logger.error({ message: error.message, className: "Order API" });
+      req.logger.error({ message: error.stack, className: "Order API" });
+    }
     return true;
   }
   if (req.body.status === 'rejected') {
@@ -1236,17 +1249,6 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
         corp.reason = req.body.reason;
       }
       await mailer.orderRejected(corp);
-    }
-    catch (error) {
-      req.logger.error({ message: error.message, className: "Order API" });
-      req.logger.error({ message: error.stack, className: "Order API" });
-    }
-    return true;
-  }
-  if (req.body.status === 'cancelled') {
-    try {
-      var mailer = new OrderMailService(req.logger, order);
-      await mailer.orderCancelled(corp);
     }
     catch (error) {
       req.logger.error({ message: error.message, className: "Order API" });
