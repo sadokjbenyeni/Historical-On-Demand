@@ -18,6 +18,7 @@ import { CancelOrderDialogComponent } from '../cancel-order-dialog/cancel-order-
 import { HttpHeaders } from '@angular/common/http';
 import { DeliverablesService } from '../../../../app/services/deliverables.service';
 import { InvoiceService } from '../../../../app/services/invoice.service';
+import { ClientInformation } from '../../../modules/client/models/client-information.model';
 import { DownloadInvoiceService } from '../../../../app/services/Intern/download-invoice.service';
 
 const httpOptions = {
@@ -59,11 +60,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
   period: any;
   firstname: any;
   invoice: string;
-  company: any;
-  lastname: any;
-  job: any;
-  country: any;
-  countryBilling: any;
   dtOptions: DataTables.Settings = {};
   clientOrderDetailsTableColumns: string[] = ['item', 'dataSet', 'instrumentID', 'productID', 'symbol', 'description', 'assetClass', 'exchange', 'mic', 'purchaseType'
     , 'engagementPeriod', 'dateFrom', 'dateTo', 'pricingTier', 'price', 'exchangeFees', 'expirationDate', 'remainingDays', 'delivrables'];
@@ -73,7 +69,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
   subscription: number;
   path: string;
   link: string;
-
+  clientInfo: ClientInformation;
   @Input() isSupport: boolean;
 
   constructor(
@@ -237,6 +233,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
   getClientOrderDetails() {
     // httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
     this.orderService.getOrderDetailsById(this.idCmd, httpOptions).subscribe((order) => {
+      this.clientInfo = new ClientInformation();
       this.getOrderDetails(order);
     })
   }
@@ -247,11 +244,13 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.payment = order.details.payment;
     this.invoice = order.details.idCommande;
     this.state = order.details.state;
-    this.company = order.details.companyName;
-    this.firstname = order.details.firstname;
-    this.lastname = order.details.lastname;
-    this.job = order.details.job;
-    this.countryBilling = order.details.countryBilling;
+
+    this.clientInfo.company = order.details.companyName;
+    this.clientInfo.firstName = order.details.firstname;
+    this.clientInfo.lastName = order.details.lastname;
+    this.clientInfo.job = order.details.job;
+    this.clientInfo.countryBilling = order.details.countryBilling;
+
     this.currency = order.details.currency;
     this.currencyTx = order.details.currencyTx;
     this.currencyTxUsd = order.details.currencyTxUsd;

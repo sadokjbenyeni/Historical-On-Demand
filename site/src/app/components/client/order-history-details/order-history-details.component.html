@@ -35,32 +35,9 @@
             </mat-list>
         </mat-card-content>
     </mat-card>
-
+    
     <mat-card class="col-md-5">
-        <mat-card-header>
-            <mat-card-title>Client Information</mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="align">
-            <mat-list>
-                <mat-list-item><span>Company Name</span> </mat-list-item>
-                <mat-divider></mat-divider>
-                <mat-list-item><span>First Name</span> </mat-list-item>
-                <mat-divider></mat-divider>
-                <mat-list-item><span>Last Name</span></mat-list-item>
-                <mat-divider></mat-divider>
-                <mat-list-item><span>Job Role</span> </mat-list-item>
-                <mat-divider></mat-divider>
-                <mat-list-item><span>Country</span> </mat-list-item>
-            </mat-list>
-            <mat-divider [vertical]="true"></mat-divider>
-            <mat-list>
-                <mat-list-item>{{ company }}</mat-list-item>
-                <mat-list-item>{{ firstname }}</mat-list-item>
-                <mat-list-item>{{ lastname }}</mat-list-item>
-                <mat-list-item>{{ job }}</mat-list-item>
-                <mat-list-item>{{ countryBilling }}</mat-list-item>
-            </mat-list>
-        </mat-card-content>
+        <app-client-information [clientInfo] = "clientInfo" *ngIf="clientInfo"></app-client-information>
     </mat-card>
 
     <mat-card class="col-md-2">

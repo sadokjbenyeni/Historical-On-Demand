@@ -1,0 +1,24 @@
+<mat-card-header>
+    <mat-card-title>Client Information</mat-card-title>
+</mat-card-header>
+<mat-card-content class="align">
+    <mat-list>
+        <mat-list-item><span>Company Name</span> </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item><span>First Name</span> </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item><span>Last Name</span></mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item><span>Job Role</span> </mat-list-item>
+        <mat-divider></mat-divider>
+        <mat-list-item><span>Country</span> </mat-list-item>
+    </mat-list>
+    <mat-divider [vertical]="true"></mat-divider>
+    <mat-list>
+        <mat-list-item>{{ clientInfo.company }}</mat-list-item>
+        <mat-list-item>{{ clientInfo.firstName }}</mat-list-item>
+        <mat-list-item>{{ clientInfo.lastName }}</mat-list-item>
+        <mat-list-item>{{ clientInfo.job }}</mat-list-item>
+        <mat-list-item>{{ clientInfo.countryBilling }}</mat-list-item>
+    </mat-list>
+</mat-card-content>
