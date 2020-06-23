@@ -461,42 +461,48 @@ router.post('/list', (req, res) => {
     });
 });
 
-router.get('/download/:token/:id/:file', (req, res) => {
+router.get('/download/:token/:id/:file', async (req, res) => {
     let valid = false;
-    User.findOne({ token: req.params.token }, { _id: true })
-        .then((u) => {
-            if (u) {
-                let idUser = JSON.parse(JSON.stringify(u._id));
-                Order.findOne({ idUser: idUser, 'products.id_undercmd': req.params.id.split('|')[0] })
-                    .select({ 'products.$.id_undercmd': 1, '_id': false })
-                    .then(o => {
-                        if (o) {
-                            o.products[0].links.forEach(lk => {
-                                if (lk.status === 'active') {
-                                    lk.links.forEach(link => {
-                                        let rgx = RegExp(req.params.file);
-                                        valid += rgx.test(link.link);
-                                    })
-                                }
+    try {
+        var user = await User.findOne({ token: req.params.token }, { _id: true }).exec();
+        if (user) {
+            req.logger.debug({ message: "user found.", className: "User API"  });
+            let idUser = JSON.parse(JSON.stringify(user._id));
+            var order = await Order.findOne({ idUser: idUser, 'products.id_undercmd': req.params.id.split('|')[0] })
+                .select({ 'products.$.id_undercmd': 1, '_id': false })
+                .exec();                
+                if (order) {
+                    req.logger.debug({ message: "order found.", className: "User API" });
+                    order.products[0].links.forEach(lk => {
+                        if (lk.status === 'active') {
+                            //aareq.logger.info("link activated.");
+                            lk.links.forEach(link => {
+                                let rgx = RegExp(req.params.file);
+                                valid += rgx.test(link.link);
                             })
-                        } else {
-                            res.status(404).end();
                         }
                     })
-                    .then(() => {
-                        if (valid) {
-                            res.download('/mapr/client_exports/' + req.params.id + '/' + req.params.file);
-                        } else {
-                            res.status(404).end();
-                        }
-                    });
-            } else {
-                res.status(404).end();
-            }
-        })
-        .catch(err => {
-            res.status(500).end();
-        });
+                } else {
+                    req.logger.info({ message: "order not found.", className: "User API" });
+                    return res.status(404).end();
+                }
+                if (valid) {
+                    var fullPath = '/mapr/client_exports/' + req.params.id + '/' + req.params.file;
+                    req.logger.info({ message:"downloading file " + fullPath + "....", className: "User API" });
+                    return res.download(fullPath);
+                } else {
+                    return res.status(404).end();
+                }                
+        } else {
+            req.logger.info({ message: "user not found.", className: "User API"  });
+            res.status(404).end();
+        }    
+    }
+    catch(err)
+    {
+        req.logger.error({ message: "an error has been thrown: " + err.message + "\n" + err.stack, className: "User API" });
+        return res.status(500).json({ error: "an error has been thrown, please contact the support with identifier '"+req.headers.loggerToken+"'"});
+    };
 });
 
 

@@ -6,7 +6,8 @@ export interface Details {
     commandId: string;
     currencyTx: number;
     currencyTxUsd: number;
-
+    token: string;
+    
     orderAmount: OrderAmount;
     orderInformation: OrderInformation;
     clientInformation: ClientInformation;

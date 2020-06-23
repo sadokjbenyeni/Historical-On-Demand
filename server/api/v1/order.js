@@ -321,9 +321,11 @@ router.put('/state', async (req, res) => {
     await Order.updateOne({ _id: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
     return res.status(201).json({ ok: true });
   }
-  else [
+  }
+  else {
     req.logger.info("order updating (" + JSON.stringify(orderUpdated) + ")...");
-    await Order.updateOne({ idCmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+    // .then((r) => {
     return res.status(201).json({ ok: true });
   }
 });

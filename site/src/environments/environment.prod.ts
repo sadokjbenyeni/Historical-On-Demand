@@ -10,8 +10,8 @@ export const environment = {
       type: ['productDB-derivatives', 'productDB-nonderivatives']
     },
     feed: {
-      productdb: 'productdb_6',
-      index: ['productdb_6'],
+      productdb: 'productdb',
+      index: ['productdb'],
       type: ['productDB']
     }
   }

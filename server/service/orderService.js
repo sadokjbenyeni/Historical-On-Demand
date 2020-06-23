@@ -128,6 +128,24 @@ daysDiff = function (start, end) {
     return end - start > 0 ? Math.ceil((end - start) / (1000 * 3600 * 24)) : 0;
 }
 
+module.exports.getLink = async (user, order, productId, logger) => {
+    if(!user || user === undefined)
+    {
+        throw Error('User is undefined');
+    }
+    if(!order || order === undefined)
+    {
+        throw Error('Order is undefined');
+    }
+    logger.info({message:  order.id + ': getting links... ', className: 'Order Service'});
+    return order.products[productId].links
+                .filter(linkContainer => linkContainer && linkContainer !== undefined &&  linkContainer.status === "active" 
+                                        && linkContainer.links !== undefined && linkContainer.links && linkContainer.links.length > 0)
+                .map(linkObj => linkObj.links.filter(element => element && element.link !== undefined))
+                .reduce((left, right) => left.concat(right))
+                .map(links => links.link.split('|').map(elem => dnwfile + '/api/v1/user/download/' + user.token + '/' + product.id_undercmd + '/' + elem))
+    ;
+}
 
 module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
 

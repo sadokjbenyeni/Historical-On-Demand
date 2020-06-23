@@ -12,4 +12,3 @@ db.createUser({ "user": "qh_nodejs_user", "pwd": "oM7Max5ohSoh2vu", "roles": [ {
 - Create invoices collection use the following command in mongo db:
 > mongo -p oM7Max5ohSoh2vu -u qh_nodejs_user --db histodataweb
 > use histodataweb
-> db.createCollection('invoices')

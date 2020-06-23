@@ -14,7 +14,7 @@ exports.InvoiceDirectory = () => {
     return "c:/temp/files/invoice/";
 }
 // IPs ElastcSearch
-exports.hostsES = () => { return ['10.0.10.102:9200']; }
+exports.hostsES = () => { return ['http://10.0.10.102:9200']; }
 
 exports.environment = () => '[UAT] '; // set as empty in PRODUCTION
 

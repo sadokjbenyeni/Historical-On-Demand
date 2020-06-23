@@ -219,6 +219,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
 
   convertOrderToOrderDetails(order) {
     var orderDetails = new OrderDetails(order.details, order.products);
+    orderDetails.details.token = order.details.token;
     return orderDetails;
   }
 
@@ -317,6 +318,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
   private SetupOrderDetails(order: any, responseLogs: any) {
     this.orderDetails = this.convertOrderToOrderDetails(order);
     this.getOrderDetailsById(this.orderDetails.details, responseLogs);
-    this.orderHistoryDetailsComponent.getOrderDetails(this.orderDetails);
+    this.orderHistoryDetailsComponent.setOrderDetails(this.orderDetails);    
+    this.orderHistoryDetailsComponent.setToken(this.orderDetails.details.token);
   }
 }
