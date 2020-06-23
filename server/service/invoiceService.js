@@ -5,8 +5,12 @@ const invoiceDirectory = require('../config/config.js').InvoiceDirectory();
 const http = require('http');
 
 module.exports = function () {
-    this.insertInvoice = async function (orderId, invoiceId) {
+    this.updateInvoiceInformation = async function (orderId, invoiceId) {
         await Invoice.updateOne({ orderId: orderId }, { $set: { invoiceId: invoiceId, path: invoiceDirectory + invoiceId + '.pdf' } }).exec();
+    }
+
+    this.updateProFormatInformation = async function (orderId, proFormatId) {
+        await Invoice.updateOne({ orderId: orderId }, { $set: { proFormatId: proFormatId, path: invoiceDirectory + proFormatId + '.pdf' } }).exec();
     }
 
     this.getInvoicePath = async function (orderId) {
@@ -17,6 +21,17 @@ module.exports = function () {
         else {
             invoicePath = invoice.path;
             return invoicePath;
+        }
+    }
+
+    this.getProFormatPath = async function (orderId) {
+        var invoice = await Invoice.findOne({ orderId: orderId }).exec();
+        if (!invoice) {
+            return orderId;
+        }
+        else {
+            proFormatPath = invoice.proFormatPath;
+            return proFormatPath;
         }
     }
 }

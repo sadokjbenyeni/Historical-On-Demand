@@ -7,8 +7,7 @@ var mime = require('mime');
 const OrderPdfService = require('../../service/orderPdfService');
 
 router.post('/', async (req, res) => {
-    var result = await new InvoiceService().insertInvoice(req.body.ordertId, req.body.commandId);
-    return res.status(200).json({ result });
+    await new InvoiceService().updateInvoiceInformation(req.body.ordertId, req.body.commandId);
 })
 
 router.get('/download/:orderId', async (req, res) => {
@@ -20,11 +19,22 @@ router.get('/download/:orderId', async (req, res) => {
     }
     // var user = await User.findOne({ token: req.headers.authorization }).exec();
     var order = await Orders.findOne({ id: req.params.orderId }).exec();
-    let directory = await new InvoiceService().getInvoicePath(order.id);
-    if (directory === order.id) {
-        await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande, 'Invoice Nbr');
-        await new InvoiceService().insertInvoice(order.id, order.idCommande);
+    var invoice = await Invoice.findOne({ id: req.params.orderId }).exec();
+    let directory = await new InvoiceService().getProFormatPath(order.id);
+    if (invoice.invoiceId) {
+        directory = await new InvoiceService().getInvoicePath(order.id);
     }
+
+    // if (directory === order.id) {
+    //     if (invoice.proFormatId) {
+    //         await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande, 'Invoice Nbr');
+    //     }
+    //     else {
+    //         await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande, 'Pro Forma Invoice Nbr');
+    //     }
+    //     await new InvoiceService().updateInvoiceInformation(order.id, order.idCommande);
+
+    // }
     var filename = path.basename(directory);
     var mimetype = mime.lookup(directory);
     res.setHeader('File-name', filename);
@@ -34,7 +44,7 @@ router.get('/download/:orderId', async (req, res) => {
         return res.sendFile(directory);
     }
     catch (error) {
-        return res.status(404).json({ error: `Yout invoice doesn't exist, please contact support with order Id ${order.id} to generate a new one` });
+        return res.status(404).json({ error: `Your invoice doesn't exist, please contact support with order Id ${order.id} to generate a new one` });
     }
 });
 
@@ -47,7 +57,7 @@ router.get('/generate/:orderId', async (req, res) => {
     }
     var order = await Orders.findOne({ id: req.params.orderId }).exec();
     try {
-        await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande, 'Invoice Nbr');
+        await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande, 'Pro Forma Invoice Nbr');
     }
     catch (error) {
         req.logger.error({ error: error, className: "Invoice API" });

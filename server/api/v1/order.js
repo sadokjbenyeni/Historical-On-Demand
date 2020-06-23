@@ -1324,6 +1324,7 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
     var users = await User.find({ roleName: "Product" }).exec();
     var mailer = new OrderMailService(req.logger, order);
     await new OrderPdfService(order).createInvoicePdf(req.logger, orderUpdate.idCommande, 'Pro Forma Invoice Nbr');
+    await new InvoiceService().updateProFormatInformation(order.id, orderUpdate.idCommande);
     users.forEach(async user => {
       try {
         await mailer.newOrderHod(user.email,

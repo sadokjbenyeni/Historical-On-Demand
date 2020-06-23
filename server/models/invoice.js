@@ -4,8 +4,10 @@ const mongoose = require('mongoose');
 let InvoiceSchema = new mongoose.Schema({
     orderId: { type: String, maxlength: 200 },
     invoiceId: { type: String, maxlength: 200 },
+    proFormatId: { type: String, maxlength: 200 },
     userId: { type: String, maxlength: 200 },
     path: { type: String, maxlength: 200 },
+    proFormatPath: { type: String, maxlength: 200 },
     submissionDate: { type: Date },
     validatedDate: { type: Date },
     //Begin Information User

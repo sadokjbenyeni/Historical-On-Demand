@@ -87,7 +87,7 @@ module.exports = function (order) {
     let defaultStyle = {};
     // Header
     content.push(
-      adresse(invoiceId, user.id, this.order.vat, new Date(), this.calendar(order.logsPayment[0].date), this.order.id, currency.name, invoiceType),
+      adresse(invoiceId, user.id, this.order.vat, new Date(), this.calendar(order.submissionDate), this.order.id, currency.name, invoiceType),
       // Billing Address
       '\n',
       billinAddress(this.order.companyName, this.order.addressBilling, this.order.postalCodeBilling, this.order.cityBilling, this.order.countryBilling),
@@ -366,7 +366,7 @@ module.exports = function (order) {
   //   ].join('');
   // };
 
-  calendar = async function (date) {
+  this.calendar = async function (date) {
     return await new DateService().calenderFormat(date)
   }
 
