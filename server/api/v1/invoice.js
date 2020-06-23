@@ -7,7 +7,7 @@ var mime = require('mime');
 const OrderPdfService = require('../../service/orderPdfService');
 
 router.post('/', async (req, res) => {
-    var result = await new InvoiceService().insertInvoice(order.id, updt.idCommande);
+    var result = await new InvoiceService().insertInvoice(req.body.ordertId, req.body.commandId);
     return res.status(200).json({ result });
 })
 

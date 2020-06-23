@@ -6,7 +6,7 @@ const http = require('http');
 
 module.exports = function () {
     this.insertInvoice = async function (orderId, invoiceId) {
-        await Invoice.updateOne({ orderId: orderId }, { set: { invoiceId: invoiceId, path: invoiceDirectory + invoiceId + '.pdf' } }).exec();
+        await Invoice.updateOne({ orderId: orderId }, { $set: { invoiceId: invoiceId, path: invoiceDirectory + invoiceId + '.pdf' } }).exec();
     }
 
     this.getInvoicePath = async function (orderId) {
