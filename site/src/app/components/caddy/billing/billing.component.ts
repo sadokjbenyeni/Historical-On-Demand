@@ -32,18 +32,16 @@ export class BillingComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.initFields()
     this.getCountry();
     this.getPayments();
     this.checkVat()
-    this.initFields()
     // this.getCurrency();
   }
 
   // let vat = control.value
-  // debugger
   // let c = vat.substring(0, 2);
   // let v = vat.substring(2, this.form.controls["vatctl"].value.length);
-  // debugger
 
   // this.vatService.checkVat(c + '|' + v).subscribe(data => {
   //   // this.validVat = data.valid;
@@ -58,11 +56,11 @@ export class BillingComponent implements OnInit {
 
   initFields() {
     this.form = this.formBuilder.group({
-      vatctl: [this.user.vat, [Validators.required]],
-      addressBillingctl: [this.user.addressBilling, [Validators.required]],
-      cityBillingctl: [this.user.cityBilling, [Validators.required]],
-      postalCodeBillingctl: [this.user.postalCodeBilling, [Validators.required]],
-      countryBillingctl: [this.user.countryBilling, [Validators.required]],
+      vatctl: [this.user.vat, Validators.required],
+      addressBillingctl: [this.user.addressBilling, Validators.required],
+      cityBillingctl: [this.user.cityBilling, Validators.required],
+      postalCodeBillingctl: [this.user.postalCodeBilling, Validators.required],
+      countryBillingctl: [this.user.countryBilling, Validators.required],
     });
   }
   getCountry() {

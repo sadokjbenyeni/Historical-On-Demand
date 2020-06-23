@@ -79,7 +79,6 @@ export class OrderService {
   }
 
   getCaddies(currency = null) {
-    debugger
     return this.http.post<any>(environment.api + '/order/caddies', { currency: currency });// .map( res => res.json() );
   }
   getCaddy() {
