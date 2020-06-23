@@ -24,7 +24,7 @@ module.exports.calculatefeesOfOrder = async (order, currency, cube) => {
             }
         })
         currencyService.convertproductsFeestoCurrency(order.products, currency, cube);
-        return order.products.reduce((a, b) => a.TotalFees + b.TotalFees);
+        return order.products.reduce((a, b) => a + b.TotalFees, 0)
     }
 }
 

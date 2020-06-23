@@ -20,10 +20,10 @@ module.exports.updateOrderMetaData = async (id, note, sales, type) => {
     await Orders.update({ _id: orderToUpdate._id }, { $set: orderToUpdate }).exec();
 };
 module.exports.getLinks = async (user, order, logger) => {
-    if (!user || user === undefined) {
+    if (!user) {
         throw Error('User is undefined');
     }
-    if (!order || order === undefined) {
+    if (!order) {
         throw Error('Order is undefined');
     }
     logger.info({ message: order.id + ': getting links... ', className: 'Order Service' });

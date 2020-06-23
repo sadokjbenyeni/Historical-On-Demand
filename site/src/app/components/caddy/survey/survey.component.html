@@ -51,25 +51,31 @@
                 Testing and/or Development
               </label>
               <label class="checkbox">
-                <input type="checkbox" value="Analytics" #cb3 (change)="logCheckbox(cb3)"> Analytics
+                <input type="checkbox" value="Analytics" #cb3 (change)="logCheckbox(cb3)"
+                  [checked]="surveyForm.du.cb.indexOf('Analytics')!=-1"> Analytics
               </label>
               <label class="checkbox">
-                <input type="checkbox" value="BackOffice" #cb4 (change)="logCheckbox(cb4)"> Back Office
+                <input type="checkbox" value="BackOffice" #cb4 (change)="logCheckbox(cb4)"
+                  [checked]="surveyForm.du.cb.indexOf('BackOffice')!=-1"> Back Office
               </label>
               <label class="checkbox">
-                <input type="checkbox" value="DataQualityValidation" #cb5 (change)="logCheckbox(cb5)">
+                <input type="checkbox" value="DataQualityValidation" #cb5 (change)="logCheckbox(cb5)"
+                  [checked]="surveyForm.du.cb.indexOf('DataQualityValidation')!=-1">
                 Data Quality Validation
               </label>
               <label class="checkbox">
-                <input type="checkbox" value="DataDisplayApplication" #cb6 (change)="logCheckbox(cb6)">
+                <input type="checkbox" value="DataDisplayApplication" #cb6 (change)="logCheckbox(cb6)"
+                  [checked]="surveyForm.du.cb.indexOf('DataDisplayApplication')!=-1">
                 Data will be exhibited on a display application
               </label>
               <label class="checkbox">
-                <input type="checkbox" value="DataNonDisplayApplication" #cb7 (change)="logCheckbox(cb7)"> Data will
+                <input type="checkbox" value="DataNonDisplayApplication" #cb7 (change)="logCheckbox(cb7)"
+                  [checked]="surveyForm.du.cb.indexOf('DataNonDisplayApplication')!=-1"> Data will
                 be used by a non-display application
               </label>
               <label class="checkbox">
-                <input type="checkbox" value="Other" #cb8 (change)="logCheckbox(cb8)"> Other
+                <input type="checkbox" value="Other" #cb8 (change)="logCheckbox(cb8)"
+                [checked]="surveyForm.du.cb.indexOf('Other')!=-1"> Other
               </label>
               <input type="text" name="textOther" class="form-control" [(ngModel)]="surveyForm.du.other"
                 placeholder="Other" *ngIf="surveyForm.du.cb.indexOf('Other') !== -1">

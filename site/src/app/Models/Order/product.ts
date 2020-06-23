@@ -18,8 +18,6 @@ export class Product {
     remainingDays: number;
     exchangeFee: number;
     delivrables: any;
-
-
     constructor(
         item: number,
         dataSet: string,
@@ -62,7 +60,6 @@ export class Product {
         this.delivrables = delivrables;
     }
 }
-
 export enum PurchaseType {
     subscription = 'Recurrent delivery (Subscription)', onetime = 'One-Off delivery'
 }

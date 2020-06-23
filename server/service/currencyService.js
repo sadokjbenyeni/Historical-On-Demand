@@ -26,16 +26,20 @@ module.exports.convertproductstoCurrency = (order, currency, cube) => {
     if (currency != "usd".toUpperCase()) {
 
         ratio = getRatio("usd", currency, cube);
-        order.currencyTxUsd =ratio;
-            order.products.forEach(item => {
-                item.subscription.forEach(subsc => {
-                    subsc.ht *= ratio
-                })
-                item.onetime.forEach(oneoff => {
-                    oneoff.ht *= ratio
-                })
+        order.currencyTxUsd = ratio;
+        var totalht = 0
+        order.products.forEach(item => {
+            item.subscription.forEach(subsc => {
+                subsc.ht *= ratio
+                totalht += subsc.ht
             })
-        order.totalHT = (order.totalHT * ratio) + order.totalExchangeFees
+            item.onetime.forEach(oneoff => {
+                oneoff.ht *= ratio
+                totalht += oneoff.ht
+
+            })
+        })
+        order.totalHT = totalht + order.totalExchangeFees
     }
 }
 function getRatio(currencyfrom, currencyTo, cube) {
