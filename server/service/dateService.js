@@ -1,6 +1,6 @@
 module.exports = function () {
 
-    this.calenderFormat = function (dateToFormat) {
-        return moment(dateToFormat).format('DD/MM/YYYY');
+    this.calenderFormat = async function (dateToFormat, format = 'DD/MM/YYYY') {
+        return moment(dateToFormat).format(format);
     }
 }

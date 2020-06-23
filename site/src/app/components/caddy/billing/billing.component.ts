@@ -16,9 +16,9 @@ export class BillingComponent implements OnInit {
   @Output() ChangeCurrency = new EventEmitter();
   @Output() ChangeDefaultCurrency = new EventEmitter();
   @Output() ChangeDefaultAdress = new EventEmitter();
-  form: FormGroup
-  currencychangeDefault: boolean = false
-  AdressBillingchangeDefault: boolean = false
+  form: FormGroup;
+  currencychangeDefault: boolean = false;
+  AdressBillingchangeDefault: boolean = false;
 
   country: any;
   payments: any;
@@ -77,7 +77,7 @@ export class BillingComponent implements OnInit {
   }
 
   checkVat() {
-    var vat = this.form?.controls["vatctl"].value;
+    var vat = this.form.controls["vatctl"].value;
     if (vat) {
       let c = vat.substring(0, 2);
       let v = vat.substring(2, vat.length);

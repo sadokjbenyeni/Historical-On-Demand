@@ -366,7 +366,7 @@ module.exports = function (order) {
   //   ].join('');
   // };
 
-  calendar = function (date) {
+  calendar = async function (date) {
     return await new DateService().calenderFormat(date)
   }
 

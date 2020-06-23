@@ -484,7 +484,7 @@ clone = function (obj) {
   return copy;
 };
 
-calendar = function (date) {
+calendar = async function (date) {
   return await new DateService().calenderFormat(date)
 }
 
