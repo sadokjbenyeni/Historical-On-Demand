@@ -42,10 +42,12 @@
             <span>Please select all categories that apply to your data usage.</span><br>
             <div class="columns">
               <label class="checkbox">
-                <input type="checkbox" value="Research" #cb1 (change)="logCheckbox(cb1)"> Research
+                <input type="checkbox" value="Research" #cb1 (change)="logCheckbox(cb1)"
+                  [checked]="surveyForm.du.cb.indexOf('Research')!=-1"> Research
               </label>
               <label class="checkbox">
-                <input type="checkbox" value="TestingDevelopment" #cb2 (change)="logCheckbox(cb2)">
+                <input type="checkbox" value="TestingDevelopment" #cb2 (change)="logCheckbox(cb2)"
+                  [checked]="surveyForm.du.cb.indexOf('TestingDevelopment')!=-1">
                 Testing and/or Development
               </label>
               <label class="checkbox">

@@ -60,9 +60,9 @@ ul.bread-crumbs > li > a {
   color: white;
   font-weight: bold;
 }
-.put-right {
+.put-middle {
   padding-top: 1.5%;
-  float: right;
+  margin-left: 46%;
 }
 .padding-one-pourcent {
   padding-top: 1%;

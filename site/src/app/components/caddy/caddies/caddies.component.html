@@ -18,7 +18,7 @@
           <app-caddy-table (DateChanged)='DateChange($event)' (DeleteProduct)='delCaddies($event)' [symbol]='symbol'
             [caddy]='caddy' [page]="'cart'"></app-caddy-table>
         </mat-card-content>
-        <mat-card-actions class="put-right">
+        <mat-card-actions class="put-middle">
           <button mat-button class="button-orange" matStepperNext>Next</button>
         </mat-card-actions>
       </mat-card>
@@ -29,7 +29,7 @@
         <mat-card-content>
           <app-caddy-table [caddy]='caddy' [page]="'review'" [symbol]='symbol'></app-caddy-table>
         </mat-card-content>
-        <mat-card-actions class="put-right">
+        <mat-card-actions class="put-middle">
           <button mat-button matStepperPrevious class="border-button">Back</button>
           <button mat-button matStepperNext class="button-orange">Next</button>
         </mat-card-actions>
@@ -64,7 +64,7 @@
             </app-survey>
           </div>
         </mat-card-content>
-        <mat-card-actions class="put-right">
+        <mat-card-actions class="put-middle">
           <button mat-button (click)="stepBack()" class="border-button">Back</button>
           <button mat-button (click)="stepForward()" class="button-orange">Next</button>
         </mat-card-actions>
@@ -76,7 +76,7 @@
         (ChangeCurrency)="ChangeCurrency($event)" (ChangeDefaultAdress)="ChangeDefaultAdress($event)"
         (ChangeDefaultCurrency)="ChangeDefaultCurrency($event)">
       </app-billing>
-      <div class="put-right">
+      <div class="put-middle">
         <button mat-button matStepperPrevious class="border-button">Back</button>
         <button mat-button matStepperNext class="button-orange">Next</button>
       </div>
@@ -87,7 +87,7 @@
         <mat-card-content>
           <app-payment *ngIf="rib" [rib]="rib"></app-payment>
         </mat-card-content>
-        <mat-card-actions class="put-right">
+        <mat-card-actions class="put-middle">
           <button mat-button matStepperPrevious class="border-button">Back</button>
           <button mat-button matStepperNext class="button-orange">Next</button>
         </mat-card-actions>
@@ -100,7 +100,7 @@
           <app-caddy-table [caddy]='caddy' [symbol]='symbol'></app-caddy-table>
           <app-price [caddy]='caddy' [symbol]='symbol' [vatValueApply]="vatValueApply"></app-price>
         </mat-card-content>
-        <mat-card-actions class="put-right">
+        <mat-card-actions class="put-middle">
           <button mat-button matStepperPrevious class="border-button">Back</button>
           <button mat-button class="button-orange" (click)="submitRib()">Submit</button>
         </mat-card-actions>

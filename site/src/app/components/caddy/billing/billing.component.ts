@@ -82,7 +82,6 @@ export class BillingComponent implements OnInit {
       this.vatService.checkVat(c + '|' + v).subscribe(data => {
         // this.validVat = data.valid;
         if (!data.valid) {
-
           this.form.controls['vatctl'].setErrors({ 'incorrect': true });
         }
       },

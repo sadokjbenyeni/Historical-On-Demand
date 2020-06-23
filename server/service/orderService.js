@@ -214,11 +214,13 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     let cube = await fluxService.getCube();
     caddy.totalExchangeFees = await feesService.calculatefeesOfOrder(caddy, currency, cube);
     currencyService.convertproductstoCurrency(caddy, currency, cube)
-    caddy.currency = currency
+    caddy.currency = currency;
+    caddy.payment = "banktransfer";
     caddy.total = totalttcv2(caddy);
     await Orders.updateOne({ id: caddy.id },
         {
             $set: {
+                payment: caddy.payment,
                 total: caddy.total,
                 currency: caddy.currency,
                 survey: survey,
