@@ -115,6 +115,7 @@ import { MaterialModule } from './modules/material/material.module';
 import { ClientModule } from './modules/client/client.module';
 import { MenuModule } from './modules/menu/menu.module';
 import { PriceComponent } from './components/caddy/price/price.component';
+import { OrderModule } from './modules/order/order.module';
 import { PaymentComponent } from './components/caddy/payment/payment.component';
 // lazy loading
 
@@ -197,7 +198,8 @@ import { PaymentComponent } from './components/caddy/payment/payment.component';
     NoopAnimationsModule,
     MaterialModule,
     ClientModule,
-    MenuModule
+    MenuModule,
+    OrderModule
     // NgbModule.forRoot()
   ],
   providers: [

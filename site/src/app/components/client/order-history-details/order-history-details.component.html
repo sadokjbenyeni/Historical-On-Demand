@@ -9,68 +9,15 @@
 </div>
 <div  [ngClass]="{'page-content': !isSupport}">
     <mat-card class="col-md-5">
-        <mat-card-header>
-            <mat-card-title>Order Information</mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="align">
-            <mat-list>
-                <mat-list-item><span>Order ID</span> </mat-list-item>
-                <mat-divider></mat-divider>
-                <mat-list-item><span>Submission Date & Time</span> </mat-list-item>
-                <mat-divider></mat-divider>
-                <mat-list-item><span>Payment Method</span></mat-list-item>
-                <mat-divider></mat-divider>
-                <mat-list-item><span>Invoice</span> </mat-list-item>
-                <mat-divider></mat-divider>
-                <mat-list-item><span>Order Status</span> </mat-list-item>
-            </mat-list>
-            <mat-divider [vertical]="true"></mat-divider>
-            <mat-list>
-                <mat-list-item>{{ idOrder }}</mat-list-item>
-                <mat-list-item>{{ submissionDate | date:'medium' }}</mat-list-item>
-                <mat-list-item>{{ payment }}</mat-list-item>
-                <mat-list-item><a role="button" (click)="downloadInvoice()" *ngIf="invoice!=undefined"
-                        target="_blank">Download Invoice</a></mat-list-item>
-                <mat-list-item>{{ getState(state) }}</mat-list-item>
-            </mat-list>
-        </mat-card-content>
+        <app-order-information [orderInfo]="orderInfo" *ngIf="orderInfo"></app-order-information>
     </mat-card>
-    
+
     <mat-card class="col-md-5">
-        <app-client-information [clientInfo] = "clientInfo" *ngIf="clientInfo"></app-client-information>
+        <app-client-information [clientInfo]="clientInfo" *ngIf="clientInfo"></app-client-information>
     </mat-card>
 
     <mat-card class="col-md-2">
-        <mat-card-header>
-            <mat-card-title>Order Amount</mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="align">
-            <mat-list>
-                <mat-list-item><span>Exchange Fees</span></mat-list-item>
-                <mat-divider [inset]="true"></mat-divider>
-                <mat-list-item><span>Order Amount</span></mat-list-item>
-                <mat-divider [inset]="true"></mat-divider>
-                <mat-list-item><span>Discount (%)</span></mat-list-item>
-                <mat-divider [inset]="true"></mat-divider>
-                <mat-list-item><span>Taxes (VAT : {{ vat * 100}}% )</span></mat-list-item>
-                <mat-divider [inset]="true"></mat-divider>
-                <mat-list-item class="bold grey">TOTAL Order Amount</mat-list-item>
-            </mat-list>
-            <mat-divider [vertical]="true"></mat-divider>
-            <mat-list>
-                <mat-list-item>{{totalExchangeFees | number:'1.2-2'}} {{ symbols[currency] }}
-                </mat-list-item>
-                <mat-divider [inset]="true"></mat-divider>
-                <mat-list-item>{{totalHT | number:'1.2-2'}} {{ symbols[currency] }}</mat-list-item>
-                <mat-divider [inset]="true"></mat-divider>
-                <mat-list-item>{{discount}}</mat-list-item>
-                <mat-divider [inset]="true"></mat-divider>
-                <mat-list-item>{{totalVat | number:'1.2-2'}}{{ symbols[currency] }}</mat-list-item>
-                <mat-divider [inset]="true"></mat-divider>
-                <mat-list-item class="bold">{{totalTTC | number:'1.2-2'}} {{ symbols[currency] }}
-                </mat-list-item>
-            </mat-list>
-        </mat-card-content>
+        <app-order-amount [orderAmount]="orderAmount" [symbols]="symbols" *ngIf="orderAmount"></app-order-amount>
     </mat-card>
 </div>
 
@@ -160,7 +107,7 @@
                 <ng-container matColumnDef="price">
                     <th mat-header-cell *matHeaderCellDef> Price </th>
                     <td mat-cell *matCellDef="let element"> <span
-                            *ngIf="!print">{{ getHt(element.price) | number:'1.2-2' }}&nbsp;{{ symbols[currency] }}</span>
+                            *ngIf="!print">{{ getHt(element.price) | number:'1.2-2' }}&nbsp;{{ symbols[orderAmount.currency] }}</span>
                     </td>
                 </ng-container>
 
@@ -168,7 +115,7 @@
                     <th mat-header-cell *matHeaderCellDef> Exchange Fees </th>
                     <td mat-cell *matCellDef="let element">
                         <span
-                            *ngIf="!print">{{ element.exchangeFee | number:'1.2-2' }}&nbsp;{{ symbols[currency] }}</span>
+                            *ngIf="!print">{{ element.exchangeFee | number:'1.2-2' }}&nbsp;{{ symbols[orderAmount.currency] }}</span>
                     </td>
                 </ng-container>
 
@@ -211,7 +158,7 @@
                             <span *ngIf="onetime === 1 && countLink(lk.links) > period[0].linkPerFile" class="cap">
                                 <div class="button">
                                     <div class="icon">
-                                        <i (click)="dynamicDownloadByHtmlTag(idOrder, element.dataSet, element.delivrables.eid, element.delivrables.symbol, element.delivrables.assetClass, 'One-Off', element.delivrables.begin_date_select, element.delivrables.end_date_select, lk.links, lk.path)"
+                                        <i (click)="dynamicDownloadByHtmlTag(orderInfo.id, element.dataSet, element.delivrables.eid, element.delivrables.symbol, element.delivrables.assetClass, 'One-Off', element.delivrables.begin_date_select, element.delivrables.end_date_select, lk.links, lk.path)"
                                             class="fa fa-download"></i>
                                     </div>
                                 </div>

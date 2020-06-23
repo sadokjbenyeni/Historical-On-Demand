@@ -9,7 +9,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 
 import { map } from 'rxjs/operators';
-import { Order } from '../../../../app/Models/Order/Order';
+import { OrderPreview } from '../../../Models/Order/order-preview';
 import { DownloadInvoiceService } from '../../../../app/services/Intern/download-invoice.service';
 
 const httpOptions = {
@@ -65,7 +65,7 @@ export class OrderHistoryComponent implements OnInit {
     httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
     this.orderService.getClientOrders(httpOptions).pipe(map(
       orderTable =>
-        orderTable['listorders'].map(order => new Order(order['id'], order['submissionDate'], this.getStatusName(order['state']), this.getTTCWithCurrency(order, order['currency']), order, order['_id']))
+        orderTable['listorders'].map(order => new OrderPreview(order['id'], order['submissionDate'], this.getStatusName(order['state']), this.getTTCWithCurrency(order, order['currency']), order['idCommande'], order['_id']))
     ))
       .subscribe(result => {
         this.dataSource.data = result;

@@ -1,4 +1,4 @@
-export class ClientInformation { 
+export interface ClientInformation {
     company: any;
     firstName: any;
     lastName: any;

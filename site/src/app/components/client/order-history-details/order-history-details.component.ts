@@ -11,7 +11,7 @@ import 'rxjs/add/operator/map';
 
 
 import { MatTableDataSource } from '@angular/material/table';
-import { Data } from '../../../Models/Order/Data';
+import { Product } from '../../../Models/Order/product';
 
 import { MatDialog } from '@angular/material/dialog';
 import { CancelOrderDialogComponent } from '../cancel-order-dialog/cancel-order-dialog.component';
@@ -20,6 +20,8 @@ import { DeliverablesService } from '../../../../app/services/deliverables.servi
 import { InvoiceService } from '../../../../app/services/invoice.service';
 import { ClientInformation } from '../../../modules/client/models/client-information.model';
 import { DownloadInvoiceService } from '../../../../app/services/Intern/download-invoice.service';
+import { OrderAmount } from '../../../modules/order/models/order-amount.model';
+import { OrderInformation } from '../../../modules/order/models/order-information.model';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -35,14 +37,12 @@ const httpOptions = {
 })
 export class OrderHistoryDetailsComponent implements OnInit {
 
-  idOrder: any;
   token: any;
   gateway: string;
   idCmd: string;
   today: Date;
   currencyTx: any;
   currencyTxUsd: any;
-  currency: any;
   symbols: any[];
   vat: number;
   totalTTC: any;
@@ -52,24 +52,21 @@ export class OrderHistoryDetailsComponent implements OnInit {
   totalVat: number;
   states: Array<any>;
   datasets: object;
-  state: string;
-  payment: string;
-  submissionDate: any;
   cmd: Array<object>;
   details: Array<any>;
   period: any;
-  firstname: any;
-  invoice: string;
   dtOptions: DataTables.Settings = {};
   clientOrderDetailsTableColumns: string[] = ['item', 'dataSet', 'instrumentID', 'productID', 'symbol', 'description', 'assetClass', 'exchange', 'mic', 'purchaseType'
     , 'engagementPeriod', 'dateFrom', 'dateTo', 'pricingTier', 'price', 'exchangeFees', 'expirationDate', 'remainingDays', 'delivrables'];
-  public dataSource = new MatTableDataSource<Data>();
+  public dataSource = new MatTableDataSource<Product>();
   print: boolean;
   onetime: number;
   subscription: number;
   path: string;
   link: string;
   clientInfo: ClientInformation;
+  orderAmount: OrderAmount;
+  orderInfo: OrderInformation;
   @Input() isSupport: boolean;
 
   constructor(
@@ -111,7 +108,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
   }
 
   getHt(value) {
-    if (this.currency !== 'usd') {
+    if (this.orderAmount.currency !== 'usd') {
       value = ((value / this.currencyTxUsd) * this.currencyTx);
     }
     return value;
@@ -233,17 +230,19 @@ export class OrderHistoryDetailsComponent implements OnInit {
   getClientOrderDetails() {
     // httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
     this.orderService.getOrderDetailsById(this.idCmd, httpOptions).subscribe((order) => {
-      this.clientInfo = new ClientInformation();
+      this.clientInfo = <ClientInformation>{}
+      this.orderInfo = <OrderInformation>{}
+      this.orderAmount = <OrderAmount>{};
       this.getOrderDetails(order);
     })
   }
 
   public getOrderDetails(order: any) {
-    this.idOrder = order.details.id;
-    this.submissionDate = order.details.submissionDate;
-    this.payment = order.details.payment;
-    this.invoice = order.details.idCommande;
-    this.state = order.details.state;
+    this.orderInfo.id = order.details.id;
+    this.orderInfo.submissionDate = order.details.submissionDate;
+    this.orderInfo.payment = order.details.payment;
+    this.orderInfo.invoice = order.details.idCommande;
+    this.orderInfo.state = this.getState(order.details.state);
 
     this.clientInfo.company = order.details.companyName;
     this.clientInfo.firstName = order.details.firstname;
@@ -251,29 +250,42 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.clientInfo.job = order.details.job;
     this.clientInfo.countryBilling = order.details.countryBilling;
 
-    this.currency = order.details.currency;
+    this.orderAmount.currency = order.details.currency;
+
     this.currencyTx = order.details.currencyTx;
     this.currencyTxUsd = order.details.currencyTxUsd;
+
     this.vat = order.details.vatValue;
+
+
     if (order.details.currency !== 'usd') {
       this.totalExchangeFees = (order.details.totalExchangeFees / order.details.currencyTxUsd) * order.details.currencyTx;
+
       this.discount = order.details.discount;
+
       this.totalHT = ((order.details.totalHT + order.details.totalExchangeFees) / order.details.currencyTxUsd) * order.details.currencyTx;
+
       if (this.discount > 0) {
         this.totalHT = this.totalHT - (this.totalHT * (this.discount / 100));
       }
       this.totalVat = this.totalHT * this.vat;
+
       this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
     }
     else {
       this.totalExchangeFees = order.details.totalExchangeFees;
+
       this.discount = order.details.discount;
+
       this.totalHT = order.details.totalHT + order.details.totalExchangeFees;
+
       if (this.discount > 0) {
         this.totalHT = this.totalHT - (this.totalHT * (this.discount / 100));
       }
       this.totalVat = this.totalHT * this.vat;
+
       this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
+
     }
     let index = 0;
     this.details = [];
@@ -290,11 +302,21 @@ export class OrderHistoryDetailsComponent implements OnInit {
           this.subscription = product.subscription;
           links.push(link);
         });
-        let newProduct = new Data(index, product.dataset, product.qhid, product.eid, product.symbol, product.description, product.assetClass, product.exchangeName, product.mics, product.subscription, product.period, product.begin_date_select, product.end_date_select, product.pricingTier, product.ht, product.links, product.links, product.backfill_fee, product.ongoing_fee, product);
+        let newProduct = new Product(index, product.dataset, product.qhid, product.eid, product.symbol, product.description, product.assetClass, product.exchangeName, product.mics, product.subscription, product.period, product.begin_date_select, product.end_date_select, product.pricingTier, product.ht, product.links, product.links, product.backfill_fee, product.ongoing_fee, product);
         this.details.push(newProduct);
       });
     }
     this.dataSource.data = this.details;
+
+    this.orderAmount.currency = order.details.currency;
+    this.orderAmount.totalExchangeFees = this.totalExchangeFees;
+    this.orderAmount.vat = this.vat;
+    this.orderAmount.discount = this.discount;
+    this.orderAmount.totalHT = this.totalHT;
+    this.orderAmount.totalTTC = this.totalTTC;
+    this.orderAmount.totalVat = this.totalVat;
+
+
   }
 
   precisionRound(number, precision) {
@@ -314,16 +336,16 @@ export class OrderHistoryDetailsComponent implements OnInit {
   openDialog(): void {
     const dialogReference = this.dialog.open(CancelOrderDialogComponent, {
       width: '250px',
-      data: { idCmd: this.idCmd, status: 'cancelled', referer: 'Client', orderId: this.idOrder }
+      data: { idCmd: this.idCmd, status: 'cancelled', referer: 'Client', orderId: this.orderInfo.id }
     });
     dialogReference.afterClosed().subscribe(result => {
     });
   }
 
   downloadLinks() {
-    let fileName = this.idOrder + "_Manifest";
+    let fileName = this.orderInfo.id + "_Manifest";
     let downloadablelinks = [];
-    this.deliverablesService.getLinks(this.idOrder)
+    this.deliverablesService.getLinks(this.orderInfo.id)
       .subscribe(productslinks => {
         productslinks.forEach(links => {
           links.forEach(link => {
