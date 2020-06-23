@@ -322,12 +322,18 @@ router.put('/state', async (req, res) => {
       return res.status(503).json({ message: 'An error has been thrown, please contact support with \'' + req.loggerToken + "'" });
     }
   }
-  else {
+  else if(req.body.referer === 'Client' && req.body.status === 'cancelled') {
     req.logger.info("order updating (" + JSON.stringify(orderUpdated) + ")...");
     await Order.updateOne({ _id: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
     // .then((r) => {
     return res.status(201).json({ ok: true });
     // });
+  }
+  else {
+    req.logger.info("order updating (" + JSON.stringify(orderUpdated) + ")...");
+    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+    // .then((r) => {
+    return res.status(201).json({ ok: true });
   }
 });
 

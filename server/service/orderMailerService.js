@@ -44,7 +44,7 @@ module.exports = function (logger, order) {
       html: `Hello,<br><br>
         Thank you for choosing the QH's Historical Data On-Demand product.<br>
         You Order <b># `+ this.order.id + `</b> has been received on ` + date + " " + time + ` CET and is currently pending validation.<br>
-        For any further information about your order, please use the following link: <a href="`+ domain + `/order/history` + this.order._id + `"> Click here</a>
+        For any further information about your order, please use the following link: <a href="`+ domain + `/order/history/` + this.order._id + `"> Click here</a>
         <br><br>
         <b>Thank you,<br>Quanthouse</b>`
     };

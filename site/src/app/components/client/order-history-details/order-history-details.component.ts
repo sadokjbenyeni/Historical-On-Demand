@@ -27,10 +27,10 @@ const httpOptions = {
   styleUrls: ['./order-history-details.component.css']
 })
 export class OrderHistoryDetailsComponent implements OnInit {
-
   idOrder: any;
   token: any;
   gateway: string;
+  id: string;
   idCmd: string;
   today: Date;
   currencyTx: any;
@@ -78,7 +78,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
     private configService: ConfigService,
     private deliverablesService: DeliverablesService
   ) {
-    this.route.params.subscribe(_ => { this.idCmd = _.id; });
+    this.route.params.subscribe(_ => { this.id = _.id; });
   }
 
 
@@ -192,7 +192,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
       downloadLink.style.display = "none";
       document.body.appendChild(downloadLink);
     }
-
     downloadLink.click();
   }
 
@@ -218,7 +217,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
   }
 
   confirm() {
-    this.orderService.state({ idCmd: this.idCmd, status: 'cancelled', referer: 'Client' }).subscribe(() => { });
+    this.orderService.state({ idCmd: this.id, status: 'cancelled', referer: 'Client' }).subscribe(() => { });
   }
 
   getListStates() {
@@ -229,12 +228,12 @@ export class OrderHistoryDetailsComponent implements OnInit {
 
   getClientOrderDetails() {
     // httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
-    this.orderService.getOrderDetailsById(this.idCmd, httpOptions).subscribe((order) => {
-      this.getOrderDetails(order);
+    this.orderService.getOrderDetailsById(this.id, httpOptions).subscribe((order) => {
+      this.setOrderDetails(order);
     })
   }
 
-  public getOrderDetails(order: any) {
+  public setOrderDetails(order: any) {
     this.idOrder = order.details.id;
     this.submissionDate = order.details.submissionDate;
     this.payment = order.details.payment;
@@ -291,6 +290,10 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.dataSource.data = this.details;
   }
 
+  public setToken(token: any) {
+    this.token = token;
+  }
+
   precisionRound(number, precision) {
     var factor = Math.pow(10, precision);
     return Math.round(number * factor) / factor;
@@ -308,7 +311,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
   openDialog(): void {
     const dialogReference = this.dialog.open(CancelOrderDialogComponent, {
       width: '250px',
-      data: { idCmd: this.idCmd, status: 'cancelled', referer: 'Client', orderId: this.idOrder }
+      data: { idCmd: this.id, status: 'cancelled', referer: 'Client', orderId: this.idOrder }
     });
     dialogReference.afterClosed().subscribe(result => {
     });

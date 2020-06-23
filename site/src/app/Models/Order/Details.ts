@@ -19,7 +19,8 @@ export class Details {
     submissionDate: Date;
     state: string;
     invoice: string;
-
+    token: string;
+    
     constructor(commandId: string,
         idOrder: number,
         companyName: string,

@@ -14,17 +14,17 @@ router.get('/details/:id', async (req, res) => {
     }
     var order = await Order.findOne({ _id: req.params.id }).exec();
     try {
-        order = supportOrderDetails(order);
+        order = await supportOrderDetails(order);
     }
     catch (error) {
         req.logger.error({ message: error.message, className: "Order Support API" });
-        req.logger.error({ message: JSON.stringify(error), className:"Order Support API"});
+        req.logger.error({ message: JSON.stringify(error), className: "Order Support API" });
         return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
     }
     return res.status(200).json({ details: order });
 })
 
-supportOrderDetails = function (order) {
+supportOrderDetails = async function (order) {
 
     const container = {};
     container.id = order.id;
@@ -52,7 +52,11 @@ supportOrderDetails = function (order) {
     container.vat = order.vat;
     container.vatValide = order.vatValide;
     container.vatValue = order.vatValue;
-
+    var user = await User.findOne({ _id: order.idUser }).exec();
+    if(user)
+    {
+         container.token = user.token;
+    }
     return container;
 }
 

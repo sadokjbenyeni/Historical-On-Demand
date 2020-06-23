@@ -1,9 +1,9 @@
 const router = require('express').Router();
 const LoggerFactory = require('../../../logger.js');
 const logger = new LoggerFactory().createLogger('Elastic');
-
+const config = require('../../config/config');
 const { Client } = require('@elastic/elasticsearch')
-const client = new Client({ node: 'http://10.0.10.102:9200' })
+const client = new Client({ nodes: config.hostsES() })
 
 
 client.ping({}, { requestTimeout: 20000 }, function (error) {
