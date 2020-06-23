@@ -75,8 +75,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private currencyService: CurrencyService,
     private configService: ConfigService,
-    private deliverablesService: DeliverablesService,
-    private downloadInvoiceService: DownloadInvoiceService
+    private deliverablesService: DeliverablesService
   ) {
     this.route.params.subscribe(_ => { this.idCmd = _.id; });
   }
@@ -380,9 +379,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
       })
   }
 
-  downloadInvoice() {
-    this.downloadInvoiceService.getInvoice(this.idOrder, this.invoice);
-  }
+  
 
   handleError(error): ObservableInput<any> {
     console.log(error);

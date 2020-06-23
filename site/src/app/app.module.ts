@@ -174,7 +174,7 @@ import { PaymentComponent } from './components/caddy/payment/payment.component';
     MenusupportComponent,
     OrderHistoryDetailsComponent,
     CancelOrderDialogComponent,
-    FileSelectDirective
+    FileSelectDirective,
     CaddyTableComponent,
     BillingComponent,
     PriceComponent,

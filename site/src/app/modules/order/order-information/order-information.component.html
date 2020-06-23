@@ -18,8 +18,8 @@
         <mat-list-item>{{ orderInfo.id }}</mat-list-item>
         <mat-list-item>{{ orderInfo.submissionDate | date:'medium' }}</mat-list-item>
         <mat-list-item>{{ orderInfo.payment }}</mat-list-item>
-        <mat-list-item><a *ngIf="orderInfo.invoice!=undefined" target="_blank"
-                [href]="'/files/invoice/' + invoice + '.pdf'">Download Invoice</a></mat-list-item>
+        <mat-list-item><a role="button" (click)="downloadInvoice()" *ngIf="invoice!=undefined"
+            target="_blank">Download Invoice</a></mat-list-item>
         <mat-list-item>{{ orderInfo.state }}</mat-list-item>
     </mat-list>
 </mat-card-content>
