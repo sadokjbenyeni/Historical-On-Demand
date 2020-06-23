@@ -1,7 +1,5 @@
 //Configuration MODEL
-
 const mongoose = require('mongoose');
-
 let OrderSchema = new mongoose.Schema({
   id: { type: Number }, //id incrementer dès le début du panier
   idCommande: { type: String, maxlength: 200 },
@@ -13,21 +11,35 @@ let OrderSchema = new mongoose.Schema({
   idUser: { type: String, maxlength: 200 },
   email: { type: String, maxlength: 200 },
   companyName: { type: String, maxlength: 200 },
+  companyType: { type: String, maxlength: 200 },
+  phone: { type: String, maxlength: 200 },
+  website: { type: String, maxlength: 200 },
+  region: { type: String, maxlength: 200 },
+  job: { type: String, maxlength: 200 },
+  firstname: { type: String, maxlength: 200 },
+  lastname: { type: String, maxlength: 200 },
+  address: { type: String, maxlength: 200 },
+  city: { type: String, maxlength: 200 },
+  country: { type: String, maxlength: 3 },
+  postalCode: { type: String, maxlength: 10 },
   addressBilling: { type: String, maxlength: 200 },
   cityBilling: { type: String, maxlength: 200 },
   countryBilling: { type: String, maxlength: 3 },
   postalCodeBilling: { type: String, maxlength: 10 },
   vat: { type: String, maxlength: 15 },
+  vatValide: { type: Boolean, default: null },
   //End Information User
   payment: { type: String, maxlength: 200 },
   paymentDate: { type: Date },
   vatValue: { type: Number, default: null },
   currency: { type: String, maxlength: 5, default: 'usd' },
-  currencyTxUsd: { type: Number, default: 1 },
+  currencyTx: { type: Number },
+  currencyTxUsd: { type: Number },
   discount: { type: Number, default: 0 },
   totalExchangeFees: { type: Number, default: 0 },
   totalHT: { type: Number, default: 0 },
   total: { type: Number, default: 0 },
+  format: { type: Array, default: ['csv'] },
   survey: { type: Array },
   state: { type: String },
   reason: { type: String },
@@ -37,10 +49,9 @@ let OrderSchema = new mongoose.Schema({
   validationCompliance: { type: Boolean, default: false },
   validationProduct: { type: Boolean, default: false },
   validationFinance: { type: Boolean, default: false },
+  mailActive: { type: Boolean, default: true },
   internalNote: { type: String, default: null },
   sales: { type: String, default: 'no sales' },
-  type: { type: String, default: 'NA' },
-  paid: { type: Boolean, default: false },
+  type: { type: String, default: 'NA' }
 }, { timestamps: true });
-
 mongoose.model('Order', OrderSchema);
