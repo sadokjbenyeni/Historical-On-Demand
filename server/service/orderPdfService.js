@@ -86,7 +86,7 @@ module.exports = function (order) {
     let defaultStyle = {};
     // Header
     content.push(
-      adresse(invoiceId, user.id, this.order.vat, new Date(), this.calendar(order.submissionDate), this.order.id, currency.name, invoiceType),
+      adresse(invoiceId, user.id, this.order.vat, new Date(), this.order.submissionDate, this.order.id, currency.name, invoiceType),
       // Billing Address
       '\n',
       billinAddress(this.order.companyName, this.order.addressBilling, this.order.postalCodeBilling, this.order.cityBilling, this.order.countryBilling),
@@ -155,7 +155,7 @@ module.exports = function (order) {
           'VAT : FR00449703248'
         )],
         { text: '', width: 105 },
-        head(invoiceId, numAccount, idTax, this.calendar(invoiceDate), paymentDate, numCmd, currency, invoiceType)
+        head(invoiceId, numAccount, idTax, this.calendar(invoiceDate), this.calendar(paymentDate), numCmd, currency, invoiceType)
       ],
     }
   };
@@ -366,7 +366,8 @@ module.exports = function (order) {
   // };
 
   this.calendar = async function (date) {
-    return await new DateService().calenderFormat(date)
+    var formattedDate = await new DateService().calenderFormat(date);
+    return formattedDate;
   }
 
   this.precisionRound = function (number, precision) {

@@ -105,7 +105,7 @@ pdf = function (logger, cmd, currency, user, country, invoiceType) {
   let defaultStyle = {};
   // Header
   content.push(
-    adresse(cmd.idCommande, user.id, cmd.vat, new Date(), cmd.logsPayment[0].date.yyyymmdd(), cmd.id, currency.name, invoiceType),
+    adresse(cmd.idCommande, user.id, cmd.vat, new Date(), cmd.submissionDate, cmd.id, currency.name, invoiceType),
     // Billing Address
     '\n',
     billinAddress(cmd.companyName, cmd.addressBilling, cmd.postalCodeBilling, cmd.cityBilling, cmd.countryBilling),
@@ -251,7 +251,7 @@ adresse = function (numInvoice, numAccount, idTax, invoiceDate, paymentDate, num
         'VAT : FR00449703248'
       )],
       { text: '', width: 105 },
-      head(numInvoice, numAccount, idTax, calendar(invoiceDate), paymentDate, numCmd, currency, invoiceType)
+      head(numInvoice, numAccount, idTax, calendar(invoiceDate), calendar(paymentDate), numCmd, currency, invoiceType)
     ],
   }
 };
@@ -485,7 +485,8 @@ clone = function (obj) {
 };
 
 calendar = async function (date) {
-  return await new DateService().calenderFormat(date)
+  var formattedDate = await new DateService().calenderFormat(date);
+  return formattedDate;
 }
 
 module.exports = router;

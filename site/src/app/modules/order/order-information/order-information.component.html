@@ -19,8 +19,14 @@
             <mat-list-item>{{ orderInfo.id }}</mat-list-item>
             <mat-list-item>{{ orderInfo.submissionDate | date:'medium' }}</mat-list-item>
             <mat-list-item>{{ orderInfo.payment }}</mat-list-item>
-        <mat-list-item><a role="button" (click)="downloadInvoice()" *ngIf="orderInfo.invoice" target="_blank">Download
-                Invoice</a></mat-list-item>
+        <mat-list-item>
+            <a target="_blank" *ngIf="orderInfo.invoice"
+                (click)="downloadInvoice(orderInfo.invoice, 'invoice')">Download
+                Invoice/</a>
+            <a target="_blank" *ngIf="orderInfo.proForma"
+                (click)="downloadInvoice(orderInfo.proForma, 'pro format invoice')">
+                Pro Forma Invoice</a>
+        </mat-list-item>
             <mat-list-item>{{ orderInfo.state }}</mat-list-item>
         </mat-list>
     </mat-card-content>

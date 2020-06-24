@@ -4,4 +4,5 @@ export interface OrderInformation {
     payment: any;
     state: any;
     invoice: any;
+    proForma: any;
 }

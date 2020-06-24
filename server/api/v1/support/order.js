@@ -35,6 +35,7 @@ supportOrderDetails = async function (order) {
     container.firstname = order.firstname;
     container.lastname = order.lastname;
     container.idCommande = order.idCommande;
+    container.idProForma = order.idProForma;
     container.job = order.job;
     container.countryBilling = order.countryBilling;
     container.sales = order.sales;

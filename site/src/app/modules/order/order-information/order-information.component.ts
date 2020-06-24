@@ -15,7 +15,8 @@ export class OrderInformationComponent implements OnInit {
 
   ngOnInit(): void {
   }
-  downloadInvoice() {
-    this.downloadInvoiceService.getInvoice(this.orderInfo.id, this.orderInfo.invoice);
+
+  downloadInvoice(invoice, pdfType) {
+    this.downloadInvoiceService.getInvoice(this.orderInfo.id, invoice, pdfType);
   }
 }

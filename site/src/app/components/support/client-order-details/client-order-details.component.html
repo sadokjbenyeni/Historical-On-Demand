@@ -26,8 +26,11 @@
                   <p>Order ID : <b> {{ idOrder }}</b></p>
                   <p>Submission Date and Time : <b> {{ submissionDate | date:'medium' }}</b></p>
                   <p>Payment method : <b>{{ payment }}</b></p>
-                  <p>Invoice : <b><a role="button" (click)="downloadInvoice()" *ngIf="invoice!=undefined"
-                        target="_blank">Download Invoice</a></b></p>
+                  <p>Invoice : <b> <a target="_blank" *ngIf="invoice"
+                        (click)="downloadInvoice(invoice, 'invoice')">Download
+                        Invoice/</a>
+                      <a target="_blank" *ngIf="proForma" (click)="downloadInvoice(proForma, 'pro format invoice')">
+                        Pro Forma Invoice</a></b></p>
                   <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b>
                   <p>Order Type: <b> {{ type }} </b></p>
                   <p>Sales: <b> {{sales}}</b></p>
@@ -184,8 +187,7 @@
           <div class="btn-action">
             <button mat-button class="bottom-button red-color" [routerLink]='["/support/clientorder"]'><i
                 class="fa fa-chevron-left"></i>Back</button>
-            <button mat-button class="bottom-button green-color" *ngIf="invoice!=undefined"
-              (click)="generateInvoice()">
+            <button mat-button class="bottom-button green-color" *ngIf="invoice!=undefined" (click)="generateInvoice()">
               <i class="fa fa-file-pdf-o"></i>Generate Invoice
             </button>
           </div>

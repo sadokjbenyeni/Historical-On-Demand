@@ -47,6 +47,7 @@ export class OrdersViewComponent implements OnInit {
   fees: number;
   cart: Array<any>;
   invoice: string;
+  proForma: string;
   internalNote: string;
   sale: string;
   ordertype: string;
@@ -93,6 +94,7 @@ export class OrdersViewComponent implements OnInit {
         this.sale = c.cmd.sales
         this.idCmd = c.cmd.id_cmd;
         this.invoice = c.cmd.idCommande;
+        this.proForma = c.cmd.idProForma;
         this.idOrder = c.cmd.id;
         this.cmd = c.cmd;
         this.companyName = c.cmd.companyName;
@@ -230,7 +232,7 @@ export class OrdersViewComponent implements OnInit {
       return stateId;
     return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
-  downloadInvoice() {
-    this.downloadInvoiceService.getInvoice(this.idOrder, this.invoice);
+  downloadInvoice(invoice, pdfType) {
+    this.downloadInvoiceService.getInvoice(this.idOrder, invoice, pdfType);
   }
 }

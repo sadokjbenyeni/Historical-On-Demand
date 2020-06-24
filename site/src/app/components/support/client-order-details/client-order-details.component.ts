@@ -66,6 +66,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
   orderDetails: OrderDetails;
   sales: string;
   type: string;
+  proForma: string;
   internalNote: string;
   productsLogs: Array<any>;
 
@@ -144,6 +145,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
       this.list = order;
       this.id_cmd = order.id_cmd;
       this.invoice = order.idCommande;
+      this.proForma = order.idProForma;
       this.idOrder = order.id;
       this.cmd = order;
       this.companyName = order.companyName;
@@ -295,8 +297,8 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
     return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
   }
 
-  downloadInvoice() {
-    this.downloadInvoiceService.getInvoice(this.idOrder, this.invoice);
+  downloadInvoice(invoice, pdfType) {
+    this.downloadInvoiceService.getInvoice(this.idOrder, invoice, pdfType);
   }
 
   generateInvoice() {

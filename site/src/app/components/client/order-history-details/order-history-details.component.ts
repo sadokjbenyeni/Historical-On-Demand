@@ -239,6 +239,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.orderInfo.submissionDate = order.details.submissionDate;
     this.orderInfo.payment = order.details.payment;
     this.orderInfo.invoice = order.details.idCommande;
+    this.orderInfo.proForma = order.details.idProForma;
     this.orderInfo.state = this.getState(order.details.state);
 
     this.clientInfo.company = order.details.companyName;
