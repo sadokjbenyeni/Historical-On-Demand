@@ -6,7 +6,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { routes } from './app.routing';
 import { NoopAnimationsModule, BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FileSelectDirective, FileDropDirective } from 'ng2-file-upload';
+import { FileSelectDirective } from 'ng2-file-upload';
 import { MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 
 // Guard
@@ -15,8 +15,6 @@ import { GuardGuard } from './guard.guard';
 // Validate Form
 import { EqualValidatorDirective } from './validators/equal-validator.directive';
 // Components
-// All
-import { MenuComponent } from './components/menu/menu.component';
 // Clients
 import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
@@ -26,9 +24,7 @@ import { SearchComponent } from './components/search/search.component';
 import { OrderHistoryComponent } from './components/client/order-history/order-history.component';
 import { AboutComponent } from './components/about/about.component';
 import { HelpPageComponent } from './components/help-page/help-page.component';
-import { SurveyComponent } from './components/caddy/survey/survey.component';
 import { StatementsComponent } from './components/statements/statements.component';
-import { CaddiesComponent } from './components/caddy/caddies/caddies.component';
 // Administrators
 import { ConfigurationComponent } from './components/admin/configuration/configuration.component';
 import { VariableComponent } from './components/admin/variable/variable.component';
@@ -109,14 +105,11 @@ import { CancelOrderDialogComponent } from './components/client/cancel-order-dia
 import { TokenInterceptor } from './interceptors/authentification/token.interceptor';
 import { DeliverablesService } from './services/deliverables.service';
 import { DownloadInvoiceService } from './services/Intern/download-invoice.service';
-import { CaddyTableComponent } from './components/caddy/caddy-table/caddy-table.component';
-import { BillingComponent } from './components/caddy/billing/billing.component';
 import { MaterialModule } from './modules/material/material.module';
 import { ClientModule } from './modules/client/client.module';
 import { MenuModule } from './modules/menu/menu.module';
-import { PriceComponent } from './components/caddy/price/price.component';
 import { OrderModule } from './modules/order/order.module';
-import { PaymentComponent } from './components/caddy/payment/payment.component';
+import { CaddyModule } from './modules/caddy/caddy.module';
 // lazy loading
 
 @NgModule({
@@ -153,10 +146,8 @@ import { PaymentComponent } from './components/caddy/payment/payment.component';
     OrderHistoryComponent,
     AboutComponent,
     HelpPageComponent,
-    SurveyComponent,
     StatementsComponent,
     CeilPipe,
-    CaddiesComponent,
     PurchaseTypePipe,
     SafeHtmlPipePipe,
     NgbdModalContent,
@@ -175,14 +166,11 @@ import { PaymentComponent } from './components/caddy/payment/payment.component';
     OrderHistoryDetailsComponent,
     CancelOrderDialogComponent,
     FileSelectDirective,
-    CaddyTableComponent,
-    BillingComponent,
-    PriceComponent,
-    PaymentComponent,
+
   ],
   entryComponents: [NgbdModalContent],
   imports: [
-
+    CaddyModule,
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,

@@ -80,7 +80,7 @@ function deleteoverlap(orderedproducts) {
             orderedproducts[1].end_date = orderedproducts[0].end_date
 
         }
-        else { // in this case begin date and end date of the first product are bouth 
+        else { // in this case begin date and end date of the first product are bouth out of range of the next 
             dates.push(orderedproducts[0])
         }
         orderedproducts.splice(0, 1);
