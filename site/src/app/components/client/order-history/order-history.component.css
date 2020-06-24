@@ -49,11 +49,50 @@ mat-form-field {
 
 /***********************/
 
-
 .mat-row:nth-child(even){
   background-color:#fff;
-  }
+}
 
 .mat-row:nth-child(odd){
-  background-color:rgba(0,0,0,.01);;
-  }
+  background-color:rgba(0,0,0,.01);
+}
+
+.main, .menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.main {
+  position: relative;
+  transition: 0.5s;
+  overflow: hidden;
+}
+.menu {
+  margin: 0;
+  padding: 0;
+  width: 0;
+  overflow: hidden;
+  transition: 0.5s;
+}
+.main input:checked ~ .menu {
+  width: 150px;
+}
+.menu li {
+  list-style: none;
+  margin: 0 10px;
+}
+.menu li a {
+  text-decoration: none;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 400;
+  transition: 0.5s;
+}
+.menu li a:hover {
+  color: #ED6540;
+}
+.main input {
+  cursor: pointer;
+  opacity: 0.2;
+}
