@@ -86,7 +86,7 @@ module.exports = function (order) {
     let defaultStyle = {};
     // Header
     content.push(
-      adresse(invoiceId, user.id, this.order.vat, new Date(), this.order.submissionDate, this.order.id, currency.name, invoiceType),
+      adresse(invoiceId, user.id, this.order.vat, this.calendar(new Date()), this.calendar(this.order.submissionDate), this.order.id, currency.name, invoiceType),
       // Billing Address
       '\n',
       billinAddress(this.order.companyName, this.order.addressBilling, this.order.postalCodeBilling, this.order.cityBilling, this.order.countryBilling),
@@ -155,7 +155,7 @@ module.exports = function (order) {
           'VAT : FR00449703248'
         )],
         { text: '', width: 105 },
-        head(invoiceId, numAccount, idTax, this.calendar(invoiceDate), this.calendar(paymentDate), numCmd, currency, invoiceType)
+        head(invoiceId, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency, invoiceType)
       ],
     }
   };
@@ -239,7 +239,7 @@ module.exports = function (order) {
   };
 
   this.head = function (invoiceId, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency, invoiceType) {
-    let width = '50%';
+    let width = '70%';
     return {
       table: {
         headerRows: 1,
@@ -365,8 +365,8 @@ module.exports = function (order) {
   //   ].join('');
   // };
 
-  this.calendar = async function (date) {
-    var formattedDate = await new DateService().calenderFormat(date);
+  this.calendar = function (date) {
+    var formattedDate = new DateService().calenderFormat(date);
     return formattedDate;
   }
 

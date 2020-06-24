@@ -251,7 +251,7 @@ adresse = function (numInvoice, numAccount, idTax, invoiceDate, paymentDate, num
         'VAT : FR00449703248'
       )],
       { text: '', width: 105 },
-      head(numInvoice, numAccount, idTax, calendar(invoiceDate), calendar(paymentDate), numCmd, currency, invoiceType)
+      head(numInvoice, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency, invoiceType)
     ],
   }
 };
@@ -484,8 +484,8 @@ clone = function (obj) {
   return copy;
 };
 
-calendar = async function (date) {
-  var formattedDate = await new DateService().calenderFormat(date);
+calendar = function (date) {
+  var formattedDate = new DateService().calenderFormat(date);
   return formattedDate;
 }
 
