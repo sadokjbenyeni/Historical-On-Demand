@@ -13,8 +13,8 @@ export class DownloadInvoiceService {
     }
   }
 
-  getInvoice(orderId, invoiceId) {
-    this.invoiceService.downloadInvoice(orderId).subscribe(blobResponse => {
+  getInvoice(orderId, invoiceId, pdfType) {
+    this.invoiceService.downloadInvoice(orderId, pdfType).subscribe(blobResponse => {
       let fileName = invoiceId;
       var downloadURL = window.URL.createObjectURL(blobResponse.body);
       if (!this.setting.element.dynamicDownload) {

@@ -9,8 +9,7 @@ const Countrie = mongoose.model('Countrie');
 const invoiceDirectory = require('../config/config.js').InvoiceDirectory();
 const config = require('../config/config.js');
 const DOMAIN = config.domain();
-var moment = require('moment');
-moment().format();
+
 const DateService = require('../service/dateService');
 
 module.exports = function (order) {

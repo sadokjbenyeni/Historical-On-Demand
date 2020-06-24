@@ -10,7 +10,7 @@ export class InvoiceService {
 
   constructor(private http: HttpClient) { }
 
-  downloadInvoice(orderId: any): Observable<any> {
+  downloadInvoice(orderId: any, pdfType: any): Observable<any> {
     const options = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ export class InvoiceService {
       observe: 'response' as 'body',
       responseType: 'blob' as 'blob'
     };
-    return this.http.get(environment.api + "/invoice/download/" + orderId, options)
+    return this.http.get(environment.api + "/invoice/download/" + orderId + '/' + pdfType, options)
       .map((resObj: Blob) => resObj)
       .catch((errorObj: any) => Observable.throw(errorObj || 'Server error'));
   }

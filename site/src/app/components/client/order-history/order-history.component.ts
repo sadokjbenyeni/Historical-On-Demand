@@ -65,7 +65,7 @@ export class OrderHistoryComponent implements OnInit {
     httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
     this.orderService.getClientOrders(httpOptions).pipe(map(
       orderTable =>
-        orderTable['listorders'].map(order => new OrderPreview(order['id'], order['submissionDate'], this.getStatusName(order['state']), this.getTTCWithCurrency(order, order['currency']), order['idCommande'], order['_id']))
+        orderTable['listorders'].map(order => new OrderPreview(order['id'], order['submissionDate'], this.getStatusName(order['state']), this.getTTCWithCurrency(order, order['currency']), order, order['_id']))
     ))
       .subscribe(result => {
         this.dataSource.data = result;
@@ -120,8 +120,8 @@ export class OrderHistoryComponent implements OnInit {
     this.dataSource.filter = filterValue.toLowerCase();
   }
 
-  downloadInvoice(orderId, invoiceId) {
-    this.downloadInvoiceService.getInvoice(orderId, invoiceId);
+  downloadInvoice(orderId, invoiceId, pdfType) {
+    this.downloadInvoiceService.getInvoice(orderId, invoiceId, pdfType);
   }
 }
 

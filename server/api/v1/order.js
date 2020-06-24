@@ -289,7 +289,9 @@ router.put('/state', async (req, res) => {
   var order = await Order.findOne({ id: req.body.id }).exec();
   if (req.body.referer === 'Compliance') {
     try {
+      updt.idProForma = await setInvoiceId("QH_ProFormaInvoice_");
       await UpdateStateCompliance(orderUpdated, corp, req);
+      await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } }).exec();
     }
     catch (err) {
       req.logger.error({ message: err.message + '\n' + err.stack, className: 'Order API' });
@@ -307,6 +309,7 @@ router.put('/state', async (req, res) => {
     }
   }
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
+    req.logger.info("id commande: " + updt.idCommande);
     try {
       orderUpdated.idCommande = await setInvoiceId("QH_HISTO_");
       await UpdateOrderFinance(orderUpdated, req, corp, log, res);
@@ -604,6 +607,7 @@ clientOrders = function (orders) {
     container._id = order._id;
     container.id = order.id;
     container.idCommande = order.idCommande;
+    container.idProForma = order.idProForma;
     container.submissionDate = order.submissionDate;
     container.state = order.state;
     container.totalHT = order.totalHT;
@@ -625,6 +629,7 @@ clientOrderDetails = function (order) {
   container._id = order._id;
   container.id = order.id;
   container.idCommande = order.idCommande;
+  container.idProForma = order.idProForma;
   container.submissionDate = order.submissionDate;
   container.payment = order.payment;
   container.state = order.state;
@@ -1323,8 +1328,8 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
   if (req.body.status !== "cancelled") {
     var users = await User.find({ roleName: "Product" }).exec();
     var mailer = new OrderMailService(req.logger, order);
-    await new OrderPdfService(order).createInvoicePdf(req.logger, orderUpdate.idCommande, 'Pro Forma Invoice Nbr');
-    await new InvoiceService().updateProFormatInformation(order.id, orderUpdate.idCommande);
+    await new OrderPdfService(order).createInvoicePdf(req.logger, orderUpdate.idProForma, 'Pro Forma Invoice Nbr');
+    await new InvoiceService().updateProFormatInformation(order.id, orderUpdate.idProForma);
     users.forEach(async user => {
       try {
         await mailer.newOrderHod(user.email,

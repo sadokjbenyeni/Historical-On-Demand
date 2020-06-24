@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 let InvoiceSchema = new mongoose.Schema({
-    orderId: { type: String, maxlength: 200 },
+    orderId: { type: Number, maxlength: 200 },
     invoiceId: { type: String, maxlength: 200 },
     proFormatId: { type: String, maxlength: 200 },
     userId: { type: String, maxlength: 200 },

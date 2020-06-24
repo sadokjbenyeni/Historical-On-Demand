@@ -262,7 +262,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     });
     var invoice = new Invoices(
         {
-            orderId: caddy._id,
+            orderId: caddy.id,
             totalHT: caddy.totalHT,
             total: caddy.total,
             currency: caddy.currency,

@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 let OrderSchema = new mongoose.Schema({
   id: { type: Number }, //id incrementer dès le début du panier
   idCommande: { type: String, maxlength: 200 },
+  idProForma: { type: String, maxlength: 200 },
   id_cmd: { type: String, maxlength: 200 },
   submissionDate: { type: Date },
   validatedDate: { type: Date },
