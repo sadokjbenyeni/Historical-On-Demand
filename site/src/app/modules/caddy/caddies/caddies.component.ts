@@ -19,7 +19,6 @@ import { BehaviorSubject, } from 'rxjs';
 import { Router, NavigationStart } from '@angular/router';
 import { OrderAmount } from '../../order/models/order-amount.model';
 import { filter } from 'rxjs/operators';
-import { NavigationEvent } from '@ng-bootstrap/ng-bootstrap/datepicker/datepicker-view-model';
 
 
 
@@ -395,17 +394,17 @@ export class CaddiesComponent implements OnInit, OnDestroy {
   // }
 
   submitRib() {
-    // this.orderService.submitCaddy(this.currency, this.survey,
-    //   {
-    //     vatNumber: this.billingComponent.form.controls['vatctl'].value,
-    //     countryBilling: this.billingComponent.form.controls['countryBillingctl'].value,
-    //     addressBilling: this.billingComponent.form.controls['addressBillingctl'].value,
-    //     cityBilling: this.billingComponent.form.controls['cityBillingctl'].value,
-    //     postalCode: this.billingComponent.form.controls['postalCodeBillingctl'].value,
-    //   }
-    // ).subscribe(resp => {
-    this.open();
-    // });
+    this.orderService.submitCaddy(this.currency, this.survey,
+      {
+        vatNumber: this.billingComponent.form.controls['vatctl'].value,
+        countryBilling: this.billingComponent.form.controls['countryBillingctl'].value,
+        addressBilling: this.billingComponent.form.controls['addressBillingctl'].value,
+        cityBilling: this.billingComponent.form.controls['cityBillingctl'].value,
+        postalCode: this.billingComponent.form.controls['postalCodeBillingctl'].value,
+      }
+    ).subscribe(resp => {
+      this.open();
+    });
     if (this.IsChangeDefaultAdress) {
       this.userService.changeDefaultAdress(
         this.billingComponent.form.controls['vatctl'].value,
@@ -430,10 +429,7 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     ];
 
     const modalRef = this.modalService.open(NgbdModalContent, { backdrop: "static", keyboard: false })
-    // modalRef.result.then(() => {
-    //   this.router.navigateByUrl("/")
-    // })
-    alert(modalRef.componentInstance.constructor.name)
+
     console.log(modalRef.componentInstance)
     modalRef.componentInstance.title = 'Order Submitted';
     modalRef.componentInstance.message = message;
