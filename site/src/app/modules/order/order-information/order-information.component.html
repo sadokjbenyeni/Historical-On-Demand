@@ -1,25 +1,27 @@
-<mat-card-header>
-    <mat-card-title>Order Information</mat-card-title>
-</mat-card-header>
-<mat-card-content class="align">
-    <mat-list>
-        <mat-list-item><span>Order ID</span> </mat-list-item>
-        <mat-divider></mat-divider>
-        <mat-list-item><span>Submission Date & Time</span> </mat-list-item>
-        <mat-divider></mat-divider>
-        <mat-list-item><span>Payment Method</span></mat-list-item>
-        <mat-divider></mat-divider>
-        <mat-list-item><span>Invoice</span> </mat-list-item>
-        <mat-divider></mat-divider>
-        <mat-list-item><span>Order Status</span> </mat-list-item>
-    </mat-list>
-    <mat-divider [vertical]="true"></mat-divider>
-    <mat-list>
-        <mat-list-item>{{ orderInfo.id }}</mat-list-item>
-        <mat-list-item>{{ orderInfo.submissionDate | date:'medium' }}</mat-list-item>
-        <mat-list-item>{{ orderInfo.payment }}</mat-list-item>
-        <mat-list-item><a role="button" (click)="downloadInvoice()" *ngIf="invoice!=undefined"
-            target="_blank">Download Invoice</a></mat-list-item>
-        <mat-list-item>{{ orderInfo.state }}</mat-list-item>
-    </mat-list>
-</mat-card-content>
+<mat-card class="col-md-12">
+    <mat-card-header>
+        <mat-card-title>Order Information</mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="align">
+        <mat-list>
+            <mat-list-item><span>Order ID</span> </mat-list-item>
+            <mat-divider></mat-divider>
+            <mat-list-item><span>Submission Date & Time</span> </mat-list-item>
+            <mat-divider></mat-divider>
+            <mat-list-item><span>Payment Method</span></mat-list-item>
+            <mat-divider></mat-divider>
+            <mat-list-item><span>Invoice</span> </mat-list-item>
+            <mat-divider></mat-divider>
+            <mat-list-item><span>Order Status</span> </mat-list-item>
+        </mat-list>
+        <mat-divider [vertical]="true"></mat-divider>
+        <mat-list>
+            <mat-list-item>{{ orderInfo.id }}</mat-list-item>
+            <mat-list-item>{{ orderInfo.submissionDate | date:'medium' }}</mat-list-item>
+            <mat-list-item>{{ orderInfo.payment }}</mat-list-item>
+            <mat-list-item><a role="button" (click)="downloadInvoice()" *ngIf="invoice!=undefined"
+                    target="_blank">Download Invoice</a></mat-list-item>
+            <mat-list-item>{{ orderInfo.state }}</mat-list-item>
+        </mat-list>
+    </mat-card-content>
+</mat-card>

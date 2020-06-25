@@ -5,5 +5,5 @@ export interface OrderAmount {
     totalVat: number;
     totalTTC: number;
     currency: string;
-    vat: number;
+    vatValue: number;
 }

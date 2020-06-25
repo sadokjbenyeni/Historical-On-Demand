@@ -9,9 +9,9 @@ import { MaterialModule } from '../material/material.module';
 import { MenuModule } from '../menu/menu.module';
 import { PaymentComponent } from './payment/payment.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OrderModule } from '../order/order.module';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 
 
@@ -25,6 +25,7 @@ import { OrderModule } from '../order/order.module';
     SurveyComponent
   ],
   imports: [
+    PdfViewerModule,
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,

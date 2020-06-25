@@ -40,7 +40,7 @@ module.exports.getLinks = async (user, order, logger) => {
                 && linkContainer.links !== undefined && linkContainer.links && linkContainer.links.length > 0)
             .map(linkObj => linkObj.links.filter(element => element && element.link !== undefined))
             .reduce((left, right) => left.concat(right))
-                        .map(links => links.link.split('|').map(elem => dnwfile + '/api/v1/user/download/' + user.token + '/' + product.id_undercmd + '/' + elem));                                                                            
+            .map(links => links.link.split('|').map(elem => dnwfile + '/api/v1/user/download/' + user.token + '/' + product.id_undercmd + '/' + elem));
     })
         .map(master => master.reduce((left, right) => left.concat(right)));
     // logger.debug({message: 'result: '+ JSON.stringify(result), className: 'Order Service'}); 
@@ -129,22 +129,20 @@ daysDiff = function (start, end) {
 }
 
 module.exports.getLink = async (user, order, productId, logger) => {
-    if(!user || user === undefined)
-    {
+    if (!user || user === undefined) {
         throw Error('User is undefined');
     }
-    if(!order || order === undefined)
-    {
+    if (!order || order === undefined) {
         throw Error('Order is undefined');
     }
-    logger.info({message:  order.id + ': getting links... ', className: 'Order Service'});
+    logger.info({ message: order.id + ': getting links... ', className: 'Order Service' });
     return order.products[productId].links
-                .filter(linkContainer => linkContainer && linkContainer !== undefined &&  linkContainer.status === "active" 
-                                        && linkContainer.links !== undefined && linkContainer.links && linkContainer.links.length > 0)
-                .map(linkObj => linkObj.links.filter(element => element && element.link !== undefined))
-                .reduce((left, right) => left.concat(right))
-                .map(links => links.link.split('|').map(elem => dnwfile + '/api/v1/user/download/' + user.token + '/' + product.id_undercmd + '/' + elem))
-    ;
+        .filter(linkContainer => linkContainer && linkContainer !== undefined && linkContainer.status === "active"
+            && linkContainer.links !== undefined && linkContainer.links && linkContainer.links.length > 0)
+        .map(linkObj => linkObj.links.filter(element => element && element.link !== undefined))
+        .reduce((left, right) => left.concat(right))
+        .map(links => links.link.split('|').map(elem => dnwfile + '/api/v1/user/download/' + user.token + '/' + product.id_undercmd + '/' + elem))
+        ;
 }
 
 module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
@@ -238,6 +236,11 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     await Orders.updateOne({ id: caddy.id },
         {
             $set: {
+                // countryBilling: caddy.countryBilling,
+                // cityBilling: caddy.cityBilling,
+                // postalCodeBilling: caddy.postalCodeBilling,
+                // addressBilling: caddy.addressBilling,
+                // vat: caddy.vat,
                 payment: caddy.payment,
                 total: caddy.total,
                 currency: caddy.currency,
@@ -263,7 +266,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
             totalHT: caddy.totalHT,
             total: caddy.total,
             currency: caddy.currency,
-            survey: caddy.survey,
+            survey: survey,
             validationCompliance: caddy.validationCompliance,
             submissionDate: new Date(),
             state: caddy.state,
@@ -272,7 +275,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
             cityBilling: caddy.cityBilling,
             postalCodeBilling: caddy.postalCodeBilling,
             countryBilling: caddy.countryBilling,
-            vatNumber: caddy.vcaddyatNumber,
+            vat: caddy.vat,
             state: caddy.state,
             totalExchangeFees: caddy.totalExchangeFees,
             currencyTxUsd: caddy.currencyTxUsd,
@@ -298,4 +301,12 @@ deleteuselessfields = function (order) {
     delete order.historical_data;
     delete order.logs;
     delete order.eid;
+}
+module.exports.updatePreSubmitStateCaddy = async (token, state) => {
+    const caddy = await this.getRawCaddy(token);
+    if (!caddy) {
+        throw new Error("Caddy Not Found")
+    }
+    await Orders.updateOne({ id: caddy.id }, { $set: { state: state } }).exec();
+    return true
 }

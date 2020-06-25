@@ -8,8 +8,11 @@
         <div class="btn-group btn-group-toggle">
           <div class="form-group input-group">
             <span>Will you be distributing the data outside your organisation ?</span><br>
-            <label><input type="radio" [(ngModel)]="surveyForm.dd" name="do" value="1"> Yes</label>
-            <label><input type="radio" [(ngModel)]="surveyForm.dd" name="do" value="0"> No</label>
+            <mat-radio-group [(ngModel)]="surveyForm.dd">
+              <mat-radio-button value="1"> Yes</mat-radio-button>
+              <mat-radio-button value="0">No</mat-radio-button>
+            </mat-radio-group>
+            <mat-error *ngIf="noDd && !surveyForm.dd">Field required</mat-error>
           </div>
         </div>
       </div>
@@ -24,8 +27,11 @@
         <div class="btn-group btn-group-toggle">
           <div class="form-group input-group">
             <span>Will you be using the data to create Derived Products ?</span><br>
-            <label><input type="radio" name="dt" [(ngModel)]="surveyForm.dt" value="1"> Yes</label>
-            <label><input type="radio" name="dt" [(ngModel)]="surveyForm.dt" value="0"> No</label>
+            <mat-radio-group [(ngModel)]="surveyForm.dt">
+              <mat-radio-button type="radio" value="1"> Yes</mat-radio-button>
+              <mat-radio-button type="radio" value="0"> No</mat-radio-button>
+            </mat-radio-group>
+            <mat-error *ngIf="noDt && !surveyForm.dt">Field required</mat-error>
           </div>
         </div>
       </div>
@@ -41,44 +47,40 @@
           <div class="form-group input-group">
             <span>Please select all categories that apply to your data usage.</span><br>
             <div class="columns">
-              <label class="checkbox">
-                <input type="checkbox" value="Research" #cb1 (change)="logCheckbox(cb1)"
-                  [checked]="surveyForm.du.cb.indexOf('Research')!=-1"> Research
-              </label>
-              <label class="checkbox">
-                <input type="checkbox" value="TestingDevelopment" #cb2 (change)="logCheckbox(cb2)"
-                  [checked]="surveyForm.du.cb.indexOf('TestingDevelopment')!=-1">
-                Testing and/or Development
-              </label>
-              <label class="checkbox">
-                <input type="checkbox" value="Analytics" #cb3 (change)="logCheckbox(cb3)"
-                  [checked]="surveyForm.du.cb.indexOf('Analytics')!=-1"> Analytics
-              </label>
-              <label class="checkbox">
-                <input type="checkbox" value="BackOffice" #cb4 (change)="logCheckbox(cb4)"
-                  [checked]="surveyForm.du.cb.indexOf('BackOffice')!=-1"> Back Office
-              </label>
-              <label class="checkbox">
-                <input type="checkbox" value="DataQualityValidation" #cb5 (change)="logCheckbox(cb5)"
-                  [checked]="surveyForm.du.cb.indexOf('DataQualityValidation')!=-1">
+              <mat-checkbox value="Research" #cb1 (change)="logCheckbox(cb1)"
+                [checked]="surveyForm.du.cb.indexOf('Research')!=-1"> Research</mat-checkbox><br>
+
+              <mat-checkbox value="TestingDevelopment" #cb2 (change)="logCheckbox(cb2)"
+                [checked]="surveyForm.du.cb.indexOf('TestingDevelopment')!=-1">
+                Testing and/or Development</mat-checkbox><br>
+
+              <mat-checkbox value="Analytics" #cb3 (change)="logCheckbox(cb3)"
+                [checked]="surveyForm.du.cb.indexOf('Analytics')!=-1"> Analytics</mat-checkbox><br>
+              <mat-checkbox value="BackOffice" #cb4 (change)="logCheckbox(cb4)"
+                [checked]="surveyForm.du.cb.indexOf('BackOffice')!=-1"> Back Office</mat-checkbox><br>
+              <mat-checkbox value="DataQualityValidation" #cb5 (change)="logCheckbox(cb5)"
+                [checked]="surveyForm.du.cb.indexOf('DataQualityValidation')!=-1">
                 Data Quality Validation
-              </label>
-              <label class="checkbox">
-                <input type="checkbox" value="DataDisplayApplication" #cb6 (change)="logCheckbox(cb6)"
-                  [checked]="surveyForm.du.cb.indexOf('DataDisplayApplication')!=-1">
+              </mat-checkbox><br>
+              <mat-checkbox value="DataDisplayApplication" #cb6 (change)="logCheckbox(cb6)"
+                [checked]="surveyForm.du.cb.indexOf('DataDisplayApplication')!=-1">
                 Data will be exhibited on a display application
-              </label>
-              <label class="checkbox">
-                <input type="checkbox" value="DataNonDisplayApplication" #cb7 (change)="logCheckbox(cb7)"
-                  [checked]="surveyForm.du.cb.indexOf('DataNonDisplayApplication')!=-1"> Data will
+              </mat-checkbox><br>
+              <mat-checkbox value="DataNonDisplayApplication" #cb7 (change)="logCheckbox(cb7)"
+                [checked]="surveyForm.du.cb.indexOf('DataNonDisplayApplication')!=-1"> Data will
                 be used by a non-display application
-              </label>
-              <label class="checkbox">
-                <input type="checkbox" value="Other" #cb8 (change)="logCheckbox(cb8)"
+              </mat-checkbox><br>
+              <mat-checkbox value="Other" #cb8 (change)="logCheckbox(cb8)"
                 [checked]="surveyForm.du.cb.indexOf('Other')!=-1"> Other
-              </label>
-              <input type="text" name="textOther" class="form-control" [(ngModel)]="surveyForm.du.other"
+              </mat-checkbox><br>
+              <input matInput name="textOther" class="form-control" [(ngModel)]="surveyForm.du.other"
                 placeholder="Other" *ngIf="surveyForm.du.cb.indexOf('Other') !== -1">
+              <mat-error *ngIf="noDu && this.surveyForm.du.cb.length == 0 ">
+                Minimum one option is required
+              </mat-error>
+              <mat-error *ngIf="(this.surveyForm.du.cb.indexOf('Other') != -1 && !this.surveyForm.du.other)">
+                Field required
+              </mat-error>
             </div>
           </div>
         </div>

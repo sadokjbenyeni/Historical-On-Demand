@@ -36,6 +36,7 @@ const httpOptions = {
   styleUrls: ['./order-history-details.component.css']
 })
 export class OrderHistoryDetailsComponent implements OnInit {
+  symbol: string
   token: any;
   gateway: string;
   id: string;
@@ -43,7 +44,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
   today: Date;
   currencyTx: any;
   currencyTxUsd: any;
-  symbols: any[];
   vat: number;
   totalTTC: any;
   totalExchangeFees: any;
@@ -84,10 +84,9 @@ export class OrderHistoryDetailsComponent implements OnInit {
   ngOnInit() {
     this.period = [];
     this.getPeriod();
-    this.listCurrencies();
+    // this.listCurrencies();
 
     this.token = JSON.parse(sessionStorage.getItem('user')).token;
-    this.symbols = new Array();
     this.gateway = environment.gateway;
     this.today = new Date();
 
@@ -300,20 +299,19 @@ export class OrderHistoryDetailsComponent implements OnInit {
           this.subscription = product.subscription;
           links.push(link);
         });
-        let newProduct = new Product(index, product.dataset, product.qhid, product.eid, product.symbol, product.description, product.assetClass, product.exchangeName, product.mics, product.subscription, product.period, product.begin_date_select, product.end_date_select, product.pricingTier, product.ht, product.links, product.links, product.backfill_fee, product.ongoing_fee, product);
+        let newProduct = new Product(index, product.dataset, product.qhid, product.eid, product.symbol, product.description, product.assetClass, product.exchangeName, product.mics, product.subscription, product.period, product.begin_date, product.end_date, product.pricingTier, product.ht, product.links, product.links, product.backfill_fee, product.ongoing_fee, product);
         this.details.push(newProduct);
       });
     }
     this.dataSource.data = this.details;
-
     this.orderAmount.currency = order.details.currency;
     this.orderAmount.totalExchangeFees = this.totalExchangeFees;
-    this.orderAmount.vat = this.vat;
+    this.orderAmount.vatValue = this.vat;
     this.orderAmount.discount = this.discount;
     this.orderAmount.totalHT = this.totalHT;
     this.orderAmount.totalTTC = this.totalTTC;
     this.orderAmount.totalVat = this.totalVat;
-
+    this.listCurrencies();
 
   }
 
@@ -327,11 +325,14 @@ export class OrderHistoryDetailsComponent implements OnInit {
   }
 
   listCurrencies() {
+
     this.currencyService.getCurrencies().subscribe(list => {
-      this.symbols = [];
-      list.currencies.forEach(item => {
-        this.symbols[item.id] = item.symbol;
-      });
+      debugger
+      this.symbol = list.currencies.find(item => item.id == this.orderAmount.currency).symbol
+        ;
+      // list.currencies.forEach(item => {
+      //   // this.symbols[item.id] = item.symbol;
+      // });
     });
   }
 
@@ -382,7 +383,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
       })
   }
 
-  
+
 
   handleError(error): ObservableInput<any> {
     console.log(error);

@@ -321,7 +321,6 @@ router.put('/state', async (req, res) => {
     await Order.updateOne({ _id: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
     return res.status(201).json({ ok: true });
   }
-  }
   else {
     req.logger.info("order updating (" + JSON.stringify(orderUpdated) + ")...");
     await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
@@ -795,6 +794,24 @@ router.post('/history', (req, res) => {
     return res.status(404);
   }
 });
+router.put("/changePresubmitState", async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+  if (!req.body.state) {
+    return res.status(200).json({ error: "No state provided" });
+  }
+  if (['CART', 'PLI', 'PBI', 'PSC'].indexOf(req.body.state) == -1) {
+    return res.status(200).json({ error: "Invalid State" });
+  }
+  try {
+    var updated = await OrderService.updatePreSubmitStateCaddy(req.headers.authorization, req.body.state);
+    return res.status(200).json({ udpated: updated });
+  }
+  catch (error) {
+    return res.status(200).json({ error: error.message })
+  }
+})
 
 // router.post('/caddies', (req, res) => {
 //   Order.find({ idUser: req.body.id, state: { $in: ['CART', 'PLI', 'PBI', 'PSC'] } })
@@ -1433,5 +1450,6 @@ async function autoValidationOrderStateIsPSC(order, log, logger) {
     }
   });
 }
+
 
 module.exports = router;

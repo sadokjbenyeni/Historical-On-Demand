@@ -8,6 +8,9 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class OrderService {
+  updateCaddyState(state: string): Observable<any> {
+    return this.http.put(environment.api + '/order/changePresubmitState', { state: state })
+  }
 
   submitCaddy(currency: string, survey: any, billingInfo: any): Observable<any> {
     return this.http.post(environment.api + '/order/submitCaddy', { currency: currency, survey: survey, billingInfo: billingInfo })

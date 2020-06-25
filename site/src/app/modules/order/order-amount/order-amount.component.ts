@@ -8,7 +8,7 @@ import { OrderAmount } from '../models/order-amount.model';
 })
 export class OrderAmountComponent implements OnInit {
   @Input() orderAmount: OrderAmount;
-  @Input() symbols: any[];
+  @Input() symbol: any[];
 
   constructor() { }
 

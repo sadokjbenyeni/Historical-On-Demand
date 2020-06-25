@@ -10,7 +10,7 @@
 <div class="container page-content">
 
   <mat-horizontal-stepper *ngIf="!noCaddy;else NoCaddy" linear #stepper>
-    <mat-step>
+    <mat-step #CART>
       <ng-template matStepLabel>Shopping Cart </ng-template>
 
       <mat-card>
@@ -23,7 +23,7 @@
         </mat-card-actions>
       </mat-card>
     </mat-step>
-    <mat-step>
+    <mat-step #CART>
       <ng-template matStepLabel>Order Cart</ng-template>
       <mat-card>
         <mat-card-content>
@@ -35,7 +35,7 @@
         </mat-card-actions>
       </mat-card>
     </mat-step>
-    <mat-step [completed]="term && survey">
+    <mat-step [completed]="term && survey" #PLI>
       <ng-template matStepperIcon="phone">
         <mat-icon>call_end</mat-icon>
       </ng-template>
@@ -46,9 +46,10 @@
             <p>Prior to finalizing your order, we have a few questions about data usage so we can customize your
               license
               agreement.</p>
-            <p><input type="checkbox" #terms (change)="termsCheckbox(terms)" [(ngModel)]="term"> I have read,
+            <mat-checkbox #terms (change)="termsCheckbox(terms)" [(ngModel)]="term"> I have read,
               understood
-              and accept the <a class="clickable" (click)="termsOpen()">Terms and Conditions</a></p>
+              and accept the <a class="clickable" (click)="termsOpen()">Terms and Conditions</a>
+            </mat-checkbox>
             <p [hidden]="viewterms">
               <button class="btn btn-success" (click)="previousPage()">Previous</button>
               <button class="btn btn-danger" (click)="termsClose()">Close</button>
@@ -60,7 +61,7 @@
               [hidden]="viewterms"></pdf-viewer>
           </div>
           <div class="table-responsive" *ngIf="term">
-            <app-survey [getSurvey]="getSurvey" [surveyPage]="surveyPage" (surveyChange)="updtSurvey($event);">
+            <app-survey [getSurvey]="getSurvey" (surveyChange)="updtSurvey($event);">
             </app-survey>
           </div>
         </mat-card-content>
@@ -70,18 +71,18 @@
         </mat-card-actions>
       </mat-card>
     </mat-step>
-    <mat-step *ngIf="user" [stepControl]="form">
+    <mat-step *ngIf="user" [stepControl]="form" #PBI>
       <ng-template matStepLabel>Billing</ng-template>
       <app-billing [user]="user" [currency]="currency" [currencies]="currencies"
         (ChangeCurrency)="ChangeCurrency($event)" (ChangeDefaultAdress)="ChangeDefaultAdress($event)"
         (ChangeDefaultCurrency)="ChangeDefaultCurrency($event)">
       </app-billing>
-      <div class="put-middle">
+      <mat-card-actions class="put-middle" style="padding-top: 18.5%;">
         <button mat-button matStepperPrevious class="border-button">Back</button>
         <button mat-button matStepperNext class="button-orange">Next</button>
-      </div>
+      </mat-card-actions>
     </mat-step>
-    <mat-step>
+    <mat-step #PSC>
       <ng-template matStepLabel>Payment</ng-template>
       <mat-card>
         <mat-card-content>
@@ -93,13 +94,17 @@
         </mat-card-actions>
       </mat-card>
     </mat-step>
-    <mat-step *ngIf="caddy">
-      <mat-card>
-        <mat-card-content>
+    <mat-step *ngIf="caddy" #PSC>
+      <mat-card class="row col-md-12">
+        <mat-card-content class="col-md-10">
           <ng-template matStepLabel>Order Confirmation</ng-template>
           <app-caddy-table [caddy]='caddy' [symbol]='symbol'></app-caddy-table>
-          <app-price [caddy]='caddy' [symbol]='symbol' [vatValueApply]="vatValueApply"></app-price>
+          <!-- <app-price [caddy]='caddy' [symbol]='symbol' [vatValueApply]="vatValueApply"></app-price> -->
         </mat-card-content>
+        <div class=" col-md-2" style="padding-left: 5px;">
+          <app-order-amount *ngIf="orderAmountModel" [symbol]='symbol' [orderAmount]="orderAmountModel">
+          </app-order-amount>
+        </div>
         <mat-card-actions class="put-middle">
           <button mat-button matStepperPrevious class="border-button">Back</button>
           <button mat-button class="button-orange" (click)="submitRib()">Submit</button>

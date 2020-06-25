@@ -1,6 +1,6 @@
 declare var chckt: any;
 
-import { Component, OnInit, ViewChild, AfterViewChecked, AfterViewInit, ViewChildren } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgbdModalContent } from '../../../modal-content';
@@ -15,7 +15,12 @@ import { AppDateAdapter, APP_DATE_FORMATS } from '../../../format-datepicker';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { BillingComponent } from '../billing/billing.component';
 import { MatStepper } from '@angular/material/stepper';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, } from 'rxjs';
+import { Router, NavigationStart } from '@angular/router';
+import { OrderAmount } from '../../order/models/order-amount.model';
+import { filter } from 'rxjs/operators';
+import { NavigationEvent } from '@ng-bootstrap/ng-bootstrap/datepicker/datepicker-view-model';
+
 
 
 
@@ -28,12 +33,11 @@ import { BehaviorSubject } from 'rxjs';
     { provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS }
   ]
 })
-export class CaddiesComponent implements OnInit {
+export class CaddiesComponent implements OnInit, OnDestroy {
   @ViewChild(BillingComponent) billingComponent: BillingComponent;
   @ViewChild('stepper') private stepper: MatStepper;
 
   getSurvey: BehaviorSubject<any> = new BehaviorSubject<any>("init");
-  surveyPage: number = 0;
   IsChangeDefaultCurrency: boolean = false;
   IsChangeCurrency: boolean = false;
   IsChangeDefaultAdress: boolean = false;
@@ -104,7 +108,8 @@ export class CaddiesComponent implements OnInit {
   billingStep: any;
   survey: any;
   noCaddy: boolean;
-
+  orderAmountModel: OrderAmount;
+  observerRoute: any;
   constructor(
     private configService: ConfigService,
     private userService: UserService,
@@ -113,7 +118,12 @@ export class CaddiesComponent implements OnInit {
     private currencyService: CurrencyService,
     private countriesService: CountriesService,
     private modalService: NgbModal,
+    private router: Router,
   ) { }
+  ngOnDestroy(): void {
+    this.observerRoute.unsubscribe();
+
+  }
   get form() {
     return this.billingComponent ? this.billingComponent.form : null;
   }
@@ -121,6 +131,9 @@ export class CaddiesComponent implements OnInit {
 
 
   ngOnInit() {
+    this.observerRoute = this.router.events.pipe(filter(event => event instanceof NavigationStart)).subscribe(() => {
+      this.orderService.updateCaddyState(this.getStepKey(this.stepper.selectedIndex)).subscribe();
+    })
     this.pages = 1;
     this.taux = [];
     this.term = false;
@@ -219,8 +232,19 @@ export class CaddiesComponent implements OnInit {
                 this.caddy.totalVat = this.caddy.totalHT * this.vat;
               }
               this.caddy.totalTTCUsd = this.precisionRound(this.caddy.totalAmountUsd + this.caddy.totalVatUsd, 2);
-              this.caddy.totalTTC = this.caddy.totalHT + this.caddy.totalVat
+              this.caddy.totalTTC = this.caddy.totalHT + this.caddy.totalVat;
+
+              this.orderAmountModel = {
+                currency: this.currency,
+                discount: this.caddy.discount,
+                totalExchangeFees: this.caddy.totalExchangeFees,
+                totalHT: this.caddy.totalHT,
+                totalTTC: this.caddy.totalTTC,
+                totalVat: this.caddy.totalVat,
+                vatValue: this.caddy.vatValue
+              }
             });
+
             this.caddy.products.forEach(item => {
               item.Allproducts = item.subscription.concat(item.onetime)
             })
@@ -234,6 +258,7 @@ export class CaddiesComponent implements OnInit {
           });
         });
       }
+
     });
   }
 
@@ -278,19 +303,8 @@ export class CaddiesComponent implements OnInit {
     this.term = element.checked;
   }
   updtSurvey(event) {
-    if (this.term) {
-      if (!event || !event.dd) {
-        this.surveyPage = 0
-        return
-      }
-      if (!event.dt) {
-        this.surveyPage = 1
-        return
-      }
-      if (event.du.cb.length == 0 || (event.du.cb.indexOf("Other") != -1 && !event.du.other)) {
-        this.surveyPage = 2
-        return
-      }
+    if (event == "Previous") { this.stepper.previous() }
+    else if (this.term) {
       this.survey = event;
       this.stepper.selected.completed = true;
       this.stepper.next()
@@ -381,17 +395,17 @@ export class CaddiesComponent implements OnInit {
   // }
 
   submitRib() {
-    this.orderService.submitCaddy(this.currency, this.survey,
-      {
-        vatNumber: this.billingComponent.form.controls['vatctl'].value,
-        countryBilling: this.billingComponent.form.controls['countryBillingctl'].value,
-        addressBilling: this.billingComponent.form.controls['addressBillingctl'].value,
-        cityBilling: this.billingComponent.form.controls['cityBillingctl'].value,
-        postalCode: this.billingComponent.form.controls['postalCodeBillingctl'].value,
-      }
-    ).subscribe(resp => {
-      this.open();
-    });
+    // this.orderService.submitCaddy(this.currency, this.survey,
+    //   {
+    //     vatNumber: this.billingComponent.form.controls['vatctl'].value,
+    //     countryBilling: this.billingComponent.form.controls['countryBillingctl'].value,
+    //     addressBilling: this.billingComponent.form.controls['addressBillingctl'].value,
+    //     cityBilling: this.billingComponent.form.controls['cityBillingctl'].value,
+    //     postalCode: this.billingComponent.form.controls['postalCodeBillingctl'].value,
+    //   }
+    // ).subscribe(resp => {
+    this.open();
+    // });
     if (this.IsChangeDefaultAdress) {
       this.userService.changeDefaultAdress(
         this.billingComponent.form.controls['vatctl'].value,
@@ -408,13 +422,19 @@ export class CaddiesComponent implements OnInit {
   }
 
   open() {
+    this.observerRoute.unsubscribe();
     const message = [
       'Thank you for your order', '',
       'Your order has been submitted successfully and it is now pending validation.',
       'You will be notified by email once your order has been validated and when you can access your data. You could as well follow the progress of all your orders via your personal profile / order history section.'
     ];
 
-    const modalRef = this.modalService.open(NgbdModalContent);
+    const modalRef = this.modalService.open(NgbdModalContent, { backdrop: "static", keyboard: false })
+    // modalRef.result.then(() => {
+    //   this.router.navigateByUrl("/")
+    // })
+    alert(modalRef.componentInstance.constructor.name)
+    console.log(modalRef.componentInstance)
     modalRef.componentInstance.title = 'Order Submitted';
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.link = '/';
@@ -488,17 +508,24 @@ export class CaddiesComponent implements OnInit {
     this.IsChangeDefaultAdress = event;
   }
   stepForward() {
-    if (this.term && this.surveyPage < 2)
-      this.surveyPage++
-    else {
-      this.getSurvey.next(null);
-    }
+    this.getSurvey.next("Next");
   }
 
   stepBack() {
-    if (this.term && this.surveyPage > 0)
-      this.surveyPage--
-    else
+    if (!this.term) {
       this.stepper.previous()
+    } else {
+      this.getSurvey.next("Previous")
+    }
+  }
+  getStepKey(stepIndex) {
+    var steps = new Map<number, string>();
+    steps.set(0, "CART")
+    steps.set(1, "CART")
+    steps.set(2, "PLI")
+    steps.set(3, "PBI")
+    steps.set(4, "PSC")
+    steps.set(5, "PSC")
+    return steps.get(stepIndex);
   }
 }
