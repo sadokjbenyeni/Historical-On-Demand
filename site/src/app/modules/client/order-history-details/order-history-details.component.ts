@@ -328,11 +328,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
   listCurrencies() {
 
     this.currencyService.getCurrencies().subscribe(list => {
-      this.symbol = list.currencies.find(item => item.id == this.orderAmount.currency).symbol
-        ;
-      // list.currencies.forEach(item => {
-      //   // this.symbols[item.id] = item.symbol;
-      // });
+      this.symbol = list.currencies.find(item => item.id == this.orderAmount.currency).symbol;
     });
   }
 

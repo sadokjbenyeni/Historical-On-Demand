@@ -1,4 +1,3 @@
-declare var chckt: any;
 
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 
@@ -40,25 +39,15 @@ export class CaddiesComponent implements OnInit, OnDestroy {
   IsChangeDefaultCurrency: boolean = false;
   IsChangeCurrency: boolean = false;
   IsChangeDefaultAdress: boolean = false;
-  numVat: any;
-  currencyObj: any;
-  taux: any;
-  currencyTxUsd: number;
-  totalHT: any;
   pages: number;
-  framepayment: any;
-  // applyVAT: boolean;
   vatValueApply: boolean;
   symbol: string;
-  rate: number;
-  currencychange: boolean;
-  paymentchange: boolean;
-  addresschange: boolean;
-  checkv: any;
-  country: any;
+  currencychange: boolean = false;
+  paymentchange: boolean = false;
+  addresschange: boolean = false;
+  checkv: any = false;
   user: any;
-  // oldAddressBilling: { addressBilling: string; cityBilling: string; postalCodeBilling: string; countryBilling: string; vat: string };
-  rib: {
+  ribObject: {
     _id: string,
     id: string,
     device: string,
@@ -84,17 +73,14 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     maxrib: string,
     taux: string
   };
-  payment: string;
   payments: Array<object>;
   currencies: Array<object>;
   currency: string;
   surveyForm: any;
-  termspdf: string;
-  viewterms: boolean;
-  term: boolean;
-  vat: number;
+  termspdf: string = '/files/historical_data_tc.pdf';
+  viewterms: boolean = true;
+  term: boolean = false;
   ht: number;
-  total: number;
   caddy: any;
   page: string;
   caddiesactive: string;
@@ -120,7 +106,9 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     private router: Router,
   ) { }
   ngOnDestroy(): void {
-    this.observerRoute.unsubscribe();
+    if (this.observerRoute) {
+      this.observerRoute.unsubscribe();
+    }
 
   }
   get form() {
@@ -130,37 +118,18 @@ export class CaddiesComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-    this.observerRoute = this.router.events.pipe(filter(event => event instanceof NavigationStart)).subscribe(() => {
-      this.orderService.updateCaddyState(this.getStepKey(this.stepper.selectedIndex)).subscribe();
-    })
+    if (this.stepper) {
+      this.observerRoute = this.router.events.pipe(filter(event => event instanceof NavigationStart)).subscribe(() => {
+        this.orderService.updateCaddyState(this.getStepKey(this.stepper.selectedIndex)).subscribe();
+      })
+    }
     this.pages = 1;
-    this.taux = [];
-    this.term = false;
     this.getInfoUser();
-
-    // if (JSON.parse(sessionStorage.getItem('surveyForm'))) {
-    //   this.surveyForm = JSON.parse(sessionStorage.getItem('surveyForm'));
-    // }
-
-    this.currencychange = false;
-    this.paymentchange = false;
-    this.addresschange = false;
-    this.termspdf = '/files/historical_data_tc.pdf';
-    this.checkv = false;
-    this.viewterms = true;
-    this.symbol = '$';
-    this.total = 0;
   }
 
 
   getInfoUser() {
     let field = [
-      'id',
-      'email',
-      'state',
-      'roleName',
-      'sameAddress',
-      'token',
       'addressBilling',
       'postalCodeBilling',
       'cityBilling',
@@ -172,19 +141,15 @@ export class CaddiesComponent implements OnInit, OnDestroy {
       'idCountry',
       'country',
       'vat',
-      'checkvat',
       'payment',
       'currency'
     ];
     this.userService.info({ field: field }).subscribe(res => {
       this.user = res.user;
       // a retirer lors de l'implementation CB
-      res.user.payment = 'banktransfer';
-      this.user["payment"] = 'banktransfer';
-      this.payment = 'banktransfer';
+      this.user.payment = 'banktransfer';
       // fin a retirer
-      this.checkv = res.user.checkvat;
-      this.payment = res.user.payment ? res.user.payment : ''
+      this.user.payment = res.user.payment ? res.user.payment : ''
       //à retirer lors de l'implémentation du paiement par CB
       if (this.user.currency) {
         this.currency = res.user.currency;
@@ -194,74 +159,46 @@ export class CaddiesComponent implements OnInit, OnDestroy {
 
     });
   }
-
   getCaddy(currency = null) {
     let caddysubscription = currency ? this.orderService.getCaddies(currency) : this.orderService.getCaddies();
     caddysubscription.subscribe((order) => {
-      debugger
       if (!order) {
         this.noCaddy = true
+        // this.observerRoute.unsubscribe();
+        return
       }
-      else {
-        this.caddy = order;
-        this.fluxService.rate({ currency: this.currency }).subscribe(result => {
-          this.currencyObj = this.searchCurrency(this.currency, this.currencies);
-          this.rate = parseFloat(result.rate);
-          let usd = 0;
-          this.currencies.forEach(element => {
-            if (element['id'] === 'usd') {
-              usd = element['taux'];
-              this.currencyTxUsd = usd;
-            }
-            if (element['id'] === this.currency) {
-              this.symbol = element['symbol'];
+      this.caddy = order;
+      this.currencyService.getCurrencies().subscribe(list => {
+        this.symbol = list.currencies.find(item => item.id == this.currency).symbol;
+        this.configService.getVat().subscribe(res => {
+          this.countriesService.isUE({ id: this.user['countryBilling'] }).subscribe(res => {
+            this.vatValueApply = (this.user['countryBilling'] == 'FR' || (res.ue == 1 && (this.user.vat == '' || !this.checkv)));
+            this.caddy.totalVat = this.vatValueApply ? this.caddy.totalVat = this.caddy.totalHT * res.valueVat : 0;
+            this.caddy.totalTTC = this.caddy.totalHT + this.caddy.totalVat;
+
+            this.orderAmountModel = {
+              currency: this.currency,
+              discount: this.caddy.discount,
+              totalExchangeFees: this.caddy.totalExchangeFees,
+              totalHT: this.caddy.totalHT,
+              totalTTC: this.caddy.totalTTC,
+              totalVat: this.caddy.totalVat,
+              vatValue: this.caddy.vatValue
             }
           });
-
-          this.configService.getVat().subscribe(res => {
-            this.vat = res.valueVat / 100;
-            this.payment = 'banktransfer';
-            this.countriesService.isUE({ id: this.user['countryBilling'] }).subscribe(res => {
-              this.vatValueApply = (this.user['countryBilling'] == 'FR' || (res.ue == 1 && (this.user['vat'] == '' || !this.checkv)));
-
-              if (!this.vatValueApply) {
-                this.caddy.totalVatUsd = 0;
-                this.caddy.totalVat = 0;
-              } else {
-                this.caddy.totalVatUsd = this.caddy.totalAmountUsd * this.vat;
-                this.caddy.totalVat = this.caddy.totalHT * this.vat;
-              }
-              this.caddy.totalTTCUsd = this.precisionRound(this.caddy.totalAmountUsd + this.caddy.totalVatUsd, 2);
-              this.caddy.totalTTC = this.caddy.totalHT + this.caddy.totalVat;
-
-              this.orderAmountModel = {
-                currency: this.currency,
-                discount: this.caddy.discount,
-                totalExchangeFees: this.caddy.totalExchangeFees,
-                totalHT: this.caddy.totalHT,
-                totalTTC: this.caddy.totalTTC,
-                totalVat: this.caddy.totalVat,
-                vatValue: this.caddy.vatValue
-              }
-            });
-
-            this.caddy.products.forEach(item => {
-              item.Allproducts = item.subscription.concat(item.onetime)
+          this.caddy.products.forEach(item => {
+            item.Allproducts = item.subscription.concat(item.onetime)
               item.Allproducts.forEach(product => {
                 product.begin_date = new Date(product.begin_date);
                 product.end_date = new Date(product.end_date);
               });
-            })
-            // if(this.payment === 'creditcard'){
-            //   this.idCmd = this.cmd['id_cmd'];
-            //   this.submitPayment();
-            // }
-            if (this.payment === 'banktransfer') {
-              this.getRib();
-            }
-          });
+          })
+
+          if (this.user.payment === 'banktransfer') {
+            this.getRib();
+          }
         });
-      }
+      });
 
     });
   }
@@ -274,19 +211,20 @@ export class CaddiesComponent implements OnInit, OnDestroy {
   }
 
   getRib() {
-    this.rib = { _id: '', id: '', device: '', name: '', symbol: '', bic: '', iban: { ib1: '', ib2: '', ib3: '', ib4: '', ib5: '', ib6: '', ib7: '' }, rib: { cb: '', cg: '', nc: '', cr: '', domiciliation: '' }, maxrib: '', taux: '' };
+    this.ribObject = { _id: '', id: '', device: '', name: '', symbol: '', bic: '', iban: { ib1: '', ib2: '', ib3: '', ib4: '', ib5: '', ib6: '', ib7: '' }, rib: { cb: '', cg: '', nc: '', cr: '', domiciliation: '' }, maxrib: '', taux: '' };
     this.currencyService.getRib(this.currency).subscribe(res => {
-      this.rib = res.rib;
+      this.ribObject = res.rib;
     });
   }
 
   delCaddies(id_undercmd) {
     this.orderService.delElemOrder({ id_product: id_undercmd }).subscribe((res) => {
-      if (res['message'] == 'Order deleted') {
+      if (res.message == 'Order deleted') {
         this.caddy = null;
+        this.observerRoute.unsubscribe();
       }
-      else if (res['error']) {
-        console.log(`An error occured ${res['error']}`)
+      else if (res.error) {
+        console.log(`An error occured ${res.error}`)
       }
       else {
         this.getCaddy(this.currency);
@@ -303,9 +241,7 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     this.pages = 1;
     this.viewterms = true;
   }
-  termsCheckbox(element: HTMLInputElement): void {
-    this.term = element.checked;
-  }
+
   updtSurvey(event) {
     if (event == "Previous") { this.stepper.previous() }
     else if (this.term) {
@@ -319,85 +255,6 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     this.orderService.updtCaddy({ idCmd: this.caddy.id_cmd, state: 'PLI' }).subscribe(res => { });
   }
 
-  //Function Billing
-
-  // saveBilling() {
-  //   let modify = {};
-  //   let billingCart = {};
-  //   // sessionStorage.setItem('user', JSON.stringify(this.user));
-
-  //   this.countriesService.isUE({ id: this.user['countryBilling'] }).subscribe(res => {
-  //     this.vatValueApply = (this.user['countryBilling'] == 'FR' || (res.ue == 1 && (this.user['vat'] == '' || !this.checkv)));
-
-  //     billingCart['currency'] = this.currency;
-  //     if (this.currencychange) {
-  //       modify['currency'] = this.currency;
-  //     }
-  //     billingCart['currencyTx'] = this.taux[billingCart['currency']];
-  //     billingCart['currencyTxUsd'] = this.taux['usd'];
-  //     billingCart['vatValue'] = this.vatValueApply ? this.vat : null;
-
-  //     billingCart['payment'] = this.user['payment'];
-  //     if (this.paymentchange) {
-  //       modify['payment'] = this.user['payment'];
-  //     }
-  //     this.orderService.updtCaddy({ idCmd: this.caddy.id_cmd, state: 'PSC', billing: billingCart, cart: this.caddy.products }).subscribe(res => { });
-  //   });
-  // }
-
-  // saveAmount() {
-  //   this.orderService.updtCaddy({
-  //     idCmd: this.caddy.id_cmd,
-  //     state: 'PSC',
-  //     totaux: {
-  //       totalHT: this.caddy['totalHT'],
-  //       currencyTx: this.rate,
-  //       currencyTxUsd: this.currencyTxUsd,
-  //       currency: this.currency,
-  //       totalTTC: this.precisionRound(this.caddy.totalTTCUsd, 2),
-  //     }
-  //   }).subscribe();
-  // }
-  //Function Payment
-  // submitPayment() {
-  //   // let user = JSON.parse(sessionStorage.getItem('user'));
-  //   const that = this;
-  //   this.orderService.payment({
-  //     cart: {
-  //       idCmd: this.caddy.id_cmd,
-  //       total: this.caddy.totalTTCUsd,
-  //       vatValue: this.vat,
-  //       currency: this.currency,
-  //       currencyTx: this.rate,
-  //       currencyTxUsd: this.currencyTxUsd
-  //     },
-  //     user: this.user
-  //   }).subscribe(resp => {
-  //     let sdkConfigObj = {
-  //       context: 'test' // change it to 'live' when going live.
-  //     }
-  //     let checkout = chckt.checkout(resp.body, '#paymentcard', sdkConfigObj);
-  //     chckt.hooks.beforeComplete = function (node, paymentData) {
-  //       if (paymentData.resultCode === "authorised") {
-  //         that.orderService.verify(paymentData).subscribe(r => {
-  //           if (r.ok === 1) {
-  //             sessionStorage.removeItem('tc');
-  //             sessionStorage.removeItem('surveyForm');
-  //             that.surveyForm = { dd: '', dt: '', du: { cb: [], other: '' } };
-  //             that.open();
-  //           }
-  //           return false;
-  //         });
-  //       }
-  //        else {
-  //         that.orderService.logPayement(paymentData).subscribe(r => {
-  //           return false;
-  //         });
-  //       }
-  //     }
-  //   });
-  // }
-
   submitRib() {
     this.orderService.submitCaddy(this.currency, this.survey,
       {
@@ -407,7 +264,7 @@ export class CaddiesComponent implements OnInit, OnDestroy {
         cityBilling: this.billingComponent.form.controls['cityBillingctl'].value,
         postalCode: this.billingComponent.form.controls['postalCodeBillingctl'].value,
       }
-    ).subscribe(resp => {
+    ).subscribe(() => {
       this.open();
     });
     if (this.IsChangeDefaultAdress) {
@@ -434,8 +291,6 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     ];
 
     const modalRef = this.modalService.open(NgbdModalContent, { backdrop: "static", keyboard: false })
-
-    console.log(modalRef.componentInstance)
     modalRef.componentInstance.title = 'Order Submitted';
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.link = '/';
@@ -445,17 +300,10 @@ export class CaddiesComponent implements OnInit, OnDestroy {
   getCurrency() {
     this.currencyService.getCurrencies().subscribe(res => {
       this.currencies = res.currencies;
-      this.getSymbol();
+      this.symbol = this.getSymbol(this.currency);
     });
   }
-  getSymbol() {
-    for (var i = 0; i < this.currencies.length; i++) {
-      if (this.currencies[i]['id'] === this.currency) {
-        this.symbol = this.currencies[i]['symbol'];
-      }
-      this.taux[this.currencies[i]['id']] = this.currencies[i]['taux'];
-    }
-  }
+
 
   searchCurrency(nameKey, myArray) {
     return myArray.find(item => item.id == nameKey);
@@ -528,5 +376,12 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     steps.set(4, "PSC")
     steps.set(5, "PSC")
     return steps.get(stepIndex);
+  }
+  getSymbol(currency) {
+    var symbols = new Map<string, string>();
+    symbols.set("gbp", "£")
+    symbols.set("eur", "‎€")
+    symbols.set("usd", "$")
+    return symbols.get(currency);
   }
 }
