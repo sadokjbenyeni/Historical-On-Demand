@@ -41,20 +41,24 @@
           </td>
           <td class="vertical-aligning">{{c.Allproducts[0].subscription === 1?c.Allproducts[0].period:'-'}}
           </td>
-          <td class="vertical-aligning" class="datemodal" *ngIf="page==='cart';else simpleBeginDate">
+          <td class="datemodal vertical-aligning" *ngIf=" page==='cart';else simpleBeginDate ">
             <ng-container *ngIf="c.Allproducts[0].subscription == 0">
-              <input matInput class="col-6" [matDatepicker]="picker"
-                (dateChange)="DateChange(c.Allproducts[0],'begin_date',$event)"
-                [max]="c.Allproducts[0].end_date_ref" [(ngModel)]="c.Allproducts[0].begin_date"
+              <input [matDatepicker]="picker" (dateChange)="DateChange(c.Allproducts[0],'begin_date',$event)"
+                [(ngModel)]="c.Allproducts[0].begin_date" [max]="c.Allproducts[0].end_date_ref"
                 [min]="c.Allproducts[0].begin_date_ref">
               <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
               <mat-datepicker #picker></mat-datepicker>
             </ng-container>
+
           </td>
+
           <ng-template #simpleBeginDate>
             <td> {{ c.Allproducts[0].begin_date | date:'yyyy-MM-dd' }}</td>
           </ng-template>
-          <td class="datemodal" *ngIf=" page==='cart';else simpleEndDate ">
+
+
+
+          <td class="datemodal vertical-aligning" *ngIf=" page==='cart';else simpleEndDate ">
             <ng-container *ngIf="c.Allproducts[0].subscription == 0">
               <input [matDatepicker]="picker" (dateChange)="DateChange(c.Allproducts[0],'end_date',$event)"
                 [(ngModel)]="c.Allproducts[0].end_date" [max]="c.Allproducts[0].end_date_ref"

@@ -198,6 +198,7 @@ export class CaddiesComponent implements OnInit, OnDestroy {
   getCaddy(currency = null) {
     let caddysubscription = currency ? this.orderService.getCaddies(currency) : this.orderService.getCaddies();
     caddysubscription.subscribe((order) => {
+      debugger
       if (!order) {
         this.noCaddy = true
       }
@@ -246,6 +247,10 @@ export class CaddiesComponent implements OnInit, OnDestroy {
 
             this.caddy.products.forEach(item => {
               item.Allproducts = item.subscription.concat(item.onetime)
+              item.Allproducts.forEach(product => {
+                product.begin_date = new Date(product.begin_date);
+                product.end_date = new Date(product.end_date);
+              });
             })
             // if(this.payment === 'creditcard'){
             //   this.idCmd = this.cmd['id_cmd'];
