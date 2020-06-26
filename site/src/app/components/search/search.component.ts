@@ -7,7 +7,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 
 import { environment } from '../../../environments/environment';
-import { DataService } from '../../data.service';
+import { DataService } from '../../services/data.service';
 import { ElasticService } from '../../services/elastic.service';
 
 import { OrderService } from '../../services/order.service';

@@ -10,7 +10,7 @@ import { FileSelectDirective } from 'ng2-file-upload';
 import { MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 
 // Guard
-import { GuardGuard } from './guard.guard';
+import { GuardGuard } from './guard/guard.guard';
 
 // Validate Form
 import { EqualValidatorDirective } from './validators/equal-validator.directive';
@@ -59,57 +59,33 @@ import { OrdersViewComponent } from './components/finance/orders-view/orders-vie
 // Support
 import { ClientOrderComponent } from './components/support/client-order/client-order.component';
 import { ClientOrderDetailsComponent } from './components/support/client-order-details/client-order-details.component';
-// Services
-import { DataService } from './data.service';
-import { VatService } from './services/vat.service';
-import { PaymentService } from './services/payment.service';
-import { FluxService } from './services/flux.service';
-import { CurrencyService } from './services/currency.service';
-import { ElasticService } from './services/elastic.service';
-import { UploadService } from './services/upload.service';
-import { OrderService } from './services/order.service';
-import { RoleService } from './services/role.service';
-import { UserService } from './services/user.service';
-import { CountriesService } from './services/countries.service';
-import { CompanytypesService } from './services/companytypes.service';
-import { FinanceService } from './services/finance.service';
-import { ComplianceService } from './services/compliance.service';
-import { ProductService } from './services/product.service';
-import { ConfigService } from './services/config.service';
-import { PdfService } from './services/pdf.service';
+
 
 // Commun
 import { ComCountriesComponent } from './components/commun/com-countries/com-countries.component';
 import { AlertModule } from './_alert';
-// Pipe
-import { CeilPipe } from './ceil.pipe';
-import { SafeHtmlPipePipe } from './safe-html-pipe.pipe';
 
 // Middleware
 import { RecaptchaModule } from 'ng-recaptcha';
 import { DataTablesModule } from 'angular-datatables';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { NgbdModalContent } from './modal-content';
+import { NgbdModalContent } from './shared/modal-content';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 // import { PdfComponent } from './components/commun/pdf/pdf.component';
 import { AdtvComponent } from './components/product/adtv/adtv.component';
 
-import { CallbackPipe } from './callback.pipe';
 import { ConfigElasticComponent } from './components/admin/config-elastic/config-elastic.component';
-import { PurchaseTypePipe } from './purchaseType.pipe';
-import { SalesService } from './services/sales.service';
 import { MenusupportComponent } from './components/support/menusupport/menusupport.component';
 import { CommonModule } from '@angular/common';
 import { OrderHistoryDetailsComponent } from './components/client/order-history-details/order-history-details.component';
 import { CancelOrderDialogComponent } from './components/client/cancel-order-dialog/cancel-order-dialog.component';
 import { TokenInterceptor } from './interceptors/authentification/token.interceptor';
-import { DeliverablesService } from './services/deliverables.service';
-import { DownloadInvoiceService } from './services/Intern/download-invoice.service';
 import { MaterialModule } from './modules/material/material.module';
 import { ClientModule } from './modules/client/client.module';
 import { MenuModule } from './modules/menu/menu.module';
 import { OrderModule } from './modules/order/order.module';
 import { CaddyModule } from './modules/caddy/caddy.module';
+import { PipesModule } from './pipes/pipes.module';
 // lazy loading
 
 @NgModule({
@@ -147,9 +123,6 @@ import { CaddyModule } from './modules/caddy/caddy.module';
     AboutComponent,
     HelpPageComponent,
     StatementsComponent,
-    CeilPipe,
-    PurchaseTypePipe,
-    SafeHtmlPipePipe,
     NgbdModalContent,
     RibComponent,
     ComCountriesComponent,
@@ -157,7 +130,6 @@ import { CaddyModule } from './modules/caddy/caddy.module';
     PaymentsComponent,
     // PdfComponent,
     AdtvComponent,
-    CallbackPipe,
     ClientOrderComponent,
     ClientOrderDetailsComponent,
     ConfigElasticComponent,
@@ -187,31 +159,11 @@ import { CaddyModule } from './modules/caddy/caddy.module';
     MaterialModule,
     ClientModule,
     MenuModule,
-    OrderModule
+    OrderModule,
+    PipesModule
     // NgbModule.forRoot()
   ],
   providers: [
-    GuardGuard,
-    ConfigService,
-    PdfService,
-    DataService,
-    VatService,
-    PaymentService,
-    FluxService,
-    CurrencyService,
-    ElasticService,
-    OrderService,
-    UploadService,
-    RoleService,
-    UserService,
-    CountriesService,
-    FinanceService,
-    ComplianceService,
-    ProductService,
-    CompanytypesService,
-    SalesService,
-    DeliverablesService,
-    DownloadInvoiceService,
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]

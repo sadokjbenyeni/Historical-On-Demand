@@ -9,8 +9,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 
 import { map } from 'rxjs/operators';
-import { OrderPreview } from '../../../Models/Order/order-preview';
 import { DownloadInvoiceService } from '../../../../app/services/Intern/download-invoice.service';
+import { OrderPreview } from '../../../models/Order/order-preview';
 
 const httpOptions = {
   headers: new HttpHeaders({

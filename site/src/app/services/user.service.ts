@@ -14,7 +14,9 @@ import { Observable } from 'rxjs';
 //   islogin: false
 // };
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class UserService {
   changeDefaultAdress(vat: any, country: any, address: any, city: any, postalCode: any): Observable<any> {
     return this.http.post<any>(environment.api + "/user/changedefaultaddress",

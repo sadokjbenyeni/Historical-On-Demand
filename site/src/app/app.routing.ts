@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
 // Guards
-import { GuardGuard } from './guard.guard';
+import { GuardGuard } from './guard/guard.guard';
 
 // Site Admins
 import { UsersComponent } from './components/admin/users/users.component';

@@ -3,7 +3,7 @@ declare var chckt: any;
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { NgbdModalContent } from '../../../modal-content';
+import { NgbdModalContent } from '../../../shared/modal-content';
 
 import { OrderService } from '../../../services/order.service';
 import { FluxService } from '../../../services/flux.service';
@@ -11,7 +11,7 @@ import { CountriesService } from '../../../services/countries.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { UserService } from '../../../services/user.service';
 import { ConfigService } from '../../../services/config.service';
-import { AppDateAdapter, APP_DATE_FORMATS } from '../../../format-datepicker';
+import { AppDateAdapter, APP_DATE_FORMATS } from '../../../formatters/format-datepicker';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { BillingComponent } from '../billing/billing.component';
 import { MatStepper } from '@angular/material/stepper';

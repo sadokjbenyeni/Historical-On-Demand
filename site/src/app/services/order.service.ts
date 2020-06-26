@@ -6,7 +6,9 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class OrderService {
   updateCaddyState(state: string): Observable<any> {
     return this.http.put(environment.api + '/order/changePresubmitState', { state: state })

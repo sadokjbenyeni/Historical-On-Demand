@@ -11,7 +11,6 @@ import 'rxjs/add/operator/map';
 
 
 import { MatTableDataSource } from '@angular/material/table';
-import { Product } from '../../../Models/Order/product';
 
 import { MatDialog } from '@angular/material/dialog';
 import { CancelOrderDialogComponent } from '../cancel-order-dialog/cancel-order-dialog.component';
@@ -22,6 +21,7 @@ import { ClientInformation } from '../../../modules/client/models/client-informa
 import { DownloadInvoiceService } from '../../../../app/services/Intern/download-invoice.service';
 import { OrderAmount } from '../../../modules/order/models/order-amount.model';
 import { OrderInformation } from '../../../modules/order/models/order-information.model';
+import { Product } from '../../../models/Order/product';
 
 const httpOptions = {
   headers: new HttpHeaders({
