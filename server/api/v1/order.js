@@ -297,7 +297,7 @@ router.put('/state', async (req, res) => {
   log.date = dateref;
   if (req.body.referer === 'Compliance') {
     try {
-      await UpdateStateCompliance(orderUpdated, corp, req);
+      await UpdateStateCompliance(orderUpdated, req);
     }
     catch (err) {
       req.logger.error({ message: err.message + '\n' + err.stack, className: 'Order API' });
@@ -316,6 +316,7 @@ router.put('/state', async (req, res) => {
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
     try {
       await UpdateOrderFinance(orderUpdated, req, corp, log, res);
+      return res.status(201).json({ ok: true });
     }
     catch (err) {
       req.logger.error({ message: err.message + '\n' + err.stack, className: 'Order API' });
@@ -1217,7 +1218,7 @@ async function UpdateOrderFinance(orderUpdated, req, log, res) {
   // .then((r) => {
   req.logger.info("Order updated");
   await pdfpost(req.body.id, req.logger);
-  res.status(201).json({ ok: true });
+  
   return corp;
 }
 
@@ -1284,7 +1285,7 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
   }
 }
 
-async function UpdateStateCompliance(updt, corp, req) {
+async function UpdateStateCompliance(updt, req) {
   updt.validationCompliance = true;
   let corp = {
     "email": req.body.email,

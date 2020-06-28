@@ -4,9 +4,9 @@ export const environment = {
   gateway: "https://gateway01.hod.quanthouse.com",
   elastic: {
     instrument: {
-      derivatives: 'derivatives_6',
-      nonderivatives: 'nonderivatives_6',
-      index: ['derivatives_6', 'nonderivatives_6'],
+      derivatives: 'derivatives',
+      nonderivatives: 'nonderivatives',
+      index: ['derivatives', 'nonderivatives'],
       type: ['productDB-derivatives', 'productDB-nonderivatives']
     },
     feed: {
