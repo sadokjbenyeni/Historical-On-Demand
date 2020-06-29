@@ -45,8 +45,8 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Invoice </th>
             <td mat-cell *matCellDef="let element">
               <div *ngIf="element.invoice.idProForma || element.invoice.idCommande" class="main">
-                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="40" height="40" viewBox="0 0 172 172"
-                  style=" fill:#000000;">
+                <svg data-tooltip="A sample text" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="40"
+                  height="40" viewBox="0 0 172 172" style=" fill:#000000;">
                   <g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt"
                     stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0"
                     font-family="none" font-weight="none" font-size="none" text-anchor="none"
@@ -59,8 +59,7 @@
                     </g>
                   </g>
                 </svg>
-                <input class='downloadIcon' type='checkbox' name='thing' value='valuable' id="thing" /><label
-                  for="thing"></label>
+                <input class='visually-hidden' type='checkbox' />
                 <div class="menu">
                   <li><a *ngIf="element.invoice.idProForma" type="button"
                       (click)="downloadInvoice(element.invoice.id, element.invoice.idProForma, 'pro format invoice')">ProForma</a>
