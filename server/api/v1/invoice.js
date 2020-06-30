@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const InvoiceService = require('../../service/invoiceService');
 const Orders = mongoose.model('Order');
 const Invoices = mongoose.model('Invoice');
-path = require('path');
+const path = require('path');
 var mime = require('mime');
 const OrderPdfService = require('../../service/orderPdfService');
 
