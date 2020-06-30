@@ -509,3 +509,61 @@ a {
 .mat-step-header .mat-step-icon-selected {
   background-color: #ed6540; 
 }
+
+
+/* INVOICE PROFORMA PDF DOWNLOAD ICON & LOGIC*/
+
+.pdf-downloader-main, .pdf-downloader-menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pdf-downloader-main {
+  position: relative;
+  transition: 0.5s;
+  overflow: hidden;
+}
+.pdf-downloader-menu {
+  margin: 0;
+  padding: 0;
+  width: 0;
+  overflow: hidden;
+  transition: 0.5s;
+}
+
+.pdf-downloader-main input:checked ~ .pdf-downloader-menu {
+  width: 150px;
+}
+
+.pdf-downloader-main input:checked ~  {
+  position: absolute;
+  left: 4vw;
+}
+
+.pdf-downloader-menu li {
+  list-style: none;
+  margin: 0 10px;
+}
+
+.pdf-downloader-menu li a {
+  text-decoration: none;
+  color: rgb(44, 43, 43);
+  text-transform: uppercase;
+  font-weight: 400;
+  transition: 1s;
+}
+
+.pdf-downloader-menu li a:hover {
+  color: #ED6540;
+}
+
+.visually-hidden {
+  position: relative;
+  left: -2vw;
+  width: 36px;
+  height: 50px;
+  cursor: pointer;
+  opacity: 0;
+  margin-right: -25px;
+}

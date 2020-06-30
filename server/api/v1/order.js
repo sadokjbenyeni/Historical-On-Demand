@@ -286,12 +286,11 @@ router.put('/state', async (req, res) => {
   datedebref = new Date();
   dateFinref = new Date();
   log.date = dateref;
-  var order = await Order.findOne({ id: req.body.id }).exec();
   if (req.body.referer === 'Compliance') {
     try {
-      updt.idProForma = await setInvoiceId("QH_ProFormaInvoice_");
+      orderUpdated.idProForma = await setInvoiceId("QH_ProFormaInvoice_");
       await UpdateStateCompliance(orderUpdated, corp, req);
-      await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt, $push: { logs: log } }).exec();
+      await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
     }
     catch (err) {
       req.logger.error({ message: err.message + '\n' + err.stack, className: 'Order API' });
@@ -309,7 +308,7 @@ router.put('/state', async (req, res) => {
     }
   }
   if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
-    req.logger.info("id commande: " + updt.idCommande);
+    req.logger.info("id commande: " + orderUpdated.idCommande);
     try {
       orderUpdated.idCommande = await setInvoiceId("QH_HISTO_");
       await UpdateOrderFinance(orderUpdated, req, corp, log, res);
@@ -319,7 +318,7 @@ router.put('/state', async (req, res) => {
       return res.status(503).json({ message: 'An error has been thrown, please contact support with \'' + req.loggerToken + "'" });
     }
   }
-  else if (req.body.referer.toLower() === 'client' || req.body.status.toLower() === "cancelled") {
+  else if (req.body.referer.toLowerCase() === 'client' || req.body.status.toLowerCase() === "cancelled") {
     req.logger.info("order updating (" + JSON.stringify(orderUpdated) + ")...");
     await Order.updateOne({ _id: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
     return res.status(201).json({ ok: true });
@@ -448,10 +447,8 @@ router.put('/update', async (request, res) => {
       orderUpdated.submissionDate = new Date();
       orderUpdated.vat = request.body.u.user.vat;
 
-      // updt.vatValide = req.body.u.user.vatValide;
       orderUpdated.payment = request.body.u.user.payment;
       orderUpdated.currency = request.body.u.user.currency;
-      // updt.currencyTx = req.body.user.currencyTx;
       for (var i = 0; i < currencies.length; i++) {
         if (currencies[i]['id'] === orderUpdated.currency) {
           orderUpdated.currencyTx = currencies[i]['taux'];
@@ -1367,8 +1364,8 @@ async function UpdateStateCompliance(updt, corp, req) {
         totalttc(order));
     }
     catch (error) {
-      logger.error({ message: error.message, className: "Order API" });
-      logger.error({ message: error.stack, className: "Order API" });
+      req.logger.error({ message: error.message, className: "Order API" });
+      req.logger.error({ message: error.stack, className: "Order API" });
     }
   });
 }
