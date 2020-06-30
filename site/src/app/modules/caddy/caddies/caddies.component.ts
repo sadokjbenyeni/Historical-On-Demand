@@ -3,7 +3,6 @@ declare var chckt: any;
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { NgbdModalContent } from '../../../shared/modal-content';
 
 import { OrderService } from '../../../services/order.service';
 import { FluxService } from '../../../services/flux.service';
@@ -19,6 +18,7 @@ import { BehaviorSubject, } from 'rxjs';
 import { Router, NavigationStart } from '@angular/router';
 import { OrderAmount } from '../../order/models/order-amount.model';
 import { filter } from 'rxjs/operators';
+import { NgbdModalContent } from '../../../shared/modal-content/modal-content';
 
 
 
