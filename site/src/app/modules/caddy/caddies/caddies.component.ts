@@ -104,7 +104,7 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     private router: Router,
   ) { }
   ngOnDestroy(): void {
-    if (this.observerRoute) {
+    if (this.caddy) {
       this.observerRoute.unsubscribe();
     }
 
@@ -113,11 +113,11 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     return this.billingComponent ? this.billingComponent.form : null;
   }
   ngOnInit() {
-    if (this.stepper) {
-      this.observerRoute = this.router.events.pipe(filter(event => event instanceof NavigationStart)).subscribe(() => {
+
+    this.observerRoute = this.router.events.subscribe(rout => {
+      if (rout instanceof NavigationStart)
         this.orderService.updateCaddyState(this.getStepKey(this.stepper.selectedIndex)).subscribe();
-      })
-    }
+    })
     this.pages = 1;
     this.getInfoUser();
   }
@@ -169,7 +169,6 @@ export class CaddiesComponent implements OnInit, OnDestroy {
       this.currencyService.getCurrencies().subscribe(list => {
         this.symbol = list.currencies.find(item => item.id == this.currency).symbol;
         let countrybilling = this.billingComponent.form ? this.billingComponent.form.controls['countryBillingctl'].value : this.user.countryBilling
-        debugger
         this.calculateFinalAmount(countrybilling);
         this.caddy.products.forEach(item => {
           item.Allproducts = item.subscription.concat(item.onetime)

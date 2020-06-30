@@ -53,7 +53,8 @@
         </td>
 
         <ng-template #simpleBeginDate>
-          <td> {{ c.Allproducts[0].begin_date }}</td>
+          <td> <span
+              *ngIf="c.Allproducts[0].subscription==0">{{ c.Allproducts[0].begin_date| date:'yyyy-MM-dd' }}</span></td>
         </ng-template>
 
 
@@ -66,11 +67,11 @@
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
           </ng-container>
-
         </td>
 
         <ng-template #simpleEndDate>
-          <td> {{ c.Allproducts[0].end_date }}</td>
+          <td><span *ngIf="c.Allproducts[0].subscription==0">{{ c.Allproducts[0].end_date| date:'yyyy-MM-dd' }}</span>
+          </td>
         </ng-template>
         <td class="vertical-aligning">{{ c.Allproducts[0].pricingTier }}</td>
         <td class="vertical-aligning">{{ c.Allproducts[0].ht | number:'1.2-2' }} {{symbol}}</td>
@@ -104,7 +105,7 @@
             </ng-container>
           </td>
           <ng-template #simpleBeginDate>
-            <td> {{ prod.begin_date | date:'yyyy-MM-dd' }}</td>
+            <td><span *ngIf="prod.subscription == 0"> {{ prod.begin_date | date:'yyyy-MM-dd' }}</span></td>
           </ng-template>
           <td *ngIf=" page==='cart';else  simpleEndDate ">
             <ng-container *ngIf="prod.subscription == 0">
@@ -115,7 +116,7 @@
             </ng-container>
           </td>
           <ng-template #simpleEndDate>
-            <td> {{ prod.end_date | date:'yyyy-MM-dd' }}</td>
+            <td><span *ngIf="prod.subscription == 0"> {{ prod.end_date | date:'yyyy-MM-dd' }}</span></td>
           </ng-template>
           <td class="vertical-aligning">{{ prod.pricingTier }}</td>
           <td class="vertical-aligning">{{ prod.ht | number:'1.2-2' }} {{symbol}}</td>
