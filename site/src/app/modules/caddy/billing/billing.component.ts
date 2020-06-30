@@ -16,6 +16,10 @@ export class BillingComponent implements OnInit {
   @Output() ChangeCurrency = new EventEmitter();
   @Output() ChangeDefaultCurrency = new EventEmitter();
   @Output() ChangeDefaultAdress = new EventEmitter();
+  @Output() IsVatValid: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() countryChanged: EventEmitter<string> = new EventEmitter<string>();
+
+  invalidVat: boolean;
   form: FormGroup;
   currencychangeDefault: boolean = false;
   AdressBillingchangeDefault: boolean = false;
@@ -24,7 +28,6 @@ export class BillingComponent implements OnInit {
   payments: any;
   symbol: any;
   taux = [];
-  validVat: any;
 
 
   constructor(private formBuilder: FormBuilder, private vatService: VatService, private countriesService: CountriesService, private paymentService: PaymentService) {
@@ -32,31 +35,14 @@ export class BillingComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.initFields()
+    this.initFields();
     this.getCountry();
     this.getPayments();
-    this.checkVat()
-    // this.getCurrency();
+    this.checkVat();
   }
-
-  // let vat = control.value
-  // let c = vat.substring(0, 2);
-  // let v = vat.substring(2, this.form.controls["vatctl"].value.length);
-
-  // this.vatService.checkVat(c + '|' + v).subscribe(data => {
-  //   // this.validVat = data.valid;
-  //   if (!data.valid) {
-  //     this.form.controls['vatctl'].setErrors({ 'incorrect': true });
-  //   }
-  // },
-  //   error => {
-  //     console.error(error);
-  //   });
-
-
   initFields() {
     this.form = this.formBuilder.group({
-      vatctl: [this.user.vat, Validators.required],
+      vatctl: [this.user.vat, []],
       addressBillingctl: [this.user.addressBilling, Validators.required],
       cityBillingctl: [this.user.cityBilling, Validators.required],
       postalCodeBillingctl: [this.user.postalCodeBilling, Validators.required],
@@ -80,9 +66,14 @@ export class BillingComponent implements OnInit {
       let c = vat.substring(0, 2);
       let v = vat.substring(2, vat.length);
       this.vatService.checkVat(c + '|' + v).subscribe(data => {
-        // this.validVat = data.valid;
         if (!data.valid) {
-          this.form.controls['vatctl'].setErrors({ 'incorrect': true });
+          this.IsVatValid.emit(false);
+          this.invalidVat = true;
+        }
+        else {
+          this.IsVatValid.emit(true);
+          this.invalidVat = false;
+
         }
       },
         error => {
@@ -90,6 +81,10 @@ export class BillingComponent implements OnInit {
         });
     }
   }
+  changecountry(event) {
+    this.countryChanged.emit(event.value)
+  }
+
   defaultBilling(event) {
     this.ChangeDefaultAdress.emit(event.checked);
   }

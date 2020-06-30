@@ -22,6 +22,7 @@ let InvoiceSchema = new mongoose.Schema({
     payment: { type: String, maxlength: 200 },
     paymentDate: { type: Date },
     vatValue: { type: Number, default: null },
+    totalVat: { type: Number, default: null },
     currency: { type: String, maxlength: 5, default: 'usd' },
     currencyTxUsd: { type: Number, default: 1 },
     discount: { type: Number, default: 0 },

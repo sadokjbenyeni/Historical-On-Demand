@@ -6,8 +6,9 @@ const dnwfile = require('../config/config').dnwfile();
 const currencyService = require('./currencyService');
 const feesService = require('./feesService');
 const fluxService = require('./fluxService');
-const { invoice } = require('paypal-rest-sdk');
-const { compareSync } = require('bcrypt-nodejs');
+const countryService = require('../service/countryService');
+const configService = require('../service/configService');
+const vatService = require('../service/vatService');
 
 module.exports.updateOrderMetaData = async (id, note, sales, type) => {
     var orderToUpdate = await Orders.findOne({ id: id }).exec();
@@ -176,15 +177,15 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
 
     if (index != -1 || survey.dd === "1") {
         caddy.state = 'PVC';
-        log.status = 'PVC';
         log.referer = 'Client';
     } else {
         caddy.validationCompliance = true;
         log.referer = 'Autovalidation';
         caddy.state = 'PVP';
-        log.status = 'PVP';
-        // Envoi email aux products
     }
+    log.status = caddy.state;
+    // Envoi email aux products
+
     if (caddy.state === "PVC") {
         // Envoi email aux compliances
         const compliances = await Users.find({ roleName: "Compliance" }, { email: true, _id: false }).exec()
@@ -232,18 +233,20 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     currencyService.convertproductstoCurrency(caddy, currency, cube)
     caddy.currency = currency;
     caddy.payment = "banktransfer";
-    caddy.total = totalttcv2(caddy);
+    await setprices(caddy);
     await Orders.updateOne({ id: caddy.id },
         {
             $set: {
-                // countryBilling: caddy.countryBilling,
-                // cityBilling: caddy.cityBilling,
-                // postalCodeBilling: caddy.postalCodeBilling,
-                // addressBilling: caddy.addressBilling,
-                // vat: caddy.vat,
+                countryBilling: caddy.countryBilling,
+                cityBilling: caddy.cityBilling,
+                postalCodeBilling: caddy.postalCodeBilling,
+                addressBilling: caddy.addressBilling,
+                vat: caddy.vat,
                 payment: caddy.payment,
                 total: caddy.total,
                 currency: caddy.currency,
+                totalHT: caddy.totalHT,
+                vatval: caddy.vatValue / 100,
                 survey: survey,
                 validationCompliance: caddy.validationCompliance,
                 submissionDate: new Date(),
@@ -276,6 +279,8 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
             postalCodeBilling: caddy.postalCodeBilling,
             countryBilling: caddy.countryBilling,
             vat: caddy.vat,
+            vatValue: caddy.vatValue / 100,
+            totalVat: caddy.totalVat,
             state: caddy.state,
             totalExchangeFees: caddy.totalExchangeFees,
             currencyTxUsd: caddy.currencyTxUsd,
@@ -291,12 +296,23 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     });
     return true;
 }
+setprices = async function (order) {
+    const isvatvalid = await vatService.isVatValid(order.vat.substring(0, 2), order.vat.substring(2, order.vat.length));
+    const isUe = await countryService.isUe(order.countryBilling);
+    if (order.addressBilling == "FR" || (!isvatvalid && isUe.ue == 1)) {
+        let vatDetails = await configService.getVat();
+        order.vatValue = vatDetails.valueVat / 100;
+        order.totalVat = order.totalHT * order.vatValue;
+        order.total = order.totalHT + order.totalVat;
+    }
+    else {
+        order.vatValue = 0;
+        order.totalVat = 0;
+        order.total = order.totalHT;
+    }
+}
 
 
-totalttcv2 = function (o) {
-    totalVat = o.totalHT * o.vatValue;
-    return precisionRound((o.totalHT * (1 + o.vatValue)), 2);
-};
 deleteuselessfields = function (order) {
     delete order.historical_data;
     delete order.logs;

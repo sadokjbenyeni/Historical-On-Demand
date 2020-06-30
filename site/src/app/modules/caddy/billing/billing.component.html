@@ -5,9 +5,8 @@
       <div class="col-md-6">
         <mat-form-field>
           <input matInput type="text" (change)="checkVat()" placeholder="VAT Number" formControlName="vatctl">
-          <mat-error *ngIf="form.controls['vatctl'].hasError('required')">Field required</mat-error>
-          <mat-error *ngIf="form.controls['vatctl'].hasError('incorrect')">You have entered an invalid VAT Number
-          </mat-error>
+          <mat-hint style="color: #f44336;" *ngIf="invalidVat">You have entered an invalid VAT Number
+          </mat-hint>
         </mat-form-field><br>
         <mat-form-field>
           <input matInput type="text" placeholder="Billing Address" formControlName="addressBillingctl" required>
@@ -30,7 +29,7 @@
         </mat-form-field><br>
         <mat-form-field>
           <mat-label>Select Country</mat-label>
-          <mat-select name="countryBilling" formControlName="countryBillingctl" required>
+          <mat-select (selectionChange)="changecountry($event)" name="countryBilling" formControlName="countryBillingctl" required>
             <mat-option *ngFor='let c of country' [value]=" c.id">{{c.name}}</mat-option>
           </mat-select>
           <mat-error>Field required</mat-error>

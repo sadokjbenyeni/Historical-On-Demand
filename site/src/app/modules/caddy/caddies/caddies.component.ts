@@ -4,7 +4,6 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { OrderService } from '../../../services/order.service';
-import { FluxService } from '../../../services/flux.service';
 import { CountriesService } from '../../../services/countries.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { UserService } from '../../../services/user.service';
@@ -99,7 +98,6 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private userService: UserService,
     private orderService: OrderService,
-    private fluxService: FluxService,
     private currencyService: CurrencyService,
     private countriesService: CountriesService,
     private modalService: NgbModal,
@@ -114,9 +112,6 @@ export class CaddiesComponent implements OnInit, OnDestroy {
   get form() {
     return this.billingComponent ? this.billingComponent.form : null;
   }
-
-
-
   ngOnInit() {
     if (this.stepper) {
       this.observerRoute = this.router.events.pipe(filter(event => event instanceof NavigationStart)).subscribe(() => {
@@ -129,6 +124,7 @@ export class CaddiesComponent implements OnInit, OnDestroy {
 
 
   getInfoUser() {
+
     let field = [
       'addressBilling',
       'postalCodeBilling',
@@ -146,6 +142,8 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     ];
     this.userService.info({ field: field }).subscribe(res => {
       this.user = res.user;
+      //checkinitialVat
+
       // a retirer lors de l'implementation CB
       this.user.payment = 'banktransfer';
       // fin a retirer
@@ -164,43 +162,62 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     caddysubscription.subscribe((order) => {
       if (!order) {
         this.noCaddy = true
-        // this.observerRoute.unsubscribe();
+        this.observerRoute.unsubscribe();
         return
       }
       this.caddy = order;
       this.currencyService.getCurrencies().subscribe(list => {
         this.symbol = list.currencies.find(item => item.id == this.currency).symbol;
-        this.configService.getVat().subscribe(res => {
-          this.countriesService.isUE({ id: this.user['countryBilling'] }).subscribe(res => {
-            this.vatValueApply = (this.user['countryBilling'] == 'FR' || (res.ue == 1 && (this.user.vat == '' || !this.checkv)));
-            this.caddy.totalVat = this.vatValueApply ? this.caddy.totalVat = this.caddy.totalHT * res.valueVat : 0;
-            this.caddy.totalTTC = this.caddy.totalHT + this.caddy.totalVat;
-
-            this.orderAmountModel = {
-              currency: this.currency,
-              discount: this.caddy.discount,
-              totalExchangeFees: this.caddy.totalExchangeFees,
-              totalHT: this.caddy.totalHT,
-              totalTTC: this.caddy.totalTTC,
-              totalVat: this.caddy.totalVat,
-              vatValue: this.caddy.vatValue
-            }
+        let countrybilling = this.billingComponent.form ? this.billingComponent.form.controls['countryBillingctl'].value : this.user.countryBilling
+        debugger
+        this.calculateFinalAmount(countrybilling);
+        this.caddy.products.forEach(item => {
+          item.Allproducts = item.subscription.concat(item.onetime)
+          item.Allproducts.forEach(product => {
+            product.begin_date = new Date(product.begin_date);
+            product.end_date = new Date(product.end_date);
           });
-          this.caddy.products.forEach(item => {
-            item.Allproducts = item.subscription.concat(item.onetime)
-              item.Allproducts.forEach(product => {
-                product.begin_date = new Date(product.begin_date);
-                product.end_date = new Date(product.end_date);
-              });
-          })
+        })
 
-          if (this.user.payment === 'banktransfer') {
-            this.getRib();
-          }
-        });
+        if (this.user.payment === 'banktransfer') {
+          this.getRib();
+        }
       });
-
     });
+  }
+
+  setvatvalid(isvalid) {
+    this.checkv = isvalid;
+    let billingcountry = this.billingComponent ? this.billingComponent.form.controls['countryBillingctl'].value : this.user.billingCountry
+    debugger
+    this.calculateFinalAmount(billingcountry)
+  }
+  calculateFinalAmount(billingCountry) {
+    this.orderAmountModel = {
+      currency: this.currency,
+      discount: 0,
+      totalExchangeFees: this.caddy.totalExchangeFees,
+      totalHT: this.caddy.totalHT,
+      totalTTC: this.caddy.totalHT,
+      totalVat: 0,
+      vatValue: 0
+    }
+    if (billingCountry == 'FR') {
+      this.setVat()
+    }
+    else if (!this.checkv)
+      this.countriesService.isUE({ id: billingCountry }).subscribe(res => {
+        if (res.ue == 1) {
+          this.setVat()
+        }
+      });
+  }
+  setVat() {
+    this.configService.getVat().subscribe(vat => {
+      this.orderAmountModel.vatValue = vat.valueVat / 100;
+      this.orderAmountModel.totalVat = this.orderAmountModel.totalHT * this.orderAmountModel.vatValue;
+      this.orderAmountModel.totalTTC += this.orderAmountModel.totalVat
+    })
   }
 
   previousPage() {

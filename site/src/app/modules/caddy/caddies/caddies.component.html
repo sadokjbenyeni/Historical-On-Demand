@@ -73,9 +73,10 @@
     </mat-step>
     <mat-step *ngIf="user" [stepControl]="form" #PBI>
       <ng-template matStepLabel>Billing</ng-template>
-      <app-billing [user]="user" [currency]="currency" [currencies]="currencies"
-        (ChangeCurrency)="ChangeCurrency($event)" (ChangeDefaultAdress)="ChangeDefaultAdress($event)"
-        (ChangeDefaultCurrency)="ChangeDefaultCurrency($event)">
+      <app-billing *ngIf="caddy && user" (IsVatValid)="setvatvalid($event)" [user]="user" [currency]="currency"
+        [currencies]="currencies" (ChangeCurrency)="ChangeCurrency($event)"
+        (ChangeDefaultAdress)="ChangeDefaultAdress($event)" (ChangeDefaultCurrency)="ChangeDefaultCurrency($event)"
+        (countryChanged)="calculateFinalAmount($event)">
       </app-billing>
       <mat-card-actions class="put-middle" style="padding-top: 18.5%;">
         <button mat-button matStepperPrevious class="border-button">Back</button>
@@ -86,7 +87,7 @@
       <ng-template matStepLabel>Payment</ng-template>
       <mat-card>
         <mat-card-content>
-          <app-payment *ngIf="rib" [rib]="rib"></app-payment>
+          <app-payment *ngIf="ribObject" [rib]="ribObject"></app-payment>
         </mat-card-content>
         <mat-card-actions class="put-middle">
           <button mat-button matStepperPrevious class="border-button">Back</button>

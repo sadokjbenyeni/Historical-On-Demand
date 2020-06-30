@@ -4,14 +4,19 @@ const mongoose = require('mongoose');
 
 const Config = mongoose.model('Config');
 
-const config = require('../../config/config.js');
-const URLS = config.config();
+const configService = require('../../service/configService')
 // const admin = config.admin();
 
 router.get('/vat', async (req, res) => {
-    let config = Config.findOne({ id: 'vat' }).exec()
-    if (!Config) { return res.sendStatus(404); }
-    return res.status(200).json(Config);
+    try {
+        let vat = await configService.getVat();
+        return res.status(200).json(vat);
+    }
+    catch (error) {
+        return res.status(200).json({error:"No vat found"});
+    }
+
+    
 });
 
 router.get('/period', (req, res) => {
