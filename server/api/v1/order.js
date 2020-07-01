@@ -288,7 +288,6 @@ router.put('/state', async (req, res) => {
   log.date = dateref;
   if (req.body.referer === 'Compliance') {
     try {
-      orderUpdated.idProForma = await setInvoiceId("QH_ProFormaInvoice_");
       await UpdateStateCompliance(orderUpdated, corp, req);
       await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
     }
@@ -299,7 +298,7 @@ router.put('/state', async (req, res) => {
   }
   if (req.body.referer === 'Product') {
     try {
-      orderUpdated.idCommande = await setInvoiceId("QH_ProFormaInvoice_");
+      orderUpdated.idProForma = await setInvoiceId("QH_ProFormaInvoice_");
       await UpdateStateProduct(orderUpdated, req, corp);
     }
     catch (err) {
@@ -311,12 +310,14 @@ router.put('/state', async (req, res) => {
     req.logger.info("id commande: " + orderUpdated.idCommande);
     try {
       orderUpdated.idCommande = await setInvoiceId("QH_HISTO_");
-      await UpdateOrderFinance(orderUpdated, req, corp, log, res);
+      await UpdateOrderFinance(orderUpdated, req, corp, log);
+      return res.status(200).json({ ok: true });
     }
     catch (err) {
       req.logger.error({ message: err.message + '\n' + err.stack, className: 'Order API' });
       return res.status(503).json({ message: 'An error has been thrown, please contact support with \'' + req.loggerToken + "'" });
     }
+
   }
   else if (req.body.referer.toLowerCase() === 'client' || req.body.status.toLowerCase() === "cancelled") {
     req.logger.info("order updating (" + JSON.stringify(orderUpdated) + ")...");
@@ -1158,7 +1159,7 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   // });
 };
 
-async function UpdateOrderFinance(orderUpdated, req, log, res) {
+async function UpdateOrderFinance(orderUpdated, req, log) {
   let corp = {};
   orderUpdated.validationFinance = true;
   orderUpdated.reason = req.body.reason;
@@ -1256,24 +1257,22 @@ async function UpdateOrderFinance(orderUpdated, req, log, res) {
     logger.error({ message: error.stack, className: "Order API" });
   }
   req.logger.info("validating order...");
-  var cnt = await Config.findOne({ id: "counter" }).exec(); //.then((cnt) => {
-
-  let id = cnt.value;
+  var counter = await Config.findOne({ id: "counter" }).exec();
+  let identifier = counter.value;
   let prefix = "QH_HISTO_";
   let nbcar = 7;
-  let idnew = id + 1;
+  let idnew = identifier + 1;
   let nbid = nbcar - idnew.toString().length;
   for (let i = 0; i < nbid; i++) {
     prefix += "0";
   }
   orderUpdated.idCommande = prefix + idnew.toString();
   req.logger.info("id commande: " + orderUpdated.idcommande);
-  await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec(); //.then(() => {
+  await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec();
   await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
-  // .then((r) => {
   req.logger.info("Order updated");
-  await pdfpost(req.body.id, req.logger);
-  res.status(201).json({ ok: true });
+  await pdfpost(req.body.id, req.logger, orderUpdated.idCommande, 'Invoice Nbr');
+  await new InvoiceService().updateInvoiceInformation(req.body.id, orderUpdated.idCommande);
   return corp;
 }
 
