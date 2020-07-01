@@ -3,8 +3,9 @@ const router = require('express').Router();
 const mongoose = require('mongoose');
 const request = require('request');
 
-const config = require('../../config/config.js');
-const APIQF = config.apiqf();
+
+//const config = require('../../config/config.js');
+const APIQF = global.environment.apiqf;
 
 const Asset = mongoose.model('Asset');
 const Exchange = mongoose.model('Exchange');

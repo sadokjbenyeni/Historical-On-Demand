@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const request = require("request");
 const mongoose = require('mongoose');
-const invoiceDirectory = require('../../config/config.js').InvoiceDirectory();
+const invoiceDirectory = global.environment.InvoiceDirectory;
 var path = require('path');
 var fs = require('fs');
 var pdfMake = require('pdfmake/src/printer');
@@ -11,9 +11,12 @@ const Currency = mongoose.model('Currency');
 const Countrie = mongoose.model('Countrie');
 const http = require('http');
 
-const config = require('../../config/config.js');
-const DOMAIN = config.domain();
-const LOCALDOMAIN = config.localdomain();
+
+//const config = require('../../config/config.js');
+const DOMAIN = global.environment.domain;
+const LOCALDOMAIN = global.environment.localdomain;
+
+
 const OrderPdfService = require('../../service/orderPdfService');
 const DateService = require('../../service/dateService');
 var moment = require('moment');

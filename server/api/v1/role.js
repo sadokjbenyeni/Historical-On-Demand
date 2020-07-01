@@ -5,10 +5,12 @@ const crypto = require("crypto");
 
 const Role = mongoose.model('Role');
 
-const config = require('../../config/config.js');
-const URLS = config.config();
+
+//const config = require('../../config/config.js');
+//const URLS = config.config();
 // const admin = config.admin();
-const PHRASE = config.phrase();
+const PHRASE = global.environment.phrase;
+
 const algorithm = 'aes256';
 var idd = "";
 

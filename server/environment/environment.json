@@ -17,10 +17,11 @@
   "paymentKey": "AQElhmfuXNWTK0Qc+iSBp0UWk8y0fbhoaeebbhXE6Bp3O9OVDwjXkhDBXVsNvuR83LVYjEgiTGAH-72Ru3lyilp3K6oonHc6t8HPeGM63I61nZCG9LeyUyxk=-43mwGjBQkT2EbcVp",
 
   "database": {
-    "connectionString": "mongodb://localhost:27017/histodataweb",
-    "userdb": "qh_nodejs_user",
-    "passdb": "oM7Max5ohSoh2vu",
-    "authdb": "histodataweb"
+    "connectionString": "mongodb://localhost:27017",
+    "dbname": "histodataweb",
+    "userdb": "",
+    "passdb": "",
+    "authdb": ""
   },
 
   "smtpconf": {

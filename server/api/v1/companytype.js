@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 
 const Companytypes = mongoose.model('Companytype');
 
-const config = require('../../config/config.js');
-const URLS = config.config();
+//const config = require('../../config/config.js');
+//const URLS = config.config();
 // const admin = config.admin();
 
 

@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 
 const Countries = mongoose.model('Countrie');
 const countryService = require('../../service/countryService')
-const config = require('../../config/config.js');
-const URLS = config.config();
+//const config = require('../../config/config.js');
+//const URLS = config.config();
 // const admin = config.admin();
 
 router.get('/', (req, res) => {

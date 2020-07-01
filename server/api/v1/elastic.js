@@ -3,7 +3,7 @@ const LoggerFactory = require('../../../logger.js');
 const logger = new LoggerFactory().createLogger('Elastic');
 const config = require('../../config/config');
 const { Client } = require('@elastic/elasticsearch')
-const client = new Client({ nodes: config.hostsES() })
+const client = new Client({ nodes: global.environment.hostsES })
 
 
 client.ping({}, { requestTimeout: 20000 }, function (error) {

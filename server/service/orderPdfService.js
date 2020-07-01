@@ -6,9 +6,11 @@ var pdfMake = require('pdfmake/src/printer');
 const User = mongoose.model('User');
 const Currency = mongoose.model('Currency');
 const Countrie = mongoose.model('Countrie');
-const invoiceDirectory = require('../config/config.js').InvoiceDirectory();
-const config = require('../config/config.js');
-const DOMAIN = config.domain();
+
+const invoiceDirectory = global.environment.InvoiceDirectory;
+//const config = require('../config/config.js');
+const DOMAIN = global.environment.domain;
+
 
 const DateService = require('../service/dateService');
 

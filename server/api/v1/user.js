@@ -9,14 +9,16 @@ const User = mongoose.model('User');
 const Order = mongoose.model('Order');
 const Role = mongoose.model('Role');
 
+
 //services 
 const userService = require("../../service/userService")
 
 
 const config = require('../../config/config.js');
 const URLS = config.config();
-const domain = config.domain();
-const PHRASE = config.phrase();
+const domain = global.environment.domain;
+const PHRASE = global.environment.phrase;
+
 const algorithm = 'aes256';
 
 router.param('user', function (req, res, next, id) {

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const Invoice = mongoose.model('Invoice')
-const invoiceDirectory = require('../config/config.js').InvoiceDirectory();
+
+const invoiceDirectory = global.environment.InvoiceDirectory;
 
 const http = require('http');
 

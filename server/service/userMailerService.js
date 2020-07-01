@@ -1,7 +1,8 @@
-const config = require('../config/config.js');
-const domain = config.domain();
-const SMTP = config.smtpconf();
+//const config = require('../config/config.js');
+const domain = global.environment.domain;
+const SMTP = global.environment.smtpconf;
 const nodemailer = require("nodemailer");
+
 
 const smtpTransport = nodemailer.createTransport({
   host: SMTP.host,
@@ -20,7 +21,7 @@ module.exports = function (logger, user) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: this.user.email, //req.body.user,
-      subject: config.environment() + 'Confirm your email',
+      subject: global.environment.environment + 'Confirm your email',
       text: `Hello,
         
             
@@ -44,7 +45,7 @@ module.exports = function (logger, user) {
     this.logger.debug({ message: "mailOptions: " + JSON.stringify(mailOptions), className: "UserMailer service" });
     smtpTransport.sendMail(mailOptions, (error, info) => {
       if (error) {
-        this.logger.error({ message: err.message, className: 'UserMailer service', error: error });
+        this.logger.error({ message: error.message, className: 'UserMailer service', error: error });
         this.logger.error({ message: JSON.stringify(error), className:'UserMailer service'});
         throw error;
       }
@@ -56,7 +57,7 @@ module.exports = function (logger, user) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: this.user.email, //req.body.user,
-      subject: config.environment() + 'Account Activation',
+      subject: global.environment.environment + 'Account Activation',
       text: `Hello,
           Thank you for choosing QH’s On Demand Historical Data product!
           Your account has been successfully created. Below are your login credentials.
@@ -87,7 +88,7 @@ module.exports = function (logger, user) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: this.user.email,
-      subject: config.environment() + 'Password Initialization',
+      subject: global.environment.environment + 'Password Initialization',
       text: `Hello,
     
         To reinitialize your password, please click on the following link: `+ domain + `/mdp/` + this.user.token + `

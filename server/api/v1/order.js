@@ -9,14 +9,17 @@ const Pool = mongoose.model('Pool');
 const User = mongoose.model('User');
 const Currency = mongoose.model('Currency');
 
-const config = require('../../config/config.js');
+
+//const config = require('../../config/config.js');
 const OrderProductLogService = require('../../service/orderProductLogService');
 
-const DOMAIN = config.domain();
-const LOCALDOMAIN = config.localdomain();
-const PAYMENTVERIFY = config.paymentVerify();
-const PAYMENTSETUP = config.paymentSetup();
-const PAYMENTKEY = config.paymentKey();
+const DOMAIN = global.environment.domain;
+const LOCALDOMAIN = global.environment.localdomain;
+const PAYMENTVERIFY = global.environment.paymentVerify;
+const PAYMENTSETUP = global.environment.paymentSetup;
+const PAYMENTKEY = global.environment.paymentKey;
+
+
 
 const OrderService = require('../../service/orderService');
 const InvoiceService = require('../../service/invoiceService');

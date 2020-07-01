@@ -1,6 +1,7 @@
-const config = require('../config/config.js');
-const domain = config.domain();
-const SMTP = config.smtpconf();
+//const config = require('../config/config.js');
+const domain = global.environment.domain;
+const SMTP = global.environment.smtpconf;
+const environment = global.environment.environment;
 const nodemailer = require("nodemailer");
 const loggerFactory = require('../../logger');
 
@@ -29,7 +30,7 @@ module.exports = function (logger, order) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: email,
-      subject: config.environment() + 'Order # ' + this.order.id + ' Confirmation',
+      subject: environment + 'Order # ' + this.order.id + ' Confirmation',
       text: `Hello,
     
     
@@ -72,7 +73,7 @@ module.exports = function (logger, order) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: email,
-      subject: config.environment() + 'QH Histo On-Demand / NEW Order',
+      subject: environment + 'QH Histo On-Demand / NEW Order',
       text: `
       New Client Order has been received and it is currently pending approval from QH ` + service + ` department.
       Order characteristics:
@@ -108,7 +109,7 @@ module.exports = function (logger, order) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
-      subject: config.environment() + 'Order # ' + this.order.id + ' Validation',
+      subject: environment + 'Order # ' + this.order.id + ' Validation',
       text: `Hello,
   
       You Order # `+ this.order.id + ` has been validated.
@@ -138,7 +139,7 @@ module.exports = function (logger, order) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
-      subject: config.environment() + 'Order # ' + this.order.id + ' rejection',
+      subject: environment + 'Order # ' + this.order.id + ' rejection',
       text: `Hello,
   
       Your Order # `+ this.order.id + ` has been rejected with the following reason:
@@ -170,7 +171,7 @@ module.exports = function (logger, order) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
-      subject: config.environment() + 'Order # ' + this.order.id + ' cancellation',
+      subject: environment + 'Order # ' + this.order.id + ' cancellation',
       text: `Hello,
   
       Your Order # `+ this.order.id + ` has been cancelled.
@@ -197,11 +198,11 @@ module.exports = function (logger, order) {
   }
 
   this.orderExecuted = async function (corp) {
-    var downloadSetting = await Config.findOne({ id: "downloadSetting" }).exec();
+    var downloadSetting = await global.environment.findOne({ id: "downloadSetting" }).exec();
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
-      subject: config.environment() + 'Order # ' + this.order.id + ' Execution',
+      subject: environment + 'Order # ' + this.order.id + ' Execution',
       text: `Hello,
 
     You Order # `+ this.order.id + ` has been executed.
@@ -239,7 +240,7 @@ module.exports = function (logger, order) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
-      subject: config.environment() + 'Order #' + this.order.id.split('-')[0] + ' execution failure',
+      subject: environment + 'Order #' + this.order.id.split('-')[0] + ' execution failure',
       text: `Hello,
   
       Client Order # `+ this.order.id.split('-')[0] + ` -> ` + this.order.id + ` execution has failed with the following error:
@@ -284,7 +285,7 @@ module.exports = function (logger, order) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
-      subject: config.environment() + 'Order # ' + this.order.id + ' execution issue',
+      subject: environment + 'Order # ' + this.order.id + ' execution issue',
       text: `Hello,
   
       An issue has been encountered executing your Order # `+ this.order.id + ` Our teams are working actively to resolve the issue as quickly as possible.
@@ -315,7 +316,7 @@ module.exports = function (logger, order) {
     let mailOptions = {
       from: 'no-reply@quanthouse.com',
       to: corp.email,
-      subject: config.environment() + 'Pending Order # ' + this.order.id,
+      subject: environment + 'Pending Order # ' + this.order.id,
       text: `Hello,
   
       You Order # `+ this.order.id + ` received on ` + corp.logsPayment + ` CET is currently pending completion of the billing process.
