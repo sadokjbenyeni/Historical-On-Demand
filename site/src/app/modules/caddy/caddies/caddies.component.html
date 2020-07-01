@@ -96,16 +96,19 @@
       </mat-card>
     </mat-step>
     <mat-step *ngIf="caddy" #PSC>
-      <mat-card class="row col-md-12">
-        <mat-card-content class="col-md-10">
-          <ng-template matStepLabel>Order Confirmation</ng-template>
-          <app-caddy-table [caddy]='caddy' [symbol]='symbol'></app-caddy-table>
-          <!-- <app-price [caddy]='caddy' [symbol]='symbol' [vatValueApply]="vatValueApply"></app-price> -->
+      <mat-card class="col-md-12">
+        <mat-card-content class=" col-md-12">
+          <div class="row col-md-12">
+            <ng-template matStepLabel>Order Confirmation</ng-template>
+            <div class="col-md-10">
+              <app-caddy-table [caddy]='caddy' [symbol]='symbol'></app-caddy-table>
+            </div>
+            <div class="col-md-2" style="padding-left: 5px;">
+              <app-order-amount *ngIf="orderAmountModel" [symbol]='symbol' [orderAmount]="orderAmountModel">
+              </app-order-amount>
+            </div>
+          </div>
         </mat-card-content>
-        <div class=" col-md-2" style="padding-left: 5px;">
-          <app-order-amount *ngIf="orderAmountModel" [symbol]='symbol' [orderAmount]="orderAmountModel">
-          </app-order-amount>
-        </div>
         <mat-card-actions class="put-middle">
           <button mat-button matStepperPrevious class="border-button">Back</button>
           <button mat-button class="button-orange" (click)="submitRib()">Submit</button>

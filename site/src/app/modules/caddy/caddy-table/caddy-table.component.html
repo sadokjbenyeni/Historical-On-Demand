@@ -29,7 +29,6 @@
     <ng-container *ngFor="let c of caddy.products">
       <tr *ngIf="c?.Allproducts">
         <td class="vertical-aligning" [attr.rowspan]="c?.Allproducts?.length+1">{{ c.exchangeName }}</td>
-
         <td class="vertical-aligning">{{ dataset[c.Allproducts[0].dataset] }}</td>
         <td class="vertical-aligning">{{c.Allproducts[0].qhid}}</td>
         <td class="vertical-aligning">{{c.Allproducts[0].eid}}</td>
@@ -49,16 +48,11 @@
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
           </ng-container>
-
         </td>
-
         <ng-template #simpleBeginDate>
           <td> <span
               *ngIf="c.Allproducts[0].subscription==0">{{ c.Allproducts[0].begin_date| date:'yyyy-MM-dd' }}</span></td>
         </ng-template>
-
-
-
         <td class="datemodal vertical-aligning" *ngIf=" page==='cart';else simpleEndDate ">
           <ng-container *ngIf="c.Allproducts[0].subscription == 0">
             <input [matDatepicker]="picker" (dateChange)="DateChange(c.Allproducts[0],'end_date',$event)"
@@ -68,7 +62,6 @@
             <mat-datepicker #picker></mat-datepicker>
           </ng-container>
         </td>
-
         <ng-template #simpleEndDate>
           <td><span *ngIf="c.Allproducts[0].subscription==0">{{ c.Allproducts[0].end_date| date:'yyyy-MM-dd' }}</span>
           </td>
@@ -84,7 +77,6 @@
             (click)="delCaddies(c.Allproducts[0].id_undercmd)"></span>
         </td>
       </tr>
-
       <tr *ngFor="let prod of c.Allproducts;let i=index">
         <ng-container *ngIf="i!=0">
           <td>{{ dataset[prod.dataset] }}</td>

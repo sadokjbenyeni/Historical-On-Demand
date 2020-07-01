@@ -150,7 +150,6 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
 
     let log = {};
     let url = '/api/mail/newOrder';
-    let corp = {};
     caddy = await this.getRawCaddy(token)
     // Autovalidation Compliance
     log.date = new Date();
@@ -163,7 +162,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     caddy.addressBilling = billingInfo.addressBilling;
     //
     eids = caddy.products.map(item => item.eid)
-    corp = {
+    let corp = {
         "email": caddy.email,
         "idCmd": caddy.id,
         "paymentdate": new Date(),
@@ -171,7 +170,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
         "service": 'Compliance'
     };
     //ezjfruizehfuezifhzeuifhzeufizehfuzeifhzeufoehfgyuferçohg_àerghu_zeghazeryugh enleve le commentaire du sendmail avant de push !!!!!!!
-    // sendMail(url, corp);
+    sendMail(url, corp);
     let index = caddy.products.indexOf(product => (product.onetime === 1 && product.historical_data && (product.historical_data.backfill_agreement ||
         product.historical_data.backfill_applyfee)))
 
@@ -184,46 +183,34 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
         caddy.state = 'PVP';
     }
     log.status = caddy.state;
-    // Envoi email aux products
-
+    //preparing core mail
+    var internalMail = {
+        idCmd: caddy.id,
+        email: compliance.email,
+        lastname: caddy.lastname,
+        firstname: caddy.firstname,
+        eid: caddy.eid.join(),
+        date: new Date,
+        total: setprices(caddy),
+    };
     if (caddy.state === "PVC") {
         // Envoi email aux compliances
+        internalMail.service = "Compliance"
         const compliances = await Users.find({ roleName: "Compliance" }, { email: true, _id: false }).exec()
         compliances.forEach(compliance => {
-            //   sendMail('/api/mail/newOrderHoD',
-            //     {
-            //       idCmd: corp.idCmd,
-
-            //       email: compliance.email,
-
-            //       lastname: caddy.lastname,
-
-            //       firstname: caddy.firstname,
-
-            //       eid: caddy.eid.join(),
-            //       date: logsPayment.date,
-
-            //       total: totalttc(caddy),
-            //       service: "Compliance"
-            //     });
+            internalMail.email = compliance.email;
+            // sendMail('/api/mail/newOrderHoD', internalMail)
         });
     }
 
     if (caddy.state === "PVP") {
         // Envoi email aux products
+        internalMail.service = "Product"
         const products = await Users.find({ roleName: "Product" }, { email: true, _id: false }).exec()
         products.forEach(prod => {
-            // sendMail('/api/mail/newOrderHoD',
-            //   {
-            //     idCmd: corp.idCmd,
-            //     email: prod.email,
-            //     lastname: caddy.lastname,
-            //     firstname: caddy.firstname,
-            //     eid: caddy.eid.join(),
-            //     date: logsPayment.date,
-            //     total: totalttc(caddy),
-            //     service: "Product"
-            //   });
+            internalMail.email = prod.email;
+            // sendMail('/api/mail/newOrderHoD', internalMail);
+
         });
     }
 
@@ -253,9 +240,8 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
                 state: caddy.state,
             }
         }).exec();
-    //delete useless invoice fields
+    //delete useless products fields
     caddy.products.forEach(item => {
-
         item.subscription.forEach(item => {
             deleteuselessfields(item);
         })
@@ -296,6 +282,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     });
     return true;
 }
+
 setprices = async function (order) {
     const isvatvalid = await vatService.isVatValid(order.vat.substring(0, 2), order.vat.substring(2, order.vat.length));
     const isUe = await countryService.isUe(order.countryBilling);
