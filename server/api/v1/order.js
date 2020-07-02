@@ -292,7 +292,6 @@ router.put('/state', async (req, res) => {
   if (req.body.referer === 'Compliance') {
     try {
       await UpdateStateCompliance(orderUpdated, corp, req);
-      await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
     }
     catch (err) {
       req.logger.error({ message: err.message + '\n' + err.stack, className: 'Order API' });
@@ -301,7 +300,6 @@ router.put('/state', async (req, res) => {
   }
   if (req.body.referer === 'Product') {
     try {
-      orderUpdated.idProForma = await setInvoiceId("QH_ProFormaInvoice_");
       await UpdateStateProduct(orderUpdated, req, corp);
     }
     catch (err) {
@@ -598,6 +596,25 @@ router.get('/details/:id', async (req, res) => {
     return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
   }
   return res.status(200).json({ details: order });
+})
+
+router.put('/cancelValidation', async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401);
+  }
+  var order = await Order.findOne({ id: req.body.id }).exec();
+  await Order.updateOne({ id: order.id },
+    {
+      $set: {
+        validationProduct: false,
+        state: 'PVP',
+        logs: {
+          status: 'PVP',
+          referer: 'Compliance'
+        }
+      }
+    }).exec();
+  return res.status(200).json({ ok: true });
 })
 
 clientOrders = function (orders) {
@@ -1279,10 +1296,10 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
   return corp;
 }
 
-async function UpdateStateProduct(orderUpdate, req, corp) {
+async function UpdateStateProduct(orderUpdated, req, corp) {
   req.logger.info({ message: 'updating state product...' });
-  orderUpdate.validationProduct = true;
-  orderUpdate.reason = req.body.reason;
+  orderUpdated.validationProduct = true;
+  orderUpdated.reason = req.body.reason;
   corp = {
     "email": req.body.email,
     "reason": req.body.reason,
@@ -1292,6 +1309,12 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
   };
   // Email validation au pvf
   var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
+  if (!order.idProForma) {
+    orderUpdated.idProForma = await setInvoiceId("QH_ProFormaInvoice_");
+  }
+  else {
+    orderUpdated.idProForma = order.idProForma;
+  }
   let eids = [];
   if (req.body.status === "cancelled") {
     await Pool.remove({ id: req.body.idCmd.split("-")[0] }).exec()
@@ -1327,8 +1350,8 @@ async function UpdateStateProduct(orderUpdate, req, corp) {
   if (req.body.status !== "cancelled") {
     var users = await User.find({ roleName: "Product" }).exec();
     var mailer = new OrderMailService(req.logger, order);
-    await new OrderPdfService(order).createInvoicePdf(req.logger, orderUpdate.idProForma, 'Pro Forma Invoice Nbr');
-    await new InvoiceService().updateProFormatInformation(order.id, orderUpdate.idProForma);
+    await new OrderPdfService(order).createInvoicePdf(req.logger, orderUpdated.idProForma, 'Pro Forma Invoice Nbr');
+    await new InvoiceService().updateProFormatInformation(order.id, orderUpdated.idProForma);
     users.forEach(async user => {
       try {
         await mailer.newOrderHod(user.email,

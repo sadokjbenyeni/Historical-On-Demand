@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
+import { env } from 'process';
 
 @Injectable({
   providedIn: 'root'
@@ -118,8 +119,8 @@ export class OrderService {
     return this.http.get<any>(environment.api + '/support/orderProductLog/' + orderId);
   }
 
-  // createInvoice(orderObjectId: String, commandId: String, userId: String) {
-  //   return this.http.post<any>(environment.api + '/invoice', { orderObjectId: orderObjectId, commandId: commandId, userId: userId });
-  // }
+  cancelProductValidation(orderId) {
+    return this.http.put<any>(environment.api + '/order/cancelValidation', { id: orderId });
+  }
 }
 

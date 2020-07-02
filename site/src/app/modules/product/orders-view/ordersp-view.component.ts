@@ -326,4 +326,8 @@ export class OrderspViewComponent implements OnInit {
     }
     );
   }
+
+  cancelValidation() {
+    this.orderService.cancelProductValidation(this.idOrder).subscribe();
+  }
 }

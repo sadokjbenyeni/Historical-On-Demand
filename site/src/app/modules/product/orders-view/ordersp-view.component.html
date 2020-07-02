@@ -30,7 +30,8 @@
               <p>Payment method : <b>{{ payment }}</b></p>
               <p>Invoice : <b> <a target="_blank" *ngIf="invoice" (click)="downloadInvoice(invoice, 'invoice')">Download
                     Invoice/</a>
-                  <a target="_blank" *ngIf="proForma" (click)="downloadInvoice(proForma, 'pro format invoice')">
+                  <a target="_blank" *ngIf="proForma && state=='PVF'"
+                    (click)="downloadInvoice(proForma, 'pro format invoice')">
                     Pro Forma Invoice</a></b></p>
               <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b></p>
               <p>Order Type:
@@ -155,6 +156,9 @@
               (click)="openModal(content); actions('Confirm Client Order Rejection')"> Reject</span>
             <span class="btn btn-warning fa fa-trash" *ngIf="verifStateForCancel()"
               (click)="openModal(content); actions('Confirm Client Order Cancelation')"> Cancel Order</span>
+            <span class="btn btn-warning fa fa-trash" *ngIf="state=='PVF'" (click)="cancelValidation()"
+              [routerLink]='["/product/orders"]'> Cancel
+              Validation</span>
           </div>
         </div>
       </div>
