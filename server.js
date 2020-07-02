@@ -12,8 +12,8 @@ const randtoken = require("rand-token");
 const cors = require("cors");
 const cron = require("node-cron");
 
-const MDB = require("./server/config/configmdb.js").mdb;
-const Config = require("./server/config/config.js");
+//const MDB = require("./server/config/configmdb.js").mdb;
+//const Config = require("./server/config/config.js");
 
 //loading environment variables into global environment
 global.environment = require("./server/environment/environment.json");

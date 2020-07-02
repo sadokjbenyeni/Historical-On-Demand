@@ -170,7 +170,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
         "service": 'Compliance'
     };
     //ezjfruizehfuezifhzeuifhzeufizehfuzeifhzeufoehfgyuferçohg_àerghu_zeghazeryugh enleve le commentaire du sendmail avant de push !!!!!!!
-    sendMail(url, corp);
+    //sendMail(url, corp);
     let index = caddy.products.indexOf(product => (product.onetime === 1 && product.historical_data && (product.historical_data.backfill_agreement ||
         product.historical_data.backfill_applyfee)))
 
@@ -186,10 +186,9 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     //preparing core mail
     var internalMail = {
         idCmd: caddy.id,
-        email: compliance.email,
         lastname: caddy.lastname,
         firstname: caddy.firstname,
-        eid: caddy.eid.join(),
+        eid: eids.join(),
         date: new Date,
         total: setprices(caddy),
     };
