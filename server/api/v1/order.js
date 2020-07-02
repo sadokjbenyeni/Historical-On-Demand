@@ -8,6 +8,7 @@ const Order = mongoose.model('Order');
 const Pool = mongoose.model('Pool');
 const User = mongoose.model('User');
 const Currency = mongoose.model('Currency');
+const Invoices = mongoose.model('Invoice')
 
 
 //const config = require('../../config/config.js');
@@ -1309,7 +1310,8 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
   };
   // Email validation au pvf
   var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
-  if (!order.idProForma) {
+  var invoice = await Invoices.findOne({ orderId: order.id }).exec();
+  if (!invoice.proFormatId) {
     orderUpdated.idProForma = await setInvoiceId("QH_ProFormaInvoice_");
   }
   else {
@@ -1350,13 +1352,13 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
   if (req.body.status !== "cancelled") {
     var users = await User.find({ roleName: "Product" }).exec();
     var mailer = new OrderMailService(req.logger, order);
-    await new OrderPdfService(order).createInvoicePdf(req.logger, orderUpdated.idProForma, 'Pro Forma Invoice Nbr');
+    await new OrderPdfService(invoice).createInvoicePdf(req.logger, orderUpdate.idProForma, 'Pro Forma Invoice Nbr');
     await new InvoiceService().updateProFormatInformation(order.id, orderUpdated.idProForma);
     users.forEach(async user => {
       try {
         await mailer.newOrderHod(user.email,
           "Finance",
-          totalttc(order));
+          invoice.total);
       }
       catch (error) {
         req.logger.error({ message: error.message, className: "Order API" });

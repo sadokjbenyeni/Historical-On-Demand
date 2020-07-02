@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
     return res.status(403).json({ message: "Access denied. Please contact support with identifier: [" + req.headers.loggerToken + "]" });
   }
   try {
-    await new OrderPdfService().generateInvoice(order.id, log);
+    await new OrderPdfService().generatePdfFile(order.id, log);
   }
   catch (error) {
     req.logger.error({ error: error, message: error.message, className: "PDF API" });
@@ -148,7 +148,7 @@ pdf = function (logger, cmd, currency, user, country, invoiceType) {
   invoice['content'] = content;
   let totalHT = priceCurrency(cmd.totalHT + cmd.totalExchangeFees, cmd.currency, cmd.currencyTxUsd, cmd.currencyTx);
   let total = priceCurrency(cmd.total, cmd.currency, cmd.currencyTxUsd, cmd.currencyTx);
-  invoice['footer'] = footer(logger, totalHT, (totalHT * cmd.vatValue), total, currency, cmd.reason, cmd.vat, country, cmd.vatValide, user);
+  invoice['footer'] = footer(logger, totalHT, (totalHT * cmd.vatValue), total, currency, country, cmd.vatValide);
 
   // createInvoice(invoiceDetails);
 
@@ -175,69 +175,69 @@ qhAddress = function (address, cp, city, country, sasu, rcs, vat, invoiceBilling
   };
 };
 
-getOrders = function (orders, vatValue, styl, currency, txUsd, tx, country) {
-  let pervat = 0;
-  if (country.ue === "1") {
-    pervat = vatValue * 100;
-  }
+// getOrders = function (orders, vatValue, styl, currency, txUsd, tx, country) {
+//   let pervat = 0;
+//   if (country.ue === "1") {
+//     pervat = vatValue * 100;
+//   }
 
-  let listOrders = [];
-  let border = [false, false, false, true];
-  let typeOrder = "";
-  let description = "";
-  let dataset = "";
-  let dateDebut = "";
-  let dateFin = "";
-  if (orders.length > 0) {
-    orders.forEach(order => {
-      description = order.description;
-      if (order.description === "") {
-        description = order.contractid;
-      }
-      if (order.onetime === 1) {
-        typeOrder = "One-Off";
-        dateDebut = calendar(order.begin_date_select);
-        dateFin = calendar(order.end_date_select);
-      }
-      if (order.subscription === 1) {
-        typeOrder = "Subscription";
-        dateDebut = calendar(order.begin_date_ref);
-        dateFin = calendar(order.end_date_ref);
-      }
-      if (order.quotation_level === "L1TRADEONLY") {
-        dataset = "L1 - Trades"
-      } else {
-        dataset = order.quotation_level;
-      }
-      listOrders.push([
-        {
-          border: border,
-          text: order.idx + '\t' + typeOrder + " " + dataset + "\n" + description,
-          fontSize: 10
-        },
-        { border: border, text: "1", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-        // { border: border, text: order.period, margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
-        { border: border, text: dateDebut, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-        { border: border, text: dateFin, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-        { border: border, text: priceCurrency(order.ht, currency, txUsd, tx), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-        { border: border, text: pervat + '%', margin: [0, 5, 0, 5], bold: true, alignment: 'center', fontSize: 10 }
-        // { border: border, text: (priceCurrency(order.ht, currency, txUsd, tx) * vatValue).toFixed(2), margin: [0,5,0,5], bold: true, alignment: 'center', fontSize: 10 }
-      ]);
+//   let listOrders = [];
+//   let border = [false, false, false, true];
+//   let typeOrder = "";
+//   let description = "";
+//   let dataset = "";
+//   let dateDebut = "";
+//   let dateFin = "";
+//   if (orders.length > 0) {
+//     orders.forEach(order => {
+//       description = order.description;
+//       if (order.description === "") {
+//         description = order.contractid;
+//       }
+//       if (order.onetime === 1) {
+//         typeOrder = "One-Off";
+//         dateDebut = calendar(order.begin_date_select);
+//         dateFin = calendar(order.end_date_select);
+//       }
+//       if (order.subscription === 1) {
+//         typeOrder = "Subscription";
+//         dateDebut = calendar(order.begin_date_ref);
+//         dateFin = calendar(order.end_date_ref);
+//       }
+//       if (order.quotation_level === "L1TRADEONLY") {
+//         dataset = "L1 - Trades"
+//       } else {
+//         dataset = order.quotation_level;
+//       }
+//       listOrders.push([
+//         {
+//           border: border,
+//           text: order.idx + '\t' + typeOrder + " " + dataset + "\n" + description,
+//           fontSize: 10
+//         },
+//         { border: border, text: "1", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+//         // { border: border, text: order.period, margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
+//         { border: border, text: dateDebut, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+//         { border: border, text: dateFin, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+//         { border: border, text: priceCurrency(order.ht, currency, txUsd, tx), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+//         { border: border, text: pervat + '%', margin: [0, 5, 0, 5], bold: true, alignment: 'center', fontSize: 10 }
+//         // { border: border, text: (priceCurrency(order.ht, currency, txUsd, tx) * vatValue).toFixed(2), margin: [0,5,0,5], bold: true, alignment: 'center', fontSize: 10 }
+//       ]);
 
-      if (order.backfill_fee > 0 || order.ongoing_fee > 0) {
-        listOrders.push([
-          { border: border, text: "\tExchanges fees", margin: [0, 5, 0, 5], fontSize: 10 },
-          { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-          { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-          { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-          { border: border, text: priceCurrency((order.backfill_fee ? order.backfill_fee : order.ongoing_fee), currency, txUsd, tx), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-          { border: border, text: pervat + '%', margin: [0, 5, 0, 5], bold: true, alignment: 'center', fontSize: 10 }
-        ]);
-      }
-    });
-  }
-  return listOrders;
-};
+//       if (order.backfill_fee > 0 || order.ongoing_fee > 0) {
+//         listOrders.push([
+//           { border: border, text: "\tExchanges fees", margin: [0, 5, 0, 5], fontSize: 10 },
+//           { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+//           { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+//           { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+//           { border: border, text: priceCurrency((order.backfill_fee ? order.backfill_fee : order.ongoing_fee), currency, txUsd, tx), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+//           { border: border, text: pervat + '%', margin: [0, 5, 0, 5], bold: true, alignment: 'center', fontSize: 10 }
+//         ]);
+//       }
+//     });
+//   }
+//   return listOrders;
+// };
 
 
 adresse = function (numInvoice, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency, invoiceType) {
@@ -375,7 +375,7 @@ head = function (numInvoice, numAccount, idTax, invoiceDate, paymentDate, numCmd
   };
 };
 
-footer = function (logger, totalHt, totalVat, totalTTC, currency, message, vat, country, vatok, user) {
+footer = function (logger, totalHt, totalVat, totalTTC, currency, country, vatok) {
   logger.info({ message: country, className: 'PDF Api' });
   let mentionvat = "";
   // Facture avec TVA : (client en France ou client en EU sans n° de TVA)

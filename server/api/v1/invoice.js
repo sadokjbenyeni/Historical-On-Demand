@@ -60,9 +60,9 @@ router.get('/generate/:orderId', async (req, res) => {
     if (!req.params.orderId) {
         return res.status(400).json({ error: "No order id provided" })
     }
-    var order = await Orders.findOne({ id: req.params.orderId }).exec();
+    var invoice = await Invoices.findOne({ orderId: req.params.orderId }).exec();
     try {
-        await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande, 'Pro Forma Invoice Nbr');
+        await new OrderPdfService(invoice).createInvoicePdf(req.logger, invoice.invoiceId, 'Pro Forma Invoice Nbr');
     }
     catch (error) {
         req.logger.error({ error: error, className: "Invoice API" });

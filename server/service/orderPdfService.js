@@ -19,7 +19,7 @@ module.exports = function (order) {
 
   this.createInvoicePdf = async function (logger, invoiceId, invoiceType) {
     logger.info({ message: "creating invoice in pdf...", className: "Order PDF Service" });
-    var user = await User.findOne({ _id: this.order.idUser }).exec(); //.then(u => {    
+    var user = await User.findOne({ _id: this.order.userId }).exec(); //.then(u => {    
     var country = await Countrie.findOne({ id: this.order.countryBilling }).exec(); //.then(cnt => {
     var currency = await Currency.findOne({ id: this.order.currency }).exec(); // .then(c => {
     this.generatePdfFile(logger, currency, user, country, invoiceId, invoiceType);
@@ -88,7 +88,7 @@ module.exports = function (order) {
     let defaultStyle = {};
     // Header
     content.push(
-      adresse(invoiceId, user.id, this.order.vat, this.calendar(new Date()), this.calendar(this.order.submissionDate), this.order.id, currency.name, invoiceType),
+      adresse(invoiceId, user.id, this.order.vat, this.calendar(new Date()), this.calendar(this.order.submissionDate), this.order.orderId, currency.name, invoiceType),
       // Billing Address
       '\n',
       billinAddress(this.order.companyName, this.order.addressBilling, this.order.postalCodeBilling, this.order.cityBilling, this.order.countryBilling),
@@ -115,7 +115,7 @@ module.exports = function (order) {
           headerRows: 0,
           widths: [200, 30, 65, 65, 100, 50],
           margin: [0, 0, 0, 0],
-          body: getOrders(this.order.products, this.order.vatValue, style, this.order.currency, this.order.currencyTxUsd, this.order.currencyTx, country, user)
+          body: getOrders(this.order.products, this.order.vatValue, country, user)
         },
         layout: { defaultBorder: false }
       }
@@ -126,9 +126,9 @@ module.exports = function (order) {
     invoice['defaultStyle'] = defaultStyle;
     invoice['header'] = header;
     invoice['content'] = content;
-    let totalHT = priceCurrency(this.order.totalHT + this.order.totalExchangeFees, this.order.currency, this.order.currencyTxUsd, this.order.currencyTx);
-    let total = priceCurrency(this.order.total, this.order.currency, this.order.currencyTxUsd, this.order.currencyTx);
-    invoice['footer'] = footer(logger, totalHT, (totalHT * this.order.vatValue), total, currency, this.order.reason, this.order.vat, country, this.order.vatValide, user);
+    // let totalHT = priceCurrency(this.order.totalHT + this.order.totalExchangeFees, this.order.currency, this.order.currencyTxUsd, this.order.currencyTx);
+    // let total = priceCurrency(this.order.total, this.order.currency, this.order.currencyTxUsd, this.order.currencyTx);
+    invoice['footer'] = footer(logger, this.order.totalHT, this.order.totalVat, this.order.total, currency, country, this.order.vatValide);
 
     // createInvoice(invoiceDetails);
 
@@ -279,7 +279,7 @@ module.exports = function (order) {
     };
   };
 
-  this.footer = function (logger, totalHt, totalVat, totalTTC, currency, message, vat, country, vatok, user) {
+  this.footer = function (logger, totalHt, totalVat, totalTTC, currency, country, vatok) {
     logger.info({ message: country, className: 'PDF Api' });
     let mentionvat = "";
     // Facture avec TVA : (client en France ou client en EU sans n° de TVA)
@@ -378,14 +378,14 @@ module.exports = function (order) {
   };
 
 
-  this.priceCurrency = function (price, currency, txUsd, tx) {
+  // this.priceCurrency = function (price, currency, txUsd, tx) {
 
-    if (currency !== 'usd') {
-      return precisionRound((price / txUsd) * tx, 2);
-    } else {
-      return precisionRound(price, 2);
-    }
-  };
+  //   if (currency !== 'usd') {
+  //     return precisionRound((price / txUsd) * tx, 2);
+  //   } else {
+  //     return precisionRound(price, 2);
+  //   }
+  // };
 
   this.clone = function (obj) {
     try {
@@ -395,4 +395,58 @@ module.exports = function (order) {
     }
     return copy;
   };
+
+
+
+
+  getOrders = function (orders, vatValue, country) {
+
+    var pervat = country.ue === "1" ? (vatValue * 100) : 0;
+    let listOrders = [];
+    let border = [false, false, false, true];
+    orders.forEach(
+      eid => {
+        eid.allproducts = eid.subscription.concat(eid.onetime)
+      })
+    if (orders.length > 0) {
+      orders.forEach(eid => {
+        eid.allproducts.forEach(product => {
+          addProduct(listOrders, product, eid.exchangefee, border, pervat);
+        });
+      })
+    }
+    return listOrders;
+  };
+  function addProduct(listOrders, product, exchangefee, border, pervat) {
+    let description = product.description ? product.description : product.contractid;
+    var typeOrder = product.onetime === 1 ? "One-Off" : "Subscription";
+    var dateDebut = product.onetime === 1 ? calendar(product.begin_date) : calendar(product.begin_date_ref);
+    var dateFin = product.onetime === 1 ? calendar(product.end_date) : calendar(product.end_date_ref);
+    var dataset = product.dataset === "L1TRADEONLY" ? "L1 - Trades" : product.dataset
+    listOrders.push([
+      {
+        border: border,
+        text: product.idx + '\t' + typeOrder + " " + dataset + "\n" + description,
+        fontSize: 10
+      },
+      { border: border, text: "1", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+      // { border: border, text: order.period, margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
+      { border: border, text: dateDebut, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+      { border: border, text: dateFin, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+      { border: border, text: Math.round(product.ht), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+      { border: border, text: pervat + '%', margin: [0, 5, 0, 5], bold: true, alignment: 'center', fontSize: 10 }
+      // { border: border, text: (priceCurrency(order.ht, currency, txUsd, tx) * vatValue).toFixed(2), margin: [0,5,0,5], bold: true, alignment: 'center', fontSize: 10 }
+    ]);
+
+    if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
+      listOrders.push([
+        { border: border, text: "\tExchanges fees", margin: [0, 5, 0, 5], fontSize: 10 },
+        { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+        { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+        { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+        { border: border, text: exchangefee, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+        { border: border, text: pervat + '%', margin: [0, 5, 0, 5], bold: true, alignment: 'center', fontSize: 10 }
+      ]);
+    }
+  }
 }

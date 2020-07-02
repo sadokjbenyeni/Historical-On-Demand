@@ -170,7 +170,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
         "service": 'Compliance'
     };
     //ezjfruizehfuezifhzeuifhzeufizehfuzeifhzeufoehfgyuferçohg_àerghu_zeghazeryugh enleve le commentaire du sendmail avant de push !!!!!!!
-    //sendMail(url, corp);
+    // sendMail(url, corp);
     let index = caddy.products.indexOf(product => (product.onetime === 1 && product.historical_data && (product.historical_data.backfill_agreement ||
         product.historical_data.backfill_applyfee)))
 
@@ -184,35 +184,6 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     }
     log.status = caddy.state;
     //preparing core mail
-    var internalMail = {
-        idCmd: caddy.id,
-        lastname: caddy.lastname,
-        firstname: caddy.firstname,
-        eid: eids.join(),
-        date: new Date,
-        total: setprices(caddy),
-    };
-    if (caddy.state === "PVC") {
-        // Envoi email aux compliances
-        internalMail.service = "Compliance"
-        const compliances = await Users.find({ roleName: "Compliance" }, { email: true, _id: false }).exec()
-        compliances.forEach(compliance => {
-            internalMail.email = compliance.email;
-            // sendMail('/api/mail/newOrderHoD', internalMail)
-        });
-    }
-
-    if (caddy.state === "PVP") {
-        // Envoi email aux products
-        internalMail.service = "Product"
-        const products = await Users.find({ roleName: "Product" }, { email: true, _id: false }).exec()
-        products.forEach(prod => {
-            internalMail.email = prod.email;
-            // sendMail('/api/mail/newOrderHoD', internalMail);
-
-        });
-    }
-
 
     let cube = await fluxService.getCube();
     caddy.totalExchangeFees = await feesService.calculatefeesOfOrder(caddy, currency, cube);
@@ -279,13 +250,41 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
             console.log(error);
         }
     });
+    var internalMail = {
+        idCmd: caddy.id,
+        lastname: caddy.lastname,
+        firstname: caddy.firstname,
+        eid: eids.join(),
+        date: new Date,
+        total: caddy.total,
+    };
+    if (caddy.state === "PVC") {
+        // Envoi email aux compliances
+        internalMail.service = "Compliance"
+        const compliances = await Users.find({ roleName: "Compliance" }, { email: true, _id: false }).exec()
+        compliances.forEach(compliance => {
+            internalMail.email = compliance.email;
+            // sendMail('/api/mail/newOrderHoD', internalMail)
+        });
+    }
+
+    if (caddy.state === "PVP") {
+        // Envoi email aux products
+        internalMail.service = "Product"
+        const products = await Users.find({ roleName: "Product" }, { email: true, _id: false }).exec()
+        products.forEach(prod => {
+            internalMail.email = prod.email;
+            // sendMail('/api/mail/newOrderHoD', internalMail);
+
+        });
+    }
     return true;
 }
 
 setprices = async function (order) {
     const isvatvalid = await vatService.isVatValid(order.vat.substring(0, 2), order.vat.substring(2, order.vat.length));
     const isUe = await countryService.isUe(order.countryBilling);
-    if (order.addressBilling == "FR" || (!isvatvalid && isUe.ue == 1)) {
+    if (order.countryBilling == "FR" || (!isvatvalid && isUe.ue == 1)) {
         let vatDetails = await configService.getVat();
         order.vatValue = vatDetails.valueVat / 100;
         order.totalVat = order.totalHT * order.vatValue;
