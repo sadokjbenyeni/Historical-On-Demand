@@ -21,7 +21,7 @@ router.get('/download/:orderId/:pdfType', async (req, res) => {
     // var user = await User.findOne({ token: req.headers.authorization }).exec();
 
     var order = await Orders.findOne({ id: req.params.orderId }).exec();
-    var invoice = await Invoices.findOne({ orderId: req.params.orderId }).exec();
+    // var invoice = await Invoices.findOne({ orderId: req.params.orderId }).exec();
     let directory = '';
     if (req.params.pdfType == 'invoice') {
         directory = await new InvoiceService().getInvoicePath(order.id);
@@ -38,7 +38,6 @@ router.get('/download/:orderId/:pdfType', async (req, res) => {
     //         await new OrderPdfService(order).createInvoicePdf(req.logger, order.idCommande, 'Pro Forma Invoice Nbr');
     //     }
     //     await new InvoiceService().updateInvoiceInformation(order.id, order.idCommande);
-
     // }
     var filename = path.basename(directory);
     var mimetype = mime.lookup(directory);

@@ -433,8 +433,8 @@ module.exports = function (order) {
       // { border: border, text: order.period, margin: [0,5,0,5], alignment: 'center', fontSize: 10 },
       { border: border, text: dateDebut, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
       { border: border, text: dateFin, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-      { border: border, text: Math.round(product.ht), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-      { border: border, text: pervat + '%', margin: [0, 5, 0, 5], bold: true, alignment: 'center', fontSize: 10 }
+      { border: border, text: product.ht.toFixed(2), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+      { border: border, text: (pervat * 100) + '%', margin: [0, 5, 0, 5], bold: true, alignment: 'center', fontSize: 10 }
       // { border: border, text: (priceCurrency(order.ht, currency, txUsd, tx) * vatValue).toFixed(2), margin: [0,5,0,5], bold: true, alignment: 'center', fontSize: 10 }
     ]);
 
@@ -445,7 +445,7 @@ module.exports = function (order) {
         { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
         { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
         { border: border, text: exchangefee, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-        { border: border, text: pervat + '%', margin: [0, 5, 0, 5], bold: true, alignment: 'center', fontSize: 10 }
+        { border: border, text: (pervat * 100) + '%', margin: [0, 5, 0, 5], bold: true, alignment: 'center', fontSize: 10 }
       ]);
     }
   }

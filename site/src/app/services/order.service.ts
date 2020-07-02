@@ -103,8 +103,8 @@ export class OrderService {
     return this.http.put<any>(environment.api + '/order/updatemetadata', { id: orderId, note: internalNote, sales: sales, type: OrderType });
   }
 
-  getClientOrders(httpOptions) {
-    return this.http.get<any>(environment.api + '/order', httpOptions);
+  getClientOrders() {
+    return this.http.get<any>(environment.api + '/order');
   }
 
   getOrderDetailsById(orderId, httpOptions) {

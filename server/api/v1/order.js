@@ -629,13 +629,8 @@ clientOrders = function (orders) {
     container.idProForma = order.idProForma;
     container.submissionDate = order.submissionDate;
     container.state = order.state;
-    container.totalHT = order.totalHT;
     container.currency = order.currency;
-    container.totalExchangeFees = order.totalExchangeFees;
-    container.currencyTxUsd = order.currencyTxUsd;
-    container.currencyTx = order.currencyTx;
-    container.discount = order.discount;
-    container.vatValue = order.vatValue;
+    container.total = order.total;
     return container;
   });
 }
@@ -953,8 +948,8 @@ buildSearch = function (req) {
 
 pdfpost = async function (id, logger, invoiceId, invoiceType) {
   try {
-    var order = await Order.findOne({ id: id }).exec();
-    await new OrderPdfService(order).createInvoicePdf(logger, invoiceId, invoiceType);
+    var invoice = await Invoices.findOne({ orderId: id }).exec();
+    await new OrderPdfService(invoice).createInvoicePdf(logger, invoiceId, invoiceType);
   }
   catch (error) {
     logger.error({ message: error.message, className: "Order API" });
