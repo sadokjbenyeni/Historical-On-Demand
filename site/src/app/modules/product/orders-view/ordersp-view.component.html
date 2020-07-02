@@ -35,19 +35,21 @@
                     Pro Forma Invoice</a></b></p>
               <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b></p>
               <p>Order Type:
-                <select name="search" class=" input-border-color" [(ngModel)]="choosedOrderType">
+                <select name="search" class=" input-border-color" [(ngModel)]="choosedOrderType" *ngIf="state=='PVP'">
                   <option value="NA">NA</option>
                   <option value="Client order">Client order </option>
                   <option value="Free sample order for client">Free sample order for client </option>
                   <option value="Internal order">Internal order </option>
-
-                </select></p>
+                </select>
+                <b *ngIf="state!='PVP'"><span [class]=" textcolor">{{ choosedOrderType }}</span></b>
+              </p>
               <p>Sales:
-                <select name="search" class=" input-border-color" [(ngModel)]="choosenSale">
+                <select name="search" class=" input-border-color" [(ngModel)]="choosenSale" *ngIf="state=='PVP'">
                   <option value="no sales">no sales</option>
                   <option *ngFor='let s of listSales' [value]="s.name">{{s.name}}</option>
-                </select></p>
-
+                </select>
+                <b *ngIf="state!='PVP'"><span [class]=" textcolor">{{ choosenSale }}</span></b>
+              </p>
             </div>
             <div class="col-md-6">
               <p>Company Name: <b>{{ company }}</b></p>
@@ -123,9 +125,9 @@
               </tr>
               <tr>
                 <td>Discount (%)</td>
-                <td *ngIf="verifState()"><input type="number" [(ngModel)]="discount" (change)="verifDiscount()" min="0"
+                <td *ngIf="state=='PVP'"><input type="number" [(ngModel)]="discount" (change)="verifDiscount()" min="0"
                     max="100" style="width:100%"></td>
-                <td *ngIf="!verifState()">{{ discount }}</td>
+                <td *ngIf="state!='PVP'">{{ discount }}</td>
               </tr>
               <tr>
                 <td>VAT ({{vat*100}}%)</td>
@@ -141,20 +143,20 @@
         </div>
         <div class="table-responsive text-center">
           <div class="btn-action">
-            <span class="btn btn-info fa fa-save save-note-btn" id="save-changes-button" (click)="updateChanges();">
-              Save
-              Changes</span>
+            <span class="btn btn-info fa fa-save save-note-btn" *ngIf="state=='PVP'" id="save-changes-button"
+              (click)="updateChanges();">
+              Save Changes</span>
             <span class="btn btn-info fa fa-save save-changes-btn" *ngIf="existSubscribe && verifState()"
               (click)="openModal(content); actions('Confirm Engagement Period Modification')"> Update Engagement
               Period</span>
-            <span class="btn btn-info fa fa-save" *ngIf="verifState()"
+            <span class="btn btn-info fa fa-save" *ngIf="verifState() && state=='PVP'"
               (click)="openModal(content); actions('Confirm Discount Application')"> Apply Discount</span>
-            <span class="btn btn-success fa fa-handshake" *ngIf="verifStatePVP()"
+            <span class="btn btn-success fa fa-handshake" *ngIf="verifStatePVP() && state=='PVP'"
               (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
             <span class="btn btn-danger fa fa-power-off" [routerLink]='["/product/orders"]'> Close</span>
-            <span class="btn btn-danger fa fa-times" *ngIf="verifStatePVP()"
+            <span class="btn btn-danger fa fa-times" *ngIf="verifStatePVP() && state=='PVP'"
               (click)="openModal(content); actions('Confirm Client Order Rejection')"> Reject</span>
-            <span class="btn btn-warning fa fa-trash" *ngIf="verifStateForCancel()"
+            <span class="btn btn-warning fa fa-trash" *ngIf="verifStateForCancel() && state=='PVP'"
               (click)="openModal(content); actions('Confirm Client Order Cancelation')"> Cancel Order</span>
             <span class="btn btn-warning fa fa-trash" *ngIf="state=='PVF'" (click)="cancelValidation()"
               [routerLink]='["/product/orders"]'> Cancel
