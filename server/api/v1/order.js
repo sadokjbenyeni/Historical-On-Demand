@@ -1347,7 +1347,7 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
   if (req.body.status !== "cancelled") {
     var users = await User.find({ roleName: "Product" }).exec();
     var mailer = new OrderMailService(req.logger, order);
-    await new OrderPdfService(invoice).createInvoicePdf(req.logger, orderUpdate.idProForma, 'Pro Forma Invoice Nbr');
+    await new OrderPdfService(invoice).createInvoicePdf(req.logger, orderUpdated.idProForma, 'Pro Forma Invoice Nbr');
     await new InvoiceService().updateProFormatInformation(order.id, orderUpdated.idProForma);
     users.forEach(async user => {
       try {
