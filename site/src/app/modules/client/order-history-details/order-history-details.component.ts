@@ -21,7 +21,7 @@ import { ClientInformation } from '../models/client-information.model';
 import { DownloadInvoiceService } from '../../../services/Intern/download-invoice.service';
 import { OrderAmount } from '../../order/models/order-amount.model';
 import { OrderInformation } from '../../order/models/order-information.model';
-import { Product } from '../../../models/Order/product';
+import { Product } from '../../../core/models/product.model';
 
 const httpOptions = {
   headers: new HttpHeaders({

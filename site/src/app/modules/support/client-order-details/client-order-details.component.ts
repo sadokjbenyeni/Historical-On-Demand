@@ -8,7 +8,7 @@ import { CurrencyService } from '../../../services/currency.service';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from '../../../../environments/environment';
-import { OrderDetails } from '../../../models/Order/order-details';
+import { OrderDetails } from '../../../core/models/order-details.model';
 import { OrderHistoryDetailsComponent } from '../../client/order-history-details/order-history-details.component';
 import { DownloadInvoiceService } from '../../../services/Intern/download-invoice.service';
 import { InvoiceService } from '../../../services/invoice.service';

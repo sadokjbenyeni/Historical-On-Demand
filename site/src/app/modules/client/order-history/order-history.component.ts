@@ -9,7 +9,7 @@ import { MatSort } from '@angular/material/sort';
 
 import { map } from 'rxjs/operators';
 import { DownloadInvoiceService } from '../../../services/Intern/download-invoice.service';
-import { OrderPreview } from '../../../models/Order/order-preview';
+import { OrderPreview } from '../../../core/models/order-preview.model';
 
 @Component({
   selector: 'app-order-history',

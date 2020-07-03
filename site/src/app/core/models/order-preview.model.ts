@@ -1,5 +1,4 @@
 export class OrderPreview {
-
     orderId: string;
     submissionDateTime: string;
     orderStatus: string;
