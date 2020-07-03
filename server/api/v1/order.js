@@ -563,21 +563,14 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
+
   if (!req.headers.authorization) {
-    // console.error(new Date() + " | [" + req.headers.loggerToken + "] | Order API | Access denied at this resource");
     req.logger.error({ message: "Access denied at this resource", className: "Order API" });
     return res.status(401).json({ message: 'Access denied at this resource, please contact the support with ticket identifier: ' + req.headers.loggerToken });
   }
-  User.findOne({ token: req.headers.authorization }, { _id: true })
-    .then((result) => {
-      Order.find({ idUser: result._id })
-        .collation({ locale: "en" })
-        .then((orders) => {
-          orders = clientOrders(orders);
-          return res.status(200).json({ listorders: orders });
-        });
-    });
+  const orders = await OrderService.getUserOrdersHistory(req.headers.authorization)
+  res.status(200).json({ listorders: orders });
 });
 
 router.get('/details/:id', async (req, res) => {
@@ -618,22 +611,7 @@ router.put('/cancelValidation', async (req, res) => {
   return res.status(200).json({ ok: true });
 })
 
-clientOrders = function (orders) {
 
-  return orders.map(order => {
-    const container = {};
-
-    container._id = order._id;
-    container.id = order.id;
-    container.idCommande = order.idCommande;
-    container.idProForma = order.idProForma;
-    container.submissionDate = order.submissionDate;
-    container.state = order.state;
-    container.currency = order.currency;
-    container.total = order.total;
-    return container;
-  });
-}
 
 clientOrderDetails = function (order) {
   if (!order) {

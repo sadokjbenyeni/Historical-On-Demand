@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 
 let InvoiceSchema = new mongoose.Schema({
     orderId: { type: Number, maxlength: 200 },
+    orderIdReference: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
     invoiceId: { type: String, maxlength: 200 },
     proFormatId: { type: String, maxlength: 200 },
     userId: { type: String, maxlength: 200 },

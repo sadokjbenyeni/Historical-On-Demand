@@ -9,6 +9,37 @@ const fluxService = require('./fluxService');
 const countryService = require('../service/countryService');
 const configService = require('../service/configService');
 const vatService = require('../service/vatService');
+const userService = require('../service/userService');
+const { invoice } = require('paypal-rest-sdk');
+
+
+module.exports.getUserOrdersHistory = async (token) => {
+    const user = await userService.GetUserByToken(token);
+    var caddy = await this.getCaddy(token);
+    var invoices = await Invoices.find({ userId: user._id }).exec();
+    invoices = invoices.map(item =>
+        ToOrderDto(item, false)
+    )
+    if (caddy) {
+        caddy = ToOrderDto(caddy, true)
+        invoices = invoices.concat(caddy);
+    }
+    return invoices;
+
+}
+
+function ToOrderDto(order, isCaddy) {
+    return order = {
+        _id: isCaddy ? order._id : order.orderIdReference,
+        id: isCaddy ? order.id : order.orderId,
+        idCommande: isCaddy ? order.idCommande : order.invoiceId,
+        idProForma: isCaddy ? order.idProForma : order.proFormatId,
+        submissionDate: order.submissionDate,
+        state: order.state,
+        currency: order.currency,
+        total: isCaddy ? order.totalHT : order.total,
+    }
+}
 
 module.exports.updateOrderMetaData = async (id, note, sales, type) => {
     var orderToUpdate = await Orders.findOne({ id: id }).exec();
@@ -221,6 +252,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     });
     var invoice = new Invoices(
         {
+            orderIdReference: caddy._id,
             orderId: caddy.id,
             totalHT: caddy.totalHT,
             total: caddy.total,
