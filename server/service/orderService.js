@@ -15,20 +15,20 @@ const { invoice } = require('paypal-rest-sdk');
 
 module.exports.getUserOrdersHistory = async (token) => {
     const user = await userService.GetUserByToken(token);
-    var caddy = await this.getCaddy(token);
+    var caddy = await this.getCaddy(token, undefined, user);
     var invoices = await Invoices.find({ userId: user._id }).exec();
     invoices = invoices.map(item =>
         ToOrderDto(item, false)
     )
     if (caddy) {
-        caddy = ToOrderDto(caddy, true)
+        caddy = ToOrderDto(caddy, true, user.currency)
         invoices = invoices.concat(caddy);
     }
     return invoices;
 
 }
 
-function ToOrderDto(order, isCaddy) {
+function ToOrderDto(order, isCaddy, currency = undefined) {
     return order = {
         _id: isCaddy ? order._id : order.orderIdReference,
         id: isCaddy ? order.id : order.orderId,
@@ -36,7 +36,7 @@ function ToOrderDto(order, isCaddy) {
         idProForma: isCaddy ? order.idProForma : order.proFormatId,
         submissionDate: order.submissionDate,
         state: order.state,
-        currency: order.currency,
+        currency: currency ? currency : order.currency,
         total: isCaddy ? order.totalHT : order.total,
     }
 }
@@ -85,8 +85,10 @@ module.exports.getOrderById = async (token, OrderId) => {
         return currencyService.convertOrderPricesToCurrencie(order);
     }
 }
-module.exports.getCaddy = async (token, currency) => {
-    var user = await Users.findOne({ token: token }).exec();
+module.exports.getCaddy = async (token, currency, user = undefined) => {
+    if (!user) {
+        user = await Users.findOne({ token: token }).exec();
+    }
     var caddy = await Orders.findOne({ idUser: user._id, state: { $in: ['CART', 'PLI', 'PBI', 'PSC'] } }).exec();
     if (caddy) {
         if (!currency) {
