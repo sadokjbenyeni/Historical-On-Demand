@@ -601,6 +601,7 @@ router.put('/cancelValidation', async (req, res) => {
     {
       $set: {
         validationProduct: false,
+        idProForma: null,
         state: 'PVP',
         logs: {
           status: 'PVP',

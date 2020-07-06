@@ -24,7 +24,7 @@
                     <img src="https://img.icons8.com/offices/40/000000/export-pdf.png" />
                     <input class='visually-hidden' type='checkbox' />
                     <div class="pdf-downloader-menu">
-                        <li> <a target="_blank" *ngIf="orderInfo.proForma && state=='PVF'" type="button"
+                        <li> <a target="_blank" *ngIf="orderInfo.proForma" type="button"
                                 (click)="downloadInvoice(orderInfo.proForma, 'pro format invoice')">
                                 ProForma</a>
                         </li>

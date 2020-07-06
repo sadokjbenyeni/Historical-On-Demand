@@ -26,7 +26,7 @@
               <p>Payment method : <b>{{ payment }}</b></p>
               <p>Invoice : <b> <a target="_blank" *ngIf="invoice" (click)="downloadInvoice(invoice, 'invoice')">Download
                     Invoice/</a>
-                  <a target="_blank" *ngIf="proForma && state=='PVF'" (click)="downloadInvoice(proForma, 'pro format invoice')">
+                  <a target="_blank" *ngIf="proForma" (click)="downloadInvoice(proForma, 'pro format invoice')">
                     Pro Forma Invoice</a></b></p>
               <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b></p>
               <p>Order Type : <b><span [class]="textcolor">{{ ordertype }}</span></b></p>
