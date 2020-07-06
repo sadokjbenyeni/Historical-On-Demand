@@ -26,6 +26,9 @@ const OrderService = require('../../service/orderService');
 const InvoiceService = require('../../service/invoiceService');
 const OrderMailService = require('../../service/orderMailerService');
 const OrderPdfService = require('../../service/orderPdfService');
+const vatService = require("../../service/vatService");
+const configService = require("../../service/configService")
+const { config } = require('../../config/config');
 
 // Client Encryption Public Key : 10001|C958CBDFC34244F25D41E5B28DA3331CA52385EE3E73B2A51FD94D302CC135DD7DC49BE19EA66CCD00BAE7D26AF00BBB39C73351D4EACC10D7D023FE0ED844BD2D53FAFA9DE26D34373DB80278FB01BD00E27F0E922A3D7AB734D0AEFC48A78CAFA8F5D92FA2CBA08509F398FF9DA8B9AB909010622C6C1DB2933F8CAAD78D6AD9FCE5C46F1D679E83224A6B4B114757B81F5F62C109A5002C4FCC7EE7DA92C2762690835EAB446F4F86D88A903241E9F1930406DC01A4FEC4ED85666D7A1C99A7A46C4ADE83F7461428E6D11E78D86005732256AA632AF34E48990366FA85C463380F424294C81D16173279EB78EDF264422BFAC487CAD9C7A6E9F363AA481B
 // test : https://test.adyen.com/hpp/cse/js/8215198215590909.shtml
@@ -577,19 +580,16 @@ router.get('/details/:id', async (req, res) => {
   if (!req.headers.authorization) {
     return res.status(401);
   }
-  var user = await User.findOne({ token: req.headers.authorization }, { _id: true }).exec();
-  var order = await Order.findOne({ idUser: user._id, _id: req.params.id }).exec();
-  if (!order) {
-    return res.status(200);
+  if (!req.params.id) {
+    return res.status(200).json({ error: "No order id provided in request" });
   }
   try {
-    order = clientOrderDetails(order);
+    const order = await OrderService.getOrderDetails(req.params.id, req.headers.authorization)
+    return res.status(200).json(order);
   }
   catch (error) {
-    req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
-    return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
+    res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" })
   }
-  return res.status(200).json({ details: order });
 })
 
 router.put('/cancelValidation', async (req, res) => {
@@ -633,7 +633,8 @@ clientOrderDetails = function (order) {
   container.countryBilling = order.countryBilling;
   container.products = order.products;
   container.products.forEach(product => {
-    product.logs = null;
+    // delete the attribute logs
+    delete product.logs
   });
   container.currency = order.currency;
   container.currencyTx = order.currencyTx;

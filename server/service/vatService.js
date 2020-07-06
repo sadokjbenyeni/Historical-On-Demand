@@ -1,6 +1,6 @@
 
 const verifyVat = require('validate-vat');
-
+const countryService = require('./countryService')
 
 module.exports.isVatValid = async (country, number) => {
     return new Promise((resolve, reject) => {
@@ -13,4 +13,13 @@ module.exports.isVatValid = async (country, number) => {
             }
         });
     })
+
+}
+module.exports.applyVat = async (country, vatNumber) => {
+    if (country == "FR")
+        return true;
+    const isvatvalid = await this.isVatValid(vatNumber.substring(0, 2), vatNumber.substring(2, vatNumber.length));
+    const isUe = await countryService.isUe(country);
+    return ((!isvatvalid && isUe.ue == 1))
+
 }

@@ -23,13 +23,6 @@ import { OrderAmount } from '../../order/models/order-amount.model';
 import { OrderInformation } from '../../order/models/order-information.model';
 import { Product } from '../../../core/models/product.model';
 
-const httpOptions = {
-  headers: new HttpHeaders({
-    'Content-Type': 'application/json',
-    'Authorization': 'my-auth-token',
-  })
-};
-
 @Component({
   selector: 'app-order-history-details',
   templateUrl: './order-history-details.component.html',
@@ -42,8 +35,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
   id: string;
   idCmd: string;
   today: Date;
-  currencyTx: any;
-  currencyTxUsd: any;
   vat: number;
   totalTTC: any;
   totalExchangeFees: any;
@@ -105,12 +96,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
     return this.states.filter(state => state.id === stateId)[0] ? this.states.filter(state => state.id === stateId)[0].name : stateId;
   }
 
-  getHt(value) {
-    if (this.orderAmount.currency !== 'usd') {
-      value = ((value / this.currencyTxUsd) * this.currencyTx);
-    }
-    return value;
-  }
 
   dateDiff(date1, date2) {
     let diff = { sec: 0, min: 0, hour: 0, day: 0 };
@@ -226,7 +211,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
 
   getClientOrderDetails() {
     // httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
-    this.orderService.getOrderDetailsById(this.id, httpOptions).subscribe((order) => {
+    this.orderService.getOrderDetailsById(this.id).subscribe((order) => {
       this.clientInfo = <ClientInformation>{}
       this.orderInfo = <OrderInformation>{}
       this.orderAmount = <OrderAmount>{};
@@ -235,60 +220,29 @@ export class OrderHistoryDetailsComponent implements OnInit {
   }
 
   public setOrderDetails(order: any) {
-    this.orderInfo.id = order.details.id;
-    this.orderInfo.submissionDate = order.details.submissionDate;
-    this.orderInfo.payment = order.details.payment;
-    this.orderInfo.invoice = order.details.idCommande;
-    this.orderInfo.proForma = order.details.idProForma;
-    this.orderInfo.state = this.getState(order.details.state);
-
-    this.clientInfo.company = order.details.companyName;
-    this.clientInfo.firstName = order.details.firstname;
-    this.clientInfo.lastName = order.details.lastname;
-    this.clientInfo.job = order.details.job;
-    this.clientInfo.countryBilling = order.details.countryBilling;
-
-    this.orderAmount.currency = order.details.currency;
-
-    this.currencyTx = order.details.currencyTx;
-    this.currencyTxUsd = order.details.currencyTxUsd;
-
-    this.vat = order.details.vatValue;
-
-
-    if (order.details.currency !== 'usd') {
-      this.totalExchangeFees = (order.details.totalExchangeFees / order.details.currencyTxUsd) * order.details.currencyTx;
-
-      this.discount = order.details.discount;
-
-      this.totalHT = ((order.details.totalHT + order.details.totalExchangeFees) / order.details.currencyTxUsd) * order.details.currencyTx;
-
-      if (this.discount > 0) {
-        this.totalHT = this.totalHT - (this.totalHT * (this.discount / 100));
-      }
-      this.totalVat = this.totalHT * this.vat;
-
-      this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
-    }
-    else {
-      this.totalExchangeFees = order.details.totalExchangeFees;
-
-      this.discount = order.details.discount;
-
-      this.totalHT = order.details.totalHT + order.details.totalExchangeFees;
-
-      if (this.discount > 0) {
-        this.totalHT = this.totalHT - (this.totalHT * (this.discount / 100));
-      }
-      this.totalVat = this.totalHT * this.vat;
-
-      this.totalTTC = this.precisionRound((this.totalHT * (1 + this.vat)), 2);
-
-    }
+    this.orderInfo.id = order.id;
+    this.orderInfo.submissionDate = order.submissionDate;
+    this.orderInfo.payment = order.payment;
+    this.orderInfo.invoice = order.idCommande;
+    this.orderInfo.proForma = order.idProForma;
+    this.orderInfo.state = this.getState(order.state);
+    this.clientInfo.company = order.companyName;
+    this.clientInfo.firstName = order.firstname;
+    this.clientInfo.lastName = order.lastname;
+    this.clientInfo.job = order.job;
+    this.clientInfo.countryBilling = order.countryBilling;
+    this.orderAmount.currency = order.currency;
+    this.vat = order.vatValue;
+    this.totalExchangeFees = order.totalExchangeFees
+    this.discount = order.discount;
+    this.totalHT = order.totalHT
+    this.totalVat = this.totalHT * (this.vat / 100);
+    debugger
+    this.totalTTC = order.total
     let index = 0;
     this.details = [];
-    if (order.details.products.length > 0) {
-      order.details.products.forEach(product => {
+    if (order.products.length > 0) {
+      order.products.forEach(product => {
         index++;
         this.print = product.print;
         let links = [];
@@ -305,9 +259,9 @@ export class OrderHistoryDetailsComponent implements OnInit {
       });
     }
     this.dataSource.data = this.details;
-    this.orderAmount.currency = order.details.currency;
+    this.orderAmount.currency = order.currency;
     this.orderAmount.totalExchangeFees = this.totalExchangeFees;
-    this.orderAmount.vatValue = this.vat;
+    this.orderAmount.vatValue = this.vat/100;
     this.orderAmount.discount = this.discount;
     this.orderAmount.totalHT = this.totalHT;
     this.orderAmount.totalTTC = this.totalTTC;

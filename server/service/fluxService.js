@@ -19,7 +19,7 @@ module.exports.getRate = (currency) => {
         })
     })
 }
-module.exports.getCube = () => {
+module.exports.getChangeRateCube = () => {
     return new Promise(function (resolve, reject) {
         https.get('https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml', res => {
             // if (err) { return console.log(err); }

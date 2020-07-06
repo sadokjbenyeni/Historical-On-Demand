@@ -1,6 +1,6 @@
 const currencyService = require('./currencyService');
 const fluxService = require('./fluxService')
-module.exports.calculatefeesOfOrder = async (order, currency, cube) => {
+module.exports.calculatefeesOfOrder = (order, currency, cube) => {
     if (order.products) {
         order.products = splitproductsbyEID(order);
         order.products.forEach(item => {
@@ -24,7 +24,7 @@ module.exports.calculatefeesOfOrder = async (order, currency, cube) => {
             }
         })
         currencyService.convertproductsFeestoCurrency(order.products, currency, cube);
-        return order.products.reduce((a, b) => a + b.TotalFees, 0)
+        order.totalExchangeFees = order.products.reduce((a, b) => a + b.TotalFees, 0)
     }
 }
 

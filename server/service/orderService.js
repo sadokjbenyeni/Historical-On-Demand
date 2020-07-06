@@ -6,13 +6,56 @@ const dnwfile = require('../config/config').dnwfile();
 const currencyService = require('./currencyService');
 const feesService = require('./feesService');
 const fluxService = require('./fluxService');
-const countryService = require('../service/countryService');
 const configService = require('../service/configService');
 const vatService = require('../service/vatService');
 const userService = require('../service/userService');
 const { invoice } = require('paypal-rest-sdk');
 
+module.exports.getOrderDetails = async (id, token) => {
+    var user = await Users.findOne({ token: token }).exec();
+    var RawOrder = await Orders.findOne({ idUser: user._id, _id: id }).exec();
+    if (!RawOrder) {
+        return res.status(200).json({ error: "Order not found" });
+    }
 
+    if (["PSC", "PBI", "CART", "PLI"].indexOf(RawOrder.state) == -1) {
+        var invoice = await Invoices.findOne({ orderIdReference: RawOrder._id }).exec()
+        RawOrder.idCommande = invoice.invoiceId;
+        RawOrder.idProForma = invoice.proFormatId
+    }
+    else {
+        var invoice = await calculateAmountsOfOrder(JSON.parse(JSON.stringify(RawOrder)), user.currency, undefined)
+        invoice.total = invoice.totalHT
+        // if (await vatService.applyVat(user.countryBilling, user.vat)) {
+        //     let configVat = await configService.getVat();
+        //     invoice.vatValue = configVat.valueVat / 100;
+        //     invoice.total *= (1 + (invoice.vatValue))
+        // }
+    }
+    RawOrder.totalExchangeFees = invoice.totalExchangeFees;
+    RawOrder.vatValue = invoice.vatValue * 100;
+    RawOrder.total = invoice.total;
+    RawOrder.totalHT = invoice.totalHT;
+    RawOrder.currency = invoice.currency;
+
+    RawOrder.products.forEach(product => {
+        productsEID = invoice.products.find(item => item.eid == product.eid);
+        product.ht = productsEID[checkifSubscription(product)].find(item => item.idcmd == product.idcmd).ht
+        product.exchangefees = productsEID.historical_data.backfill_applyfee && !productsEID.historical_data.direct_billing ? productsEID.exchangefee : 0
+    })
+
+    try {
+        return clientOrderDetails(RawOrder);
+    }
+    catch (error) {
+        req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
+        throw new error(error.message);
+    }
+}
+
+function checkifSubscription(product) {
+    return product.subscription == 1 ? "subscription" : "onetime"
+}
 module.exports.getUserOrdersHistory = async (token) => {
     const user = await userService.GetUserByToken(token);
     var caddy = await this.getCaddy(token, undefined, user);
@@ -59,8 +102,8 @@ module.exports.getLinks = async (user, order, logger) => {
         throw Error('Order is undefined');
     }
     logger.info({ message: order.id + ': getting links... ', className: 'Order Service' });
-    var products = order.products.filter(product => product !== undefined);
-    products = products.filter(product => product.links !== undefined && product.links.length > 0);
+    // var products = order.products.filter(product => product !== undefined);
+    var products = order.products.filter(product => product.links !== undefined && product.links.length > 0);
     var result = products.map(product => {
         logger.debug({ message: 'product: ' + product.id_undercmd + ' => links: ' + JSON.stringify(product.links), className: 'Order Service' });
         if (product.subscription === 1) {
@@ -85,7 +128,7 @@ module.exports.getOrderById = async (token, OrderId) => {
         return currencyService.convertOrderPricesToCurrencie(order);
     }
 }
-module.exports.getCaddy = async (token, currency, user = undefined) => {
+module.exports.getCaddy = async (token, currency = undefined, user = undefined) => {
     if (!user) {
         user = await Users.findOne({ token: token }).exec();
     }
@@ -94,14 +137,33 @@ module.exports.getCaddy = async (token, currency, user = undefined) => {
         if (!currency) {
             currency = user.currency;
         }
-        const cube = await fluxService.getCube();
-        const exchangefees = await feesService.calculatefeesOfOrder(caddy, currency, cube)
-        caddy.totalExchangeFees = exchangefees
-        currencyService.convertproductstoCurrency(caddy, currency, cube)
+        await calculateAmountsOfOrder(caddy, currency, undefined)
+        return caddy
     }
-
-    return caddy
+    return undefined;
 }
+async function calculateAmountsOfOrder(order, currency, cube = undefined) {
+    if (!cube) { cube = await fluxService.getChangeRateCube(); }
+    feesService.calculatefeesOfOrder(order, currency, cube)
+    currencyService.convertproductstoCurrency(order, currency, cube)
+    return order
+}
+
+// module.exports.getOrder = async (id) => {
+
+//     var caddy = await Orders.findOne({ idUser: user._id, state: { $in: ['CART', 'PLI', 'PBI', 'PSC'] } }).exec();
+//     if (caddy) {
+//         if (!currency) {
+//             currency = user.currency;
+//         }
+//         const cube = await fluxService.getChangeRateCube();
+//         const exchangefees = await feesService.calculatefeesOfOrder(caddy, currency, cube)
+//         caddy.totalExchangeFees = exchangefees
+//         currencyService.convertproductstoCurrency(caddy, currency, cube)
+//     }
+
+//     return caddy
+// }
 //this method is going to be removed after search rework
 module.exports.getRawCaddy = async (token) => {
     var user = await Users.findOne({ token: token }).exec();
@@ -158,7 +220,7 @@ module.exports.UpdateProductDate = async (caddy, id_product, dateToChange, date)
     }
     return false
 }
-daysDiff = function (start, end) {
+function daysDiff(start, end) {
     return end - start > 0 ? Math.ceil((end - start) / (1000 * 3600 * 24)) : 0;
 }
 
@@ -218,7 +280,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     log.status = caddy.state;
     //preparing core mail
 
-    let cube = await fluxService.getCube();
+    let cube = await fluxService.getChangeRateCube();
     caddy.totalExchangeFees = await feesService.calculatefeesOfOrder(caddy, currency, cube);
     currencyService.convertproductstoCurrency(caddy, currency, cube)
     caddy.currency = currency;
@@ -236,7 +298,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
                 total: caddy.total,
                 currency: caddy.currency,
                 totalHT: caddy.totalHT,
-                vatval: caddy.vatValue / 100,
+                vatval: caddy.vatValue,
                 survey: survey,
                 validationCompliance: caddy.validationCompliance,
                 submissionDate: new Date(),
@@ -269,7 +331,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
             postalCodeBilling: caddy.postalCodeBilling,
             countryBilling: caddy.countryBilling,
             vat: caddy.vat,
-            vatValue: caddy.vatValue / 100,
+            vatValue: caddy.vatValue,
             totalVat: caddy.totalVat,
             state: caddy.state,
             totalExchangeFees: caddy.totalExchangeFees,
@@ -315,10 +377,9 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     return true;
 }
 
-setprices = async function (order) {
-    const isvatvalid = await vatService.isVatValid(order.vat.substring(0, 2), order.vat.substring(2, order.vat.length));
-    const isUe = await countryService.isUe(order.countryBilling);
-    if (order.countryBilling == "FR" || (!isvatvalid && isUe.ue == 1)) {
+async function setprices(order) {
+
+    if (await vatService.applyVat(order.countryBilling, order.vat)) {
         let vatDetails = await configService.getVat();
         order.vatValue = vatDetails.valueVat / 100;
         order.totalVat = order.totalHT * order.vatValue;
@@ -332,7 +393,7 @@ setprices = async function (order) {
 }
 
 
-deleteuselessfields = function (order) {
+function deleteuselessfields(order) {
     delete order.historical_data;
     delete order.logs;
     delete order.eid;

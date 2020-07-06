@@ -27,7 +27,7 @@
                 <mat-list-item>{{orderAmount.discount}} %</mat-list-item>
             </ng-template>
             <mat-divider [inset]="true"></mat-divider>
-            <mat-list-item>{{orderAmount.totalVat | number:'1.2-2'}}{{ symbol }}</mat-list-item>
+            <mat-list-item>{{orderAmount.totalVat | number:'1.2-2'}} {{ symbol }}</mat-list-item>
             <mat-divider [inset]="true"></mat-divider>
             <mat-list-item class="bold">{{orderAmount.totalTTC | number:'1.2-2'}} {{symbol }}
             </mat-list-item>
