@@ -399,9 +399,9 @@ module.exports = function (order) {
 
 
 
-  getOrders = function (orders, vatValue, country) {
+  function getOrders(orders, vatValue, country) {
 
-    var pervat = country.ue === "1" ? (vatValue * 100) : 0;
+    var pervat = country.ue === "1" ? vatValue : 0;
     let listOrders = [];
     let border = [false, false, false, true];
     orders.forEach(
