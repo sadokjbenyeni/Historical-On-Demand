@@ -10,8 +10,8 @@ module.exports = function () {
         await Invoice.updateOne({ orderId: orderId }, { $set: { invoiceId: invoiceId, path: `${invoiceDirectory}${invoiceId}.pdf` } }).exec();
     }
 
-    this.updateProFormatInformation = async function (orderId, proFormatId) {
-        await Invoice.updateOne({ orderId: orderId }, { $set: { proFormatId: proFormatId, proFormatPath: `${invoiceDirectory}${proFormatId}.pdf` } }).exec();
+    this.updateProFormaInformation = async function (orderId, proFormaId) {
+        await Invoice.updateOne({ orderId: orderId }, { $set: { proFormaId: proFormaId, proFormaPath: `${invoiceDirectory}${proFormaId}.pdf` } }).exec();
     }
 
     this.getInvoicePath = async function (orderId) {
@@ -25,14 +25,14 @@ module.exports = function () {
         }
     }
 
-    this.getProFormatPath = async function (orderId) {
+    this.getProFormaPath = async function (orderId) {
         var invoice = await Invoice.findOne({ orderId: orderId }).exec();
         if (!invoice) {
             return orderId;
         }
         else {
-            proFormatPath = invoice.proFormatPath;
-            return proFormatPath;
+            proFormaPath = invoice.proFormaPath;
+            return proFormaPath;
         }
     }
 }

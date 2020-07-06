@@ -8,7 +8,7 @@ const Order = mongoose.model('Order');
 const Pool = mongoose.model('Pool');
 const User = mongoose.model('User');
 const Currency = mongoose.model('Currency');
-const Invoices = mongoose.model('Invoice')
+const Invoice = mongoose.model('Invoice')
 
 
 //const config = require('../../config/config.js');
@@ -27,6 +27,7 @@ const InvoiceService = require('../../service/invoiceService');
 const OrderMailService = require('../../service/orderMailerService');
 const OrderPdfService = require('../../service/orderPdfService');
 const vatService = require("../../service/vatService");
+const { InvoiceDirectory } = require('../../config/config');
 const configService = require("../../service/configService")
 const { config } = require('../../config/config');
 
@@ -326,12 +327,15 @@ router.put('/state', async (req, res) => {
   }
   else if (req.body.referer.toLowerCase() === 'client' || req.body.status.toLowerCase() === "cancelled") {
     req.logger.info("order updating (" + JSON.stringify(orderUpdated) + ")...");
-    await Order.updateOne({ _id: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+    await Invoice.updateOne({ id_cmd: req.body.id }, { $set: orderUpdated, $push: { logs: log } }).exec();
+
     return res.status(201).json({ ok: true });
   }
   else {
     req.logger.info("order updating (" + JSON.stringify(orderUpdated) + ")...");
     await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+    await Invoice.updateOne({ id_cmd: req.body.id }, { $set: orderUpdated, $push: { logs: log } }).exec();
     // .then((r) => {
     return res.status(201).json({ ok: true });
   }
@@ -602,6 +606,20 @@ router.put('/cancelValidation', async (req, res) => {
       $set: {
         validationProduct: false,
         idProForma: null,
+        state: 'PVP',
+        logs: {
+          status: 'PVP',
+          referer: 'Compliance'
+        }
+      }
+    }).exec();
+
+  var invoice = await Invoice.findOne({ orderId: req.body.id }).exec();
+  await Invoice.updateOne({ orderId: invoice.orderId },
+    {
+      $set: {
+        validationProduct: false,
+        proFormaId: null,
         state: 'PVP',
         logs: {
           status: 'PVP',
@@ -928,7 +946,7 @@ buildSearch = function (req) {
 
 pdfpost = async function (id, logger, invoiceId, invoiceType) {
   try {
-    var invoice = await Invoices.findOne({ orderId: id }).exec();
+    var invoice = await Invoice.findOne({ orderId: id }).exec();
     await new OrderPdfService(invoice).createInvoicePdf(logger, invoiceId, invoiceType);
   }
   catch (error) {
@@ -1285,13 +1303,8 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
   };
   // Email validation au pvf
   var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
-  var invoice = await Invoices.findOne({ orderId: order.id }).exec();
-  if (!invoice.proFormatId) {
-    orderUpdated.idProForma = await setInvoiceId("QH_ProFormaInvoice_");
-  }
-  else {
-    orderUpdated.idProForma = order.idProForma;
-  }
+  var invoice = await Invoice.findOne({ orderId: order.id }).exec();
+  orderUpdated.idProForma = await setInvoiceId("QH_ProFormaInvoice_");
   let eids = [];
   if (req.body.status === "cancelled") {
     await Pool.remove({ id: req.body.idCmd.split("-")[0] }).exec()
@@ -1328,7 +1341,7 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
     var users = await User.find({ roleName: "Product" }).exec();
     var mailer = new OrderMailService(req.logger, order);
     await new OrderPdfService(invoice).createInvoicePdf(req.logger, orderUpdated.idProForma, 'Pro Forma Invoice Nbr');
-    await new InvoiceService().updateProFormatInformation(order.id, orderUpdated.idProForma);
+    await new InvoiceService().updateProFormaInformation(order.id, orderUpdated.idProForma);
     users.forEach(async user => {
       try {
         await mailer.newOrderHod(user.email,

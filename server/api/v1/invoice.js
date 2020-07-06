@@ -27,8 +27,8 @@ router.get('/download/:orderId/:pdfType', async (req, res) => {
         directory = await new InvoiceService().getInvoicePath(order.id);
 
     }
-    else if (req.params.pdfType == 'pro format invoice') {
-        directory = await new InvoiceService().getProFormatPath(order.id);
+    else if (req.params.pdfType == 'pro forma invoice') {
+        directory = await new InvoiceService().getProFormaPath(order.id);
     }
     // if (directory === order.id) {
     //     if (invoice.proFormatId) {

@@ -76,7 +76,7 @@ function ToOrderDto(order, isCaddy, currency = undefined) {
         _id: isCaddy ? order._id : order.orderIdReference,
         id: isCaddy ? order.id : order.orderId,
         idCommande: isCaddy ? order.idCommande : order.invoiceId,
-        idProForma: isCaddy ? order.idProForma : order.proFormatId,
+        idProForma: isCaddy ? order.idProForma : order.proFormaId,
         submissionDate: order.submissionDate,
         state: order.state,
         currency: currency ? currency : order.currency,
