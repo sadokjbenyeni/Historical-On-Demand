@@ -395,10 +395,6 @@ module.exports = function (order) {
     }
     return copy;
   };
-
-
-
-
   function getOrders(orders, vatValue, country) {
 
     var pervat = country.ue === "1" ? vatValue : 0;

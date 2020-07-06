@@ -280,9 +280,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
     log.status = caddy.state;
     //preparing core mail
 
-    let cube = await fluxService.getChangeRateCube();
-    caddy.totalExchangeFees = await feesService.calculatefeesOfOrder(caddy, currency, cube);
-    currencyService.convertproductstoCurrency(caddy, currency, cube)
+    await calculateAmountsOfOrder(caddy, currency, undefined)
     caddy.currency = currency;
     caddy.payment = "banktransfer";
     await setprices(caddy);
