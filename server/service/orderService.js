@@ -29,20 +29,15 @@ module.exports.getUserOrdersHistory = async (token) => {
 }
 
 function ToOrderDto(order, isCaddy) {
-    var order = {
+    return order = {
         _id: isCaddy ? order._id : order.orderIdReference,
         id: isCaddy ? order.id : order.orderId,
         idCommande: isCaddy ? order.idCommande : order.invoiceId,
-        // idProForma: isCaddy ? order.idProForma : order.proFormatId,
+        idProForma: isCaddy ? order.idProForma : order.proFormatId,
         submissionDate: order.submissionDate,
         state: order.state,
         currency: order.currency,
         total: isCaddy ? order.totalHT : order.total,
-    }
-    return order
-    if ( order.logs[1])
-    {
-        
     }
 }
 
