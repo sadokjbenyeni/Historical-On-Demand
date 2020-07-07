@@ -256,7 +256,10 @@ router.put("/updtCaddy", (req, res) => {
   }
   if (req.body.discount) {
     updt.discount = req.body.discount.percent;
+    updt.totalHT = req.body.totalHT;
+    updt.totalHT = applyDiscount(updt.totalHT, updt.discount);
   }
+
   if (req.body.totaux) {
     updt.totalExchangeFees = req.body.totaux.totalExchangeFees;
     updt.totalHT = req.body.totaux.totalHT;
@@ -265,6 +268,7 @@ router.put("/updtCaddy", (req, res) => {
     updt.currency = req.body.totaux.currency;
     updt.total = req.body.totaux.totalTTC;
   }
+
   if (req.body.billing) {
     updt.vat = req.body.billing.vat;
     updt.currency = req.body.billing.currency;
@@ -278,6 +282,7 @@ router.put("/updtCaddy", (req, res) => {
     updt.countryBilling = req.body.billing.countryBilling;
     updt.postalCodeBilling = req.body.billing.postalCodeBilling;
   }
+
   if (req.body.state) {
     updt.state = req.body.state;
   }
@@ -1263,6 +1268,10 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   // .then(updateStatus => res.status(201).json(updateStatus));
   // });
 };
+
+function applyDiscount(taxFreeTotal, discount) {
+  return taxFreeTotal - (taxFreeTotal * (discount / 100));
+}
 
 async function UpdateOrderFinance(orderUpdated, req, log) {
   let corp = {};

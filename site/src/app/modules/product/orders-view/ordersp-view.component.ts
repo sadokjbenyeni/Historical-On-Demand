@@ -218,7 +218,7 @@ export class OrderspViewComponent implements OnInit {
       });
     }
     if (this.action === 'Confirm Discount Application') {
-      this.orderService.updtCaddy({ idCmd: this.idCmd, discount: { percent: this.discount } }).subscribe(res => {
+      this.orderService.updtCaddy({ idCmd: this.idCmd, totalHT: this.totalHTOld, discount: { percent: this.discount } }).subscribe(res => {
         this.message = 'Applied Discount';
       });
     }
