@@ -26,7 +26,7 @@ module.exports.getOrderDetails = async (id, token) => {
         RawOrder.idProForma = invoice.proFormaId
   } else {
     var invoice = await calculateAmountsOfOrder(
-      JSON.parse(JSON.stringify(RawOrder)),
+        var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(RawOrder)), user.currency, undefined)
       user.currency,
       undefined
     );
@@ -231,7 +231,7 @@ module.exports.getCaddy = async (
     if (!currency) {
       currency = user.currency;
     }
-    await calculateAmountsOfOrder(caddy, currency, undefined);
+        await this.calculateAmountsOfOrder(caddy, currency, undefined)
     return caddy;
   }
   return undefined;
@@ -255,12 +255,11 @@ function setOrderValuesFromInvoice(order, invoice) {
         : 0;
   });
 }
-
+module.exports.calculateAmountsOfOrder = async (order, currency, cube) => {
 function IsInvoice(state) {
   return ["PSC", "PBI", "CART", "PLI"].indexOf(state) == -1;
 }
 
-async function calculateAmountsOfOrder(order, currency, cube = undefined) {
   if (!cube) {
     cube = await fluxService.getChangeRateCube();
   }
@@ -461,7 +460,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
   log.status = caddy.state;
   //preparing core mail
 
-  await calculateAmountsOfOrder(caddy, currency, undefined);
+    await this.calculateAmountsOfOrder(caddy, currency, undefined)
   caddy.currency = currency;
   caddy.payment = "banktransfer";
   await setprices(caddy);
@@ -588,3 +587,4 @@ module.exports.updatePreSubmitStateCaddy = async (token, state) => {
   await Orders.updateOne({ id: caddy.id }, { $set: { state: state } }).exec();
   return true;
 };
+

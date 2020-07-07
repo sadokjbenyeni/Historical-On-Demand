@@ -75,7 +75,7 @@
                 <td class="text-center">{{ getStateName(o.state) }}</td>
                 <td>{{ o.submissionDate | date:'yyyy-MM-dd' }}</td>
                 <td>
-                  {{ precisionRound(getHt(o.total, o.currency, o.currencyTxUsd, o.currencyTx, o.discount), 2)  | number:'1.2-2' }}
+                  {{ o.total  | number:'1.2-2' }}
                   {{ symbols[o.currency] }}</td>
                 <td>{{ o.products | purchasetype}}</td>
                 <td>{{ o.discount }}</td>

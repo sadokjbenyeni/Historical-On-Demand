@@ -19,13 +19,10 @@ const PAYMENTSETUP = global.environment.paymentSetup;
 const PAYMENTKEY = global.environment.paymentKey;
 
 const OrderService = require("../../service/orderService");
-const InvoiceService = require("../../service/invoiceService");
+const OrderFilterService = require("../../service/orderFilterService");
 const OrderMailService = require("../../service/orderMailerService");
 const OrderPdfService = require("../../service/orderPdfService");
-const vatService = require("../../service/vatService");
-const { InvoiceDirectory } = require("../../config/config");
-const configService = require("../../service/configService");
-const { config } = require("../../config/config");
+const { error } = require('winston');
 const userService = require("../../service/userService");
 const { calculatefeesOfOrder } = require("../../service/feesService");
 
@@ -843,41 +840,23 @@ router.post("/listExport", async (req, res) => {
 });
 
 router.post("/list", async (req, res) => {
-  let sort = {};
-  sort.createdAt = -1;
-  sort[req.body.columns[req.body.order[0].column].data] = req.body.order[0].dir;
-
-  var orderTotalCount = Order.count({
-    state: { $ne: "" },
-    state: { $exists: true },
-  }).exec();
-  let search = buildSearch(req);
-  var orderCount = await Order.count(search).exec();
   try {
-    var orders = await Order.find(search)
-      .sort(sort)
-      .skip(req.body.start)
-      .limit(req.body.length)
-      .collation({ locale: "en" })
-      .exec();
-  } catch (error) {
-    req.logger.error({
-      message: error.message + "\n" + error.stack,
-      className: "Order API",
-    });
-    return res.status(503).json({
-      message:
-        "an error has been raised please contact support with this identifier [" +
-        req.headers.loggerToken +
-        "]",
-    });
+    const records = await OrderFilterService.getListOrders(
+      req.body.columns[req.body.order[0].column].data,
+      req.body.order[0].dir,
+      req.body.start,
+      req.body.length,
+      req.body.state,
+      req.body.columns,
+      req.body.search
+    );
+    return res.status(200).json(records)
+
   }
-  return res.status(200).json({
-    recordsFiltered: orderCount,
-    recordsTotal: orderTotalCount,
-    draw: req.body.draw,
-    listorders: orders,
-  });
+  catch (error) {
+    return res.status(503).json({ error: `an error has been raised please contact support with this identifier [${req.headers.loggerToken}]` })
+  }
+
 });
 
 router.post("/history", (req, res) => {
@@ -1019,56 +998,6 @@ router.put("/updateProductDate", async (req, res) => {
   else return res.status(200).json({ error: "Product not found in the caddy" });
 });
 
-buildSearch = function (req) {
-  let search = {};
-  search["state"] = { $ne: "" };
-  search["state"] = { $exists: true };
-  if (req.body.state) {
-    search["state"] = req.body.state;
-  }
-  req.body.columns.forEach((column) => {
-    if (column.data === "redistribution" && column.search.value !== "") {
-      search["survey.dd"] = column.search.value;
-    } else if (column.data === "submissionDate" && column.search.value !== "") {
-      let d = column.search.value.split("|");
-      search["submissionDate"] = { $gte: new Date(d[0]), $lt: new Date(d[1]) };
-    } else if (column.data === "purchasetype" && column.search.value) {
-      if (column.search.value == "1") {
-        search["products"] = {
-          $not: { $elemMatch: { subscription: 1, onetime: 0 } },
-        };
-      }
-      if (column.search.value == "2") {
-        search["products"] = {
-          $not: { $elemMatch: { subscription: 0, onetime: 1 } },
-        };
-      }
-      if (column.search.value == "3") {
-        search["$and"] = [
-          { products: { $elemMatch: { subscription: 1, onetime: 0 } } },
-          { products: { $elemMatch: { subscription: 0, onetime: 1 } } },
-        ];
-      }
-    } else if (column.data === "id" && column.search.value !== "") {
-      search[column.data] = parseInt(column.search.value);
-    } else if (
-      (column.data === "total" || column.data === "discount") &&
-      column.search.value !== ""
-    ) {
-      search[column.data] = parseFloat(column.search.value);
-    } else if (column.search.value !== "") {
-      search[column.data] = new RegExp(column.search.value, "i");
-    }
-  });
-  if (req.body.search.value !== "") {
-    search["$or"] = [
-      { state: new RegExp(req.body.search.value, "i") },
-      { companyName: new RegExp(req.body.search.value, "i") },
-      { id_cmd: new RegExp(req.body.search.value, "i") },
-    ];
-  }
-  return search;
-};
 
 pdfpost = async function (id, logger, invoiceId, invoiceType) {
   try {

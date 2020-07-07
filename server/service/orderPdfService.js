@@ -440,7 +440,7 @@ module.exports = function (order) {
         { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
         { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
         { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-        { border: border, text: exchangefee, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+        { border: border, text: exchangefee.toFixed(2), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
         { border: border, text: (pervat * 100) + '%', margin: [0, 5, 0, 5], bold: true, alignment: 'center', fontSize: 10 }
       ]);
     }
