@@ -21,7 +21,7 @@ module.exports.getOrderDetails = async (id, token) => {
     if (["PSC", "PBI", "CART", "PLI"].indexOf(RawOrder.state) == -1) {
         var invoice = await Invoices.findOne({ orderIdReference: RawOrder._id }).exec()
         RawOrder.idCommande = invoice.invoiceId;
-        RawOrder.idProForma = invoice.proFormatId
+        RawOrder.idProForma = invoice.proFormaId
     }
     else {
         var invoice = await calculateAmountsOfOrder(JSON.parse(JSON.stringify(RawOrder)), user.currency, undefined)
@@ -51,6 +51,41 @@ module.exports.getOrderDetails = async (id, token) => {
         req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
         throw new error(error.message);
     }
+}
+
+clientOrderDetails = function (order) {
+    if (!order) {
+        return {};
+    }
+    const container = {};
+    container._id = order._id;
+    container.id = order.id;
+    container.idCommande = order.idCommande;
+    container.idProForma = order.idProForma;
+    container.submissionDate = order.submissionDate;
+    container.payment = order.payment;
+    container.state = order.state;
+    container.companyName = order.companyName;
+    container.firstname = order.firstname;
+    container.lastname = order.lastname;
+    container.job = order.job;
+    container.countryBilling = order.countryBilling;
+    container.products = order.products;
+    container.products.forEach(product => {
+        delete product.logs
+    });
+    container.currency = order.currency;
+    container.currencyTx = order.currencyTx;
+    container.currencyTxUsd = order.currencyTxUsd;
+    container.discount = order.discount;
+    container.totalExchangeFees = order.totalExchangeFees;
+    container.totalHT = order.totalHT;
+    container.total = order.total;
+    container.idFacture = order.idFacture;
+    container.vat = order.vat;
+    container.vatValide = order.vatValide;
+    container.vatValue = order.vatValue;
+    return container;
 }
 
 function checkifSubscription(product) {

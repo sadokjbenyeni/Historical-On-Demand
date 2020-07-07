@@ -630,44 +630,6 @@ router.put('/cancelValidation', async (req, res) => {
   return res.status(200).json({ ok: true });
 })
 
-
-
-clientOrderDetails = function (order) {
-  if (!order) {
-    return {};
-  }
-  const container = {};
-  container._id = order._id;
-  container.id = order.id;
-  container.idCommande = order.idCommande;
-  container.idProForma = order.idProForma;
-  container.submissionDate = order.submissionDate;
-  container.payment = order.payment;
-  container.state = order.state;
-  container.companyName = order.companyName;
-  container.firstname = order.firstname;
-  container.lastname = order.lastname;
-  container.job = order.job;
-  container.countryBilling = order.countryBilling;
-  container.products = order.products;
-  container.products.forEach(product => {
-    // delete the attribute logs
-    delete product.logs
-  });
-  container.currency = order.currency;
-  container.currencyTx = order.currencyTx;
-  container.currencyTxUsd = order.currencyTxUsd;
-  container.discount = order.discount;
-  container.totalExchangeFees = order.totalExchangeFees;
-  container.totalHT = order.totalHT;
-  container.total = order.total;
-  container.idFacture = order.idFacture;
-  container.vat = order.vat;
-  container.vatValide = order.vatValide;
-  container.vatValue = order.vatValue;
-  return container;
-}
-
 router.get('/:id', (req, res) => {
   Order.find({ idUser: req.params.id })
     .then((cmd) => {
