@@ -27,6 +27,7 @@ module.exports.getOrderDetails = async (id, token) => {
     } else {
         var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(RawOrder)), user.currency, undefined)
         invoice.total = invoice.totalHT;
+        invoice.currency = user.currency;
         // if (await vatService.applyVat(user.countryBilling, user.vat)) {
         //     let configVat = await configService.getVat();
         //     invoice.vatValue = configVat.valueVat / 100;
@@ -201,10 +202,8 @@ module.exports.getOrderById = async (OrderId) => {
         var invoice = await Invoices.findOne({ orderId: order.id });
     } else {
         var user = await userService.getUserById(order.idUser);
-        var invoice = await this.calculateAmountsOfOrder(
-            JSON.parse(JSON.stringify(order)),
-            user.currency
-        );
+        var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(order)), user.currency);
+        invoice.currency = user.currency;
         invoice.total = invoice.totalHT;
     }
 

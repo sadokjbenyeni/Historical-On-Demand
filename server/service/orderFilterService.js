@@ -27,6 +27,7 @@ module.exports.getListOrders = async (sortAttribute, sortValue, start, length, s
                 const user = await Users.findOne({ _id: orders[i].idUser }).exec()
                 const formattedOrder = await orderService.calculateAmountsOfOrder(JSON.parse(JSON.stringify(orders[i])), user.currency, cube);
                 orders[i].total = formattedOrder.totalHT;
+                orders[i].currency = user.currency;
             }
 
         }
