@@ -188,7 +188,6 @@ export class CaddiesComponent implements OnInit, OnDestroy {
   setvatvalid(isvalid) {
     this.checkv = isvalid;
     let billingcountry = this.billingComponent ? this.billingComponent.form.controls['countryBillingctl'].value : this.user.billingCountry
-    debugger
     this.calculateFinalAmount(billingcountry)
   }
   calculateFinalAmount(billingCountry) {

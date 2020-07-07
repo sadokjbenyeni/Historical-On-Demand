@@ -158,7 +158,6 @@ export class OrderspViewComponent implements OnInit {
           this.existSubscribe = false;
           this.list['cmd'].products.forEach((p) => {
             if (p.subscription === 1) { 
-              debugger
               this.existSubscribe = true; }
            // let diff = this.dateDiff(new Date(p.begin_date), new Date(p.end_date));
             // if (p.onetime === 1) {

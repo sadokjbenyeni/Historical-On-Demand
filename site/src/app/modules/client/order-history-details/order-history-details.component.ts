@@ -237,7 +237,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.discount = order.discount;
     this.totalHT = order.totalHT
     this.totalVat = this.totalHT * (this.vat / 100);
-    debugger
     this.totalTTC = order.total
     let index = 0;
     this.details = [];

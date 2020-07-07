@@ -91,7 +91,6 @@ export class OrderscViewComponent implements OnInit {
         this.symbols[s.id] = s.symbol;
       });
       this.orderService.getIdOrder(this.idCmd).subscribe((c) => {
-        debugger
         this.list = c;
         this.idCmd = c.cmd.id_cmd;
         this.invoice = c.cmd.idCommande;
@@ -170,7 +169,6 @@ export class OrderscViewComponent implements OnInit {
   }
 
   verifState() {
-    debugger
     if (this.state === 'PVC') {
       return true;
     } else {
