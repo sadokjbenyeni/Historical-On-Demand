@@ -79,6 +79,11 @@ export class OrderscViewComponent implements OnInit {
     // this.getVat();
   }
 
+  getState(stateId) {
+    if (!this.states) return stateId;
+    return this.states.filter(state => state.id === stateId)[0] ? this.states.filter(state => state.id === stateId)[0].name : stateId;
+  }
+
   getCmd() {
     this.currencyService.getCurrencies().subscribe(r => {
       this.symbols = [];
@@ -86,6 +91,7 @@ export class OrderscViewComponent implements OnInit {
         this.symbols[s.id] = s.symbol;
       });
       this.orderService.getIdOrder(this.idCmd).subscribe((c) => {
+        debugger
         this.list = c;
         this.idCmd = c.cmd.id_cmd;
         this.invoice = c.cmd.idCommande;
@@ -102,11 +108,11 @@ export class OrderscViewComponent implements OnInit {
         this.discount = c.cmd.discount;
         this.currencyTx = c.cmd.currencyTx;
         this.currencyTxUsd = c.cmd.currencyTxUsd;
-        this.totalFees = this.getHt(c.cmd.totalExchangeFees);
-        this.totalHT = (this.getHt(c.cmd.totalHT) - (this.getHt(c.cmd.totalHT) * this.discount / 100)) + this.totalFees;
+        this.totalFees = c.cmd.totalExchangeFees;
+        this.totalHT = c.cmd.totalHT
         this.vat = c.cmd.vatValue;
-        this.totalVat = this.totalHT * this.vat;
-        this.totalTTC = this.totalHT + this.totalVat;
+        this.totalVat = this.totalHT * (this.vat / 100);
+        this.totalTTC = c.cmd.total;
         this.submissionDate = c.cmd.submissionDate;
         this.state = c.cmd.state;
         this.internalNote = c.cmd.internalNote;
@@ -164,6 +170,7 @@ export class OrderscViewComponent implements OnInit {
   }
 
   verifState() {
+    debugger
     if (this.state === 'PVC') {
       return true;
     } else {

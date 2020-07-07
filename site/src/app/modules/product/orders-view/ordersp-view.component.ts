@@ -97,6 +97,10 @@ export class OrderspViewComponent implements OnInit {
     })
     // this.getVat();
   }
+  getState(stateId) {
+    if (!this.states) return stateId;
+    return this.states.filter(state => state.id === stateId)[0] ? this.states.filter(state => state.id === stateId)[0].name : stateId;
+  }
 
   setPeriod(p) {
     this.ht = 0;
@@ -107,9 +111,9 @@ export class OrderspViewComponent implements OnInit {
       }
       this.ht += prd.ht;
     });
-    this.totalFees = this.getHt(this.list['cmd'].totalExchangeFees);
-    this.totalHT = (this.getHt(this.ht) - (this.getHt(this.ht) * this.discount / 100)) + this.totalFees;
-    this.totalHTOld = this.getHt(this.ht) + this.totalFees;
+    this.totalFees = this.list['cmd'].totalExchangeFees;
+    this.totalHT = (this.ht - (this.ht * this.discount / 100)) + this.totalFees;
+    this.totalHTOld = this.ht + this.totalFees;
     this.totalVat = this.totalHT * this.vat;
     this.totalTTC = this.totalHT + this.totalVat;
   }
@@ -137,12 +141,12 @@ export class OrderspViewComponent implements OnInit {
         this.currency = c.cmd.currency;
         this.currencyTx = c.cmd.currencyTx;
         this.currencyTxUsd = c.cmd.currencyTxUsd;
-        this.totalFees = this.getHt(c.cmd.totalExchangeFees);
-        this.totalHT = (this.getHt(c.cmd.totalHT) - (this.getHt(c.cmd.totalHT) * this.discount / 100)) + this.totalFees;
+        this.totalFees = c.cmd.totalExchangeFees;
+        this.totalHT = c.cmd.totalHT;
         this.totalHTOld = this.getHt(c.cmd.totalHT) + this.totalFees;
         this.vat = c.cmd.vatValue;
-        this.totalVat = this.totalHT * this.vat;
-        this.totalTTC = this.totalHT + this.totalVat;
+        this.totalVat = this.totalHT * (this.vat / 100);
+        this.totalTTC = c.cmd.total
         this.submissionDate = c.cmd.submissionDate;
         this.state = c.cmd.state;
         this.internalNote = c.cmd.internalNote;
@@ -153,13 +157,17 @@ export class OrderspViewComponent implements OnInit {
         if (c.cmd.products.length > 0) {
           this.existSubscribe = false;
           this.list['cmd'].products.forEach((p) => {
-            if (p.subscription === 1) { this.existSubscribe = true; }
-            let diff = this.dateDiff(new Date(p.begin_date), new Date(p.end_date));
-            if (p.onetime === 1) {
-              p.price = (diff.day + 1) * p.price;
-            } else if (p.subscription === 1) {
-              p.ht = p.period * p.price;
-            }
+            if (p.subscription === 1) { 
+              debugger
+              this.existSubscribe = true; }
+           // let diff = this.dateDiff(new Date(p.begin_date), new Date(p.end_date));
+            // if (p.onetime === 1) {
+            //   p.price = (diff.day + 1) * p.price;
+            // } else if (p.subscription === 1) {
+            //   debugger
+            //   p.ht = p.period * p.price;
+
+            // }
             index++;
             let prod = {
               idx: index,

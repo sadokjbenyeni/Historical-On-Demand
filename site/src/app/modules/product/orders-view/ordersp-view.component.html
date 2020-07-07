@@ -19,44 +19,99 @@
       <div class="table-responsive">
         <div class="panel panel-primary" *ngIf="message">
           <div class="panel-heading">
-            <h5 class="text-center">{{message}}</h5>
+            <h5 class="text-center">{{ message }}</h5>
           </div>
         </div>
         <div class="panel panel-info">
           <div class="table-responsive container row">
             <div class="col-md-6">
-              <p>Order ID : <b> {{ idOrder }}</b></p>
-              <p>Submission Date and Time : <b> {{ submissionDate | date:'medium' }}</b></p>
-              <p>Payment method : <b>{{ payment }}</b></p>
-              <p>Invoice : <b> <a target="_blank" *ngIf="invoice" (click)="downloadInvoice(invoice, 'invoice')">Download
-                    Invoice/</a>
-                  <a target="_blank" *ngIf="proForma && state=='PVF'"
-                    (click)="downloadInvoice(proForma, 'pro forma invoice')">
-                    Pro Forma Invoice</a></b></p>
-              <p>Order Status : <b><span [class]="textcolor">{{ getStateName(state) }}</span></b></p>
-              <p>Order Type:
-                <select name="search" class=" input-border-color" [(ngModel)]="choosedOrderType" *ngIf="state=='PVP'">
+              <p>
+                Order ID : <b> {{ idOrder }}</b>
+              </p>
+              <p>
+                Submission Date and Time :
+                <b> {{ submissionDate | date: "medium" }}</b>
+              </p>
+              <p>
+                Payment method : <b>{{ payment }}</b>
+              </p>
+              <p>
+                Invoice :
+                <b>
+                  <a
+                    target="_blank"
+                    *ngIf="invoice"
+                    (click)="downloadInvoice(invoice, 'invoice')"
+                    >Download Invoice/</a
+                  >
+                  <a
+                    target="_blank"
+                    *ngIf="proForma && state == 'PVF'"
+                    (click)="downloadInvoice(proForma, 'pro forma invoice')"
+                  >
+                    Pro Forma Invoice</a
+                  ></b
+                >
+              </p>
+              <p>
+                Order Status :
+                <b
+                  ><span [class]="textcolor">{{ getStateName(state) }}</span></b
+                >
+              </p>
+              <p>
+                Order Type:
+                <select
+                  name="search"
+                  class="input-border-color"
+                  [(ngModel)]="choosedOrderType"
+                  *ngIf="state == 'PVP'"
+                >
                   <option value="NA">NA</option>
                   <option value="Client order">Client order </option>
-                  <option value="Free sample order for client">Free sample order for client </option>
+                  <option value="Free sample order for client"
+                    >Free sample order for client
+                  </option>
                   <option value="Internal order">Internal order </option>
                 </select>
-                <b *ngIf="state!='PVP'"><span [class]=" textcolor">{{ choosedOrderType }}</span></b>
+                <b *ngIf="state != 'PVP'"
+                  ><span [class]="textcolor">{{ choosedOrderType }}</span></b
+                >
               </p>
-              <p>Sales:
-                <select name="search" class=" input-border-color" [(ngModel)]="choosenSale" *ngIf="state=='PVP'">
+              <p>
+                Sales:
+                <select
+                  name="search"
+                  class="input-border-color"
+                  [(ngModel)]="choosenSale"
+                  *ngIf="state == 'PVP'"
+                >
                   <option value="no sales">no sales</option>
-                  <option *ngFor='let s of listSales' [value]="s.name">{{s.name}}</option>
+                  <option *ngFor="let s of listSales" [value]="s.name">{{
+                    s.name
+                  }}</option>
                 </select>
-                <b *ngIf="state!='PVP'"><span [class]=" textcolor">{{ choosenSale }}</span></b>
+                <b *ngIf="state != 'PVP'"
+                  ><span [class]="textcolor">{{ choosenSale }}</span></b
+                >
               </p>
             </div>
             <div class="col-md-6">
-              <p>Company Name: <b>{{ company }}</b></p>
-              <p>First name : <b>{{ firstname }}</b></p>
-              <p>Last name : <b>{{ lastname }}</b></p>
-              <p>Job role : <b>{{ job }}</b></p>
-              <p>Country : <b>{{ countryBilling }}</b></p>
+              <p>
+                Company Name: <b>{{ company }}</b>
+              </p>
+              <p>
+                First name : <b>{{ firstname }}</b>
+              </p>
+              <p>
+                Last name : <b>{{ lastname }}</b>
+              </p>
+              <p>
+                Job role : <b>{{ job }}</b>
+              </p>
+              <p>
+                Country : <b>{{ countryBilling }}</b>
+              </p>
             </div>
           </div>
         </div>
@@ -70,7 +125,7 @@
                 <th>Exchange</th>
                 <th>Product ID</th>
                 <th>Purchase Type</th>
-                <th>Engagement Period<br>(month)</th>
+                <th>Engagement Period<br />(month)</th>
                 <th>Date From</th>
                 <th>Date To</th>
                 <th>Pricing Tier</th>
@@ -79,26 +134,47 @@
             </thead>
             <tbody>
               <tr *ngFor="let c of cart">
-                <td *ngIf="!c.print">{{ c.idx}}</td>
+                <td *ngIf="!c.print">{{ c.idx }}</td>
                 <td *ngIf="!c.print">{{ c.quotation_level }}</td>
                 <td *ngIf="!c.print">{{ c.symbol }}</td>
                 <td *ngIf="!c.print">{{ c.exchange }}</td>
                 <td *ngIf="!c.print">{{ c.eid }}</td>
                 <td *ngIf="c.onetime === 1 && !c.print">One-Off</td>
                 <td *ngIf="c.subscription === 1 && !c.print">Subscription</td>
-                <td *ngIf="c.subscription === 1 && verifState() && !c.print"><input type="number" [(ngModel)]="c.period"
-                    min="1" (ngModelChange)="setPeriod(c)"></td>
-                <td *ngIf="c.subscription === 1 && !verifState() && !c.print">{{ c.period }}</td>
+                <td *ngIf="c.subscription === 1 && verifState() && !c.print">
+                  <input
+                    type="number"
+                    [(ngModel)]="c.period"
+                    min="1"
+                    (ngModelChange)="setPeriod(c)"
+                  />
+                </td>
+
+                <td *ngIf="c.subscription === 1 && !verifState() && !c.print">
+                  {{ c.period }}
+                </td>
                 <td *ngIf="c.subscription === 0 && !c.print"></td>
-                <td *ngIf="!c.print">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
-                <td *ngIf="!c.print">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
+                <td *ngIf="!c.print">
+                  {{ c.begin_date_select | date: "yyyy-MM-dd" }}
+                </td>
+                <td *ngIf="!c.print">
+                  {{ c.end_date_select | date: "yyyy-MM-dd" }}
+                </td>
                 <td *ngIf="!c.print">{{ c.pricingTier }}</td>
-                <td *ngIf="!c.print">{{ getHt(c.ht) | number:'1.2-2' }} {{ symbols[currency] }}</td>
+                <td *ngIf="!c.print">
+                  {{ c.ht | number: "1.2-2" }} {{ symbols[currency] }}
+                </td>
                 <td class="bg-grey" colspan="8" *ngIf="c.print"></td>
-                <td *ngIf="(c.backfill_fee || c.ongoing_fee)"><b>Exchange Fees</b></td>
-                <td *ngIf="(c.backfill_fee || c.ongoing_fee)">
-                  {{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }}
-                  {{ symbols[currency] }}</td>
+                <td *ngIf="c.backfill_fee || c.ongoing_fee">
+                  <b>Exchange Fees</b>
+                </td>
+                <td *ngIf="c.backfill_fee || c.ongoing_fee">
+                  {{
+                    (c.backfill_fee ? c.backfill_fee : c.ongoing_fee)
+                      | number: "1.2-2"
+                  }}
+                  {{ symbols[currency] }}
+                </td>
               </tr>
               <tr *ngIf="cart?.length === 0">
                 <td colspan="11" class="no-data-available">Empty !</td>
@@ -109,58 +185,129 @@
         <div class="table-responsive container margin-left-zero">
           <div class="col-md-9 margin-left-zero">
             <p><b>Internal Notes:</b></p>
-            <p><textarea class="responsive-field" name="internNotesText" [(ngModel)]="internalNote"
-                id="internalNotesTextArea">{{internalNote}}</textarea>
+            <p>
+              <textarea
+                class="responsive-field"
+                name="internNotesText"
+                [(ngModel)]="internalNote"
+                id="internalNotesTextArea"
+                >{{ internalNote }}</textarea
+              >
             </p>
           </div>
           <div class="col-md-3">
             <table class="border-color-sum">
               <tr>
                 <td>Exchange Fees</td>
-                <td>{{ totalFees | number:'1.2-2' }} {{ symbols[currency] }}</td>
+                <td>
+                  {{ totalFees | number: "1.2-2" }} {{ symbols[currency] }}
+                </td>
               </tr>
               <tr>
                 <td>Order Amount</td>
-                <td>{{ totalHT | number:'1.2-2' }} {{symbols[currency] }}</td>
+                <td>{{ totalHT | number: "1.2-2" }} {{ symbols[currency] }}</td>
               </tr>
               <tr>
                 <td>Discount (%)</td>
-                <td *ngIf="state=='PVP'"><input type="number" [(ngModel)]="discount" (change)="verifDiscount()" min="0"
-                    max="100" style="width:100%"></td>
-                <td *ngIf="state!='PVP'">{{ discount }}</td>
+                <td *ngIf="state == 'PVP'">
+                  <input
+                    type="number"
+                    [(ngModel)]="discount"
+                    (change)="verifDiscount()"
+                    min="0"
+                    max="100"
+                    style="width: 100%;"
+                  />
+                </td>
+
+                <td *ngIf="state != 'PVP'">{{ discount }}</td>
               </tr>
               <tr>
-                <td>VAT ({{vat*100}}%)</td>
-                <td>{{ totalVat | number:'1.2-2' }} {{ symbols[currency] }}</td>
+                <td>VAT ({{ vat }}%)</td>
+                <td>
+                  {{ totalVat | number: "1.2-2" }} {{ symbols[currency] }}
+                </td>
               </tr>
               <tr>
                 <td>TOTAL Order Amount</td>
                 <!-- <td>{{ (vat * (cmd?.totalHT + cmd?.totalExchangeFees)) + (cmd?.totalHT + cmd?.totalExchangeFees) | number:'1.2-2' }} {{ symbol }}</td> -->
-                <td>{{ totalTTC | number:'1.2-2' }} {{symbols[currency] }}</td>
+                <td>
+                  {{ totalTTC | number: "1.2-2" }} {{ symbols[currency] }}
+                </td>
               </tr>
             </table>
           </div>
         </div>
         <div class="table-responsive text-center">
           <div class="btn-action">
-            <span class="btn btn-info fa fa-save save-note-btn" *ngIf="state=='PVP'" id="save-changes-button"
-              (click)="updateChanges();">
-              Save Changes</span>
-            <span class="btn btn-info fa fa-save save-changes-btn" *ngIf="existSubscribe && verifState()"
-              (click)="openModal(content); actions('Confirm Engagement Period Modification')"> Update Engagement
-              Period</span>
-            <span class="btn btn-info fa fa-save" *ngIf="verifState() && state=='PVP'"
-              (click)="openModal(content); actions('Confirm Discount Application')"> Apply Discount</span>
-            <span class="btn btn-success fa fa-handshake" *ngIf="verifStatePVP() && state=='PVP'"
-              (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
-            <span class="btn btn-danger fa fa-power-off" [routerLink]='["/product/orders"]'> Close</span>
-            <span class="btn btn-danger fa fa-times" *ngIf="verifStatePVP() && state=='PVP'"
-              (click)="openModal(content); actions('Confirm Client Order Rejection')"> Reject</span>
-            <span class="btn btn-warning fa fa-trash" *ngIf="verifStateForCancel() && state=='PVP'"
-              (click)="openModal(content); actions('Confirm Client Order Cancelation')"> Cancel Order</span>
-            <span class="btn btn-warning fa fa-trash" *ngIf="state=='PVF'" (click)="cancelValidation()"
-              [routerLink]='["/product/orders"]'> Cancel
-              Validation</span>
+            <span
+              class="btn btn-info fa fa-save save-note-btn"
+              *ngIf="state == 'PVP'"
+              id="save-changes-button"
+              (click)="updateChanges()"
+            >
+              Save Changes</span
+            >
+            <span
+              class="btn btn-info fa fa-save save-changes-btn"
+              *ngIf="existSubscribe && verifState()"
+              (click)="
+                openModal(content);
+                actions('Confirm Engagement Period Modification')
+              "
+            >
+              Update Engagement Period</span
+            >
+            <span
+              class="btn btn-info fa fa-save"
+              *ngIf="verifState() && state == 'PVP'"
+              (click)="
+                openModal(content); actions('Confirm Discount Application')
+              "
+            >
+              Apply Discount</span
+            >
+            <span
+              class="btn btn-success fa fa-handshake"
+              *ngIf="verifStatePVP() && state == 'PVP'"
+              (click)="
+                openModal(content); actions('Confirm Client Order Validation')
+              "
+            >
+              Validate</span
+            >
+            <span
+              class="btn btn-danger fa fa-power-off"
+              [routerLink]="['/product/orders']"
+            >
+              Close</span
+            >
+            <span
+              class="btn btn-danger fa fa-times"
+              *ngIf="verifStatePVP() && state == 'PVP'"
+              (click)="
+                openModal(content); actions('Confirm Client Order Rejection')
+              "
+            >
+              Reject</span
+            >
+            <span
+              class="btn btn-warning fa fa-trash"
+              *ngIf="verifStateForCancel() && state == 'PVP'"
+              (click)="
+                openModal(content); actions('Confirm Client Order Cancelation')
+              "
+            >
+              Cancel Order</span
+            >
+            <span
+              class="btn btn-warning fa fa-trash"
+              *ngIf="state == 'PVF'"
+              (click)="cancelValidation()"
+              [routerLink]="['/product/orders']"
+            >
+              Cancel Validation</span
+            >
           </div>
         </div>
       </div>
@@ -170,18 +317,28 @@
 
 <ng-template #content let-c="close" let-d="dismiss">
   <div class="modal-header">
-    <h5 class="modal-title"><b>{{ action }}</b></h5>
+    <h5 class="modal-title">
+      <b>{{ action }}</b>
+    </h5>
     <button type="button" class="close" aria-label="Close" (click)="d('')">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
   <div class="modal-body text-right">
-    <div class="text-left"
-      *ngIf="(action === 'Confirm Client Order Rejection' || action === 'Confirm Client Order Cancelation' ) && verifStatePVP()">
+    <div
+      class="text-left"
+      *ngIf="
+        (action === 'Confirm Client Order Rejection' ||
+          action === 'Confirm Client Order Cancelation') &&
+        verifStatePVP()
+      "
+    >
       <p>Reason :</p>
       <p><textarea rows="8" cols="40" class="form-control"></textarea></p>
     </div>
-    <button type="button" class="btn btn-danger" (click)="confirm(); c('')">Confirm</button>
+    <button type="button" class="btn btn-danger" (click)="confirm(); c('')">
+      Confirm
+    </button>
     <button type="button" class="btn btn-light" (click)="c('')">Close</button>
   </div>
 </ng-template>

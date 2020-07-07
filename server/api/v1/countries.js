@@ -7,7 +7,6 @@ const countryService = require('../../service/countryService')
 //const config = require('../../config/config.js');
 //const URLS = config.config();
 // const admin = config.admin();
-
 router.get('/', (req, res) => {
   Countries.find()
     .sort({ ue: -1, name: 1 })

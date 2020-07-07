@@ -1,18 +1,16 @@
-
-const router = require('express').Router();
+const router = require("express").Router();
 const request = require("request");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const Config = mongoose.model('Config');
-const Order = mongoose.model('Order');
-const Pool = mongoose.model('Pool');
-const User = mongoose.model('User');
-const Currency = mongoose.model('Currency');
-const Invoice = mongoose.model('Invoice')
-
+const Config = mongoose.model("Config");
+const Order = mongoose.model("Order");
+const Pool = mongoose.model("Pool");
+const User = mongoose.model("User");
+const Currency = mongoose.model("Currency");
+const Invoice = mongoose.model("Invoice");
 
 //const config = require('../../config/config.js');
-const OrderProductLogService = require('../../service/orderProductLogService');
+const OrderProductLogService = require("../../service/orderProductLogService");
 
 const DOMAIN = global.environment.domain;
 const LOCALDOMAIN = global.environment.localdomain;
@@ -20,16 +18,16 @@ const PAYMENTVERIFY = global.environment.paymentVerify;
 const PAYMENTSETUP = global.environment.paymentSetup;
 const PAYMENTKEY = global.environment.paymentKey;
 
-
-
-const OrderService = require('../../service/orderService');
-const InvoiceService = require('../../service/invoiceService');
-const OrderMailService = require('../../service/orderMailerService');
-const OrderPdfService = require('../../service/orderPdfService');
+const OrderService = require("../../service/orderService");
+const InvoiceService = require("../../service/invoiceService");
+const OrderMailService = require("../../service/orderMailerService");
+const OrderPdfService = require("../../service/orderPdfService");
 const vatService = require("../../service/vatService");
-const { InvoiceDirectory } = require('../../config/config');
-const configService = require("../../service/configService")
-const { config } = require('../../config/config');
+const { InvoiceDirectory } = require("../../config/config");
+const configService = require("../../service/configService");
+const { config } = require("../../config/config");
+const userService = require("../../service/userService");
+const { calculatefeesOfOrder } = require("../../service/feesService");
 
 // Client Encryption Public Key : 10001|C958CBDFC34244F25D41E5B28DA3331CA52385EE3E73B2A51FD94D302CC135DD7DC49BE19EA66CCD00BAE7D26AF00BBB39C73351D4EACC10D7D023FE0ED844BD2D53FAFA9DE26D34373DB80278FB01BD00E27F0E922A3D7AB734D0AEFC48A78CAFA8F5D92FA2CBA08509F398FF9DA8B9AB909010622C6C1DB2933F8CAAD78D6AD9FCE5C46F1D679E83224A6B4B114757B81F5F62C109A5002C4FCC7EE7DA92C2762690835EAB446F4F86D88A903241E9F1930406DC01A4FEC4ED85666D7A1C99A7A46C4ADE83F7461428E6D11E78D86005732256AA632AF34E48990366FA85C463380F424294C81D16173279EB78EDF264422BFAC487CAD9C7A6E9F363AA481B
 // test : https://test.adyen.com/hpp/cse/js/8215198215590909.shtml
@@ -39,40 +37,40 @@ const { config } = require('../../config/config');
 // Facture du type QH_HISTO_000000n avec n auto-incrémental number
 
 /*
-* Les états d'une commandes
-* =========================
-*
-* Durant le panier
-* ----------------
-* Pending Licensing Information : PLI
-* Pending Billing Information : PBI
-* Pending Submission by Client : PSC
-*
-* Plateforme Quanthouse
-* ---------------------
-* Pending Validation by Compliance : PVC
-* Pending Validation by Finance : PVF
-* Pending Validation by Product : PVP
-*
-* États d'avancement de la commande
-* ---------------------------------
-* Active : active
-* Inactive : inactive
-* Rejected : rejected
-* Cancelled : cancelled
-*/
+ * Les états d'une commandes
+ * =========================
+ *
+ * Durant le panier
+ * ----------------
+ * Pending Licensing Information : PLI
+ * Pending Billing Information : PBI
+ * Pending Submission by Client : PSC
+ *
+ * Plateforme Quanthouse
+ * ---------------------
+ * Pending Validation by Compliance : PVC
+ * Pending Validation by Finance : PVF
+ * Pending Validation by Product : PVP
+ *
+ * États d'avancement de la commande
+ * ---------------------------------
+ * Active : active
+ * Inactive : inactive
+ * Rejected : rejected
+ * Cancelled : cancelled
+ */
 
-router.post('/verify', (req, res) => {
+router.post("/verify", (req, res) => {
   let options = {
     url: PAYMENTVERIFY,
     headers: {
-      'content-type': 'application/json',
-      'X-API-Key': PAYMENTKEY
+      "content-type": "application/json",
+      "X-API-Key": PAYMENTKEY,
     },
-    body:
-    {
-      'payload': req.body.payload
-    }, json: true
+    body: {
+      payload: req.body.payload,
+    },
+    json: true,
   };
 
   request.post(options, async function (error, response, body) {
@@ -84,53 +82,75 @@ router.post('/verify', (req, res) => {
   });
 });
 
-router.post('/logPayement', (req, res) => {
+router.post("/logPayement", (req, res) => {
   let options = {
     url: PAYMENTVERIFY,
     headers: {
-      'content-type': 'application/json',
-      'X-API-Key': PAYMENTKEY
+      "content-type": "application/json",
+      "X-API-Key": PAYMENTKEY,
     },
-    body:
-    {
-      'payload': req.body.payload
-    }, json: true
+    body: {
+      payload: req.body.payload,
+    },
+    json: true,
   };
 
   request.post(options, function (error, response, body) {
     body.date = new Date();
-    Order.updateOne({ id_cmd: body.merchantReference }, { $push: { logsPayment: body } })
-      .then((rs) => {
-        res.status(201).json(rs);
-      });
+    Order.updateOne(
+      { id_cmd: body.merchantReference },
+      { $push: { logsPayment: body } }
+    ).then((rs) => {
+      res.status(201).json(rs);
+    });
   });
 });
 
-router.post('/rib', async (req, res) => {
-  req.logger.info({ message: "rib is calling...", className: 'Order API' });
+router.post("/rib", async (req, res) => {
+  req.logger.info({ message: "rib is calling...", className: "Order API" });
   try {
-    await autoValidation(req.body.idCmd, { token: req.body.token, email: req.body.email, payment: 'RIB', date: new Date() }, { ok: true }, res, req.logger);
-    return res.status(200).json({ message: 'Order is submitted' });
-  }
-  catch (error) {
-    req.logger.error({ message: error.message + '\n' + error.stack, className: 'Order API' });
-    return res.status(503).json("An error has been raised, please contact support with identifier error: '" + req.headers.tokenLogger + "'");
+    await autoValidation(
+      req.body.idCmd,
+      {
+        token: req.body.token,
+        email: req.body.email,
+        payment: "RIB",
+        date: new Date(),
+      },
+      { ok: true },
+      res,
+      req.logger
+    );
+    return res.status(200).json({ message: "Order is submitted" });
+  } catch (error) {
+    req.logger.error({
+      message: error.message + "\n" + error.stack,
+      className: "Order API",
+    });
+    return res
+      .status(503)
+      .json(
+        "An error has been raised, please contact support with identifier error: '" +
+          req.headers.tokenLogger +
+          "'"
+      );
   }
 });
 
-router.post('/autovalidation', (req, res) => {
-  Order.findOne({ state: 'PVF' });
+router.post("/autovalidation", (req, res) => {
+  Order.findOne({ state: "PVF" });
 });
 
-router.post('/save', (req, res) => {
-
+router.post("/save", (req, res) => {
   let total = 0;
 
-  if (req.body.cart.currency !== 'usd') {
-
-    total = precisionRound(((req.body.cart.total / req.body.cart.currencyTxUsd) * req.body.cart.currencyTx), 2);
+  if (req.body.cart.currency !== "usd") {
+    total = precisionRound(
+      (req.body.cart.total / req.body.cart.currencyTxUsd) *
+        req.body.cart.currencyTx,
+      2
+    );
   } else {
-
     total = precisionRound(req.body.cart.total, 2);
   }
 
@@ -142,48 +162,52 @@ router.post('/save', (req, res) => {
         vatValue: req.body.cart.vatValue,
         currencyTx: req.body.cart.currencyTx,
         currencyTxUsd: req.body.cart.currencyTxUsd,
-      }
-    })
-    .then(() => {
-      let options = {
-        url: PAYMENTSETUP,
-        headers: {
-          'content-type': 'application/json',
-          'X-API-Key': PAYMENTKEY
+      },
+    }
+  ).then(() => {
+    let options = {
+      url: PAYMENTSETUP,
+      headers: {
+        "content-type": "application/json",
+        "X-API-Key": PAYMENTKEY,
+      },
+      body: {
+        amount: {
+          currency: req.body.cart.currency.toUpperCase(),
+          value: total * 100,
         },
-        body:
-        {
-          "amount": { "currency": req.body.cart.currency.toUpperCase(), "value": total * 100 },
-          "reference": req.body.cart.idCmd,
-          "shopperReference": req.body.user.email,
-          "channel": "Web",
-          "html": true,
-          "origin": DOMAIN,
-          "returnUrl": DOMAIN + '/order/payment',
-          "countryCode": req.body.user.countryBilling,
-          "shopperLocale": "en-GB",
-          "merchantAccount": "QUANTHOUSECOM"
-        }, json: true
-      };
+        reference: req.body.cart.idCmd,
+        shopperReference: req.body.user.email,
+        channel: "Web",
+        html: true,
+        origin: DOMAIN,
+        returnUrl: DOMAIN + "/order/payment",
+        countryCode: req.body.user.countryBilling,
+        shopperLocale: "en-GB",
+        merchantAccount: "QUANTHOUSECOM",
+      },
+      json: true,
+    };
 
-
-      request.post(options, function (error, response, body) {
-        if (error) throw new Error(error);
-        return res.status(200).json(response);
-      });
+    request.post(options, function (error, response, body) {
+      if (error) throw new Error(error);
+      return res.status(200).json(response);
     });
+  });
 });
 
-router.put('/delProductCaddy', async (req, res) => {
-  var caddy = await OrderService.getRawCaddy(req.headers.authorization)
-  var productdeletion = await OrderService.deleteProduct(caddy, req.body.id_product)
+router.put("/delProductCaddy", async (req, res) => {
+  var caddy = await OrderService.getRawCaddy(req.headers.authorization);
+  var productdeletion = await OrderService.deleteProduct(
+    caddy,
+    req.body.id_product
+  );
   if (productdeletion == 1) {
     return res.status(200).json({ message: "Order deleted" });
-  }
-  else if (productdeletion == 2) {
+  } else if (productdeletion == 2) {
     return res.status(200).json({ message: "Product deleted" });
   }
-  return res.status(200).json({ error: 'Product Not found' })
+  return res.status(200).json({ error: "Product Not found" });
 });
 
 // router.put('/updtProductCaddy', (req, res) => {
@@ -227,8 +251,7 @@ router.put('/delProductCaddy', async (req, res) => {
 //     });
 // });
 
-router.put('/updtCaddy', (req, res) => {
-
+router.put("/updtCaddy", (req, res) => {
   let updt = {};
   if (req.body.survey) {
     updt.survey = req.body.survey;
@@ -263,27 +286,25 @@ router.put('/updtCaddy', (req, res) => {
 
   if (req.body.action === "periodupdt") {
     updt.totalHT = req.body.ht;
-    req.body.cart.forEach(rb => {
+    req.body.cart.forEach((rb) => {
       updt["products.$.period"] = rb.period;
       updt["products.$.ht"] = rb.ht;
       Order.updateOne(
-        { id_cmd: req.body.idCmd, 'products.id_undercmd': rb.idElem },
+        { id_cmd: req.body.idCmd, "products.id_undercmd": rb.idElem },
         { $set: updt }
-      ).catch(error => {
+      ).catch((error) => {
         res.status(200).json({ ok: false, error: error });
       });
     });
     res.status(201).json({ ok: true });
   } else {
-    Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt })
-
-      .then((r) => {
-        res.status(201).json({ ok: true });
-      });
+    Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt }).then((r) => {
+      res.status(201).json({ ok: true });
+    });
   }
 });
 
-router.put('/state', async (req, res) => {
+router.put("/state", async (req, res) => {
   let orderUpdated = {};
   let log = {};
   let corp = {};
@@ -294,99 +315,147 @@ router.put('/state', async (req, res) => {
   datedebref = new Date();
   dateFinref = new Date();
   log.date = dateref;
-  if (req.body.referer === 'Compliance') {
+  if (req.body.referer === "Compliance") {
     try {
       await UpdateStateCompliance(orderUpdated, corp, req);
-    }
-    catch (err) {
-      req.logger.error({ message: err.message + '\n' + err.stack, className: 'Order API' });
-      return res.status(503).json({ message: 'An error has been thrown, please contact support with \'' + req.loggerToken + "'" });
+    } catch (err) {
+      req.logger.error({
+        message: err.message + "\n" + err.stack,
+        className: "Order API",
+      });
+      return res.status(503).json({
+        message:
+          "An error has been thrown, please contact support with '" +
+          req.loggerToken +
+          "'",
+      });
     }
   }
-  if (req.body.referer === 'Product') {
+  if (req.body.referer === "Product") {
     try {
       await UpdateStateProduct(orderUpdated, req, corp);
-    }
-    catch (err) {
-      req.logger.error({ message: err.message + '\n' + err.stack, className: 'Order API' });
-      return res.status(503).json({ message: 'An error has been thrown, please contact support with \'' + req.loggerToken + "'" });
+    } catch (err) {
+      req.logger.error({
+        message: err.message + "\n" + err.stack,
+        className: "Order API",
+      });
+      return res.status(503).json({
+        message:
+          "An error has been thrown, please contact support with '" +
+          req.loggerToken +
+          "'",
+      });
     }
   }
-  if (req.body.referer === 'Finance' || req.body.referer === "ProductAutovalidateFinance") {
+  if (
+    req.body.referer === "Finance" ||
+    req.body.referer === "ProductAutovalidateFinance"
+  ) {
     req.logger.info("id commande: " + orderUpdated.idCommande);
     try {
       orderUpdated.idCommande = await setInvoiceId("QH_HISTO_");
       await UpdateOrderFinance(orderUpdated, req, corp, log);
       return res.status(200).json({ ok: true });
+    } catch (err) {
+      req.logger.error({
+        message: err.message + "\n" + err.stack,
+        className: "Order API",
+      });
+      return res.status(503).json({
+        message:
+          "An error has been thrown, please contact support with '" +
+          req.loggerToken +
+          "'",
+      });
     }
-    catch (err) {
-      req.logger.error({ message: err.message + '\n' + err.stack, className: 'Order API' });
-      return res.status(503).json({ message: 'An error has been thrown, please contact support with \'' + req.loggerToken + "'" });
-    }
-
-  }
-  else if (req.body.referer.toLowerCase() === 'client' || req.body.status.toLowerCase() === "cancelled") {
+  } else if (
+    req.body.referer.toLowerCase() === "client" ||
+    req.body.status.toLowerCase() === "cancelled"
+  ) {
     req.logger.info("order updating (" + JSON.stringify(orderUpdated) + ")...");
-    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
-    await Invoice.updateOne({ id_cmd: req.body.id }, { $set: orderUpdated, $push: { logs: log } }).exec();
+    await Order.updateOne(
+      { id_cmd: req.body.idCmd },
+      { $set: orderUpdated, $push: { logs: log } }
+    ).exec();
+    await Invoice.updateOne(
+      { id_cmd: req.body.id },
+      { $set: orderUpdated, $push: { logs: log } }
+    ).exec();
 
     return res.status(201).json({ ok: true });
-  }
-  else {
+  } else {
     req.logger.info("order updating (" + JSON.stringify(orderUpdated) + ")...");
-    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
-    await Invoice.updateOne({ id_cmd: req.body.id }, { $set: orderUpdated, $push: { logs: log } }).exec();
+    await Order.updateOne(
+      { id_cmd: req.body.idCmd },
+      { $set: orderUpdated, $push: { logs: log } }
+    ).exec();
+    await Invoice.updateOne(
+      { id_cmd: req.body.id },
+      { $set: orderUpdated, $push: { logs: log } }
+    ).exec();
     // .then((r) => {
     return res.status(201).json({ ok: true });
   }
 });
 
-router.put('/update', async (request, res) => {
+router.put("/update", async (request, res) => {
   try {
     let orderProductLogs = [];
     var currencies = [];
     var currencies = await Currency.find({}).exec();
-    var orderUpdated = await Order.findOne({ _id: request.body.idcmd.id_cmd }).exec();
-    orderUpdated.id_cmd = orderUpdated.id + "-" + request.body.u.user.companyName.replace(' ', '').toLowerCase() + "-" + new Date().yyyymmdd().replace(/-/g, '');
+    var orderUpdated = await Order.findOne({
+      _id: request.body.idcmd.id_cmd,
+    }).exec();
+    orderUpdated.id_cmd =
+      orderUpdated.id +
+      "-" +
+      request.body.u.user.companyName.replace(" ", "").toLowerCase() +
+      "-" +
+      new Date().yyyymmdd().replace(/-/g, "");
     if (request.body.state) {
       orderUpdated.state = request.body.state;
     }
     if (request.body.cart) {
       let idx = 1;
       if (orderUpdated.products.length > 0) {
-        idx = parseInt(orderUpdated.products[orderUpdated.products.length - 1].id_undercmd.split('§')[1]) + 1;
+        idx =
+          parseInt(
+            orderUpdated.products[
+              orderUpdated.products.length - 1
+            ].id_undercmd.split("§")[1]
+          ) + 1;
       }
       request.body.cart.forEach((elem) => {
         if (elem.backfill_fee !== 0) {
-          let a_backfillfee = (elem.backfill_fee).split(' ');
+          let a_backfillfee = elem.backfill_fee.split(" ");
           switch (a_backfillfee[1]) {
-            case 'USD':
+            case "USD":
               elem.backfill_fee = parseFloat(a_backfillfee[0]);
               break;
             default:
               elem.backfill_fee = parseFloat(a_backfillfee[0]);
               for (let i = 0; i < currencies.length; i++) {
-                if (currencies[i]['device'] === 'USD') {
-                  elem.backfill_fee = elem.backfill_fee * currencies[i]['taux'];
-                } else if (currencies[i]['device'] === a_backfillfee[1]) {
-                  elem.backfill_fee = elem.backfill_fee / currencies[i]['taux'];
+                if (currencies[i]["device"] === "USD") {
+                  elem.backfill_fee = elem.backfill_fee * currencies[i]["taux"];
+                } else if (currencies[i]["device"] === a_backfillfee[1]) {
+                  elem.backfill_fee = elem.backfill_fee / currencies[i]["taux"];
                 }
               }
           }
         }
         if (elem.ongoing_fee !== 0) {
-          let a_ongoingfee = (elem.ongoing_fee).split(' ');
+          let a_ongoingfee = elem.ongoing_fee.split(" ");
           switch (a_ongoingfee[1]) {
-            case 'USD':
+            case "USD":
               elem.ongoing_fee = parseFloat(a_ongoingfee[0]);
               break;
             default:
               elem.ongoing_fee = parseFloat(a_ongoingfee[0]);
               for (let i = 0; i < currencies.length; i++) {
-                if (currencies[i]['device'] === 'USD') {
-                  elem.ongoing_fee = elem.ongoing_fee * currencies[i]['taux'];
-                } else if (currencies[i]['device'] === a_ongoingfee[1]) {
-                  elem.ongoing_fee = elem.ongoing_fee / currencies[i]['taux'];
+                if (currencies[i]["device"] === "USD") {
+                  elem.ongoing_fee = elem.ongoing_fee * currencies[i]["taux"];
+                } else if (currencies[i]["device"] === a_ongoingfee[1]) {
+                  elem.ongoing_fee = elem.ongoing_fee / currencies[i]["taux"];
                 }
               }
           }
@@ -396,47 +465,47 @@ router.put('/update', async (request, res) => {
         orderUpdated.totalHT += parseFloat(elem.ht);
         var id_undercmd = orderUpdated.id + "§" + idx++;
         orderUpdated.products.push({
-          "idx": elem.idx,
-          "index": elem.index,
-          "id_undercmd": id_undercmd,
-          "dataset": elem.quotation_level,
-          "description": elem.description,
-          "pricingTier": elem.pricingTier,
-          "price": elem.price,
-          "backfill_fee": parseFloat(elem.backfill_fee),
-          "ongoing_fee": parseFloat(elem.ongoing_fee),
-          "ht": parseFloat(elem.ht),
-          "onetime": elem.onetime,
-          "subscription": elem.subscription,
-          "period": elem.period,
-          "contractid": elem.contractid,
-          "eid": elem.eid,
-          "qhid": elem.qhid,
-          "symbol": elem.symbol,
-          "historical_data": elem.historical_data,
-          "exchangeName": elem.exchange,
-          "assetClass": elem.assetClass,
-          "mics": elem.mics,
-          "begin_date_ref": elem.begin_date,
-          "end_date_ref": elem.end_date,
-          "begin_date": elem.begin_date_select,
-          "end_date": elem.end_date_select,
-          "status": elem.status,
+          idx: elem.idx,
+          index: elem.index,
+          id_undercmd: id_undercmd,
+          dataset: elem.quotation_level,
+          description: elem.description,
+          pricingTier: elem.pricingTier,
+          price: elem.price,
+          backfill_fee: parseFloat(elem.backfill_fee),
+          ongoing_fee: parseFloat(elem.ongoing_fee),
+          ht: parseFloat(elem.ht),
+          onetime: elem.onetime,
+          subscription: elem.subscription,
+          period: elem.period,
+          contractid: elem.contractid,
+          eid: elem.eid,
+          qhid: elem.qhid,
+          symbol: elem.symbol,
+          historical_data: elem.historical_data,
+          exchangeName: elem.exchange,
+          assetClass: elem.assetClass,
+          mics: elem.mics,
+          begin_date_ref: elem.begin_date,
+          end_date_ref: elem.end_date,
+          begin_date: elem.begin_date_select,
+          end_date: elem.end_date_select,
+          status: elem.status,
         });
         orderProductLogs.push({
           id_undercmd: id_undercmd,
-          referer: 'client',
+          referer: "client",
           status: elem.status,
           idUser: orderUpdated.IdUser,
           date: new Date(),
-          log: 'Cart updated',
+          log: "Cart updated",
           orderId: orderUpdated.id,
           productId: idx,
-        })
+        });
       });
     }
 
-    if (request.body.u.user && (orderUpdated.vatValide === null)) {
+    if (request.body.u.user && orderUpdated.vatValide === null) {
       orderUpdated.companyName = request.body.u.user.companyName;
       orderUpdated.companyType = request.body.u.user.companyType;
       orderUpdated.region = request.body.u.user.region;
@@ -460,46 +529,70 @@ router.put('/update', async (request, res) => {
       orderUpdated.payment = request.body.u.user.payment;
       orderUpdated.currency = request.body.u.user.currency;
       for (var i = 0; i < currencies.length; i++) {
-        if (currencies[i]['id'] === orderUpdated.currency) {
-          orderUpdated.currencyTx = currencies[i]['taux'];
+        if (currencies[i]["id"] === orderUpdated.currency) {
+          orderUpdated.currencyTx = currencies[i]["taux"];
         }
-        if (currencies[i]['id'] === 'usd') {
-          orderUpdated.currencyTxUsd = currencies[i]['taux'];
+        if (currencies[i]["id"] === "usd") {
+          orderUpdated.currencyTxUsd = currencies[i]["taux"];
         }
       }
     }
     if (request.body.survey) {
       orderUpdated.survey = request.body.survey;
     }
-    await Order.updateOne({ _id: request.body.idcmd.id_cmd }, { $set: orderUpdated }).exec();
+    await Order.updateOne(
+      { _id: request.body.idcmd.id_cmd },
+      { $set: orderUpdated }
+    ).exec();
     try {
-      var serviceLogs = new OrderProductLogService(orderUpdated.id, request.logger);
-      request.logger.info({ message: 'Order updated', className: 'Order API' });
+      var serviceLogs = new OrderProductLogService(
+        orderUpdated.id,
+        request.logger
+      );
+      request.logger.info({ message: "Order updated", className: "Order API" });
       await serviceLogs.addAllLogInUpdateOrder(orderProductLogs);
-    }
-    catch (error) {
-      request.logger.error({ message: error.message + '\n' + error.stack, className: 'Order API' });
-      return res.status(503).json({ message: "Unhandle exception, please contact support with '" + request.headers.loggerToken + "' identifier" });
+    } catch (error) {
+      request.logger.error({
+        message: error.message + "\n" + error.stack,
+        className: "Order API",
+      });
+      return res.status(503).json({
+        message:
+          "Unhandle exception, please contact support with '" +
+          request.headers.loggerToken +
+          "' identifier",
+      });
     }
     return res.status(201).json({ ok: true });
-  }
-  catch (err) {
-    request.logger.error({ message: 'Unhandle exception during update cart: ' + err.message, className: 'Order API' });
+  } catch (err) {
+    request.logger.error({
+      message: "Unhandle exception during update cart: " + err.message,
+      className: "Order API",
+    });
     request.logger.error(err);
-    return res.status(501).json({ message: 'Update cannot be executed please contact support with identifier \'' + request.headers.tokenLogger + '\'' });
+    return res.status(501).json({
+      message:
+        "Update cannot be executed please contact support with identifier '" +
+        request.headers.tokenLogger +
+        "'",
+    });
   }
 });
 
-router.post('/usercaddy', (req, res) => {
-  const states = ['CART', 'PLI', 'PBI', 'PSC'];
-  Order.find({ idUser: req.body.id, state: { $in: states } }, { id_cmd: true, state: true })
-    .then((cmd) => {
-
-      if (cmd.length > 0 && states.indexOf(cmd.state)) {
-        return res.status(200).json({ id_cmd: cmd[0]._id });
-      } else {
-        let order = new Order();
-        Order.find({}, { id: 1 }).sort({ 'id': -1 }).limit(1).then(count => {
+router.post("/usercaddy", (req, res) => {
+  const states = ["CART", "PLI", "PBI", "PSC"];
+  Order.find(
+    { idUser: req.body.id, state: { $in: states } },
+    { id_cmd: true, state: true }
+  ).then((cmd) => {
+    if (cmd.length > 0 && states.indexOf(cmd.state)) {
+      return res.status(200).json({ id_cmd: cmd[0]._id });
+    } else {
+      let order = new Order();
+      Order.find({}, { id: 1 })
+        .sort({ id: -1 })
+        .limit(1)
+        .then((count) => {
           if (count.length > 0) {
             order.id = count[0].id + 1;
           } else {
@@ -509,78 +602,95 @@ router.post('/usercaddy', (req, res) => {
           order.idUser = req.body.id;
           order.save((err, c) => {
             if (err) {
-              req.logger.error({ message: err.message, className: 'Order API', error: error });
+              req.logger.error({
+                message: err.message,
+                className: "Order API",
+                error: error,
+              });
               req.logger.error(err);
               return console.error(err);
             }
             return res.status(200).json({ id_cmd: c._id });
           });
         });
-
-      }
-    });
+    }
+  });
 });
 
-router.get('/listStates', (req, res) => {
+router.get("/listStates", (req, res) => {
   let states = [
-    { id: 'CART', name: 'Cart' },
-    { id: 'PLI', name: 'Pending Licensing Information' },
-    { id: 'PBI', name: 'Pending Billing Information' },
-    { id: 'PSC', name: 'Pending Submission by Client' },
-    { id: 'PVP', name: 'Pending Validation by Product' },
-    { id: 'PVC', name: 'Pending Validation by Compliance' },
-    { id: 'PVF', name: 'Pending Validation by Finance' },
-    { id: 'validated', name: 'Validated' },
-    { id: 'active', name: 'Active' },
-    { id: 'inactive', name: 'Inactive' },
-    { id: 'cancelled', name: 'Cancelled' },
-    { id: 'rejected', name: 'Rejected' },
-    { id: 'failed', name: 'Failed' },
+    { id: "CART", name: "Cart" },
+    { id: "PLI", name: "Pending Licensing Information" },
+    { id: "PBI", name: "Pending Billing Information" },
+    { id: "PSC", name: "Pending Submission by Client" },
+    { id: "PVP", name: "Pending Validation by Product" },
+    { id: "PVC", name: "Pending Validation by Compliance" },
+    { id: "PVF", name: "Pending Validation by Finance" },
+    { id: "validated", name: "Validated" },
+    { id: "active", name: "Active" },
+    { id: "inactive", name: "Inactive" },
+    { id: "cancelled", name: "Cancelled" },
+    { id: "rejected", name: "Rejected" },
+    { id: "failed", name: "Failed" },
   ];
   return res.status(200).json({ states: states });
 });
 
-router.post('/submitCaddy', async (req, res) => {
-  await OrderService.submitCaddy(req.headers.authorization, req.body.survey, req.body.currency, req.body.billingInfo);
+router.post("/submitCaddy", async (req, res) => {
+  await OrderService.submitCaddy(
+    req.headers.authorization,
+    req.body.survey,
+    req.body.currency,
+    req.body.billingInfo
+  );
   res.status(200).json({ ok: "true" });
 });
 
-router.post('/caddies', async (req, res) => {
+router.post("/caddies", async (req, res) => {
   if (!req.headers.authorization) {
-    return res.sendStatus(401)
+    return res.sendStatus(401);
   }
-  const order = await OrderService.getCaddy(req.headers.authorization, req.body.currency);
+  const order = await OrderService.getCaddy(
+    req.headers.authorization,
+    req.body.currency
+  );
   return res.status(200).json(order);
 });
 //this is a temporary web service, it will be cleared on the rework of search page
 //TODO : Rework the api name
-router.get('/caddy', async (req, res) => {
+router.get("/caddy", async (req, res) => {
   if (!req.headers.authorization) {
-    return res.sendStatus(401)
+    return res.sendStatus(401);
   }
   const order = await OrderService.getRawCaddy(req.headers.authorization);
   return res.status(200).json(order);
 });
 
-
-router.get('/:id', (req, res) => {
-  Order.findOne({ _id: req.params.id })
-    .then((cmd) => {
-      return res.status(200).json({ cmd: cmd });
-    });
+router.get("/:id", (req, res) => {
+  Order.findOne({ _id: req.params.id }).then((cmd) => {
+    return res.status(200).json({ cmd: cmd });
+  });
 });
 
-router.get('/', async (req, res) => {
-
+router.get("/", async (req, res) => {
   if (!req.headers.authorization) {
-    req.logger.error({ message: "Access denied at this resource", className: "Order API" });
-    return res.status(401).json({ message: 'Access denied at this resource, please contact the support with ticket identifier: ' + req.headers.loggerToken });
+    req.logger.error({
+      message: "Access denied at this resource",
+      className: "Order API",
+    });
+    return res.status(401).json({
+      message:
+        "Access denied at this resource, please contact the support with ticket identifier: " +
+        req.headers.loggerToken,
+    });
   }
-  const orders = await OrderService.getUserOrdersHistory(req.headers.authorization)
+  const orders = await OrderService.getUserOrdersHistory(
+    req.headers.authorization
+  );
   res.status(200).json({ listorders: orders });
 });
 
-router.get('/details/:id', async (req, res) => {
+router.get("/details/:id", async (req, res) => {
   if (!req.headers.authorization) {
     return res.status(401);
   }
@@ -588,56 +698,66 @@ router.get('/details/:id', async (req, res) => {
     return res.status(200).json({ error: "No order id provided in request" });
   }
   try {
-    const order = await OrderService.getOrderDetails(req.params.id, req.headers.authorization)
+    const order = await OrderService.getOrderDetails(
+      req.params.id,
+      req.headers.authorization
+    );
     return res.status(200).json(order);
+  } catch (error) {
+    res.status(503).json({
+      message:
+        "an error has been raised please contact support with this identifier [" +
+        req.headers.loggerToken +
+        "]",
+    });
   }
-  catch (error) {
-    res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" })
-  }
-})
+});
 
-router.put('/cancelValidation', async (req, res) => {
+router.put("/cancelValidation", async (req, res) => {
   if (!req.headers.authorization) {
     return res.status(401);
   }
   var order = await Order.findOne({ id: req.body.id }).exec();
-  await Order.updateOne({ id: order.id },
+  await Order.updateOne(
+    { id: order.id },
     {
       $set: {
         validationProduct: false,
         idProForma: null,
-        state: 'PVP',
+        state: "PVP",
         logs: {
-          status: 'PVP',
-          referer: 'Compliance'
-        }
-      }
-    }).exec();
+          status: "PVP",
+          referer: "Compliance",
+        },
+      },
+    }
+  ).exec();
 
   var invoice = await Invoice.findOne({ orderId: req.body.id }).exec();
-  await Invoice.updateOne({ orderId: invoice.orderId },
+  await Invoice.updateOne(
+    { orderId: invoice.orderId },
     {
       $set: {
         validationProduct: false,
         proFormaId: null,
-        state: 'PVP',
+        state: "PVP",
         logs: {
-          status: 'PVP',
-          referer: 'Compliance'
-        }
-      }
-    }).exec();
+          status: "PVP",
+          referer: "Compliance",
+        },
+      },
+    }
+  ).exec();
   return res.status(200).json({ ok: true });
-})
-
-router.get('/:id', (req, res) => {
-  Order.find({ idUser: req.params.id })
-    .then((cmd) => {
-      return res.status(200).json({ cmd: cmd });
-    });
 });
 
-router.post('/', (req, res) => {
+router.get("/:id", (req, res) => {
+  Order.find({ idUser: req.params.id }).then((cmd) => {
+    return res.status(200).json({ cmd: cmd });
+  });
+});
+
+router.post("/", (req, res) => {
   Order.find({ idUser: req.body.user })
     .sort({ id: req.body.sort })
     .then((cmd) => {
@@ -645,31 +765,36 @@ router.post('/', (req, res) => {
     });
 });
 
-router.get('/idCmd/:id', (req, res) => {
-  Order.findOne({ _id: req.params.id })
-    .then((cmd) => {
-      return res.status(200).json({ cmd: cmd });
-    });
+router.get("/idCmd/:id", async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+  if (!req.params.id) {
+    return res.status(200).json({ error: "No Order id provided" });
+  }
+  try {
+    var order = await OrderService.getOrderById(req.params.id);
+    return res.status(200).json({ cmd: order });
+  } catch (error) {
+    return res.status(503).json({ error: error.message });
+  }
 });
 
-router.get('/retry/:id/:export', (req, res) => {
+router.get("/retry/:id/:export", (req, res) => {
   var currentProduct;
-  Order.findOne(
-    { "products": { $elemMatch: { id_undercmd: req.params.id } } }
-  ).then((order) => {
-
-    order.products.forEach(product => {
+  Order.findOne({
+    products: { $elemMatch: { id_undercmd: req.params.id } },
+  }).then((order) => {
+    order.products.forEach((product) => {
       if (product.id_undercmd === req.params.id) {
         product.id_undercmd = order.id + "§" + product.idx;
         currentProduct = product;
       }
     });
     Order.updateOne(
-
       { id_cmd: order.id_cmd },
       {
-
-        $set: { products: order.products }
+        $set: { products: order.products },
       }
     ).then(() => {
       currentProduct.begin_date = currentProduct.begin_date_select;
@@ -691,7 +816,7 @@ router.get('/retry/:id/:export', (req, res) => {
         begin_date: yyyymmdd(currentProduct.begin_date),
         end_date: yyyymmdd(currentProduct.end_date),
         status: "validated",
-        export_mode: req.params.export
+        export_mode: req.params.export,
       };
       Pool.updateOne(
         { id_cmd: req.params.id },
@@ -704,23 +829,28 @@ router.get('/retry/:id/:export', (req, res) => {
   });
 });
 
-router.post('/listExport', async (req, res) => {
+router.post("/listExport", async (req, res) => {
   let sort = {};
   sort.id = 1;
-  var orders = await Order.find(req.body)
-    .sort(sort)
-    .exec();
-  if (!orders) { return res.status(404); }
-  var list = orders.map(orderItem => { convertOrderExport(orderItem); });
+  var orders = await Order.find(req.body).sort(sort).exec();
+  if (!orders) {
+    return res.status(404);
+  }
+  var list = orders.map((orderItem) => {
+    convertOrderExport(orderItem);
+  });
   return res.status(200).json(list);
 });
 
-router.post('/list', async (req, res) => {
+router.post("/list", async (req, res) => {
   let sort = {};
   sort.createdAt = -1;
   sort[req.body.columns[req.body.order[0].column].data] = req.body.order[0].dir;
 
-  var orderTotalCount = Order.count({ state: { $ne: '' }, state: { $exists: true } }).exec();
+  var orderTotalCount = Order.count({
+    state: { $ne: "" },
+    state: { $exists: true },
+  }).exec();
   let search = buildSearch(req);
   var orderCount = await Order.count(search).exec();
   try {
@@ -731,26 +861,40 @@ router.post('/list', async (req, res) => {
       .collation({ locale: "en" })
       .exec();
   } catch (error) {
-    req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
-    return res.status(503).json({ message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]" });
+    req.logger.error({
+      message: error.message + "\n" + error.stack,
+      className: "Order API",
+    });
+    return res.status(503).json({
+      message:
+        "an error has been raised please contact support with this identifier [" +
+        req.headers.loggerToken +
+        "]",
+    });
   }
-  return res.status(200).json({ recordsFiltered: orderCount, recordsTotal: orderTotalCount, draw: req.body.draw, listorders: orders });
+  return res.status(200).json({
+    recordsFiltered: orderCount,
+    recordsTotal: orderTotalCount,
+    draw: req.body.draw,
+    listorders: orders,
+  });
 });
 
-router.post('/history', (req, res) => {
+router.post("/history", (req, res) => {
   if (req.headers.authorization) {
-    User.findOne({ token: req.headers.authorization }, { _id: true })
-      .then((result) => {
+    User.findOne({ token: req.headers.authorization }, { _id: true }).then(
+      (result) => {
         if (result) {
           let sort = {};
           let idUser = result._id;
           for (var i = 0; i < req.body.order.length; i++) {
-            sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
+            sort[req.body.columns[req.body.order[i].column].data] =
+              req.body.order[i].dir;
           }
           Order.count({ idUser: idUser }).then((c) => {
             let search = {};
             if (idUser) {
-              search['idUser'] = idUser;
+              search["idUser"] = idUser;
             }
             Order.count(search).then((cf) => {
               Order.find(search)
@@ -759,16 +903,23 @@ router.post('/history', (req, res) => {
                 .limit(req.body.length)
                 .collation({ locale: "en" })
                 .then((orders) => {
-                  if (!orders) { return res.status(404); }
-                  return res.status(200).json({ recordsFiltered: cf, recordsTotal: c, draw: req.body.draw, listorders: orders });
+                  if (!orders) {
+                    return res.status(404);
+                  }
+                  return res.status(200).json({
+                    recordsFiltered: cf,
+                    recordsTotal: c,
+                    draw: req.body.draw,
+                    listorders: orders,
+                  });
                 });
             });
           });
-        }
-        else {
+        } else {
           return res.status(404);
         }
-      });
+      }
+    );
   } else {
     return res.status(404);
   }
@@ -780,17 +931,19 @@ router.put("/changePresubmitState", async (req, res) => {
   if (!req.body.state) {
     return res.status(200).json({ error: "No state provided" });
   }
-  if (['CART', 'PLI', 'PBI', 'PSC'].indexOf(req.body.state) == -1) {
+  if (["CART", "PLI", "PBI", "PSC"].indexOf(req.body.state) == -1) {
     return res.status(200).json({ error: "Invalid State" });
   }
   try {
-    var updated = await OrderService.updatePreSubmitStateCaddy(req.headers.authorization, req.body.state);
+    var updated = await OrderService.updatePreSubmitStateCaddy(
+      req.headers.authorization,
+      req.body.state
+    );
     return res.status(200).json({ udpated: updated });
+  } catch (error) {
+    return res.status(200).json({ error: error.message });
   }
-  catch (error) {
-    return res.status(200).json({ error: error.message })
-  }
-})
+});
 
 // router.post('/caddies', (req, res) => {
 //   Order.find({ idUser: req.body.id, state: { $in: ['CART', 'PLI', 'PBI', 'PSC'] } })
@@ -799,119 +952,133 @@ router.put("/changePresubmitState", async (req, res) => {
 //     });
 // });
 
-router.post('/sortProducts', (req, res) => {
-  Order.findOne({ id_cmd: req.body.idCmd })
-    .then(cmd => {
-      let idx = 1;
-      let listProducts = [];
+router.post("/sortProducts", (req, res) => {
+  Order.findOne({ id_cmd: req.body.idCmd }).then((cmd) => {
+    let idx = 1;
+    let listProducts = [];
 
-      cmd.products.forEach(p => {
-        p.id_undercmd = cmd.id + "§" + idx++;
-        listProducts.push(p);
-      });
-
-      Order.updateOne(
-
-        { id_cmd: cmd.id_cmd },
-        {
-          $set: {
-            products: listProducts
-          }
-
-        }).then(u => { return true; });
-
-      return res.status(200).json({ 'ok': true });
+    cmd.products.forEach((p) => {
+      p.id_undercmd = cmd.id + "§" + idx++;
+      listProducts.push(p);
     });
+
+    Order.updateOne(
+      { id_cmd: cmd.id_cmd },
+      {
+        $set: {
+          products: listProducts,
+        },
+      }
+    ).then((u) => {
+      return true;
+    });
+
+    return res.status(200).json({ ok: true });
+  });
 });
 
-router.put('/updatemetadata', (req, res) => {
+router.put("/updatemetadata", (req, res) => {
   if (!req.body.id) {
     return res.sendStatus(400);
   }
   return res.status(200).json({
-    ok: OrderService.updateOrderMetaData(req.body.id, req.body.note, req.body.sales, req.body.type)
+    ok: OrderService.updateOrderMetaData(
+      req.body.id,
+      req.body.note,
+      req.body.sales,
+      req.body.type
+    ),
   });
 });
-router.put('/updateProductDate', async (req, res) => {
+router.put("/updateProductDate", async (req, res) => {
   if (!req.headers.authorization) {
-    res.statusCode(401).json("authorization token is not provided in header")
+    res.statusCode(401).json("authorization token is not provided in header");
   }
   if (!req.body.idproduct) {
-    return res.status(200).json({ error: "No id product provided" })
+    return res.status(200).json({ error: "No id product provided" });
   }
   if (!req.body.dateToChange) {
-    return res.status(200).json({ error: "Unknown date field to change" })
+    return res.status(200).json({ error: "Unknown date field to change" });
   }
   if (!req.body.date) {
-    return res.status(200).json({ error: "No date value provided" })
+    return res.status(200).json({ error: "No date value provided" });
   }
   let caddy = await OrderService.getRawCaddy(req.headers.authorization);
   if (!caddy) {
-    return res.status.json({ error: "Caddy not found with the provided token" })
+    return res.status.json({
+      error: "Caddy not found with the provided token",
+    });
   }
-  var result = OrderService.UpdateProductDate(caddy, req.body.idproduct, req.body.dateToChange, new Date(req.body.date))
-  if (result)
-    return res.status(200).json({ message: 'Ok' })
-  else
-    return res.status(200).json({ error: 'Product not found in the caddy' })
-})
+  var result = OrderService.UpdateProductDate(
+    caddy,
+    req.body.idproduct,
+    req.body.dateToChange,
+    new Date(req.body.date)
+  );
+  if (result) return res.status(200).json({ message: "Ok" });
+  else return res.status(200).json({ error: "Product not found in the caddy" });
+});
 
 buildSearch = function (req) {
   let search = {};
-  search['state'] = { $ne: '' };
-  search['state'] = { $exists: true };
+  search["state"] = { $ne: "" };
+  search["state"] = { $exists: true };
   if (req.body.state) {
-    search['state'] = req.body.state;
+    search["state"] = req.body.state;
   }
-  req.body.columns.forEach(column => {
-    if (column.data === 'redistribution' && column.search.value !== '') {
-      search['survey.dd'] = column.search.value;
-    } else if (column.data === 'submissionDate' && column.search.value !== '') {
-      let d = column.search.value.split('|');
-      search['submissionDate'] = { $gte: new Date(d[0]), $lt: new Date(d[1]) };
-    }
-    else if (column.data === 'purchasetype' && column.search.value) {
-      if (column.search.value == '1') {
-        search['products'] = {
-          $not: { $elemMatch: { subscription: 1, onetime: 0 } }
+  req.body.columns.forEach((column) => {
+    if (column.data === "redistribution" && column.search.value !== "") {
+      search["survey.dd"] = column.search.value;
+    } else if (column.data === "submissionDate" && column.search.value !== "") {
+      let d = column.search.value.split("|");
+      search["submissionDate"] = { $gte: new Date(d[0]), $lt: new Date(d[1]) };
+    } else if (column.data === "purchasetype" && column.search.value) {
+      if (column.search.value == "1") {
+        search["products"] = {
+          $not: { $elemMatch: { subscription: 1, onetime: 0 } },
         };
       }
-      if (column.search.value == '2') {
-        search['products'] = {
-          $not: { $elemMatch: { subscription: 0, onetime: 1 } }
+      if (column.search.value == "2") {
+        search["products"] = {
+          $not: { $elemMatch: { subscription: 0, onetime: 1 } },
         };
       }
-      if (column.search.value == '3') {
-        search['$and'] = [{ 'products': { $elemMatch: { subscription: 1, onetime: 0 } } },
-        { 'products': { $elemMatch: { subscription: 0, onetime: 1 } } }];
+      if (column.search.value == "3") {
+        search["$and"] = [
+          { products: { $elemMatch: { subscription: 1, onetime: 0 } } },
+          { products: { $elemMatch: { subscription: 0, onetime: 1 } } },
+        ];
       }
-
-    }
-    else if (column.data === 'id' && column.search.value !== '') {
+    } else if (column.data === "id" && column.search.value !== "") {
       search[column.data] = parseInt(column.search.value);
-    } else if ((column.data === 'total' || column.data === 'discount') && column.search.value !== '') {
+    } else if (
+      (column.data === "total" || column.data === "discount") &&
+      column.search.value !== ""
+    ) {
       search[column.data] = parseFloat(column.search.value);
-    } else if (column.search.value !== '') {
+    } else if (column.search.value !== "") {
       search[column.data] = new RegExp(column.search.value, "i");
     }
-
   });
-  if (req.body.search.value !== '') {
-    search['$or'] = [
+  if (req.body.search.value !== "") {
+    search["$or"] = [
       { state: new RegExp(req.body.search.value, "i") },
       { companyName: new RegExp(req.body.search.value, "i") },
-      { id_cmd: new RegExp(req.body.search.value, "i") }
+      { id_cmd: new RegExp(req.body.search.value, "i") },
     ];
   }
   return search;
-}
+};
 
 pdfpost = async function (id, logger, invoiceId, invoiceType) {
   try {
     var invoice = await Invoice.findOne({ orderId: id }).exec();
-    await new OrderPdfService(invoice).createInvoicePdf(logger, invoiceId, invoiceType);
-  }
-  catch (error) {
+    await new OrderPdfService(invoice).createInvoicePdf(
+      logger,
+      invoiceId,
+      invoiceType
+    );
+  } catch (error) {
     logger.error({ message: error.message, className: "Order API" });
     logger.error({ message: error.stack, className: "Order API" });
     return false;
@@ -953,19 +1120,21 @@ verifWeekNext = function (dt) {
 Date.prototype.yyyymmdd = function () {
   var mm = this.getMonth() + 1;
   var dd = this.getDate();
-  return [this.getFullYear(), (mm > 9 ? '' : '0') + mm, (dd > 9 ? '' : '0') + dd].join('');
+  return [
+    this.getFullYear(),
+    (mm > 9 ? "" : "0") + mm,
+    (dd > 9 ? "" : "0") + dd,
+  ].join("");
 };
 
 yyyymmdd = function (d) {
-  let dat = d.split('-');
+  let dat = d.split("-");
   let mm = parseInt(dat[1]);
   let dd = parseInt(dat[2]);
 
-  return [
-    dat[0],
-    (mm > 9 ? '-' : '-0') + mm,
-    (dd > 9 ? '-' : '-0') + dd
-  ].join('');
+  return [dat[0], (mm > 9 ? "-" : "-0") + mm, (dd > 9 ? "-" : "-0") + dd].join(
+    ""
+  );
 };
 
 setInvoiceId = async function (prefix) {
@@ -983,7 +1152,6 @@ setInvoiceId = async function (prefix) {
 };
 
 endperiod = function (data, periode) {
-
   let dateclone = new Date(clone(data));
   return dateclone.setMonth(dateclone.getMonth() + periode);
 };
@@ -994,18 +1162,22 @@ precisionRound = function (number, precision) {
 };
 
 totalttc = function (order) {
-  if (order.currency !== 'usd') {
+  if (order.currency !== "usd") {
     return computeTotalTtcInLocalCurrency(order);
   }
   return ComputeTotalTtcUsd(order);
 };
 
 addPool = function (data) {
-  Pool.findOne({ id_cmd: data.id_cmd, begin_date: data.begin_date }).then(p => {
-    if (!p) {
-      Pool.create(data).then(p => { return true; });
+  Pool.findOne({ id_cmd: data.id_cmd, begin_date: data.begin_date }).then(
+    (p) => {
+      if (!p) {
+        Pool.create(data).then((p) => {
+          return true;
+        });
+      }
     }
-  });
+  );
 };
 
 clone = function (obj) {
@@ -1021,12 +1193,17 @@ convertOrderExport = function (orderItem) {
   let orderValues = {};
   orderValues["Invoice_ID"] = orderItem.id;
   orderValues["Client_ID"] = orderItem.idUser;
-  orderValues["Client_Name"] = orderItem.companyName + ": " + orderItem.firstname + " " + orderItem.lastname;
+  orderValues["Client_Name"] =
+    orderItem.companyName +
+    ": " +
+    orderItem.firstname +
+    " " +
+    orderItem.lastname;
   orderValues["Client_Country"] = orderItem.country;
   orderValues["Order_Date"] = orderItem.submissionDate;
-  orderValues['type'] = orderItem.type;
+  orderValues["type"] = orderItem.type;
   if (orderItem.validationFinance) {
-    orderItem.logs.forEach(lo => {
+    orderItem.logs.forEach((lo) => {
       if (lo.referer === "Finance") {
         orderValues["Payment_Date"] = lo.date; // (validation by Finance)
       }
@@ -1036,11 +1213,11 @@ convertOrderExport = function (orderItem) {
   orderValues["Order_Amount_Before_Taxes"] = orderItem.totalHT;
   orderValues["Exchange_Fees"] = orderItem.totalExchangeFees;
   orderValues["VAT"] = orderItem.vatValue;
-  var pay = '';
-  if (orderItem.payment === 'creditcard') {
+  var pay = "";
+  if (orderItem.payment === "creditcard") {
     if (orderItem.logsPayment) {
-      orderItem.logsPayment.forEach(ord => {
-        if (ord && ord.authResponse === 'Authorised') {
+      orderItem.logsPayment.forEach((ord) => {
+        if (ord && ord.authResponse === "Authorised") {
           pay = ord.pspReference;
         }
       });
@@ -1051,20 +1228,23 @@ convertOrderExport = function (orderItem) {
   orderValues["TOTAL_Order_Amount"] = orderItem.total; // CB : mettre la référence Adyen
   orderValues["Internal_Note"] = orderItem.internalNote;
   orderValues["sales"] = orderItem.sales;
-}
+};
 
 computeTotalTtcInLocalCurrency = function (order) {
   var discount = 0;
   var totalHT = 0;
-  totalExchangeFees = (order.totalExchangeFees / order.currencyTxUsd) * order.currencyTx;
+  totalExchangeFees =
+    (order.totalExchangeFees / order.currencyTxUsd) * order.currencyTx;
   discount = order.discount;
-  totalHT = ((order.totalHT + order.totalExchangeFees) / order.currencyTxUsd) * order.currencyTx;
+  totalHT =
+    ((order.totalHT + order.totalExchangeFees) / order.currencyTxUsd) *
+    order.currencyTx;
   if (discount > 0) {
-    totalHT = totalHT - (totalHT * (discount / 100));
+    totalHT = totalHT - totalHT * (discount / 100);
   }
   totalVat = totalHT * order.vatValue;
-  return precisionRound((totalHT * (1 + order.vatValue)), 2);
-}
+  return precisionRound(totalHT * (1 + order.vatValue), 2);
+};
 
 ComputeTotalTtcUsd = function (order) {
   var discount = 0;
@@ -1073,11 +1253,11 @@ ComputeTotalTtcUsd = function (order) {
   discount = order.discount;
   totalHT = order.totalHT + order.totalExchangeFees;
   if (discount > 0) {
-    totalHT = totalHT - (totalHT * (discount / 100));
+    totalHT = totalHT - totalHT * (discount / 100);
   }
   totalVat = totalHT * order.vatValue;
-  return precisionRound((totalHT * (1 + order.vatValue)), 2);
-}
+  return precisionRound(totalHT * (1 + order.vatValue), 2);
+};
 
 autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   let log = {};
@@ -1086,8 +1266,10 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   log.date = new Date();
   let eids = [];
   let corp = {};
-  order.products.forEach(product => { eids.push(product.eid); });
-  if (order.state === 'PSC') {
+  order.products.forEach((product) => {
+    eids.push(product.eid);
+  });
+  if (order.state === "PSC") {
     logger.info({ message: "PSC autovalidation", className: "Order API" });
     await autoValidationOrderStateIsPSC(order, log, logger);
   }
@@ -1095,16 +1277,31 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   if (order.state === "PVC") {
     logger.info("PVC autovalidation");
     // Envoi email aux compliances
-    await autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment, logger);
+    await autovalidationOrderStateIsPendingValidationByCompliance(
+      corp,
+      order,
+      logsPayment,
+      logger
+    );
   }
   if (order.state === "PVP") {
     logger.info("PVP autovalidation");
     // Envoi email aux products
-    await autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger);
+    await autoValidationOrderStateIsPendingValidationbyProduct(
+      corp,
+      order,
+      logsPayment,
+      logger
+    );
   }
   if (order.state === "PVF") {
     logger.info("PVF autovalidation");
-    await autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment, logger);
+    await autoValidationOrderStatePendingValidationByFinance(
+      corp,
+      order,
+      logsPayment,
+      logger
+    );
   }
   // var updateStatus = await Order.updateOne({ id_cmd: idCmd },
   //   {
@@ -1119,18 +1316,20 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   //     }
   //   }).exec();
   //   return res.status(201).json(updateStatus);
-  await Order.updateOne({ id_cmd: idCmd },
+  await Order.updateOne(
+    { id_cmd: idCmd },
     {
       $push: {
         logsPayment: logsPayment,
-        logs: log
+        logs: log,
       },
       $set: {
         validationCompliance: order.validationCompliance,
         submissionDate: new Date(),
-        state: order.state
-      }
-    }).exec();
+        state: order.state,
+      },
+    }
+  ).exec();
   // .then(updateStatus => res.status(201).json(updateStatus));
   // });
 };
@@ -1143,12 +1342,12 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
   let debut = new Date(clone(deb));
   let end = new Date();
   let cart = [];
-  req.body.product.forEach(p => {
-    if (!p.print) { //actual product lines without Exchange fees
+  req.body.product.forEach((p) => {
+    if (!p.print) {
+      //actual product lines without Exchange fees
       p.dataset = p.quotation_level;
       p.exchangeName = p.exchange;
       if (p.subscription === 1) {
-
         end = new Date(endperiod(deb, p.period));
 
         end = verifWeekNext(end);
@@ -1183,13 +1382,12 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
             begin_date: d.yyyymmdd(),
 
             end_date: d.yyyymmdd(),
-            status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
+            status: req.body.status, // peut prendre activated, toretry, nodata, active, inactive
           });
         }
 
         debut = new Date(clone(deb));
-      }
-      else {
+      } else {
         p.begin_date = p.begin_date_select;
         p.end_date = p.end_date_select;
         let qhid = "";
@@ -1213,7 +1411,7 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
           begin_date: yyyymmdd(p.begin_date),
 
           end_date: yyyymmdd(p.end_date),
-          status: req.body.status // peut prendre activated, toretry, nodata, active, inactive
+          status: req.body.status, // peut prendre activated, toretry, nodata, active, inactive
         });
       }
       cart.push(p);
@@ -1221,14 +1419,13 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
     }
   });
   corp = {
-    "email": req.body.email,
-    "idCmd": req.body.id
+    email: req.body.email,
+    idCmd: req.body.id,
   };
   try {
     var mailer = new OrderMailService(req.logger, { id: req.body.id });
     await mailer.orderValidated(corp);
-  }
-  catch (error) {
+  } catch (error) {
     logger.error({ message: error.message, className: "Order API" });
     logger.error({ message: error.stack, className: "Order API" });
   }
@@ -1245,23 +1442,34 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
   orderUpdated.idCommande = prefix + idnew.toString();
   req.logger.info("id commande: " + orderUpdated.idcommande);
   await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec();
-  await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  await Order.updateOne(
+    { id_cmd: req.body.idCmd },
+    { $set: orderUpdated, $push: { logs: log } }
+  ).exec();
   req.logger.info("Order updated");
-  await pdfpost(req.body.id, req.logger, orderUpdated.idCommande, 'Invoice Nbr');
-  await new InvoiceService().updateInvoiceInformation(req.body.id, orderUpdated.idCommande);
+  await pdfpost(
+    req.body.id,
+    req.logger,
+    orderUpdated.idCommande,
+    "Invoice Nbr"
+  );
+  await new InvoiceService().updateInvoiceInformation(
+    req.body.id,
+    orderUpdated.idCommande
+  );
   return corp;
 }
 
 async function UpdateStateProduct(orderUpdated, req, corp) {
-  req.logger.info({ message: 'updating state product...' });
+  req.logger.info({ message: "updating state product..." });
   orderUpdated.validationProduct = true;
   orderUpdated.reason = req.body.reason;
   corp = {
-    "email": req.body.email,
-    "reason": req.body.reason,
-    "idCmd": req.body.id,
-    "paymentdate": new Date(),
-    "service": 'Finance'
+    email: req.body.email,
+    reason: req.body.reason,
+    idCmd: req.body.id,
+    paymentdate: new Date(),
+    service: "Finance",
   };
   // Email validation au pvf
   var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
@@ -1269,18 +1477,17 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
   orderUpdated.idProForma = await setInvoiceId("QH_ProFormaInvoice_");
   let eids = [];
   if (req.body.status === "cancelled") {
-    await Pool.remove({ id: req.body.idCmd.split("-")[0] }).exec()
+    await Pool.remove({ id: req.body.idCmd.split("-")[0] }).exec();
     try {
       var mailer = new OrderMailService(req.logger, order);
       await mailer.orderCancelled(corp);
-    }
-    catch (error) {
+    } catch (error) {
       req.logger.error({ message: error.message, className: "Order API" });
       req.logger.error({ message: error.stack, className: "Order API" });
     }
     return true;
   }
-  if (req.body.status === 'rejected') {
+  if (req.body.status === "rejected") {
     try {
       var mailer = new OrderMailService(req.logger, order);
       corp.reason = "order is rejected by the system"; // generic message
@@ -1288,95 +1495,99 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
         corp.reason = req.body.reason;
       }
       await mailer.orderRejected(corp);
-    }
-    catch (error) {
+    } catch (error) {
       req.logger.error({ message: error.message, className: "Order API" });
       req.logger.error({ message: error.stack, className: "Order API" });
     }
     return true;
   }
-  order.products.forEach(p => {
+  order.products.forEach((p) => {
     eids.push(p.eid);
   });
-  req.logger.info({ message: 'sending email...', className: 'Order API' });
+  req.logger.info({ message: "sending email...", className: "Order API" });
   if (req.body.status !== "cancelled") {
     var users = await User.find({ roleName: "Product" }).exec();
     var mailer = new OrderMailService(req.logger, order);
-    await new OrderPdfService(invoice).createInvoicePdf(req.logger, orderUpdated.idProForma, 'Pro Forma Invoice Nbr');
-    await new InvoiceService().updateProFormaInformation(order.id, orderUpdated.idProForma);
-    users.forEach(async user => {
+    await new OrderPdfService(invoice).createInvoicePdf(
+      req.logger,
+      orderUpdated.idProForma,
+      "Pro Forma Invoice Nbr"
+    );
+    await new InvoiceService().updateProFormaInformation(
+      order.id,
+      orderUpdated.idProForma
+    );
+    users.forEach(async (user) => {
       try {
-        await mailer.newOrderHod(user.email,
-          "Finance",
-          invoice.total);
-      }
-      catch (error) {
+        await mailer.newOrderHod(user.email, "Finance", invoice.total);
+      } catch (error) {
         req.logger.error({ message: error.message, className: "Order API" });
         req.logger.error({ message: error.stack, className: "Order API" });
       }
     });
-    req.logger.info({ message: 'email sent' });
+    req.logger.info({ message: "email sent" });
   }
 }
 
 async function UpdateStateCompliance(updt, corp, req) {
   updt.validationCompliance = true;
   corp = {
-    "email": req.body.email,
-    "idCmd": req.body.idCmd,
-    "paymentdate": new Date(),
-    "service": 'Product'
+    email: req.body.email,
+    idCmd: req.body.idCmd,
+    paymentdate: new Date(),
+    service: "Product",
   };
   // Email validation au pvp
   var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
   let eids = [];
-  order.products.forEach(p => {
+  order.products.forEach((p) => {
     eids.push(p.eid);
   });
   var users = await User.find({ roleName: "Product" }).exec();
-  users.forEach(async user => {
+  users.forEach(async (user) => {
     try {
-      await mailer.newOrderHod(user.email,
-        "Product",
-        totalttc(order));
-    }
-    catch (error) {
+      await mailer.newOrderHod(user.email, "Product", totalttc(order));
+    } catch (error) {
       req.logger.error({ message: error.message, className: "Order API" });
       req.logger.error({ message: error.stack, className: "Order API" });
     }
   });
 }
 
-async function autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment, logger) {
+async function autoValidationOrderStatePendingValidationByFinance(
+  corp,
+  order,
+  logsPayment,
+  logger
+) {
   // var users = await User.find({ roleName: "Finance" }, { email: true, _id: false, firstname: true, lastname: true }).exec();
-  User.find({ roleName: "Finance" }).then(users => {
+  User.find({ roleName: "Finance" }).then((users) => {
     var mailer = new OrderMailService(logger, order);
-    users.forEach(async user => {
+    users.forEach(async (user) => {
       try {
-        await mailer.newOrderHod(user.email,
-          "Finance",
-          totalttc(order));
-      }
-      catch (error) {
+        await mailer.newOrderHod(user.email, "Finance", totalttc(order));
+      } catch (error) {
         logger.error({ message: error.message, className: "Order API" });
         logger.error({ message: error.stack, className: "Order API" });
       }
     });
-    req.logger.info({ message: 'new order hod email sent' });
+    req.logger.info({ message: "new order hod email sent" });
   });
 }
 
-async function autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger) {
+async function autoValidationOrderStateIsPendingValidationbyProduct(
+  corp,
+  order,
+  logsPayment,
+  logger
+) {
   // var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
-  User.find({ roleName: "Product" }).then(users => {
+  User.find({ roleName: "Product" }).then((users) => {
     var mailer = new OrderMailService(logger, order);
-    users.forEach(async user => {
+    users.forEach(async (user) => {
       try {
-        await mailer.newOrderHod(user.email,
-          "Product",
-          totalttc(order));
-      }
-      catch (error) {
+        await mailer.newOrderHod(user.email, "Product", totalttc(order));
+      } catch (error) {
         logger.error({ message: error.message, className: "Order API" });
         logger.error({ message: error.stack, className: "Order API" });
       }
@@ -1384,17 +1595,19 @@ async function autoValidationOrderStateIsPendingValidationbyProduct(corp, order,
   });
 }
 
-async function autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment, logger) {
+async function autovalidationOrderStateIsPendingValidationByCompliance(
+  corp,
+  order,
+  logsPayment,
+  logger
+) {
   // var users = await User.find({ roleName: "Compliance" }, { email: true, _id: false , firstname: true, lastname: true}).exec();
-  User.find({ roleName: "Compliance" }).then(users => {
+  User.find({ roleName: "Compliance" }).then((users) => {
     var mailer = new OrderMailService(logger, order);
-    users.forEach(async user => {
+    users.forEach(async (user) => {
       try {
-        await mailer.newOrderHod(user.email,
-          "Compliance",
-          totalttc(order));
-      }
-      catch (error) {
+        await mailer.newOrderHod(user.email, "Compliance", totalttc(order));
+      } catch (error) {
         logger.error({ message: error.message, className: "Order API" });
         logger.error({ message: error.stack, className: "Order API" });
       }
@@ -1406,30 +1619,29 @@ async function autoValidationOrderStateIsPSC(order, log, logger) {
   try {
     var mailer = new OrderMailService(logger, order);
     await mailer.newOrder(order.email);
-  }
-  catch (error) {
+  } catch (error) {
     logger.error({ message: error.message, className: "Order API" });
     logger.error({ message: error.stack, className: "Order API" });
   }
-  order.products.forEach(product => {
-    if (((product.historical_data
-      && (product.historical_data.backfill_agreement
-        || product.historical_data.backfill_applyfee))
-      || order.survey[0].dd === "1")
-      && product.onetime === 1) {
-      order.state = 'PVC';
-      log.status = 'PVC';
-      log.referer = 'Client';
-    }
-    else {
+  order.products.forEach((product) => {
+    if (
+      ((product.historical_data &&
+        (product.historical_data.backfill_agreement ||
+          product.historical_data.backfill_applyfee)) ||
+        order.survey[0].dd === "1") &&
+      product.onetime === 1
+    ) {
+      order.state = "PVC";
+      log.status = "PVC";
+      log.referer = "Client";
+    } else {
       order.validationCompliance = true;
-      log.referer = 'Autovalidation';
-      order.state = 'PVP';
-      log.status = 'PVP';
+      log.referer = "Autovalidation";
+      order.state = "PVP";
+      log.status = "PVP";
       // Envoi email aux products
     }
   });
 }
-
 
 module.exports = router;
