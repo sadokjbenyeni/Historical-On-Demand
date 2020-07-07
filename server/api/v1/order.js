@@ -22,6 +22,7 @@ const OrderService = require("../../service/orderService");
 const OrderFilterService = require("../../service/orderFilterService");
 const OrderMailService = require("../../service/orderMailerService");
 const OrderPdfService = require("../../service/orderPdfService");
+const InvoiceService = require('../../service/invoiceService')
 const { error } = require('winston');
 const userService = require("../../service/userService");
 const { calculatefeesOfOrder } = require("../../service/feesService");
@@ -339,7 +340,7 @@ router.put("/state", async (req, res) => {
       return res.status(503).json({
         message:
           "An error has been thrown, please contact support with '" +
-          req.loggerToken +
+          req.headers.loggerToken +
           "'",
       });
     }
