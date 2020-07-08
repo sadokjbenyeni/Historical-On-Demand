@@ -13,7 +13,7 @@ module.exports.convertproductsFeestoCurrency = (products, userCurrency, cube) =>
         if (!item.historical_data.backfill_applyfee) {
             item.TotalFees = 0;
         }
-        else if (userCurrency != item.feesCurrency) {
+        else if (item.TotalFees != 0 && userCurrency != item.feesCurrency) {
             var ratio = getRatio(item.feesCurrency, userCurrency, cube)
             item.currencyTx = ratio;
             item.TotalFees *= ratio;

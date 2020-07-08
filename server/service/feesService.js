@@ -47,8 +47,8 @@ function splitproductsbyEID(order) {
             eid: eid,
             exchangeName: productsEID[0].exchangeName,
             historical_data: productsEID[0].historical_data,
-            feesCurrency: productsEID[0].historical_data.backfill_applyfee ? productsEID[0].historical_data.backfill_fee.split(' ')[1] : null,
-            exchangefee: productsEID[0].historical_data.backfill_applyfee ? productsEID[0].historical_data.backfill_fee.split(' ')[0] : null,
+            feesCurrency: productsEID[0].historical_data.backfill_applyfee ? productsEID[0].historical_data.backfill_fee ? productsEID[0].historical_data.backfill_fee.split(' ')[1] : null : null,
+            exchangefee: productsEID[0].historical_data.backfill_applyfee ? productsEID[0].historical_data.backfill_fee ? productsEID[0].historical_data.backfill_fee.split(' ')[0] : 0 : null,
             subscription: subcrtiptionstab, onetime: ontimetab
         });
     });
