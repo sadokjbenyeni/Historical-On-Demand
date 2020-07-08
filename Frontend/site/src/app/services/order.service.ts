@@ -49,8 +49,12 @@ export class OrderService {
     return this.http.put<any>(environment.api + '/order/updtProductCaddy', order);// .map( res => res.json() );
   }
 
-  updtCaddy(order) {
-    return this.http.put<any>(environment.api + '/order/updtCaddy', order);// .map( res => res.json() );
+  updateDiscount(order) {
+    return this.http.put<any>(environment.api + '/order/updateDiscount', order);// .map( res => res.json() );
+  }
+
+  updateEngagementPeriod(order) {
+    return this.http.put<any>(environment.api + '/order/updateEngagementPeriod', order);// .map( res => res.json() );
   }
 
   delElemOrder(order) {

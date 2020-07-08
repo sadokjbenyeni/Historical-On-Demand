@@ -157,9 +157,10 @@ export class OrderspViewComponent implements OnInit {
         if (c.cmd.products.length > 0) {
           this.existSubscribe = false;
           this.list['cmd'].products.forEach((p) => {
-            if (p.subscription === 1) { 
-              this.existSubscribe = true; }
-           // let diff = this.dateDiff(new Date(p.begin_date), new Date(p.end_date));
+            if (p.subscription === 1) {
+              this.existSubscribe = true;
+            }
+            // let diff = this.dateDiff(new Date(p.begin_date), new Date(p.end_date));
             // if (p.onetime === 1) {
             //   p.price = (diff.day + 1) * p.price;
             // } else if (p.subscription === 1) {
@@ -211,12 +212,12 @@ export class OrderspViewComponent implements OnInit {
 
   confirm() {
     if (this.action === 'Confirm Engagement Period Modification') {
-      this.orderService.updtCaddy({ idCmd: this.idCmd, cart: this.cart, ht: this.ht, action: "periodupdt" }).subscribe(res => {
+      this.orderService.updateEngagementPeriod({ idCmd: this.idCmd, cart: this.cart, ht: this.ht}).subscribe(res => {
         this.message = 'Period Applied';
       });
     }
     if (this.action === 'Confirm Discount Application') {
-      this.orderService.updtCaddy({ idCmd: this.idCmd, totalHT: this.totalHTOld, discount: { percent: this.discount } }).subscribe(res => {
+      this.orderService.updateDiscount({ idCmd: this.idCmd, totalHT: this.totalHTOld, totalExchangeFees: this.totalFees, discount: { percent: this.discount } }).subscribe(res => {
         this.message = 'Applied Discount';
       });
     }

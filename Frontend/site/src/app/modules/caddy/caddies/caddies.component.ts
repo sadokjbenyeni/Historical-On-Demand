@@ -265,9 +265,6 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     }
 
   }
-  saveOrderView() {
-    this.orderService.updtCaddy({ idCmd: this.caddy.id_cmd, state: 'PLI' }).subscribe(res => { });
-  }
 
   submitRib() {
     this.orderService.submitCaddy(this.currency, this.survey,

@@ -17,7 +17,7 @@ module.exports.getOrderDetails = async (orderId, userId) => {
         throw new error("Order not found");
     }
 
-    if (IsInvoice(RawOrder.state)) {
+    if (isInvoice(RawOrder.state)) {
         var invoice = await Invoices.findOne({
             orderIdReference: RawOrder._id,
         }).exec();
@@ -197,7 +197,7 @@ module.exports.getLinks = async (user, order, logger) => {
 };
 module.exports.getOrderById = async (OrderId) => {
     var order = await Orders.findOne({ _id: OrderId }).exec();
-    if (IsInvoice(order.state)) {
+    if (isInvoice(order.state)) {
         var invoice = await Invoices.findOne({ orderId: order.id });
     } else {
         var user = await userService.getUserById(order.idUser);
@@ -260,7 +260,7 @@ module.exports.calculateAmountsOfOrder = async (order, currency, cube) => {
     currencyService.convertproductstoCurrency(order, currency, cube);
     return order;
 }
-function IsInvoice(state) {
+function isInvoice(state) {
     return ["PSC", "PBI", "CART", "PLI"].indexOf(state) == -1;
 }
 

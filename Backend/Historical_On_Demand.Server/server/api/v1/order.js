@@ -251,63 +251,43 @@ router.put("/delProductCaddy", async (req, res) => {
 //     });
 // });
 
-router.put("/updtCaddy", (req, res) => {
-  let updt = {};
-  if (req.body.survey) {
-    updt.survey = req.body.survey;
-  }
+router.put("/updateDiscount", (req, res) => {
+  let updatedInvoice = {};
   if (req.body.discount) {
-    updt.discount = req.body.discount.percent;
-    updt.totalHT = req.body.totalHT;
-    updt.totalHT = applyDiscount(updt.totalHT, updt.discount);
-  }
-
-  if (req.body.totaux) {
-    updt.totalExchangeFees = req.body.totaux.totalExchangeFees;
-    updt.totalHT = req.body.totaux.totalHT;
-    updt.currencyTx = req.body.totaux.currencyTx;
-    updt.currencyTxUsd = req.body.totaux.currencyTxUsd;
-    updt.currency = req.body.totaux.currency;
-    updt.total = req.body.totaux.totalTTC;
-  }
-
-  if (req.body.billing) {
-    updt.vat = req.body.billing.vat;
-    updt.currency = req.body.billing.currency;
-    updt.currencyTx = req.body.billing.currencyTx;
-    updt.currencyTxUsd = req.body.billing.currencyTxUsd;
-    updt.vatValide = req.body.billing.vatValide;
-    updt.vatValue = req.body.billing.vatValue;
-    updt.payment = req.body.billing.payment;
-    updt.addressBilling = req.body.billing.addressBilling;
-    updt.cityBilling = req.body.billing.cityBilling;
-    updt.countryBilling = req.body.billing.countryBilling;
-    updt.postalCodeBilling = req.body.billing.postalCodeBilling;
+    updatedInvoice.discount = req.body.discount.percent;
+    updatedInvoice.totalExchangeFees = req.body.totalExchangeFees;
+    updatedInvoice.totalHT = req.body.totalHT;
+    updatedInvoice.totalHT = applyDiscount(updatedInvoice.totalHT, updatedInvoice.totalExchangeFees, updatedInvoice.discount);
   }
 
   if (req.body.state) {
-    updt.state = req.body.state;
+    updatedInvoice.state = req.body.state;
   }
-
-  if (req.body.action === "periodupdt") {
-    updt.totalHT = req.body.ht;
-    req.body.cart.forEach((rb) => {
-      updt["products.$.period"] = rb.period;
-      updt["products.$.ht"] = rb.ht;
-      Order.updateOne(
-        { id_cmd: req.body.idCmd, "products.id_undercmd": rb.idElem },
-        { $set: updt }
-      ).catch((error) => {
-        res.status(200).json({ ok: false, error: error });
-      });
-    });
+  Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updatedInvoice }).then((r) => {
     res.status(201).json({ ok: true });
-  } else {
-    Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updt }).then((r) => {
-      res.status(201).json({ ok: true });
-    });
-  }
+  });
 });
+
+router.put("/updateEngagementPeriod", async (req, res) => {
+  let updatedInvoice = {};
+  updatedInvoice.totalHT = req.body.ht;
+  req.body.cart.forEach((product) => {
+    updatedInvoice["products.$.period"] = product.period;
+    updatedInvoice["products.$.ht"] = product.ht;
+    try {
+      Order.updateOne(
+        { id_cmd: req.body.idCmd, "products.id_undercmd": product.idElem },
+        { $set: updatedInvoice }
+      ).exec();
+    }
+    catch (error) {
+      logger.error({ message: error.message, className: "Order API" });
+      logger.error({ message: error.stack, className: "Order API" });
+      return res.status(503).json({ error: `an error has been raised please contact support with this identifier [${req.headers.loggerToken}]` })
+    }
+  });
+  return res.status(201).json({ ok: true });
+})
 
 router.put("/state", async (req, res) => {
   let orderUpdated = {};
@@ -1278,8 +1258,9 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   // });
 };
 
-function applyDiscount(taxFreeTotal, discount) {
-  return taxFreeTotal - (taxFreeTotal * (discount / 100));
+function applyDiscount(taxFreeTotal, exchangeFees, discount) {
+  exchangeFeesFreeTotal = taxFreeTotal - exchangeFees;
+  return exchangeFeesFreeTotal - (exchangeFeesFreeTotal * (discount / 100));
 }
 
 async function UpdateOrderFinance(orderUpdated, req, log) {
