@@ -158,8 +158,8 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
       this.discount = order.discount;
       this.currencyTx = order.currencyTx;
       this.currencyTxUsd = order.currencyTxUsd;
-      this.totalFees = this.getHt(order.totalExchangeFees);
-      this.totalHT = (this.getHt(order.totalHT) - (this.getHt(order.totalHT) * this.discount / 100)) + this.totalFees;
+      this.totalFees = order.totalExchangeFees;
+      this.totalHT = (order.totalHT - (order.totalHT * this.discount / 100)) + this.totalFees;
       this.vat = order.vatValue;
       this.totalVat = this.totalHT * this.vat;
       this.totalTTC = this.totalHT + this.totalVat;
@@ -219,11 +219,6 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  convertOrderToOrderDetails(order) {
-    var orderDetails = new OrderDetails(order.details, order.products);
-    orderDetails.details.token = order.details.token;
-    return orderDetails;
-  }
 
 
   listCurrencies() {
@@ -248,14 +243,6 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
 
   openModal(content) {
     this.modalService.open(content);
-  }
-
-  getHt(val) {
-    if (this.currency !== 'usd') {
-      return ((val / this.currencyTxUsd) * this.currencyTx);
-    } else {
-      return val;
-    }
   }
 
   precisionRound(number, precision) {
@@ -320,7 +307,14 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
   private SetupOrderDetails(order: any, responseLogs: any) {
     this.orderDetails = this.convertOrderToOrderDetails(order);
     this.getOrderDetailsById(this.orderDetails.details, responseLogs);
-    this.orderHistoryDetailsComponent.setOrderDetails(this.orderDetails);    
+    // this.orderHistoryDetailsComponent.setOrderDetails(this.orderDetails);  
     this.orderHistoryDetailsComponent.setToken(this.orderDetails.details.token);
   }
+
+  convertOrderToOrderDetails(order) {
+    var orderDetails = new OrderDetails(order.details, order.products);
+    orderDetails.details.token = order.details.token;
+    return orderDetails;
+  }
+
 }

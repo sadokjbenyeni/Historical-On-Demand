@@ -163,7 +163,6 @@ export class OrderspViewComponent implements OnInit {
             // if (p.onetime === 1) {
             //   p.price = (diff.day + 1) * p.price;
             // } else if (p.subscription === 1) {
-            //   debugger
             //   p.ht = p.period * p.price;
 
             // }

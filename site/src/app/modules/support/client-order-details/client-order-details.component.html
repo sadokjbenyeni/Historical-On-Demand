@@ -85,11 +85,11 @@
                     <td *ngIf="c.subscription === 0 && !c.print">{{ c.begin_date_select | date:'yyyy-MM-dd' }}</td>
                     <td *ngIf="c.subscription === 0 && !c.print">{{ c.end_date_select | date:'yyyy-MM-dd' }}</td>
                     <td *ngIf="!c.print">{{ c.pricingTier }}</td>
-                    <td *ngIf="!c.print">{{ getHt(c.ht) | number:'1.2-2' }} {{ symbols[currency] }}</td>
+                    <td *ngIf="!c.print">{{ c.ht | number:'1.2-2' }} {{ symbols[currency] }}</td>
                     <td class="bg-grey" colspan="9" *ngIf="c.print"></td>
                     <td *ngIf="(c.backfill_fee || c.ongoing_fee)"><b>Exchange Fees</b></td>
                     <td *ngIf="(c.backfill_fee || c.ongoing_fee)">
-                      {{ getHt((c.backfill_fee ? c.backfill_fee : c.ongoing_fee)) | number:'1.2-2' }}
+                      {{ c.backfill_fee ? c.backfill_fee : c.ongoing_fee | number:'1.2-2' }}
                       {{ symbols[currency] }}</td>
                     <td>{{ c.status }}</td>
                     <td>

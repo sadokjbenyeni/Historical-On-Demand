@@ -220,6 +220,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
   }
 
   public setOrderDetails(order: any) {
+    debugger
     this.orderInfo.id = order.id;
     this.orderInfo.submissionDate = order.submissionDate;
     this.orderInfo.payment = order.payment;
