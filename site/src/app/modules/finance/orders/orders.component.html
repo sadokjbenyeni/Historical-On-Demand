@@ -16,7 +16,8 @@
           <div class="mg-down-5">
             <button class="btn color fa fa-download" (click)="openExport()" *ngIf="!export"> Export</button>
             <button class="btn btn-danger fa fa-power-off" (click)="closeExport()" *ngIf="export"> Close</button>
-            <button class="btn btn-success fa fa-download" (click)="exportFile()" *ngIf="export"> Invoice Export</button>
+            <button class="btn btn-success fa fa-download" (click)="exportFile()" *ngIf="export"> Invoice
+              Export</button>
           </div>
           <div class="panel panel-primary" *ngIf="export">
             <div class="table-responsive container">
@@ -34,7 +35,8 @@
                 <b>Select Invoice ID range</b><br>
                 <div class="form-group input-group">
                   <span class="input-group-addon">Begin ID</span>
-                  <input type="number" class="form-control" [(ngModel)]="beginID" placeholder="Begin Invoice Id" min="1">
+                  <input type="number" class="form-control" [(ngModel)]="beginID" placeholder="Begin Invoice Id"
+                    min="1">
                 </div>
                 <div class="form-group input-group">
                   <span class="input-group-addon">End ID</span>
@@ -43,15 +45,21 @@
               </div>
               <div class="col-md-4 text-center">
                 <b>Select time interval</b>
-                <div class="form-group input-group" style="width: 210px; text-align: center; margin: auto; margin-bottom:15px">
+                <div class="form-group input-group"
+                  style="width: 210px; text-align: center; margin: auto; margin-bottom:15px">
                   <span class="input-group-addon">Begin</span>
-                  <input class="form-control ng-untouched ng-pristine ng-valid" name="vat" placeholder="yyyy-mm-dd" type="text" name="begin-date" ngbDatepicker #bd="ngbDatepicker" [(ngModel)]="beginDate">
-                  <span class="input-group-btn color clickable" (click)="bd.toggle()"><i class="fa fa-calendar"></i></span>
+                  <input class="form-control ng-untouched ng-pristine ng-valid" name="vat" placeholder="yyyy-mm-dd"
+                    type="text" name="begin-date" ngbDatepicker #bd="ngbDatepicker" [(ngModel)]="beginDate">
+                  <span class="input-group-btn color clickable" (click)="bd.toggle()"><i
+                      class="fa fa-calendar"></i></span>
                 </div>
-                <div class="form-group input-group" style="width: 210px; text-align: center; margin: auto; margin-bottom:15px">
+                <div class="form-group input-group"
+                  style="width: 210px; text-align: center; margin: auto; margin-bottom:15px">
                   <span class="input-group-addon">End</span>
-                  <input class="form-control ng-untouched ng-pristine ng-valid" name="vat" placeholder="yyyy-mm-dd" type="text" name="end-date" ngbDatepicker #ed="ngbDatepicker" [(ngModel)]="endDate">
-                  <span class="input-group-btn color clickable" (click)="ed.toggle()"><i class="fa fa-calendar"></i></span>
+                  <input class="form-control ng-untouched ng-pristine ng-valid" name="vat" placeholder="yyyy-mm-dd"
+                    type="text" name="end-date" ngbDatepicker #ed="ngbDatepicker" [(ngModel)]="endDate">
+                  <span class="input-group-btn color clickable" (click)="ed.toggle()"><i
+                      class="fa fa-calendar"></i></span>
                 </div>
               </div>
               <div class="col-md-2 text-center">
@@ -66,21 +74,28 @@
           <table datatable [dtOptions]="dtOptions" class="row-border hover" width="100%">
             <thead>
               <tr class='searchRow'>
-                <th><input type="text" placeholder="Client" name="search-client" class="form-control input-border-color" (keyup)="onKey($event, 0)"></th>
-                <th><input type="number" placeholder="Order Id" name="search-orderId" class="form-control input-border-color" (keyup)="onKey($event, 1)"></th>
+                <th><input type="text" placeholder="Client" name="search-client" class="form-control input-border-color"
+                    (keyup)="onKey($event, 0)"></th>
+                <th><input type="number" placeholder="Order Id" name="search-orderId"
+                    class="form-control input-border-color" (keyup)="onKey($event, 1)"></th>
                 <th>
-                  <select name="search" class="form-control input-border-color" [(ngModel)]="state" (ngModelChange)="changeState(2)">
+                  <select name="search" class="form-control input-border-color" [(ngModel)]="state"
+                    (ngModelChange)="changeState(2)">
                     <option value="">Select State</option>
                     <option *ngFor='let s of states' [value]="s.id">{{s.name}}</option>
                   </select>
                 </th>
                 <th>
                   <div class="form-group input-group" style="width: 150px; text-align: center; margin: auto;">
-                    <input class="form-control input-border-color ng-untouched ng-pristine ng-valid" name="vat" placeholder="yyyy-mm-dd" type="text" name="search-date" ngbDatepicker #sd="ngbDatepicker"  [(ngModel)]="dateSubmission" (ngModelChange)="changeDate(3)">
-                    <span class="input-group-btn color clickable" (click)="sd.toggle()"><i class="fa fa-calendar"></i></span>
+                    <input class="form-control input-border-color ng-untouched ng-pristine ng-valid" name="vat"
+                      placeholder="yyyy-mm-dd" type="text" name="search-date" ngbDatepicker #sd="ngbDatepicker"
+                      [(ngModel)]="dateSubmission" (ngModelChange)="changeDate(3)">
+                    <span class="input-group-btn color clickable" (click)="sd.toggle()"><i
+                        class="fa fa-calendar"></i></span>
                   </div>
                 </th>
-                <th><input type="text" placeholder="Total" name="search-total" class="form-control input-border-color" (keyup)="onKey($event, 4)"></th>
+                <th><input type="text" placeholder="Total" name="search-total" class="form-control input-border-color"
+                    (keyup)="onKey($event, 4)"></th>
                 <!-- <th><input type="text" placeholder="Purchase Type" name="search-redistribution" class="form-control input-border-color" (keyup)="onKey($event, 5)"></th> -->
                 <th>
                   <select name="search" class="form-control input-border-color" [(ngModel)]="purchasetype"
@@ -91,8 +106,10 @@
                     <option value=3>One-Off & Subscription</option>
                   </select>
                 </th>
-                <th><input type="text" placeholder="Discount" name="search-discount" class="form-control input-border-color" (keyup)="onKey($event, 6)"></th>
-                <th><input type="text" placeholder="Redistribution" name="search-redistribution" class="form-control input-border-color" (keyup)="onKey($event, 7)"></th>
+                <th><input type="text" placeholder="Discount" name="search-discount"
+                    class="form-control input-border-color" (keyup)="onKey($event, 6)"></th>
+                <th><input type="text" placeholder="Redistribution" name="search-redistribution"
+                    class="form-control input-border-color" (keyup)="onKey($event, 7)"></th>
                 <th></th>
               </tr>
               <tr>
@@ -115,14 +132,15 @@
                 <!-- <td>{{ o.idUser }}</td> -->
                 <td class="text-center">{{ getStateName(o.state) }}</td>
                 <td>{{ o.submissionDate | date:'yyyy-MM-dd' }}</td>
-                <td>{{ precisionRound(getHt(o.totalHT, o.currency, o.currencyTxUsd, o.currencyTx, o.discount, o.vatValue), 2)  | number:'1.2-2' }} {{ symbols[o.currency] }}</td>
+                <td>{{ o.total  | number:'1.2-2' }} {{ symbols[o.currency] }}</td>
                 <td>{{ o.products | purchasetype}}</td>
                 <td>{{ o.discount }}</td>
                 <td class="text-center">
                   <span class="fa fa-check-circle text-success" *ngIf="o.survey[0] && o.survey[0]['dd'] === '1'"></span>
                   <span class="fa fa-times-circle text-danger" *ngIf="o.survey[0] && o.survey[0]['dd'] === '0'"></span>
                 </td>
-                <td class="text-center"><span class="btn btn-success fa fa-eye" [routerLink]="'/finance/orderview/' + o._id"></span></td>
+                <td class="text-center"><span class="btn btn-success fa fa-eye"
+                    [routerLink]="'/finance/orderview/' + o._id"></span></td>
               </tr>
             </tbody>
           </table>

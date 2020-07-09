@@ -85,7 +85,7 @@ function checkifSubscription(product) {
     return product.subscription == 1 ? "subscription" : "onetime";
 }
 module.exports.getUserOrdersHistory = async (userId) => {
-    user = await userService.getUserById(userId, { _id: false, currency: true });
+    user = await userService.getUserById(userId, { currency: true });
     var caddy = await this.getCaddy(undefined, undefined, user);
     var invoices = await Invoices.find({ userId: userId }).exec();
     invoices = invoices.map((item) => ToOrderDto(item, false));
@@ -210,17 +210,18 @@ module.exports.getOrderById = async (OrderId) => {
     setOrderValuesFromInvoice(order, invoice);
     return order;
 };
-module.exports.getCaddy = async (
+module.exports.getCaddy = async function async(
     userId = undefined,
     currency = undefined,
     user = undefined
-) => {
-    var caddy = await getOrderByUserId(userId);
+) {
+    if (!user) {
+        user = await userService.getUserById(userId, {  currency: true });
+    }
+    var caddy = await getOrderByUserId(user._id);
+
     if (caddy) {
         if (!currency) {
-            if (!user) {
-                user = await userService.getUserById(userId, { _id: false, currency: true });
-            }
             currency = user.currency;
         }
         await this.calculateAmountsOfOrder(caddy, currency, undefined)
