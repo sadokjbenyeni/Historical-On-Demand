@@ -13,13 +13,13 @@ router.get('/:orderid', async (req, res) => {
     return res.status(401);
   }
 
-  var order = await orderSerivce.getOrderById(req.params.orderId);
+  var order = await orderSerivce.getOrderById(req.params.orderid);
   var logs = await OrderProductLog.find({ orderId: order.id }).exec();
   return res.status(200).json({ logs: logs });
 });
 
 router.get('/:orderid/:idx', async (req, res) => {
-  var order = await await orderSerivce.getOrderById(req.params.orderId);
+  var order = await orderSerivce.getOrderById(req.params.orderid);
   var logs = await OrderProductLog.find({ orderId: order.id, productId: req.params.idx }).exec();
   return res.status(200).json({ logs: logs });
 });

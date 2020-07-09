@@ -22,13 +22,13 @@ const PHRASE = global.environment.phrase;
 
 const algorithm = 'aes256';
 
-router.param('user', function (req, res, next, id) {
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-        return res.sendStatus(422);
-    }
-    idd = id;
-    return next();
-});
+// router.param('user', function (req, res, next, id) {
+//     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+//         return res.sendStatus(422);
+//     }
+//     idd = id;
+//     return next();
+// });
 
 
 router.post('/changedefaultaddress', async (req, res) => {
@@ -206,8 +206,8 @@ router.post('/', async (req, res) => {
 });
 
 router.post('/logout/', (req, res) => {
-
-    User.updateOne({ token: req.headers.authorization }, { $set: { islogin: false } })
+    const userId = jwtService.verifyToken(req.headers.authorization).id
+    User.updateOne({ _id: userId }, { $set: { islogin: false } })
         .then((val) => {
             res.status(200).json({});
         })
@@ -351,14 +351,16 @@ router.delete('/:user', (req, res) => {
 
 
 router.put('/', (req, res) => {
+    if (!req.headers.authorization) {
+    }
     // if(URLS.indexOf(req.headers.referer) !== -1){
     let user = {};
-    if (!req.body.id && !req.body.nom && req.body.id == undefined && req.body.nom == undefined) {
-        res.sendStatus(422);
-    }
-    if (!req.body.id.match(/^[0-9a-fA-F]{24}$/)) {
-        res.sendStatus(422);
-    }
+    // if (!req.body.id && !req.body.nom && req.body.nom == undefined) {
+    //     res.sendStatus(422);
+    // }
+
+    const userId = jwtService.verifyToken(req.headers.authorization).id;
+
     if (req.body.password) {
         let cipher = crypto.createCipher(algorithm, req.body.password);
         let crypted = cipher.update(PHRASE, 'utf8', 'hex');
@@ -398,7 +400,7 @@ router.put('/', (req, res) => {
     user.role = req.body.role;
     user.state = req.body.state;
 
-    User.update({ _id: req.body.id }, { $set: user })
+    User.update({ _id: userId }, { $set: user })
         .then((user) => {
             res.status(201).json({ message: "Your account has been updated" });
             return;

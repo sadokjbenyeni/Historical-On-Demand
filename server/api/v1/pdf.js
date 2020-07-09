@@ -19,6 +19,8 @@ const LOCALDOMAIN = global.environment.localdomain;
 
 const OrderPdfService = require('../../service/orderPdfService');
 const DateService = require('../../service/dateService');
+const jwtService = require("../../service/jwtService")
+
 var moment = require('moment');
 moment().format();
 
@@ -26,7 +28,8 @@ router.post('/', async (req, res) => {
   if (!req.headers.authorization) {
     return res.status(401);
   }
-  var authentifiedUser = await User.findOne({ token: req.headers.authorization }, { _id: true }).exec();
+  const userId = jwtService.verifyToken(req.headers.authorization).id
+  var authentifiedUser = await userService.getUserById(userId);
   if (!authentifiedUser) {
     req.logger.warn({ message: '[Security] Token not found', className: 'PDF API' });
     return res.status(403).json({ message: "Access denied. Please contact support with identifier: [" + req.headers.loggerToken + "]" });

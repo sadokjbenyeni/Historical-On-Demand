@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
 const Users = mongoose.model("User");
 
-module.exports.GetUserByToken = async (token) => {
-  User = await Users.findOne({ token: token }).exec();
-  return User;
-};
 module.exports.getUserById = async (userId, options = { password: false }) => {
   const user = await Users.findOne({ _id: userId }, options).exec();
   return user;
@@ -46,7 +42,3 @@ module.exports.UpdateUserDefaultCurrency = async (userId, currency) => {
   }
   return true;
 };
-// module.exports.HaveRole = async (userId, role) => {
-//   const user = await Users.find({ _id: userId, roleName: role });
-//   return (user != undefined)
-// }
