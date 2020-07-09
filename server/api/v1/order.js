@@ -19,6 +19,7 @@ const PAYMENTSETUP = global.environment.paymentSetup;
 const PAYMENTKEY = global.environment.paymentKey;
 
 const OrderService = require("../../service/orderService");
+const jwtService = require("../../service/jwtService");
 const OrderFilterService = require("../../service/orderFilterService");
 const OrderMailService = require("../../service/orderMailerService");
 const OrderPdfService = require("../../service/orderPdfService");
@@ -129,8 +130,8 @@ router.post("/rib", async (req, res) => {
       .status(503)
       .json(
         "An error has been raised, please contact support with identifier error: '" +
-          req.headers.tokenLogger +
-          "'"
+        req.headers.tokenLogger +
+        "'"
       );
   }
 });
@@ -145,7 +146,7 @@ router.post("/save", (req, res) => {
   if (req.body.cart.currency !== "usd") {
     total = precisionRound(
       (req.body.cart.total / req.body.cart.currencyTxUsd) *
-        req.body.cart.currencyTx,
+      req.body.cart.currencyTx,
       2
     );
   } else {
@@ -195,7 +196,8 @@ router.post("/save", (req, res) => {
 });
 
 router.put("/delProductCaddy", async (req, res) => {
-  var caddy = await OrderService.getRawCaddy(req.headers.authorization);
+  const userId = jwtService.verifyToken(req.headers.authorization).id;
+  var caddy = await OrderService.getRawCaddy(userId);
   var productdeletion = await OrderService.deleteProduct(
     caddy,
     req.body.id_product
@@ -640,21 +642,29 @@ router.get("/listStates", (req, res) => {
 });
 
 router.post("/submitCaddy", async (req, res) => {
-  await OrderService.submitCaddy(
-    req.headers.authorization,
-    req.body.survey,
-    req.body.currency,
-    req.body.billingInfo
-  );
-  res.status(200).json({ ok: "true" });
+  try {
+    userId = jwtService.verifyToken(req.headers.authorization).id
+    await OrderService.submitCaddy(
+      userId,
+      req.body.survey,
+      req.body.currency,
+      req.body.billingInfo
+    );
+    res.status(200).json({ ok: "true" });
+  }
+  catch (error) {
+    return res.status(401).json({ error: error.message })
+  }
+
 });
 
 router.post("/caddies", async (req, res) => {
   if (!req.headers.authorization) {
     return res.sendStatus(401);
   }
+  userId = jwtService.verifyToken(req.headers.authorization).id
   const order = await OrderService.getCaddy(
-    req.headers.authorization,
+    userId,
     req.body.currency
   );
   return res.status(200).json(order);
@@ -665,7 +675,8 @@ router.get("/caddy", async (req, res) => {
   if (!req.headers.authorization) {
     return res.sendStatus(401);
   }
-  const order = await OrderService.getRawCaddy(req.headers.authorization);
+  const userId = jwtService.verifyToken(req.headers.authorization).id;
+  const order = await OrderService.getRawCaddy(userId);
   return res.status(200).json(order);
 });
 
@@ -687,9 +698,8 @@ router.get("/", async (req, res) => {
         req.headers.loggerToken,
     });
   }
-  const orders = await OrderService.getUserOrdersHistory(
-    req.headers.authorization
-  );
+  userId = jwtService.verifyToken(req.headers.authorization).id;
+  const orders = await OrderService.getUserOrdersHistory(userId);
   res.status(200).json({ listorders: orders });
 });
 
@@ -701,9 +711,10 @@ router.get("/details/:id", async (req, res) => {
     return res.status(200).json({ error: "No order id provided in request" });
   }
   try {
+    userId = jwtService.verifyToken(req.headers.authorization).id
     const order = await OrderService.getOrderDetails(
       req.params.id,
-      req.headers.authorization
+      userId
     );
     return res.status(200).json(order);
   } catch (error) {
@@ -865,46 +876,42 @@ router.post("/list", async (req, res) => {
 
 });
 
-router.post("/history", (req, res) => {
-  if (req.headers.authorization) {
-    User.findOne({ token: req.headers.authorization }, { _id: true }).then(
-      (result) => {
-        if (result) {
-          let sort = {};
-          let idUser = result._id;
-          for (var i = 0; i < req.body.order.length; i++) {
-            sort[req.body.columns[req.body.order[i].column].data] =
-              req.body.order[i].dir;
+router.post("/history",async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+  const userId = jwtService.verifyToken(req.headers.authorization).id;
+  const user = await userService.getUserById(userId);
+  if (user) {
+    let sort = {};
+    let idUser = user._id;
+    for (var i = 0; i < req.body.order.length; i++) {
+      sort[req.body.columns[req.body.order[i].column].data] =
+        req.body.order[i].dir;
+    }
+    documentsCount = await Order.countDocuments({ idUser: idUser }).exec();
+    let search = {};
+    if (idUser) {
+      search["idUser"] = idUser;
+    }
+    Order.countDocuments(search).then((cf) => {
+      Order.find(search)
+        .sort(sort)
+        .skip(req.body.start)
+        .limit(req.body.length)
+        .collation({ locale: "en" })
+        .then((orders) => {
+          if (!orders) {
+            return res.status(404);
           }
-          Order.count({ idUser: idUser }).then((c) => {
-            let search = {};
-            if (idUser) {
-              search["idUser"] = idUser;
-            }
-            Order.count(search).then((cf) => {
-              Order.find(search)
-                .sort(sort)
-                .skip(req.body.start)
-                .limit(req.body.length)
-                .collation({ locale: "en" })
-                .then((orders) => {
-                  if (!orders) {
-                    return res.status(404);
-                  }
-                  return res.status(200).json({
-                    recordsFiltered: cf,
-                    recordsTotal: c,
-                    draw: req.body.draw,
-                    listorders: orders,
-                  });
-                });
-            });
+          return res.status(200).json({
+            recordsFiltered: cf,
+            recordsTotal: documentsCount,
+            draw: req.body.draw,
+            listorders: orders,
           });
-        } else {
-          return res.status(404);
-        }
-      }
-    );
+        });
+    });
   } else {
     return res.status(404);
   }
@@ -988,7 +995,8 @@ router.put("/updateProductDate", async (req, res) => {
   if (!req.body.date) {
     return res.status(200).json({ error: "No date value provided" });
   }
-  let caddy = await OrderService.getRawCaddy(req.headers.authorization);
+  const idUser = jwtService.verifyToken(req.headers.authorization).id
+  let caddy = await OrderService.getRawCaddy(idUser);
   if (!caddy) {
     return res.status.json({
       error: "Caddy not found with the provided token",

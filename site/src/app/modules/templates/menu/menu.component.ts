@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { UserService } from '../../../services/user.service';
+import * as jwt_decode from 'jwt-decode';
 
 @Component({
   selector: 'app-menu',
@@ -9,36 +10,30 @@ import { UserService } from '../../../services/user.service';
   styleUrls: ['./menu.component.css']
 })
 export class MenuComponent implements OnInit {
-  link: any;
-  role: string;
+  link: any = "";
+  role: string = "";
 
   constructor(
     private router: Router,
     private userService: UserService
   ) {
-    this.link = '';
-    this.role = '';
+
   }
 
   ngOnInit() {
-    this.role = '';
-    let user = JSON.parse(sessionStorage.getItem('user'));
-    if (user && typeof user === 'object') {
-      this.role = user.roleName;
-    } else {
-      this.role = '';
+    let token = sessionStorage.getItem('token');
+    if (token) {
+      this.role = jwt_decode(token).roleName
     }
   }
 
   logout() {
-    let user = JSON.parse(sessionStorage.getItem('user'));
-    if(user.token){
-      this.userService.logout({token:user.token}).subscribe(() => {
+    let token = sessionStorage.getItem('token');
+    if (token) {
+      this.userService.logout({ token: token }).subscribe(() => {
         this.role = '';
-        sessionStorage.removeItem('user');
-        sessionStorage.removeItem('cart');
-        sessionStorage.removeItem('surveyForm');
-        sessionStorage.setItem('dataset',JSON.stringify({"dataset":"", "title":""}));
+        sessionStorage.removeItem('token');
+        sessionStorage.setItem('dataset', JSON.stringify({ "dataset": "", "title": "" }));
         this.router.navigate(['/home']);
       });
     }

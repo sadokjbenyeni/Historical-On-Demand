@@ -1,18 +1,12 @@
 const router = require('express').Router();
 const mongoose = require('mongoose');
-const User = mongoose.model('User');
 const Order = mongoose.model('Order');
+const userService = require('../../../service/userService');
+const orderService = require('../../../service/orderService');
 
 router.get('/details/:id', async (req, res) => {
-    if (!req.headers.authorization) {
-        return res.status(401);
-    }
-    var user = await User.findOne({ token: req.headers.authorization, roleName: "Support" }, { _id: true }).exec();
-    if (!user) {
-        req.logger.warn({ message: '[Security] Token not found', className: 'Order Support API' });
-        return res.status(403).json({ message: "Access denied. Please contact support with identifier: [" + req.headers.loggerToken + "]" });
-    }
-    var order = await Order.findOne({ _id: req.params.id }).exec();
+
+    var order = await orderService.getOrderById(req.params.id);
     try {
         order = await supportOrderDetails(order);
     }
@@ -53,10 +47,9 @@ supportOrderDetails = async function (order) {
     container.vat = order.vat;
     container.vatValide = order.vatValide;
     container.vatValue = order.vatValue;
-    var user = await User.findOne({ _id: order.idUser }).exec();
-    if(user)
-    {
-         container.token = user.token;
+    var user = await userService.getUserById(order.idUser)
+    if (user) {
+        container.token = user.token;
     }
     return container;
 }

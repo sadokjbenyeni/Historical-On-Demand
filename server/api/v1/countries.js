@@ -43,7 +43,7 @@ router.post('/', (req, res) => {
   for (var i = 0; i < req.body.order.length; i++) {
     sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
   }
-  Countries.count().then((c) => {
+  Countries.countDocuments().then((c) => {
     let search = {};
     req.body.columns.forEach(s => {
       if (s.search.value !== '') {
@@ -56,7 +56,7 @@ router.post('/', (req, res) => {
         { name: new RegExp(req.body.search.value, "i") }
       ];
     }
-    Countries.count(search).then((cf) => {
+    Countries.countDocuments(search).then((cf) => {
       Countries.find(search)
         .skip(req.body.start)
         .limit(req.body.length)

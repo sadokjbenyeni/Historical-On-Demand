@@ -84,7 +84,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   page: number;
   reqSearch: {
     fields: string[], query: { bool: { must: any[], should: any[], must_not: any[] } }
-      , aggs: object, from: number, size: number, index: any[], type: any[]
+    , aggs: object, from: number, size: number, index: any[], type: any[]
   };
   nbperpage: string;
   nassc: string;
@@ -180,8 +180,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.getCatalogue();
     }
     this.search = this.dataset.title;
-    this.user = JSON.parse(sessionStorage.getItem('user'));
-    this.getInfoUser(this.user['token']);
+    this.getInfoUser();
     this.getCaddy();
     this.exchanges = [];
     this.assets = [];
@@ -265,12 +264,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
     return val;
   }
 
-  getInfoUser(token) {
+  getInfoUser() {
     const field = [
       'id',
-      'token',
     ];
-    this.userService.info({ token: token, field: field }).subscribe(res => {
+    this.userService.info({ field: field }).subscribe(res => {
       this.user = res.user;
     });
   }
@@ -280,23 +278,23 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.caddies = [];
       if (caddy) {
         caddy.products.forEach((p) => {
-            let prod = {
-              id: p.idx,
-              quotation_level: p.dataset,
-              description: p.description,
-              onetime: p.onetime,
-              subscription: p.subscription,
-              begin_date_select: p.begin_date,
-              bdref: this.dateNGB(p.begin_date_ref),
-              begin_date: p.begin_date_ref,
-              bds: this.dateNGB(p.begin_date),
-              end_date_select: p.end_date,
-              end_date: p.end_date_ref,
-              edref: this.dateNGB(p.end_date_ref),
-              eds: this.dateNGB(p.end_date)
-            };
-            this.caddies.push(prod);
-          });
+          let prod = {
+            id: p.idx,
+            quotation_level: p.dataset,
+            description: p.description,
+            onetime: p.onetime,
+            subscription: p.subscription,
+            begin_date_select: p.begin_date,
+            bdref: this.dateNGB(p.begin_date_ref),
+            begin_date: p.begin_date_ref,
+            bds: this.dateNGB(p.begin_date),
+            end_date_select: p.end_date,
+            end_date: p.end_date_ref,
+            edref: this.dateNGB(p.end_date_ref),
+            eds: this.dateNGB(p.end_date)
+          };
+          this.caddies.push(prod);
+        });
       }
     });
   }
@@ -859,7 +857,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
             }
           }
           product.contractid = '';
-          product.qhid = '';  
+          product.qhid = '';
           product.description = this.catalogue['catalogue'][this.catalogue['tabEid'].indexOf(option._source.EID.toString())].name;
           product.pricingtier = 1;
           product.eid = option._source.EID;
@@ -1074,7 +1072,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
         }
       });
     }
-    this.userService.getCompte(this.user['_id']).subscribe((u) => {
+    this.userService.getCompte().subscribe((u) => {
       this.orderService.getIdCmd(this.user['_id']).subscribe((idcmd) => {
         sessionStorage.setItem('cart', JSON.stringify(idcmd));
         this.orderService.updateOrder({ state: "CART", idcmd, u, cart: caddy }).subscribe((res) => {

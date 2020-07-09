@@ -12,7 +12,7 @@ module.exports.getListOrders = async (sortAttribute, sortValue, start, length, s
 
     // var orderTotalCount = Order.count({ state: { $ne: '' }, state: { $exists: true } }).exec();
     let searchObject = buildSearch(state, columns, search);
-    var orderCount = await Orders.count(searchObject).exec();
+    var orderCount = await Orders.countDocuments(searchObject).exec();
     try {
         var orders = await Orders.find(searchObject)
             .sort(sort)

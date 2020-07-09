@@ -32,5 +32,11 @@
       "rejectUnauthorized": false
     },
     "debug": false
+  },
+  "jwtCredentials": {
+    "secret": "HodQuanthouse",
+    "options": {
+      "expiresIn": "1d"
+    }
   }
 }

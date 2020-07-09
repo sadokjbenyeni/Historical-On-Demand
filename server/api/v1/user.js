@@ -12,6 +12,7 @@ const Role = mongoose.model('Role');
 
 //services 
 const userService = require("../../service/userService")
+const jwtService = require("../../service/jwtService")
 
 
 const config = require('../../config/config.js');
@@ -50,14 +51,21 @@ router.post('/changedefaultaddress', async (req, res) => {
     if (!req.body.postalCode) {
         return res.status(401).json({ error: "No postalCode provided" })
     }
-    await userService.UpdateUserDefaultBillingInfo(
-        req.headers.authorization,
-        req.body.vat,
-        req.body.address,
-        req.body.city,
-        req.body.country,
-        req.body.postalCode);
-    return res.status(200).json({ ok: true })
+    try {
+        const userId = jwtService.verifyToken(req.headers.authorization).id
+        await userService.UpdateUserDefaultBillingInfo(
+            userId,
+            req.body.vat,
+            req.body.address,
+            req.body.city,
+            req.body.country,
+            req.body.postalCode);
+        return res.status(200).json({ ok: true })
+    }
+    catch (error) {
+        return res.status(200).json({ error: error.message })
+    }
+
 });
 router.post('/changeDefaultCurrency', async (req, res) => {
     if (!req.headers.authorization) {
@@ -66,8 +74,13 @@ router.post('/changeDefaultCurrency', async (req, res) => {
     if (!req.body.currency) {
         return res.status(401).json({ error: "No currency provided" })
     }
-    await userService.UpdateUserDefaultCurrency(req.headers.authorization, req.body.currency);
-    return res.status(200).json({ ok: true })
+    try {
+        const userId = jwtService.verifyToken(req.headers.authorization).id
+        await userService.UpdateUserDefaultCurrency(userId, req.body.currency);
+        return res.status(200).json({ ok: true })
+    } catch (error) {
+        return res.status(401).json({ error: error.message });
+    }
 });
 
 router.get('/', (req, res) => {
@@ -85,7 +98,7 @@ router.get('/', (req, res) => {
 
 router.get('/count/', (req, res) => {
     if (URLS.indexOf(req.headers.referer) !== -1) {
-        User.count()
+        User.countDocuments()
             .then((count) => {
                 return res.status(200).json({ nb: count });
             });
@@ -102,19 +115,21 @@ router.get('/cpt/', (req, res) => {
         });
 });
 
-router.get('/:user', (req, res) => {
-    // let test = req.headers.referer.replace(idd, "");
-    // if(URLS.indexOf(test) !== -1){
-    User.findOne({ _id: Object(req.params.user) }, { password: false })
-        .then((user) => {
-            if (!user) { res.status(202).json({}) }
-            return res.status(200).json({ user: user });
-        });
-    // }
-    // else{
-    //     return res.sendStatus(404);
-    // }
+router.get('/profile/', async (req, res) => {
+    if (!req.headers.authorization) {
+        return res.status(401).json({ error: "No Token provided in header" })
+    }
+    try {
+        const userId = jwtService.verifyToken(req.headers.authorization).id
+        const user = await userService.getUserById(userId)
+        if (!user) { res.status(202).json({}) }
+        return res.status(200).json({ user: user });
+    }
+    catch (error) {
+        return res.status(200).json({ error: error.message })
+    }
 });
+
 
 router.post('/info', async (req, res) => {
     // let test = req.headers.referer.replace(idd, "");
@@ -130,7 +145,8 @@ router.post('/info', async (req, res) => {
             u[field] = true;
         });
     }
-    var user = await User.findOne({ token: req.headers.authorization }, u).exec();
+    const userId = jwtService.verifyToken(req.headers.authorization).id
+    var user = await userService.getUserById(userId);
     if (!user) { return res.status(202).json({}) }
     return res.status(200).json({ user: user });
 
@@ -204,13 +220,13 @@ router.post('/logout/', (req, res) => {
 router.post('/islogin/', async (req, res) => {
     req.logger.debug({ message: "isLogin calling...", className: "User API" });
     try {
-        var user = await User.findOne({ token: req.headers.authorization, islogin: true }, { _id: false, islogin: true, roleName: true }).exec();
-        if (user) {
+        var token = jwtService.verifyToken(req.headers.authorization);
+        if (token) {
             const pattern = /\/[0-9a-fA-F]{24}$/;
             let page = req.body.page.replace(pattern, '');
-            var hasRole = await Role.count({ pages: new RegExp(page, "i"), name: { $in: user.roleName } }).exec();
-            req.logger.debug("[Security] data: { isLogin: " + user.islogin + ", hasRole: " + user.hasRole + " }");
-            return res.status(200).json({ islogin: user.islogin, role: hasRole });
+            var hasRole = await Role.find({ pages: new RegExp(page, "i"), name: { $in: token.roleName } }).countDocuments().exec();
+            // req.logger.debug("[Security] data: { isLogin: " + user.islogin + ", hasRole: " + token.hasRole + " }");
+            return res.status(200).json({ role: hasRole });
         }
         else {
             req.logger.warn("[Security] Access denied, no user found");
@@ -223,53 +239,33 @@ router.post('/islogin/', async (req, res) => {
     }
 });
 
-router.post('/check/', (req, res) => {
+router.post('/check/', async (req, res) => {
     let cipher = crypto.createCipher(algorithm, req.body.pwd);
     let crypted = cipher.update(PHRASE, 'utf8', 'hex');
     crypted += cipher.final('hex');
+    var user = await User.findOne({ email: req.body.email, password: crypted }).exec();
+    if (!user) {
+        req.logger.error({ message: 'Invalid Password or User Not Found', className: 'User API' });
+        return res.status(403).json({ message: 'Invalid Password or User Not Found' })
+    }
+    if (user.state === 1) {
+        await User.updateOne({ _id: user._id }, { $set: { islogin: true } }).exec()
+        var userDto = {
+            id: user._id,
+            roleName: user.roleName,
+        }
+        const token = jwtService.createTokentoUser(userDto);
+        return res.status(200).json({ token: token });
 
-    User.findOne(
-        { email: req.body.email, password: crypted })
-        .then((userDbo) => {
-            if (!userDbo) { return res.status(403).json({ user: false, message: 'Invalid Password or User Not Found' }) }
-            if (userDbo.state === 1) {
-                User.updateOne({ _id: userDbo._id }, { $set: { islogin: true } })
-                    .then((val) => {
-                        User.findOne(
-                            { _id: userDbo._id },
-                            {
-                                id: true,
-                                roleName: true,
-                                email: true,
-                                token: true,
-                                state: true,
-                                currency: true,
-                                payment: true,
-                                vat: true,
-                                address: true,
-                                city: true,
-                                sameAddress: true,
-                                postalCode: true,
-                                country: true,
-                                addressBilling: true,
-                                cityBilling: true,
-                                postalCodeBilling: true,
-                                countryBilling: true,
-                                state: true
-                            })
-                            .then((user) => {
-                                return res.status(200).json({ user: user });
-                            });
-                    });
-            } else {
-                return res.status(401).json({ message: 'Your account is not activated' })
-            }
-        })
-        .catch(error => {
-            req.logger.error({ message: 'Invalid Password or User Not Found', className: 'User API' });
-            req.logger.error({ message: JSON.stringify(error), className: "User API" });
-            return res.status(403).json({ user: false, message: 'Invalid Password or User Not Found' })
-        });
+    } else {
+        req.logger.error({ message: `account of user ${user._id} is on state ${user.state}` });
+        return res.status(401).json({ message: 'Your account is not activated' })
+    }
+
+    //     .catch (error => {
+    //     req.logger.error({ message: JSON.stringify(error), className: "User API" });
+    //     return res.status(403).json({ user: false, message: 'Invalid Password or User Not Found' })
+    // });
 });
 
 router.post('/activation/', async (req, res) => {
@@ -441,7 +437,7 @@ router.post('/list', (req, res) => {
     for (var i = 0; i < req.body.order.length; i++) {
         sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
     }
-    User.count({ state: { $ne: '' }, state: { $exists: true } }).then((c) => {
+    User.countDocuments({ state: { $ne: '' }, state: { $exists: true } }).then((c) => {
         let search = {};
         if (req.body.search.value !== '') {
             search['$or'] = [
@@ -450,7 +446,7 @@ router.post('/list', (req, res) => {
                 { roleName: new RegExp(req.body.search.value, "i") }
             ];
         }
-        User.count(search).then((cf) => {
+        User.countDocuments(search).then((cf) => {
             User.find(search)
                 .skip(req.body.start)
                 .limit(req.body.length)
@@ -468,42 +464,41 @@ router.get('/download/:token/:id/:file', async (req, res) => {
     try {
         var user = await User.findOne({ token: req.params.token }, { _id: true }).exec();
         if (user) {
-            req.logger.debug({ message: "user found.", className: "User API"  });
+            req.logger.debug({ message: "user found.", className: "User API" });
             let idUser = JSON.parse(JSON.stringify(user._id));
             var order = await Order.findOne({ idUser: idUser, 'products.id_undercmd': req.params.id.split('|')[0] })
                 .select({ 'products.$.id_undercmd': 1, '_id': false })
-                .exec();                
-                if (order) {
-                    req.logger.debug({ message: "order found.", className: "User API" });
-                    order.products[0].links.forEach(lk => {
-                        if (lk.status === 'active') {
-                            //aareq.logger.info("link activated.");
-                            lk.links.forEach(link => {
-                                let rgx = RegExp(req.params.file);
-                                valid += rgx.test(link.link);
-                            })
-                        }
-                    })
-                } else {
-                    req.logger.info({ message: "order not found.", className: "User API" });
-                    return res.status(404).end();
-                }
-                if (valid) {
-                    var fullPath = '/mapr/client_exports/' + req.params.id + '/' + req.params.file;
-                    req.logger.info({ message:"downloading file " + fullPath + "....", className: "User API" });
-                    return res.download(fullPath);
-                } else {
-                    return res.status(404).end();
-                }                
+                .exec();
+            if (order) {
+                req.logger.debug({ message: "order found.", className: "User API" });
+                order.products[0].links.forEach(lk => {
+                    if (lk.status === 'active') {
+                        //aareq.logger.info("link activated.");
+                        lk.links.forEach(link => {
+                            let rgx = RegExp(req.params.file);
+                            valid += rgx.test(link.link);
+                        })
+                    }
+                })
+            } else {
+                req.logger.info({ message: "order not found.", className: "User API" });
+                return res.status(404).end();
+            }
+            if (valid) {
+                var fullPath = '/mapr/client_exports/' + req.params.id + '/' + req.params.file;
+                req.logger.info({ message: "downloading file " + fullPath + "....", className: "User API" });
+                return res.download(fullPath);
+            } else {
+                return res.status(404).end();
+            }
         } else {
-            req.logger.info({ message: "user not found.", className: "User API"  });
+            req.logger.info({ message: "user not found.", className: "User API" });
             res.status(404).end();
-        }    
+        }
     }
-    catch(err)
-    {
+    catch (err) {
         req.logger.error({ message: "an error has been thrown: " + err.message + "\n" + err.stack, className: "User API" });
-        return res.status(500).json({ error: "an error has been thrown, please contact the support with identifier '"+req.headers.loggerToken+"'"});
+        return res.status(500).json({ error: "an error has been thrown, please contact the support with identifier '" + req.headers.loggerToken + "'" });
     };
 });
 

@@ -68,8 +68,8 @@ export class UserService {
     // .map( res => res.json() );
   }
 
-  getCompte(user) {
-    return this.http.get<any>(environment.api + '/user/' + user);
+  getCompte() {
+    return this.http.get<any>(environment.api + '/user/profile' );
     // .map( res => res.json() );
   }
 
@@ -78,8 +78,8 @@ export class UserService {
     // .map( res => res.json() );
   }
 
-  islogin(token) {
-    return this.http.post<any>(environment.api + '/user/islogin', token);// .map( res => res.json() );
+  islogin(url) {
+    return this.http.post<any>(environment.api + '/user/islogin', url);// .map( res => res.json() );
   }
 
   mdpmail(val) {

@@ -5,12 +5,12 @@ module.exports.GetUserByToken = async (token) => {
   User = await Users.findOne({ token: token }).exec();
   return User;
 };
-module.exports.getUserById = async (userId) => {
-  const user = await Users.findOne({ _id: userId }).exec();
+module.exports.getUserById = async (userId, options = { password: false }) => {
+  const user = await Users.findOne({ _id: userId }, options).exec();
   return user;
 };
 module.exports.UpdateUserDefaultBillingInfo = async (
-  token,
+  userId,
   vat,
   address,
   city,
@@ -18,7 +18,7 @@ module.exports.UpdateUserDefaultBillingInfo = async (
   postalCode
 ) => {
   const res = await Users.findOneAndUpdate(
-    { token: token },
+    { _id: userId },
     {
       $set: {
         countryBilling: country,
@@ -32,9 +32,9 @@ module.exports.UpdateUserDefaultBillingInfo = async (
   if (res.error) throw new error("User not found ");
   return true;
 };
-module.exports.UpdateUserDefaultCurrency = async (token, currency) => {
+module.exports.UpdateUserDefaultCurrency = async (userId, currency) => {
   const res = await Users.findOneAndUpdate(
-    { token: token },
+    { _id: userId },
     {
       $set: {
         currency: currency,
@@ -46,3 +46,7 @@ module.exports.UpdateUserDefaultCurrency = async (token, currency) => {
   }
   return true;
 };
+// module.exports.HaveRole = async (userId, role) => {
+//   const user = await Users.find({ _id: userId, roleName: role });
+//   return (user != undefined)
+// }

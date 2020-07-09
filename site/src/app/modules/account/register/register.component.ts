@@ -76,7 +76,7 @@ export class RegisterComponent implements OnInit {
     this.checkv = false;
     this.loadvat = 'form-control ok';
     this.getPayments();
-    this.user = <object> {
+    this.user = <object>{
       id: <string>'',
       firstname: <string>'',
       lastname: <string>'',
@@ -104,7 +104,7 @@ export class RegisterComponent implements OnInit {
       commercial: <boolean>true
     };
     this.title = 'Register';
-    if ( this.page === '/account' ) {
+    if (this.page === '/account') {
       this.title = 'My Profile';
       this.getUser();
       this.getCurrency();
@@ -115,49 +115,49 @@ export class RegisterComponent implements OnInit {
     this.colg = 'col-lg-6';
   }
 
-  getPayments(){
-    this.paymentService.getPaymentsActive().subscribe(res=>{
+  getPayments() {
+    this.paymentService.getPaymentsActive().subscribe(res => {
       this.payments = res;
     });
   }
 
-  
+
 
   resolved(captchaResponse: string) {
-    if ( captchaResponse ) {
+    if (captchaResponse) {
       this.checkrobot = false;
     } else {
       this.checkrobot = true;
     }
   }
 
-  register(){
-    if(this.confirmation === this.user['password']) {
+  register() {
+    if (this.confirmation === this.user['password']) {
       this.isValidPwd = false;
-      this.userService.create(this.user).subscribe(data=>{
+      this.userService.create(this.user).subscribe(data => {
         sessionStorage.setItem('register', 'ok')
         this.router.navigate(['/login']);
       },
-      error=>{
-        console.error(error);
-      });
+        error => {
+          console.error(error);
+        });
     } else {
-      this.isValidPwd = true; 
+      this.isValidPwd = true;
     }
   }
 
-  checkVat(){
+  checkVat() {
     if (this.user['vat'] !== '' && this.user['vat']) {
-      let c = this.user['vat'].substring(0,2);
-      let v = this.user['vat'].substring(2,this.user['vat'].length);
+      let c = this.user['vat'].substring(0, 2);
+      let v = this.user['vat'].substring(2, this.user['vat'].length);
       this.loadvat = 'form-control loading';
-      this.vatService.checkVat(c + '|' + v).subscribe(data=>{
+      this.vatService.checkVat(c + '|' + v).subscribe(data => {
         this.user['checkvat'] = data.valid;
-        this.loadvat = data.valid?'form-control ok':'form-control ko';
+        this.loadvat = data.valid ? 'form-control ok' : 'form-control ko';
       },
-      error=>{
-        console.error(error);
-      });
+        error => {
+          console.error(error);
+        });
     } else {
       this.loadvat = 'form-control ok';
     }
@@ -196,8 +196,8 @@ export class RegisterComponent implements OnInit {
     this.term = true;
   }
 
-  sameAddress(){
-    if (this.user['sameAddress']){
+  sameAddress() {
+    if (this.user['sameAddress']) {
       this.user['addressBilling'] = this.user['address'];
       this.user['cityBilling'] = this.user['city'];
       this.user['postalCodeBilling'] = this.user['postalCode'];
@@ -212,18 +212,18 @@ export class RegisterComponent implements OnInit {
   }
 
   verifMail() {
-    if(this.page === '/register'){
-      this.userService.verifmail({email : this.user['email']}).subscribe(resp=>{
+    if (this.page === '/register') {
+      this.userService.verifmail({ email: this.user['email'] }).subscribe(resp => {
         this.exist = resp.valid;
       });
-    }    
+    }
   }
 
-  getUser(){
-    let id = JSON.parse(sessionStorage.getItem('user'))._id;
-    this.userService.getCompte(id).subscribe(res => {
+  getUser() {
+
+    this.userService.getCompte().subscribe(res => {
       this.user = res.user;
-      this.user['id'] = id;
+      this.user['id'] = res.id;
       if (!this.user['vat']) {
         this.user['vat'] = '';
       }

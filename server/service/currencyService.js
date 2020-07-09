@@ -1,13 +1,4 @@
 const flux = require('./fluxService')
-module.exports.convertOrderPricesToCurrencie = (order, currencyTxUsd) => {
-    order.totalHT /= currencyTxUsd;
-    order.total = (order.total / currencyTxUsd).toFixed(2);
-    order.products.forEach(product => {
-        product.ht /= currencyTxUsd;
-        product.price = (product.price / currencyTxUsd).toFixed(2);
-    });
-    return order;
-}
 module.exports.convertproductsFeestoCurrency = (products, userCurrency, cube) => {
     products.forEach(item => {
         if (!item.historical_data.backfill_applyfee) {
@@ -24,7 +15,6 @@ module.exports.convertproductsFeestoCurrency = (products, userCurrency, cube) =>
 }
 module.exports.convertproductstoCurrency = (order, currency, cube) => {
     if (currency != "usd".toUpperCase()) {
-
         ratio = getRatio("usd", currency, cube);
         order.currencyTxUsd = ratio;
         var totalht = 0

@@ -40,7 +40,7 @@ export class UserDetailComponent implements OnInit {
     this.userService.getRoles().subscribe(res => {
       this.roles = res.roles;
     });
-    this.userService.getCompte(this.id).subscribe(res => {
+    this.userService.getCompte().subscribe(res => {
       this.user = res.user;
       this.user['id'] = res.user['_id'];
     });

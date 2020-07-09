@@ -11,11 +11,10 @@ const vatService = require("../service/vatService");
 const userService = require("../service/userService");
 const { invoice } = require("paypal-rest-sdk");
 
-module.exports.getOrderDetails = async (id, token) => {
-    var user = await Users.findOne({ token: token }).exec();
-    var RawOrder = await Orders.findOne({ idUser: user._id, _id: id }).exec();
+module.exports.getOrderDetails = async (orderId, userId) => {
+    var RawOrder = await Orders.findOne({ idUser: userId, _id: orderId }).exec();
     if (!RawOrder) {
-        return res.status(200).json({ error: "Order not found" });
+        throw new error("Order not found");
     }
 
     if (IsInvoice(RawOrder.state)) {
@@ -27,6 +26,7 @@ module.exports.getOrderDetails = async (id, token) => {
     } else {
         var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(RawOrder)), user.currency, undefined)
         invoice.total = invoice.totalHT;
+        var user = await userService.getUserById(userId, { _id: false, currency: true });
         invoice.currency = user.currency;
         // if (await vatService.applyVat(user.countryBilling, user.vat)) {
         //     let configVat = await configService.getVat();
@@ -84,10 +84,10 @@ clientOrderDetails = function (order) {
 function checkifSubscription(product) {
     return product.subscription == 1 ? "subscription" : "onetime";
 }
-module.exports.getUserOrdersHistory = async (token) => {
-    const user = await userService.GetUserByToken(token);
-    var caddy = await this.getCaddy(token, undefined, user);
-    var invoices = await Invoices.find({ userId: user._id }).exec();
+module.exports.getUserOrdersHistory = async (userId) => {
+    user = await userService.getUserById(userId, { _id: false, currency: true });
+    var caddy = await this.getCaddy(undefined, undefined, user);
+    var invoices = await Invoices.find({ userId: userId }).exec();
     invoices = invoices.map((item) => ToOrderDto(item, false));
     if (caddy) {
         caddy = ToOrderDto(caddy, true, user.currency);
@@ -211,19 +211,16 @@ module.exports.getOrderById = async (OrderId) => {
     return order;
 };
 module.exports.getCaddy = async (
-    token,
+    userId = undefined,
     currency = undefined,
     user = undefined
 ) => {
-    if (!user) {
-        user = await Users.findOne({ token: token }).exec();
-    }
-    var caddy = await Orders.findOne({
-        idUser: user._id,
-        state: { $in: ["CART", "PLI", "PBI", "PSC"] },
-    }).exec();
+    var caddy = await getOrderByUserId(userId);
     if (caddy) {
         if (!currency) {
+            if (!user) {
+                user = await userService.getUserById(userId, { _id: false, currency: true });
+            }
             currency = user.currency;
         }
         await this.calculateAmountsOfOrder(caddy, currency, undefined)
@@ -231,6 +228,12 @@ module.exports.getCaddy = async (
     }
     return undefined;
 };
+async function getOrderByUserId(userId) {
+    return await Orders.findOne({
+        idUser: userId,
+        state: { $in: ["CART", "PLI", "PBI", "PSC"] },
+    }).exec();
+}
 function setOrderValuesFromInvoice(order, invoice) {
     order.totalExchangeFees = invoice.totalExchangeFees;
     order.vatValue = invoice.vatValue * 100;
@@ -278,10 +281,9 @@ function IsInvoice(state) {
 //     return caddy
 // }
 //this method is going to be removed after search rework
-module.exports.getRawCaddy = async (token) => {
-    var user = await Users.findOne({ token: token }).exec();
+module.exports.getRawCaddy = async (userId) => {
     var caddy = await Orders.findOne({
-        idUser: user._id,
+        idUser: userId,
         state: { $in: ["CART", "PLI", "PBI", "PSC"] },
     }).exec();
     return caddy;
@@ -411,10 +413,10 @@ module.exports.getLink = async (user, order, productId, logger) => {
         );
 };
 
-module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
+module.exports.submitCaddy = async (userId, survey, currency, billingInfo) => {
     let log = {};
     let url = "/api/mail/newOrder";
-    caddy = await this.getRawCaddy(token);
+    caddy = await this.getRawCaddy(userId);
     // Autovalidation Compliance
     log.date = new Date();
     let eids = [];
@@ -430,7 +432,7 @@ module.exports.submitCaddy = async (token, survey, currency, billingInfo) => {
         email: caddy.email,
         idCmd: caddy.id,
         paymentdate: new Date(),
-        token: token,
+        // token: token,
         service: "Compliance",
     };
     //ezjfruizehfuezifhzeuifhzeufizehfuzeifhzeufoehfgyuferçohg_àerghu_zeghazeryugh enleve le commentaire du sendmail avant de push !!!!!!!

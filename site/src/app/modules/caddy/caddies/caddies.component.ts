@@ -113,7 +113,6 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     return this.billingComponent ? this.billingComponent.form : null;
   }
   ngOnInit() {
-
     this.observerRoute = this.router.events.subscribe(rout => {
       if (rout instanceof NavigationStart)
         this.orderService.updateCaddyState(this.getStepKey(this.stepper.selectedIndex)).subscribe();

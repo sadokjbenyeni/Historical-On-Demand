@@ -14,14 +14,14 @@ export class GuardGuard implements CanActivate {
   constructor(
     private router: Router,
     private userService: UserService
-  ) {}
+  ) { }
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
-    let user = JSON.parse(sessionStorage.getItem('user'));
-    if (user) {
+    let token = sessionStorage.getItem('token');
+    if (token) {
       return new Promise((resolve, reject) => {
-        this.userService.islogin({token:user.token, page: state.url}).subscribe(res => {
-          if(res.islogin && res.role > 0) {
+        this.userService.islogin({ page: state.url }).subscribe(res => {
+          if (res.role > 0) {
             resolve(true);
           } else {
             this.router.navigate(['/login']);
