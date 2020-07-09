@@ -204,20 +204,14 @@ export class OrderspViewComponent implements OnInit {
     });
   }
 
-  // getVat(){
-  //   this.configService.getVat().subscribe(res=>{
-  //     this.vat = res[0].valueVat / 100;
-  //   });
-  // }
-
   confirm() {
     if (this.action === 'Confirm Engagement Period Modification') {
-      this.orderService.updateEngagementPeriod({ idCmd: this.idCmd, cart: this.cart, ht: this.ht}).subscribe(res => {
+      this.orderService.updateEngagementPeriod({ idCmd: this.idCmd, cart: this.cart, ht: this.ht }).subscribe(res => {
         this.message = 'Period Applied';
       });
     }
     if (this.action === 'Confirm Discount Application') {
-      this.orderService.updateDiscount({ idCmd: this.idCmd, totalHT: this.totalHTOld, totalExchangeFees: this.totalFees, discount: { percent: this.discount } }).subscribe(res => {
+      this.orderService.updateDiscount({ orderId: this.idOrder, totalHT: this.totalHTOld, discount: this.discount }).subscribe(res => {
         this.message = 'Applied Discount';
       });
     }

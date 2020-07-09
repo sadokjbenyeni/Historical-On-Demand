@@ -251,24 +251,29 @@ router.put("/delProductCaddy", async (req, res) => {
 //     });
 // });
 
-router.put("/updateDiscount", (req, res) => {
+router.put("/updateDiscount", async (req, res) => {
   let updatedInvoice = {};
-  if (req.body.discount) {
-    updatedInvoice.discount = req.body.discount.percent;
-    updatedInvoice.totalExchangeFees = req.body.totalExchangeFees;
-    updatedInvoice.totalHT = req.body.totalHT;
-    updatedInvoice.totalHT = applyDiscount(updatedInvoice.totalHT, updatedInvoice.totalExchangeFees, updatedInvoice.discount);
+  updatedInvoice.discount = req.body.discount;
+  let invoice = await Invoice.findOne({ orderId: req.body.orderId }).exec();
+  updatedInvoice.totalHT = applyDiscount(invoice.totalHTDiscountFree, invoice.totalExchangeFees, updatedInvoice.discount);
+  updatedInvoice.total = updatedInvoice.totalHT + invoice.totalVat;
+  try {
+    await Invoice.updateOne({ orderId: req.body.orderId }, { $set: updatedInvoice }).exec();
   }
-
-  if (req.body.state) {
-    updatedInvoice.state = req.body.state;
+  catch (error) {
+    logger.error({ message: error.message, className: "Order API" });
+    logger.error({ message: error.stack, className: "Order API" });
+    return res.status(503).json({ error: `an error has been raised please contact support with this identifier [${req.headers.loggerToken}]` })
   }
-  Order.updateOne({ id_cmd: req.body.idCmd }, { $set: updatedInvoice }).then((r) => {
-    res.status(201).json({ ok: true });
-  });
+  return res.status(201).json({ ok: true });
 });
 
-router.put("/updateEngagementPeriod", async (req, res) => {
+function applyDiscount(taxFreeTotal, exchangeFees = 0, discount) {
+  let exchangeFeesFreeTotal = taxFreeTotal - exchangeFees;
+  return exchangeFeesFreeTotal - (exchangeFeesFreeTotal * (discount / 100)) + exchangeFees;
+}
+
+router.put("/updateEngagementPeriod", (req, res) => {
   let updatedInvoice = {};
   updatedInvoice.totalHT = req.body.ht;
   req.body.cart.forEach((product) => {
@@ -1257,11 +1262,6 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   // .then(updateStatus => res.status(201).json(updateStatus));
   // });
 };
-
-function applyDiscount(taxFreeTotal, exchangeFees, discount) {
-  exchangeFeesFreeTotal = taxFreeTotal - exchangeFees;
-  return exchangeFeesFreeTotal - (exchangeFeesFreeTotal * (discount / 100));
-}
 
 async function UpdateOrderFinance(orderUpdated, req, log) {
   let corp = {};

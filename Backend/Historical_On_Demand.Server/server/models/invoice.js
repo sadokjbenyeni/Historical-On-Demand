@@ -29,6 +29,7 @@ let InvoiceSchema = new mongoose.Schema({
     discount: { type: Number, default: 0 },
     totalExchangeFees: { type: Number, default: 0 },
     totalHT: { type: Number, default: 0 },
+    totalHTDiscountFree: { type: Number, default: 0 },
     total: { type: Number, default: 0 },
     survey: { type: Array },
     state: { type: String, defaimt: "Not paid " },

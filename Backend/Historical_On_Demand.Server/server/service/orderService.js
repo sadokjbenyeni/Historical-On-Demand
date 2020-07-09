@@ -493,6 +493,7 @@ module.exports.submitCaddy = async (userId, survey, currency, billingInfo) => {
         orderIdReference: caddy._id,
         orderId: caddy.id,
         totalHT: caddy.totalHT,
+        totalHTDiscountFree: caddy.totalHT,
         total: caddy.total,
         currency: caddy.currency,
         survey: survey,
