@@ -24,10 +24,9 @@ module.exports.getOrderDetails = async (orderId, userId) => {
         RawOrder.idCommande = invoice.invoiceId;
         RawOrder.idProForma = invoice.proFormaId
     } else {
+        var user = await userService.getUserById(userId);
         var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(RawOrder)), user.currency, undefined)
         invoice.total = invoice.totalHT;
-        var user = await userService.getUserById(userId, { _id: false, currency: true });
-        invoice.currency = user.currency;
         // if (await vatService.applyVat(user.countryBilling, user.vat)) {
         //     let configVat = await configService.getVat();
         //     invoice.vatValue = configVat.valueVat / 100;
@@ -203,7 +202,6 @@ module.exports.getOrderById = async (OrderId) => {
     } else {
         var user = await userService.getUserById(order.idUser);
         var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(order)), user.currency);
-        invoice.currency = user.currency;
         invoice.total = invoice.totalHT;
     }
 
@@ -216,7 +214,7 @@ module.exports.getCaddy = async function async(
     user = undefined
 ) {
     if (!user) {
-        user = await userService.getUserById(userId, {  currency: true });
+        user = await userService.getUserById(userId, { currency: true });
     }
     var caddy = await getOrderByUserId(user._id);
 

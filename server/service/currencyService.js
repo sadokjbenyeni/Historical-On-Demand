@@ -30,6 +30,7 @@ module.exports.convertproductstoCurrency = (order, currency, cube) => {
             })
         })
         order.totalHT = totalht + order.totalExchangeFees
+        order.currency = currency;
     }
 }
 function getRatio(currencyfrom, currencyTo, cube) {

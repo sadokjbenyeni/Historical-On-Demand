@@ -6,8 +6,8 @@ const invoiceDirectory = global.environment.InvoiceDirectory;
 const http = require('http');
 
 module.exports = function () {
-    this.updateInvoiceInformation = async function (orderId, invoiceId) {
-        await Invoice.updateOne({ orderId: orderId }, { $set: { invoiceId: invoiceId, path: `${invoiceDirectory}${invoiceId}.pdf` } }).exec();
+    this.updateInvoiceInformation = async function (orderId, invoiceId, status) {
+        await Invoice.updateOne({ orderId: orderId }, { $set: { state: status, invoiceId: invoiceId, path: `${invoiceDirectory}${invoiceId}.pdf` } }).exec();
     }
 
     this.updateProFormaInformation = async function (orderId, proFormaId) {

@@ -383,7 +383,7 @@ router.put("/state", async (req, res) => {
       { $set: orderUpdated, $push: { logs: log } }
     ).exec();
     await Invoice.updateOne(
-      { id_cmd: req.body.id },
+      { orderId: req.body.id },
       { $set: orderUpdated, $push: { logs: log } }
     ).exec();
 
@@ -395,7 +395,7 @@ router.put("/state", async (req, res) => {
       { $set: orderUpdated, $push: { logs: log } }
     ).exec();
     await Invoice.updateOne(
-      { id_cmd: req.body.id },
+      { orderId: req.body.id },
       { $set: orderUpdated, $push: { logs: log } }
     ).exec();
     // .then((r) => {
@@ -876,7 +876,7 @@ router.post("/list", async (req, res) => {
 
 });
 
-router.post("/history",async (req, res) => {
+router.post("/history", async (req, res) => {
   if (!req.headers.authorization) {
     return res.status(401).json({ error: "No token provided" });
   }
@@ -1402,7 +1402,9 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
   );
   await new InvoiceService().updateInvoiceInformation(
     req.body.id,
-    orderUpdated.idCommande
+    orderUpdated.idCommande,
+    orderUpdated.state,
+    
   );
   return corp;
 }
