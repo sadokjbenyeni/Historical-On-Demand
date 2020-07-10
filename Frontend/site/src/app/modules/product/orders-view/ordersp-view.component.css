@@ -15,3 +15,15 @@
 .save-changes-btn {
     float: right;
 }
+
+.input-style {
+    width: 75%;
+}
+
+.input-style-period {
+    width: 50%;
+}
+
+.save-period-button {
+    float: none;
+}

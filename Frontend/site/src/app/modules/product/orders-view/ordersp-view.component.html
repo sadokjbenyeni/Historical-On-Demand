@@ -115,7 +115,13 @@
                 <td *ngIf="c.onetime === 1 && !c.print">One-Off</td>
                 <td *ngIf="c.subscription === 1 && !c.print">Subscription</td>
                 <td *ngIf="c.subscription === 1 && verifState() && !c.print">
-                  <input type="number" [(ngModel)]="c.period" min="1" (ngModelChange)="setPeriod(c)" />
+                  <input class="input-style-period" type="number" [(ngModel)]="c.period" min="1"
+                    (ngModelChange)="setPeriod(c)" />
+                  <span class="btn btn-info fa fa-save save-changes-btn save-period-button"
+                    *ngIf="existSubscribe && verifState()" (click)="
+                  openModal(content);
+                  actions('Confirm Engagement Period Modification')
+                "></span>
                 </td>
 
                 <td *ngIf="c.subscription === 1 && !verifState() && !c.print">
@@ -173,7 +179,11 @@
               <tr>
                 <td>Discount (%)</td>
                 <td *ngIf="state == 'PVP'">
-                  <input type="number" [(ngModel)]="discount" (change)="onDiscountChange()" min="0" max="100" />
+                  <input class="input-style" type="number" [(ngModel)]="discount" (change)="onDiscountChange()" min="0"
+                    max="100" />
+                  <span class="btn btn-info fa fa-save" *ngIf="verifState() && state == 'PVP'" (click)="
+                  openModal(content); actions('Confirm Discount Application')
+                "> </span>
                 </td>
 
                 <td *ngIf="state != 'PVP'">{{ discount }}</td>
@@ -198,15 +208,6 @@
             <span class="btn btn-info fa fa-save save-note-btn" *ngIf="state == 'PVP'" id="save-changes-button"
               (click)="updateChanges()">
               Save Changes</span>
-            <span class="btn btn-info fa fa-save save-changes-btn" *ngIf="existSubscribe && verifState()" (click)="
-                openModal(content);
-                actions('Confirm Engagement Period Modification')
-              ">
-              Update Engagement Period</span>
-            <span class="btn btn-info fa fa-save" *ngIf="verifState() && state == 'PVP'" (click)="
-                openModal(content); actions('Confirm Discount Application')
-              ">
-              Apply Discount</span>
             <span class="btn btn-success fa fa-handshake" *ngIf="verifStatePVP() && state == 'PVP'" (click)="
                 openModal(content); actions('Confirm Client Order Validation')
               ">
