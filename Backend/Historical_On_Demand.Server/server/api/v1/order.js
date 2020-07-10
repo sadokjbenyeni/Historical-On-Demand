@@ -341,9 +341,7 @@ router.put("/state", async (req, res) => {
     req.body.referer === "Finance" ||
     req.body.referer === "ProductAutovalidateFinance"
   ) {
-    req.logger.info("id commande: " + orderUpdated.idCommande);
     try {
-      orderUpdated.idCommande = await setInvoiceId("QH_HISTO_");
       await UpdateOrderFinance(orderUpdated, req, corp, log);
       return res.status(200).json({ ok: true });
     } catch (err) {
@@ -1068,16 +1066,11 @@ yyyymmdd = function (d) {
 
 setInvoiceId = async function (prefix) {
   let config = await Config.findOne({ id: "counter" }).exec();
-  let nbcar = 7;
-  let id = config.value;
-  let nbid = nbcar - id.toString().length;
-  for (let i = 0; i < nbid; i++) {
-    prefix += "0";
+  let invoiceId = config.value + 1;
+  while (invoiceId.toString().length < 7) {
+    invoiceId = "0" + invoiceId;
   }
-  let idnew = id + 1;
-  prefix += idnew;
-  // await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec();
-  return prefix;
+  return prefix + invoiceId;
 };
 
 endperiod = function (data, periode) {
@@ -1359,16 +1352,7 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
     logger.error({ message: error.stack, className: "Order API" });
   }
   req.logger.info("validating order...");
-  var counter = await Config.findOne({ id: "counter" }).exec();
-  let identifier = counter.value;
-  let prefix = "QH_HISTO_";
-  let nbcar = 7;
-  let idnew = identifier + 1;
-  let nbid = nbcar - idnew.toString().length;
-  for (let i = 0; i < nbid; i++) {
-    prefix += "0";
-  }
-  orderUpdated.idCommande = prefix + idnew.toString();
+  orderUpdated.idCommande = await setInvoiceId("QH_HISTO_");
   req.logger.info("id commande: " + orderUpdated.idcommande);
   await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec();
   await Order.updateOne(
@@ -1405,7 +1389,8 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
   // Email validation au pvf
   var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
   var invoice = await Invoice.findOne({ orderId: order.id }).exec();
-  orderUpdated.idProForma = await setInvoiceId("QH_ProFormaInvoice_");
+  let idProForma = await setInvoiceId("QH_ProFormaInvoice_");
+  orderUpdated.idProForma = idProForma + "_" + currentDateReversed();
   let eids = [];
   if (req.body.status === "cancelled") {
     await Pool.remove({ id: req.body.idCmd.split("-")[0] }).exec();
@@ -1458,6 +1443,13 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
     });
     req.logger.info({ message: "email sent" });
   }
+}
+
+function currentDateReversed() {
+  let today = new Date();
+  let date = today.getFullYear().toString() + (today.getMonth() + 1).toString() + today.getDate().toString();
+  let time = today.getHours().toString() + today.getMinutes().toString() + today.getSeconds().toString();
+  return date + time;
 }
 
 async function UpdateStateCompliance(updt, corp, req) {
