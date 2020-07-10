@@ -34,6 +34,7 @@ export class OrderspViewComponent implements OnInit {
   totalTTC: number;
   totalHT: number;
   totalFees: number;
+  totalHTDiscountFree: number;
   symbol: string;
   message: string;
   action: string;
@@ -56,6 +57,7 @@ export class OrderspViewComponent implements OnInit {
   choosenSale: string;
   listSales: string[] = [];
   choosedOrderType: string;
+
   options = {
     autoClose: true,
     keepAfterRouteChange: false
@@ -144,6 +146,7 @@ export class OrderspViewComponent implements OnInit {
         this.totalFees = c.cmd.totalExchangeFees;
         this.totalHT = c.cmd.totalHT;
         this.totalHTOld = this.getHt(c.cmd.totalHT) + this.totalFees;
+        this.totalHTDiscountFree = c.cmd.totalHTDiscountFree;
         this.vat = c.cmd.vatValue;
         this.totalVat = this.totalHT * (this.vat / 100);
         this.totalTTC = c.cmd.total
@@ -259,12 +262,11 @@ export class OrderspViewComponent implements OnInit {
     return statesForCancel.includes(this.state);
   }
 
-  verifDiscount() {
-    if (this.discount < 0 || this.discount > 100 || this.discount == null) {
-      this.discount = 0;
-    }
-    this.totalHT = (this.totalHTOld - (this.totalHTOld * this.discount / 100)) + this.totalFees;
-    this.totalVat = this.totalHT * this.vat;
+  onDiscountChange() {
+    if (this.discount < 0 || this.discount == null) this.discount = 0;
+    if (this.discount > 100) this.discount = 100;
+    let totaHTExchangeFeesFree = this.totalHTDiscountFree - this.totalFees;
+    this.totalHT = (totaHTExchangeFeesFree - (totaHTExchangeFeesFree * this.discount / 100)) + this.totalFees;
     this.totalTTC = this.totalHT + this.totalVat;
   }
 

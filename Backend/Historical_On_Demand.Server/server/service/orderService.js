@@ -23,6 +23,7 @@ module.exports.getOrderDetails = async (orderId, userId) => {
         }).exec();
         RawOrder.idCommande = invoice.invoiceId;
         RawOrder.idProForma = invoice.proFormaId
+        RawOrder.discount = invoice.discount;
     } else {
         var user = await userService.getUserById(userId);
         var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(RawOrder)), user.currency, undefined)
@@ -235,11 +236,12 @@ async function getOrderByUserId(userId) {
 }
 function setOrderValuesFromInvoice(order, invoice) {
     order.totalExchangeFees = invoice.totalExchangeFees;
+    order.totalHTDiscountFree = invoice.totalHTDiscountFree;
     order.vatValue = invoice.vatValue * 100;
     order.total = invoice.total;
     order.totalHT = invoice.totalHT;
     order.currency = invoice.currency;
-
+    order.discount = invoice.discount;
     order.products.forEach((product) => {
         productsEID = invoice.products.find((item) => item.eid == product.eid);
         product.ht = productsEID[checkifSubscription(product)].find(

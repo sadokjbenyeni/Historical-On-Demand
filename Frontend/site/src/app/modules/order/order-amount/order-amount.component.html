@@ -7,10 +7,8 @@
             <mat-list-item><span>Exchange Fees</span></mat-list-item>
             <mat-divider [inset]="true"></mat-divider>
             <mat-list-item><span>Order Amount</span></mat-list-item>
-            <ng-template *ngIf="orderAmount.discount">
-                <mat-divider [inset]="true"></mat-divider>
-                <mat-list-item><span>Discount (%)</span></mat-list-item>
-            </ng-template>
+            <mat-divider *ngIf="orderAmount.discount" [inset]="true"></mat-divider>
+            <mat-list-item *ngIf="orderAmount.discount"><span>Discount (%)</span></mat-list-item>
             <mat-divider [inset]="true"></mat-divider>
             <mat-list-item><span>Taxes (VAT : {{ orderAmount.vatValue * 100}}% )</span></mat-list-item>
             <mat-divider [inset]="true"></mat-divider>
@@ -22,10 +20,8 @@
             </mat-list-item>
             <mat-divider [inset]="true"></mat-divider>
             <mat-list-item>{{orderAmount.totalHT | number:'1.2-2'}} {{ symbol }}</mat-list-item>
-            <ng-template *ngIf="orderAmount.discount">
-                <mat-divider [inset]="true"></mat-divider>
-                <mat-list-item>{{orderAmount.discount}} %</mat-list-item>
-            </ng-template>
+            <mat-divider *ngIf="orderAmount.discount" [inset]="true"></mat-divider>
+            <mat-list-item *ngIf="orderAmount.discount">{{orderAmount.discount}} %</mat-list-item>
             <mat-divider [inset]="true"></mat-divider>
             <mat-list-item>{{orderAmount.totalVat | number:'1.2-2'}} {{ symbol }}</mat-list-item>
             <mat-divider [inset]="true"></mat-divider>

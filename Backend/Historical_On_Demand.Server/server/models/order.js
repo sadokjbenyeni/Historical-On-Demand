@@ -38,6 +38,7 @@ let OrderSchema = new mongoose.Schema({
   currencyTxUsd: { type: Number },
   discount: { type: Number, default: 0 },
   totalExchangeFees: { type: Number, default: 0 },
+  totalHTDiscountFree: { type: Number, default: 0 },
   totalHT: { type: Number, default: 0 },
   total: { type: Number, default: 0 },
   format: { type: Array, default: ['csv'] },

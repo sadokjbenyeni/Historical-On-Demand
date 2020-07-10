@@ -260,7 +260,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.dataSource.data = this.details;
     this.orderAmount.currency = order.currency;
     this.orderAmount.totalExchangeFees = this.totalExchangeFees;
-    this.orderAmount.vatValue = this.vat/100;
+    this.orderAmount.vatValue = this.vat / 100;
     this.orderAmount.discount = this.discount;
     this.orderAmount.totalHT = this.totalHT;
     this.orderAmount.totalTTC = this.totalTTC;
