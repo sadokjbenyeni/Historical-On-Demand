@@ -1,0 +1,37 @@
+<div class="container ">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="col-md-7">
+            <app-contact-informations
+              class="child-pading-margin"
+              *ngIf="contactInformations"
+              [contactInformations]="contactInformations"
+            ></app-contact-informations>
+          </div>
+          <div class="col-md-5">
+            <app-billing-informations
+              class="child-pading-margin"
+              *ngIf="billigInformations"
+              [billigInformations]="billigInformations"
+            ></app-billing-informations>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="form-group input-group">
+              <span class="input-group-addon">Roles</span>
+              <div class="btn btn-info" *ngFor="let r of user['roleName']">
+                <span aria-hidden="true" (click)="delRole(r)" class="text-danger fa fa-times"></span> {{ r }}
+              </div>
+              <select name="newRole" class="form-control" [(ngModel)]="role" (change)="addRole($event.target.value)" required>
+                <option value="">Selected Role</option>
+                <option *ngFor='let r of roles' [value]="r.name"  [disabled]="user['roleName'].indexOf(r.name) !== -1 ">{{r.name}}</option>
+              </select>
+            </div>  
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

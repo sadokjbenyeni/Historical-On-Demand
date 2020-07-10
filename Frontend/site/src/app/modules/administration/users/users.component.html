@@ -8,9 +8,9 @@
   </div>
 </div>
 <div class="container page-content">
-  <div class="row">
+  <div class="row padding-row">
     <app-configuration></app-configuration>
-    <div class="col-md-11">
+    <div class="col-md-4 no-padding">
       <div class="panel panel-default">
         <div class="panel-body">
           <!-- <h4> -->
@@ -29,7 +29,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let user of users" class="clickable" [routerLink]="'/admin/profil/' + user._id">
+                <tr *ngFor="let user of users" class="clickable" (click)="getUser(user._id)" >
                   <td>{{ user.lastname }}</td>
                   <td>{{ user.firstname }}</td>
                   <td>{{ user.roleName }}</td>
@@ -39,6 +39,9 @@
           </div>
         </div>
       </div>
+    </div>
+    <div class="col-md-7 no-padding">
+      <app-user-informations [user]="user" *ngIf="user" ></app-user-informations>
     </div>
   </div>
 </div>

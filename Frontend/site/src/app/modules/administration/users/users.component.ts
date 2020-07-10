@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewChecked, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, ViewChild, EventEmitter, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -22,8 +22,10 @@ class DataTablesResponse {
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css']
 })
-export class UsersComponent implements OnInit, AfterViewChecked {
+export class UsersComponent implements OnInit {
 
+
+  user: any;
   message: string;
   users: Array<object>;
   dtOptions: DataTables.Settings = {};
@@ -48,15 +50,15 @@ export class UsersComponent implements OnInit, AfterViewChecked {
       serverSide: true,
       ajax: (dataTablesParameters: any, callback) => {
         that.httpc
-        .post<DataTablesResponse>(environment.api + '/user/list', dataTablesParameters, {})
-        .subscribe(res => {
-          that.users = res.listusers;
-          callback({
-            recordsTotal: res.recordsTotal,
-            recordsFiltered: res.recordsFiltered,
-            data: [],
+          .post<DataTablesResponse>(environment.api + '/user/list', dataTablesParameters, {})
+          .subscribe(res => {
+            that.users = res.listusers;
+            callback({
+              recordsTotal: res.recordsTotal,
+              recordsFiltered: res.recordsFiltered,
+              data: [],
+            });
           });
-        });
       },
       columns: [
         { data: 'lastname' },
@@ -66,14 +68,10 @@ export class UsersComponent implements OnInit, AfterViewChecked {
     };
   }
 
-  ngAfterViewChecked() {
-
+  getUser(id) {
+    this.userService.getUserById(id).subscribe(res => {
+      this.user = res.user;
+    });
   }
-
-  add() {
-  }
-  edit(id): void {
-  }
-
 
 }

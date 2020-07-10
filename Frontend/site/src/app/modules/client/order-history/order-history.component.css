@@ -57,3 +57,6 @@ mat-form-field {
   background-color:rgba(0,0,0,.01);
 }
 
+.no-data{
+  text-align: center;
+}

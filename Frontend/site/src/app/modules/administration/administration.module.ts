@@ -14,6 +14,7 @@ import { TemplatesModule } from '../templates/templates.module';
 import { RouterModule } from '@angular/router';
 import { DataTablesModule } from 'angular-datatables';
 import { administrationRoutes } from './administration.routing';
+import { UserModule } from '../user/user.module';
 
 
 
@@ -34,7 +35,8 @@ import { administrationRoutes } from './administration.routing';
     CommonModule,
     TemplatesModule,
     RouterModule.forRoot(administrationRoutes),
-    DataTablesModule
+    DataTablesModule,
+    UserModule
   ],
   exports:[
     ConfigElasticComponent,

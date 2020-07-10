@@ -23,6 +23,7 @@ import { ComplianceModule } from './modules/compliance/compliance.module';
 import { FinanceModule } from './modules/finance/finance.module';
 import { ProductModule } from './modules/product/product.module';
 import { SupportModule } from './modules/support/support.module';
+import { UserModule } from './modules/user/user.module';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,8 @@ import { SupportModule } from './modules/support/support.module';
     ComplianceModule,
     FinanceModule,
     ProductModule,
-    SupportModule
+    SupportModule,
+    UserModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }

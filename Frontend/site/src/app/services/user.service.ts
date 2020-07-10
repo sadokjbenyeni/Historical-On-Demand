@@ -111,4 +111,8 @@ export class UserService {
     // .map( res => res.json() );
   }
 
+  getUserById(id){
+    return this.http.get<any>(environment.api + '/user/' + id);
+  }
+
 }

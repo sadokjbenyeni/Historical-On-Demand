@@ -567,3 +567,7 @@ a {
   opacity: 0;
   margin-right: -25px;
 }
+
+.mat-form-field-appearance-legacy .mat-form-field-label {
+  color: #ea663b !important;
+}
