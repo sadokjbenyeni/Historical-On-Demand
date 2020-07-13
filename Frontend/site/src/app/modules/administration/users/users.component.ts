@@ -43,6 +43,7 @@ export class UsersComponent implements OnInit {
   ngOnInit() {
     this.message = '';
 
+
     const that = this;
     this.dtOptions = {
       pagingType: 'full_numbers',
@@ -53,6 +54,7 @@ export class UsersComponent implements OnInit {
           .post<DataTablesResponse>(environment.api + '/user/list', dataTablesParameters, {})
           .subscribe(res => {
             that.users = res.listusers;
+            this.user = this.users[0];
             callback({
               recordsTotal: res.recordsTotal,
               recordsFiltered: res.recordsFiltered,
@@ -62,16 +64,15 @@ export class UsersComponent implements OnInit {
       },
       columns: [
         { data: 'lastname' },
-        { data: 'firstname' },
-        { data: 'roleName', orderable: false },
+        { data: 'firstname' }
       ]
     };
   }
-
   getUser(id) {
-    this.userService.getUserById(id).subscribe(res => {
-      this.user = res.user;
-    });
+    if (this.user._id != id) {
+      this.userService.getUserById(id).subscribe(res => {
+        this.user = res.user;
+      });
+    }
   }
-
 }

@@ -1,27 +1,31 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UserService } from '../../../services/user.service';
-import { BillingInformation } from '../../../shared/models/billing-information.model';
-import { ContactInformations } from '../../../shared/models/contact-informations.model';
+import { BillingInformation } from '../../../shared/user/models/billing-information.model';
+import { ContactInformations } from '../../../shared/user/models/contact-informations.model';
+import { FormControl } from '@angular/forms';
+import { MatChip, MatChipList } from '@angular/material/chips';
 
 @Component({
   selector: 'app-user-informations',
   templateUrl: './user-informations.component.html',
   styleUrls: ['./user-informations.component.css']
 })
-export class UserInformationsComponent implements OnChanges {
+export class UserInformationsComponent implements OnInit, OnChanges {
+
+  userRoles: any;
   @Input() user: any;
   billigInformations: BillingInformation;
   contactInformations: ContactInformations;
-
   id: any;
-  roles: any;
   constructor(
-    private userService: UserService,
     private route: ActivatedRoute,
-    private router: Router
+    private userService: UserService
   ) {
     route.params.subscribe(params => this.id = params.id);
+  }
+  ngOnInit(): void {
+    this.userRoles = this.user.roleName;
   }
 
   ngOnChanges(userchanged: any): void {
@@ -30,6 +34,7 @@ export class UserInformationsComponent implements OnChanges {
     this.contactInformations = <ContactInformations>{};
     this.setBillingInformations(userchanged.user.currentValue);
     this.setContactInformations(userchanged.user.currentValue);
+    this.userRoles = this.user.roleName;
   }
 
   setBillingInformations(user) {
@@ -57,18 +62,6 @@ export class UserInformationsComponent implements OnChanges {
     this.contactInformations.webSite = user.website;
     this.contactInformations.emailAdress = user.email;
   }
-
-  getRoles(){
-    this.userService.getRoles().subscribe(res => {
-      this.roles = res.roles;
-    });
-  }
-  addRole(e) {
-    if (e) {
-      this.user['roleName'].push(e);
-    }
-  }
-  delRole(e) {
-    this.user['roleName'].splice(this.user['roleName'].indexOf(e), 1);
-  }
 }
+
+

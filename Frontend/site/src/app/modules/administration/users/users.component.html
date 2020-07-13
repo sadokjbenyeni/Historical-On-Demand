@@ -10,7 +10,7 @@
 <div class="container page-content">
   <div class="row padding-row">
     <app-configuration></app-configuration>
-    <div class="col-md-4 no-padding">
+    <div class="col-md-3 no-padding">
       <div class="panel panel-default">
         <div class="panel-body">
           <!-- <h4> -->
@@ -25,14 +25,12 @@
                 <tr>
                   <th>LastName</th>
                   <th>FirstName</th>
-                  <th>Role</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let user of users" class="clickable" (click)="getUser(user._id)" >
                   <td>{{ user.lastname }}</td>
                   <td>{{ user.firstname }}</td>
-                  <td>{{ user.roleName }}</td>
                 </tr>
               </tbody>
             </table>
@@ -40,7 +38,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-7 no-padding">
+    <div class="col-md-8 no-padding">
       <app-user-informations [user]="user" *ngIf="user" ></app-user-informations>
     </div>
   </div>

@@ -571,3 +571,14 @@ a {
 .mat-form-field-appearance-legacy .mat-form-field-label {
   color: #ea663b !important;
 }
+
+/* .mat-chip.mat-standard-chip {
+  background-color: #ea663b !important;
+  color: #fdfdfd !important;
+} */
+
+/* 
+.mat-chip.mat-standard-chip.mat-chip-selected.mat-primary {
+  background-color: #3f51b5;
+  color: #fff;
+} */
