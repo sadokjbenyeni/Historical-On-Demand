@@ -1,0 +1,268 @@
+<app-menu></app-menu>
+<div class="row page-header">
+  <div class="col-lg-12">
+    <ol class="breadcrumb custom-breadcrumb">
+      <li class="active">{{ search }}</li>
+    </ol>
+  </div>
+</div>
+<div class="container page-content">
+  <div class="row">
+    <div class="col-lg-12 col-md-12">
+      <div class="col-lg-3 col-md-3">
+        <div class="form-group input-group">
+          <select name="newAssetClass" class="form-control" [(ngModel)]="dataset.dataset" (change)="setDataset($event.target.value)">
+            <option *ngFor="let datast of datasets" [value]="datast.id">{{ datast.name }}</option>
+          </select>
+        </div>
+      </div>
+      <!-- <pre *ngIf="uuu.token==='265a6952787e320c0ba55fefeec470f88f74c9313ed1eb689f3f1988329c5015d06537101ff99806f2c38d8d459ad53b'">{{ exchanges | json }}</pre> -->
+      <!-- <pre>{{ user.token | json }}</pre> -->
+      <div class="col-lg-9 col-md-9 mg-down-15">
+        <button
+          class="text-color btn btn-default add-product"
+          title="Add Products"
+          alt="Add Products"
+          (click)="open(popProducts)"
+          [disabled]="addCart.products.length === 0">
+          Add Selected and Continue
+          <i class="fa fa-cart-plus fa-2x text-color pull-right" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="col-lg-3 col-md-3 filter">
+        <ngb-tabset (tabChange)="beforeChange($event)">
+          <ngb-tab id="instrument">
+            <ng-template ngbTabTitle>
+              <div (click)="reset()">Per Instrument</div>
+            </ng-template>
+            <ng-template ngbTabContent>
+              <br/>
+              <div class="form-group input-group">
+                <label for="all" class="input-group-addon">Search all instruments</label>
+                <input type="text" class="form-control" [(ngModel)]="all" name="all" id="all" placeholder="Search all instruments" (keyup.enter)="rSearch()">
+              </div>
+              <div class="form-group input-group">
+                <label for="symbol" class="input-group-addon">Symbol</label>
+                <input type="text" class="form-control" [(ngModel)]="symbol" name="symbol" id="symbol" placeholder="Symbol" (keyup.enter)="rSearch()">
+              </div>
+              <div class="form-group input-group">
+                <label for="isin" class="input-group-addon">ISIN</label>
+                <input type="text" class="form-control" [(ngModel)]="isin" name="isin" id="isin" placeholder="ISIN" (keyup.enter)="rSearch()">
+              </div>
+              <div class="form-group">
+                <label for="newAssetClass">Asset Class</label><br/>
+                <div class="btn btn-info" *ngFor="let ass of assetsSearch">
+                    <span aria-hidden="true" (click)="delAs(ass)" class="text-danger fa fa-times"></span> {{ ass }}
+                </div>
+                <select name="newAssetClass" id="newAssetClass" class="form-control" [(ngModel)]="nassc" (change)="addAsset($event.target.value)">
+                  <option value="" disabled>Selected Assets Class</option>
+                  <option *ngFor='let a of assets' [value]="a.id" [disabled]="assetsSearch.indexOf(a.id) !== -1 ">{{a.name}}</option>
+                </select>
+              </div>
+              <div class="form-group input-group">
+                <label for="mics" class="input-group-addon">MIC</label>
+                <input type="text" class="form-control" [(ngModel)]="mics" name="mics" id="mics" placeholder="Search MIC" (keyup.enter)="rSearch()">
+              </div>
+              <div class="form-group">
+                <label for="newExchange">Exchange*</label><br/>
+                <div class="btn btn-info" *ngFor="let ex of exchangesSearch">
+                  <span aria-hidden="true" (click)="delEx(ex)" class="text-danger fa fa-times"></span> {{ ex }}
+                </div>
+                <select name="newExchange" id="newExchange" class="form-control" [(ngModel)]="exchange" (change)="addEchange($event.target.value)" [disabled]="exchanges.length <= 0 ">
+                  <option value="" disabled>Selected Exchange</option>
+                  <option *ngFor='let e of exchanges' [value]="e.id"  [disabled]="exchangesSearch.indexOf(e.id) !== -1 ">{{e.name}}</option>
+                </select>
+              </div>
+              <p class="text-center">
+                <button class="btn btn-default" (click)="reset()">Reset</button>
+                <!-- <button #runsearch class="btn btn-primary" [disabled]="!((all !=='' || symbol !== '' || isin !== '' || mics !== '') || ( exchangesSearch.length > 0 || assetsSearch.length > 0 ))" (keyup.enter)="rSearch()" (click)="rSearch()" (change)="btnFocus();" >Search</button> -->
+                <button #runsearch class="btn btn-primary" [disabled]="false" (keyup.enter)="rSearch()" (click)="rSearch()" (change)="btnFocus();" >Search</button>
+              </p>
+               <p class="small">(*) Do not find the exchange you are looking for? Please contact your local sales team. See <a target="_BLANK" href="https://www.quanthouse.com/GlobalExchangeCoverage.html">Global Exchange Coverage</a>.</p>
+            </ng-template>
+          </ngb-tab>
+          <ngb-tab id="feed">
+            <ng-template ngbTabTitle>
+              <div (click)="reset()">Per Feed</div>
+            </ng-template>
+            <ng-template ngbTabContent>
+              <br/>
+              <div class="form-group">
+                <label for="newExchange">Exchange*</label><br>
+                <div class="btn btn-info" *ngFor="let ex of exchangesSearch">
+                  <span aria-hidden="true" (click)="delEx(ex)" class="text-danger fa fa-times"></span> {{ ex }}
+                </div>
+                <select name="newExchange" id="newExchange" class="form-control" [(ngModel)]="exchange" (change)="addEchange($event.target.value)">
+                  <option value="" disabled>Selected Exchange</option>
+                  <option *ngFor='let e of exchanges' [value]="e.id"  [disabled]="exchangesSearch.indexOf(e.id) !== -1 ">{{e.name}}</option>
+                </select>
+              </div>
+              <div class="form-group input-group">
+                <label for="mics" class="input-group-addon">MIC</label>
+                <input type="text" class="form-control" [(ngModel)]="mics" name="mics" id="mics" placeholder="Search MIC" (keyup.enter)="rSearch()">
+              </div>
+              <p class="text-center">
+                <button class="btn btn-default" (click)="reset()">Reset</button>
+                <button #runsearch class="btn btn-primary" [disabled]="false" (click)="rSearch()">Search</button>
+                <!-- <button #runsearch class="btn btn-primary" [disabled]="!((exchangesSearch.length > 0) || mics !== '')" (click)="rSearch()">Search</button> -->
+              </p>
+              <p class="small">(*) Do not find the exchange you are looking for? Please contact your local sales team. See <a target="_BLANK" href="https://www.quanthouse.com/GlobalExchangeCoverage.html">Global Exchange Coverage</a>.</p>
+            </ng-template>
+          </ngb-tab>
+        </ngb-tabset>
+      </div>
+      <div class="col-lg-9 col-md-9">
+        <div class="panel-body">
+          <div class="table-responsive">
+            <div><b>Show </b>
+              <select name="newNbPerPage" class="" [(ngModel)]="nbperpage" (change)="addnbperpage($event.target.value)">
+                <option *ngFor='let nb of nbPerPage' [value]="nb.id" >{{nb.name}}</option>
+              </select>
+              <b> entries</b>
+            </div>
+            <!-- {{addCart | json}} -->
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Select</th>
+                  <th *ngIf="tabsearch === 'instrument'">Instrument ID</th>
+                  <th>Product ID</th>
+                  <th *ngIf="tabsearch === 'instrument'">Symbol</th>
+                  <th *ngIf="tabsearch === 'instrument'">ISIN</th>
+                  <th>Description</th>
+                  <th class="text-center">Availability</th>
+                  <th *ngIf="tabsearch === 'instrument'">Asset Class</th>
+                  <th>MIC</th>
+                  <th>Exchange</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let hit of hits">
+                  <td><input type="checkbox" value="{{ hit._id }}" (change)="updtCheck(hit, $event)" [(ngModel)]="hit.selected" [checked]="hit.selected"></td>
+                  <td *ngIf="tabsearch === 'instrument'">{{ hit._source.Code }}</td>
+                  <td *ngIf="hit._source.EID">{{ hit._source.EID }}</td>
+                  <td *ngIf="hit._source.ContractEID">{{ hit._source.ContractEID }}</td>
+                  <td *ngIf="isString(hit._source.Symbol) && tabsearch === 'instrument'">{{ hit._source.Symbol }}</td>
+                  <td *ngIf="!isString(hit._source.Symbol) && tabsearch === 'instrument'">{{ hit._source.ContractSymbol }}</td>
+                  <td *ngIf="isString(hit._source.ISIN) && tabsearch === 'instrument'">{{ hit._source.ISIN }}</td>
+                  <td *ngIf="!isString(hit._source.ISIN) && tabsearch === 'instrument'">{{ hit._source.ContractISIN }}</td>
+                  <td *ngIf="isString(hit._source.Description) && tabsearch === 'instrument'">{{hit._source.Description}}</td>
+                  <td *ngIf="!isString(hit._source.Description) && tabsearch === 'instrument'">{{ hit._source.ContractDescription }}</td>
+                  <!-- <td *ngIf="tabsearch === 'feed'">{{ catalogue['tabEid'].indexOf(hit._source.EID.toString()) }}</td> -->
+                  <td *ngIf="tabsearch === 'feed'">{{ catalogue['catalogue'][ catalogue['tabEid'].indexOf(hit._source.EID.toString()) | number ]?.name }}</td>
+                  <!-- <td *ngIf="isString(hit._source.EIDdescription)">{{ hit._source.EIDdescription }}</td> -->
+                  <td class="text-center"><i class="fa fa-calendar" aria-hidden="true" (click)="getAvailability(hit._source.AvailabilityStart, hit._source.AvailabilityEnd); dpa.navigateTo({year:fromDate.year, month: fromDate.month})"></i></td>
+                  <!-- <td *ngIf="isNumber(hit._source.Availability)" class="text-center"><i class="fa fa-calendar" aria-hidden="true" (click)="getAvailability(hit._source.AvailabilityStart, hit._source.Availability.AvailabilityEnd); dpa.navigateTo({year:fromDate.year, month: fromDate.month})"></i></td> -->
+                  <td *ngIf="isString(hit._source.AssetClass) && tabsearch === 'instrument'">{{ hit._source.AssetClass }}</td>
+                  <td *ngIf="!isString(hit._source.AssetClass) && tabsearch === 'instrument'">{{ hit._source.ContractAssetClass }}</td>
+                  <td *ngIf="hit._source.MICs">{{ hit._source.MICs }}</td>
+                  <td *ngIf="isString(hit._source.ExchangeName)">{{ hit._source.ExchangeName }}</td>
+                  <td *ngIf="!isString(hit._source.ExchangeName)">{{ hit._source.ContractExchange }}</td>
+                </tr>
+                <tr *ngIf="hits?.length === 0">
+                  <td colspan="10" class="no-data-available">No data!</td>
+                </tr>
+              </tbody>
+              <tfoot class="pagine">
+                <tr style="font" *ngIf="total > 0">
+                  <td colspan="4">Showing {{from}} to {{ to }} of {{ total }} entries</td>
+                  <td colspan="5">
+                    <ngb-pagination 
+                      [collectionSize]="total"
+                      [pageSize]="pageTo"
+                      [(page)]="page"
+                      [maxSize]="5"
+                      [rotate]="true"
+                      [ellipses]="false"
+                      [boundaryLinks]="true"
+                      (pageChange)="updPagination()" 
+                      aria-label="Default pagination"
+                      *ngIf="pagesize > 0">
+                    </ngb-pagination>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="avaibility" [hidden]="!avaibility">
+  <div class="avtitle modal-header">
+    <h4>Avaibility</h4>
+    <button type="button" class="close" aria-label="Close" (click)="close();">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div>
+    <ngb-datepicker #dpa ngModel [displayMonths]="4" [dayTemplate]="t" ></ngb-datepicker>
+    <ng-template #t let-date="date" let-focused="focused" disabled="true" style="display: block">
+      <span class="custom-day"
+        [class.range]="isFrom(date) || isTo(date) || isInside(date) || isHovered(date)"
+        [class.faded]="isHovered(date) || isInside(date)"
+        (mouseenter)="hoveredDate = date"
+        (mouseleave)="hoveredDate = null">
+        {{ date.day }}
+      </span>
+    </ng-template>
+  </div>
+</div>
+
+<ng-template #popProducts let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">Products Selection</h4>
+    <button type="button" class="close" aria-label="Close" (click)="c('')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+      <!-- {{onetimeFrom | json}} - {{onetimeTo | json}}
+    {{addCart | json}} -->
+    <div>
+        <label><input type="checkbox" value="onetime" #onetime (change)="onetimeCheckbox(onetime)" [checked]="addCart.onetime === 1"> One-time delivery</label>
+    </div>
+    <div [hidden]="addCart.onetime === 0">
+        <label><input type="radio" [(ngModel)]="periodicite" name="do" value="1" (click)="datePeriod()"> Period</label>
+        <label><input type="radio" [(ngModel)]="periodicite" name="do" value="0" (click)="dateComplete()"> Complete history</label>
+        <div *ngIf="periodicite === '1'">
+          <div class="text-color">Minimum 1 month will be charged for any one-time delivery order.</div>
+          <div class="form-group input-group datemodal">
+            <!-- <input class="form-control" placeholder="From: yyyy-mm-dd" name="dd" [(ngModel)]="onetimeFrom" ngbDatepicker #da="ngbDatepicker" (ngModelChange)="dateChange(); dateChangeBegin(onetimeFrom)"> -->
+            <input class="form-control" placeholder="From: yyyy-mm-dd" name="dd" [(ngModel)]="onetimeFrom" ngbDatepicker #da="ngbDatepicker" (ngModelChange)="dateChangeFrom()">
+            <span class="input-group-addon" (click)="da.toggle();"><i class="fa fa-calendar"></i></span>
+          </div>
+          <div class="form-group input-group datemodal">
+            <!-- <input class="form-control" placeholder="To: yyyy-mm-dd" name="df" [(ngModel)]="onetimeTo" ngbDatepicker #db="ngbDatepicker" (ngModelChange)="dateChange(); dateChangeEnd(onetimeTo)"> -->
+            <input class="form-control" placeholder="To: yyyy-mm-dd" name="df" [(ngModel)]="onetimeTo" ngbDatepicker #db="ngbDatepicker" (ngModelChange)="dateChangeTo()">
+            <span class="input-group-addon" (click)="db.toggle();"><i class="fa fa-calendar"></i></span>
+          </div>
+        </div>
+    </div>
+    <div>
+      <label><input type="checkbox" value="subscription" #subscription (change)="subscriptionCheckbox(subscription)" [checked]="addCart.subscription === 1"> Subscription (yearly renewal)</label>
+    </div>
+    <div [hidden]="addCart.subscription === 0" class="text-color">
+      Minimum engagement period for any recurring delivery order is 12 months.
+    </div>
+    <!-- <hr>
+    <div class="text-center">
+      <h4>Format File</h4>
+      <label><input type="radio" [(ngModel)]="formatfile" name="formatfile" value="csv"> CSV</label>
+      <label><input type="radio" [(ngModel)]="formatfile" name="formatfile" value="json" [disabled]="true"> JSON (not yet available)</label>
+    </div> -->
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="c('')">Close</button>
+    <button 
+      type="button"
+      class="btn btn-outline-dark"
+      (click)="save(); c('')"
+      [disabled]="!( ( addCart.onetime===1 && ( ( addCart.onetimeFrom && addCart.onetimeTo) || addCart.complete === 1 ) ) || addCart.subscription === 1 )">Add to Cart</button>
+  </div>
+</ng-template>
+<pre *ngIf="user['token']==='265a6952787e320c0ba55fefeec470f88f74c9313ed1eb689f3f1988329c5015d06537101ff99806f2c38d8d459ad53b'">
+    {{ addCart | json }}
+  </pre>

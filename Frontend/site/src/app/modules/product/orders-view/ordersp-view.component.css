@@ -1,0 +1,17 @@
+.light-blue-backdrop {
+    background-color: #5cb3fd;
+}
+
+.margin-left-zero {
+    padding-left: 0px;
+}
+.responsive-field {
+    width: 100%;
+    max-width: 100%;
+    height: 11vh;
+    max-height: 11vh;
+}
+
+.save-changes-btn {
+    float: right;
+}

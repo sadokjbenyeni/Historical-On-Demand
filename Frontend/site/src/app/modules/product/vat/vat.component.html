@@ -1,0 +1,16 @@
+<div class="panel panel-default">
+  <div class="panel-body">
+    <h4>French VAT Rate Setting</h4>
+    <br>
+    <div class="panel panel-primary" *ngIf="message">
+      <div class="panel-heading">
+        <h4 class="text-center">{{message}}</h4>
+      </div>
+    </div>
+    <div class="form-group input-group" style="width: 300px; text-align: center; margin: auto">
+      <span class="input-group-addon">French VAT Rate (%)*</span>
+      <input class="form-control ng-untouched ng-pristine ng-valid" name="vat" placeholder="20%" type="text" [(ngModel)]="vat">
+      <span class="input-group-btn btn-default color clickable" (click)="saveVat()">Save</span>
+    </div>
+  </div>
+</div>

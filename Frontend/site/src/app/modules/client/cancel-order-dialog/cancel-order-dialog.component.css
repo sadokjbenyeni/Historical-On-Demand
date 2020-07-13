@@ -1,0 +1,19 @@
+
+.confirm-button, .close-button {
+    width: auto;
+}
+
+mat-card-header, mat-card-content {
+    margin-bottom: 25px;
+}
+
+mat-card-actions {
+    margin-bottom: -10px;
+}
+
+.tag-remove::before {
+    content: 'x';
+    color: #fff;
+    font-weight: 300;
+    font-family: Arial, sans-serif;
+  }

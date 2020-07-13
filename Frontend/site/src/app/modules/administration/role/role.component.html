@@ -1,0 +1,36 @@
+<app-menu></app-menu>
+<div class="row page-header">
+  <div class="col-lg-12">
+    <ol class="breadcrumb custom-breadcrumb">
+      <li class="active">Administration</li>
+      <li class="active">Roles</li>
+    </ol>
+  </div>
+</div>
+<div class="container page-content">
+  <div class="row">
+    <app-configuration></app-configuration>
+    <div class="col-md-11">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="table-responsive">
+            <table class="row-border hover dataTable">
+              <thead>
+                <tr>
+                  <th>Pages</th>
+                  <th *ngFor="let role of roles">{{ role.name }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let page of pages">
+                  <td>{{ page }}</td>
+                  <td *ngFor="let r of roles"> <input type="checkbox" name="" id="" [checked]="r.pages.indexOf(page) !== -1" ></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

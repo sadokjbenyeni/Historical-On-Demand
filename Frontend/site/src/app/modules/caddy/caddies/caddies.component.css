@@ -1,0 +1,78 @@
+ul.bread-crumbs > li {
+  display: inline-block;
+  position: relative;
+  padding: 10px 15px 10px 30px;
+  margin-bottom: 5px;
+  font-size: 16px;
+  color: #ed6540;
+  text-align: center;
+}
+ul.bread-crumbs > li:after {
+  transform: skew(45deg, 0);
+  content: "";
+  height: 50%;
+  width: 1px;
+  background: #ed6540;
+  border-right: 1px solid rgb(255, 180, 160);
+  position: absolute;
+  top: 0;
+  right: -15px;
+  z-index: 1;
+}
+
+ul.bread-crumbs > li:before {
+  transform: skew(-45deg, 0);
+  content: "";
+  height: 51%;
+  width: 1px;
+  background: #ed6540;
+  border-right: 1px solid rgb(255, 180, 160);
+  position: absolute;
+  bottom: 0;
+  right: -15px;
+  z-index: 1;
+}
+
+ul.bread-crumbs > li.active {
+  color: white;
+  background: #ed6540;
+  border: 1px solid rgb(255, 180, 160);
+  border-left: none;
+  padding-left: 35px;
+  left: -5px;
+}
+ul.bread-crumbs > li.active:first-child {
+  border-left: 1px solid rgb(255, 180, 160);
+  left: 0;
+  padding-left: 30px;
+}
+
+ul.bread-crumbs > li.active:after {
+  width: 25px;
+  background: #ed6540;
+}
+
+ul.bread-crumbs > li.active:before {
+  width: 25px;
+  background: #ed6540;
+}
+ul.bread-crumbs > li > a {
+  color: white;
+  font-weight: bold;
+}
+.put-middle {
+  padding-top: 1.5%;
+  margin-left: 46%;
+}
+.padding-one-pourcent {
+  padding-top: 1%;
+  padding-bottom: 1%;
+}
+.button-orange {
+  background-color: #ea663b;
+  color: white;
+}
+.border-button {
+  border: 0.5px solid black;
+  margin-right: 1px;
+}
