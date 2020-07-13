@@ -1,0 +1,46 @@
+.align {
+  display: flex;
+  margin-bottom: 0px !important;
+}
+
+.mat-list-item {
+  font-size: 13px;
+  font-weight: 500;
+}
+.mat-header-cell {
+  text-align: center;
+}
+
+.mat-cell {
+  font-size: 12px;
+}
+
+.mat-list-item span {
+  color: rgb(116, 116, 116);
+  font-weight: 400;
+}
+
+.user-page-content {
+  margin-top: 145px !important;
+}
+
+.mat-header-cell {
+  text-align: center;
+}
+
+.mat-card {
+  box-shadow: 0px 10px 20px -15px black;
+  padding-top: 1rem;
+  border-left: 0 solid #ed6540;
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
+.child-pading-margin {
+  padding-top: 10px !important;
+  margin-top: 10px !important;
+}
+
+.container {
+  padding-left: 0px !important;
+}

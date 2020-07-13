@@ -1,9 +1,9 @@
 import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { CountriesService } from '../../services/countries.service';
-import { PaymentService } from '../../services/payment.service';
+import { CountriesService } from '../../../services/countries.service';
+import { PaymentService } from '../../../services/payment.service';
 import { BillingInformation } from '../models/billing-information.model';
-import { CurrencyService } from '../../services/currency.service';
+import { CurrencyService } from '../../../services/currency.service';
 
 @Component({
   selector: 'app-billing-informations',

@@ -1,0 +1,96 @@
+<mat-card-subtitle><b>Billing Informations</b></mat-card-subtitle>
+<div [formGroup]="form">
+  <div class="row">
+    <mat-card>
+      <mat-card-content>
+        <!-- <div class="row"> -->
+        <!-- <div class="col-md-6"> -->
+        <mat-form-field>
+          <input matInput type="text" (change)="checkVat()" placeholder="VAT Number" formControlName="vatctl" />
+          <mat-hint style="color: #f44336;" *ngIf="invalidVat">You have entered an invalid VAT Number
+          </mat-hint>
+        </mat-form-field>
+        <br />
+        <mat-form-field>
+          <input matInput type="text" placeholder="Billing Address" formControlName="addressBillingctl" required />
+          <mat-error>Field required</mat-error>
+        </mat-form-field>
+        <br />
+
+
+        <mat-form-field>
+          <input matInput type="text" name="cityBilling" placeholder="Billing City" formControlName="cityBillingctl"
+            required />
+          <mat-error>Field required</mat-error>
+        </mat-form-field>
+        <br />
+        <!-- </div> -->
+        <!-- <div class="col-md-6"> -->
+        <mat-form-field>
+          <input matInput type="text" name="postalCodeBilling" placeholder="Billing Postal Code"
+            formControlName="postalCodeBillingctl" required />
+          <mat-error>Field required</mat-error>
+        </mat-form-field>
+
+
+        <mat-form-field>
+          <mat-label>Select Country</mat-label>
+          <mat-select (selectionChange)="changecountry($event)" name="countryBilling"
+            formControlName="countryBillingctl" required>
+            <mat-option *ngFor="let c of country" [value]="c.id">{{
+            c.name
+          }}</mat-option>
+          </mat-select>
+          <mat-error>Field required</mat-error>
+        </mat-form-field>
+
+        <label id="paymenTitle">Select your payment method</label>
+        <mat-radio-group class="display-mat-radio-button" formControlName="billingPayment"
+          aria-labelledby="paymenTitle">
+          <mat-radio-button *ngFor="let payment of payments" name="payment" [value]="payment.id">
+            {{ payment.name }}</mat-radio-button>
+        </mat-radio-group>
+
+        <label id="currencyTitle">Select your billing currency</label>
+        <mat-radio-group class="display-mat-radio-button" formControlName="billingCurrency"
+          aria-labelledby="currencyTitle">
+          <ng-container *ngFor="let currency of currencies">
+            <mat-radio-button name="currency" [value]="currency.id" [title]="currency.name"
+              (change)="ChangedCurrency(currency.id)">
+              {{ currency.device }} </mat-radio-button><br />
+          </ng-container>
+        </mat-radio-group>
+        <!-- </div> -->
+        <!-- </div> -->
+      </mat-card-content>
+    </mat-card>
+  </div>
+  <!-- <div class="row">
+    <mat-card>
+      <mat-card-content>
+        <div class="row"> -->
+          <!-- <div class="col-md-6"> -->
+          <!-- <label id="paymenTitle">Select your payment method</label> -->
+          <!-- <mat-radio-group class="display-mat-radio-button" formControlName="billingPayment" -->
+            <!-- aria-labelledby="paymenTitle"> -->
+            <!-- <mat-radio-button *ngFor="let payment of payments" name="payment" [value]="payment.id"> -->
+              <!-- {{ payment.name }}</mat-radio-button> -->
+          <!-- </mat-radio-group> -->
+          <!-- </div> -->
+          <!-- <div class="col-md-6"> -->
+          <!-- <label id="currencyTitle">Select your billing currency</label> -->
+          <!-- <mat-radio-group class="display-mat-radio-button" formControlName="billingCurrency" -->
+            <!-- aria-labelledby="currencyTitle"> -->
+            <!-- <ng-container *ngFor="let currency of currencies"> -->
+              <!-- <mat-radio-button name="currency" [value]="currency.id" [title]="currency.name" -->
+                <!-- (change)="ChangedCurrency(currency.id)"> -->
+                <!-- {{ currency.device }} </mat-radio-button><br /> -->
+            <!-- </ng-container>
+          </mat-radio-group>
+          </div>
+         </div> -->
+      <!-- </mat-card-content>
+    </mat-card>
+  </div> -->
+
+</div>
