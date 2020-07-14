@@ -10,16 +10,11 @@ const User = mongoose.model('User');
 const Currency = mongoose.model('Currency');
 const Countrie = mongoose.model('Countrie');
 const http = require('http');
-
-
-//const config = require('../../config/config.js');
 const DOMAIN = global.environment.domain;
 const LOCALDOMAIN = global.environment.localdomain;
-
-
 const OrderPdfService = require('../../service/orderPdfService');
 const DateService = require('../../service/dateService');
-const jwtService = require("../../service/jwtService")
+const JwtService = require("../../service/jwtService")
 
 var moment = require('moment');
 moment().format();
@@ -28,7 +23,7 @@ router.post('/', async (req, res) => {
   if (!req.headers.authorization) {
     return res.status(401);
   }
-  const userId = jwtService.verifyToken(req.headers.authorization).id
+  const userId = JwtService.verifyToken(req.headers.authorization).id
   var authentifiedUser = await userService.getUserById(userId);
   if (!authentifiedUser) {
     req.logger.warn({ message: '[Security] Token not found', className: 'PDF API' });

@@ -1,17 +1,12 @@
 const mongoose = require('mongoose');
-
 var path = require('path');
 var fs = require('fs');
 var pdfMake = require('pdfmake/src/printer');
 const User = mongoose.model('User');
 const Currency = mongoose.model('Currency');
 const Countrie = mongoose.model('Countrie');
-
 const invoiceDirectory = global.environment.InvoiceDirectory;
-//const config = require('../config/config.js');
 const DOMAIN = global.environment.domain;
-
-
 const DateService = require('../service/dateService');
 
 module.exports = function (order) {
@@ -50,8 +45,8 @@ module.exports = function (order) {
       // Invoice Title
       invoiceTitle: { fontSize: 22, bold: true, alignment: 'right', margin: [0, 0, 0, 15] },
       // Invoice Details
-      invoiceSubTitle: { fontSize: 10, alignment: 'left' },
-      invoiceSubValue: { fontSize: 10, alignment: 'right' },
+      invoiceSubTitle: { margin: [0, 5, 0, 5], bold: true, alignment: 'center', fontSize: 10 },
+      invoiceSubValue: { margin: [0, 5, 0, 5], bold: true, alignment: 'center', fontSize: 10 },
       // Billing Headers
       invoiceBillingTitle: { fontSize: 14, bold: true, alignment: 'left', margin: [0, 20, 0, 5], },
       // Billing Details
@@ -156,7 +151,7 @@ module.exports = function (order) {
           'RCS Paris 449703248',
           'VAT : FR00449703248'
         )],
-        { text: '', width: 105 },
+        { text: '', width: 600 },
         head(invoiceId, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency, invoiceType)
       ],
     }
@@ -241,38 +236,37 @@ module.exports = function (order) {
   };
 
   this.head = function (invoiceId, numAccount, idTax, invoiceDate, paymentDate, numCmd, currency, invoiceType) {
-    let width = '70%';
     return {
+      widths: ['100%', '100%'],
       table: {
-        headerRows: 1,
         body: [
           [
-            { text: invoiceType, style: 'invoiceSubTitle', width: width },
-            { text: invoiceId, style: 'invoiceSubValue', width: width }
+            { text: invoiceType, style: 'invoiceSubTitle', alignment: 'center' },
+            { text: invoiceId, style: 'invoiceSubValue', alignment: 'center' }
           ],
           [
-            { text: 'Account n°', style: 'invoiceSubTitle', width: width },
-            { text: numAccount, style: 'invoiceSubValue', width: width }
+            { text: 'Account n°', style: 'invoiceSubTitle', alignment: 'center' },
+            { text: numAccount, style: 'invoiceSubValue', alignment: 'center' }
           ],
           [
-            { text: 'tax Id n°', style: 'invoiceSubTitle', width: width },
-            { text: idTax, style: 'invoiceSubValue', width: width }
+            { text: 'tax Id n°', style: 'invoiceSubTitle', alignment: 'center' },
+            { text: idTax, style: 'invoiceSubValue', alignment: 'center' }
           ],
           [
-            { text: 'Invoice date', style: 'invoiceSubTitle', width: width },
-            { text: invoiceDate, style: 'invoiceSubValue', width: width }
+            { text: 'Invoice date', style: 'invoiceSubTitle', alignment: 'center' },
+            { text: invoiceDate, style: 'invoiceSubValue', alignment: 'center' }
           ],
           [
-            { text: 'Payment due date', style: 'invoiceSubTitle', width: width },
-            { text: paymentDate, style: 'invoiceSubValue', width: width }
+            { text: 'Payment due date', style: 'invoiceSubTitle', alignment: 'center' },
+            { text: paymentDate, style: 'invoiceSubValue', alignment: 'center' }
           ],
           [
-            { text: 'Order form n°', style: 'invoiceSubTitle', width: width },
-            { text: numCmd, style: 'invoiceSubValue', width: width }
+            { text: 'Order form n°', style: 'invoiceSubTitle', alignment: 'center' },
+            { text: numCmd, style: 'invoiceSubValue', alignment: 'center' }
           ],
           [
-            { text: 'Currency', style: 'invoiceSubTitle', width: width },
-            { text: currency, style: 'invoiceSubValue', width: width }
+            { text: 'Currency', style: 'invoiceSubTitle', alignment: 'center' },
+            { text: currency, style: 'invoiceSubValue', alignment: 'center' }
           ]
         ]
       }
