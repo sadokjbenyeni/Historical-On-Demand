@@ -3,14 +3,14 @@ const LoggerFactory = require("./logger.js");
 const logger = new LoggerFactory().createLogger("System");
 
 const express = require("express");
-const path = require("path");
-const http = require("http");
+// const path = require("path");
+// const http = require("http");
 const bodyParser = require("body-parser");
-const request = require("request");
+// const requestF = require("request");
 const mongoose = require("mongoose");
 const randtoken = require("rand-token");
 const cors = require("cors");
-const cron = require("node-cron");
+// const cron = require("node-cron");
 
 //const MDB = require("./server/config/configmdb.js").mdb;
 //const Config = require("./server/config/config.js");
@@ -133,17 +133,17 @@ const api = require("./server/api/");
 app.use("/api", api);
 
 //Static path to dist
-// app.use(express.static(path.join(__dirname, "site/dist")));
+// app.use(express.static(path.join(__dirname, "../../FrontEnd/site/dist")));
 // app.use("/files", express.static(path.join(__dirname, "files")));
 // app.use("/cmd", express.static(path.join(__dirname, "files/command")));
 // app.use("/iv", express.static(path.join(__dirname, "files/invoice")));
-// // app.use('/loadfile', express.static('/mapr/client_exports/'));
+// app.use('/loadfile', express.static('/mapr/client_exports/'));
 // app.use("/help/dataguide", express.static(path.join(__dirname, "dataguide/")));
 
 //Catch all other routes and return to the index file
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "site/dist/index.html"));
-});
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "../../FrontEnd/site/dist/index.html"));
+// });
 
 //Get environment port or use 3000
 const port = process.env.PORT || "3000";

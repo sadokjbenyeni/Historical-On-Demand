@@ -927,8 +927,9 @@ router.put("/changePresubmitState", async (req, res) => {
     return res.status(200).json({ error: "Invalid State" });
   }
   try {
+    const idUser = jwtService.verifyToken(req.headers.authorization).id
     var updated = await OrderService.updatePreSubmitStateCaddy(
-      req.headers.authorization,
+     idUser,
       req.body.state
     );
     return res.status(200).json({ udpated: updated });
@@ -1404,7 +1405,7 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
     req.body.id,
     orderUpdated.idCommande,
     orderUpdated.state,
-    
+
   );
   return corp;
 }

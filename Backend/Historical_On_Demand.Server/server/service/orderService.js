@@ -574,8 +574,8 @@ function deleteuselessfields(order) {
     delete order.logs;
     delete order.eid;
 }
-module.exports.updatePreSubmitStateCaddy = async (token, state) => {
-    const caddy = await this.getRawCaddy(token);
+module.exports.updatePreSubmitStateCaddy = async (idUser, state) => {
+    const caddy = await this.getRawCaddy(idUser);
     if (!caddy) {
         throw new Error("Caddy Not Found");
     }
