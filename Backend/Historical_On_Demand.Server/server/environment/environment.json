@@ -1,0 +1,42 @@
+{
+  "environment_name": "development",
+  "app_name": "HOD",
+  "port": 3000,
+  "domain": "https://hod-lab.quanthouse.com",
+  "localdomain": "http://gateway01.hod-lab.quanthouse.com",
+  "rtconfig": ["192.168.10.10"],
+  "InvoiceDirectory": "c:/temp/files/invoice/",
+  "hostsES": ["http://10.0.10.102:9200"],
+  "environment": "UAT",
+  "phrase": "14cb4a9235d7360d2911d6444aa69f02",
+  "apiqf": "http://10.1.0.6",
+  "dnwfile": "http://gateway01.hod-lab.quanthouse.com",
+  "currency": "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+  "paymentVerify": "https://checkout-test.adyen.com/services/PaymentSetupAndVerification/v32/verify",
+  "paymentSetup": "https://checkout-test.adyen.com/services/PaymentSetupAndVerification/v32/setup",
+  "paymentKey": "AQElhmfuXNWTK0Qc+iSBp0UWk8y0fbhoaeebbhXE6Bp3O9OVDwjXkhDBXVsNvuR83LVYjEgiTGAH-72Ru3lyilp3K6oonHc6t8HPeGM63I61nZCG9LeyUyxk=-43mwGjBQkT2EbcVp",
+
+  "database": {
+    "connectionString": "mongodb://localhost:27017",
+    "dbname": "histodataweb",
+    "userdb": "",
+    "passdb": "",
+    "authdb": ""
+  },
+
+  "smtpconf": {
+    "host": "quanthouse-com.mail.protection.outlook.com",
+    "port": 25,
+    "secure": false,
+    "tls": {
+      "rejectUnauthorized": false
+    },
+    "debug": false
+  },
+  "jwtCredentials": {
+    "secret": "HodQuanthouse",
+    "options": {
+      "expiresIn": "1d"
+    }
+  }
+}
