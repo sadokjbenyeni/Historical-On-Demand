@@ -1,8 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 
-import { UploadService } from '../../../services/upload.service';
-
-
 @Component({
   selector: 'app-help',
   templateUrl: './help.component.html',
@@ -22,7 +19,7 @@ export class HelpComponent implements OnInit {
   fitToPage: boolean;
   newHelp: any;
 
-  constructor( private uploadService: UploadService ) {
+  constructor() {
     this.page = 1;
     this.pdf = '';
     this.rotation = 0;
@@ -38,18 +35,6 @@ export class HelpComponent implements OnInit {
 
   ngOnInit() {
     this.newHelp = { doc: '' };
-  }
-  onUpload(event) {
-    const files: FileList = event.target.files;
-    const tempFile = files[0];
-    if (tempFile) {
-      const bodyRequest: FormData = new FormData();
-      bodyRequest.append('doc', tempFile);
-      this.uploadService.upload(bodyRequest).subscribe((res) => {
-        this.newHelp.doc = '/files/' + res.file;
-        this.pdf = '/files/' + res.file;
-      });
-    }
   }
 
   incrementPage(amount: number) {

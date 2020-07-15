@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 
-import { PdfService } from '../../../services/pdf.service';
 import { OrderService } from '../../../services/order.service';
 
 @Component({
@@ -11,15 +10,8 @@ import { OrderService } from '../../../services/order.service';
 
 export class TermsComponent implements OnInit {
   constructor(
-    private pdfService: PdfService,
     private orderService: OrderService
   ) { }
 
   ngOnInit() { }
-
-  link() {
-    this.pdfService.pdf({ id: 229 }).subscribe(res => {
-      console.log(res.file);
-    });
-  }
 }

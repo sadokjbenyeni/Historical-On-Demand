@@ -4,7 +4,6 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { OrderService } from '../../../services/order.service';
 import { ConfigService } from '../../../services/config.service';
 import { CurrencyService } from '../../../services/currency.service';
-import { PdfService } from '../../../services/pdf.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { DownloadInvoiceService } from '../../../services/Intern/download-invoice.service';
 

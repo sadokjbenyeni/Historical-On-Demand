@@ -11,8 +11,6 @@ import { CountriesService } from '../../../services/countries.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { UserService } from '../../../services/user.service';
 import { ConfigService } from '../../../services/config.service';
-import { PdfService } from '../../../services/pdf.service';
-import { UploadService } from '../../../services/upload.service';
 
 describe('CaddiesComponent', () => {
   let component: CaddiesComponent;
@@ -22,7 +20,7 @@ describe('CaddiesComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ CaddiesComponent ],
       imports: [ RouterTestingModule, HttpClientModule ],
-      providers: [ OrderService, VatService, FluxService, PaymentService, CountriesService, CurrencyService, UserService, ConfigService, PdfService, UploadService ]
+      providers: [ OrderService, VatService, FluxService, PaymentService, CountriesService, CurrencyService, UserService, ConfigService]
     })
     .compileComponents();
   }));

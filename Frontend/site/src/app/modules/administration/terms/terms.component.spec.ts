@@ -4,8 +4,6 @@ import { TermsComponent } from './terms.component';
 
 import { HttpClientModule } from '@angular/common/http';
 
-import { PdfService } from '../../../services/pdf.service';
-
 
 describe('TermsComponent', () => {
   let component: TermsComponent;
@@ -14,8 +12,7 @@ describe('TermsComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ TermsComponent ],
-      imports : [ HttpClientModule ],
-      providers: [ PdfService ]
+      imports : [ HttpClientModule ]
     })
     .compileComponents();
   }));
