@@ -267,6 +267,7 @@ export class OrderspViewComponent implements OnInit {
     if (this.discount > 100) this.discount = 100;
     let totaHTExchangeFeesFree = this.totalHTDiscountFree - this.totalFees;
     this.totalHT = (totaHTExchangeFeesFree - (totaHTExchangeFeesFree * this.discount / 100)) + this.totalFees;
+    this.totalVat = (this.totalHT / 100) * 20;
     this.totalTTC = this.totalHT + this.totalVat;
   }
 

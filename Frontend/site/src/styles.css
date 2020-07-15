@@ -529,11 +529,11 @@ a {
   padding: 0;
   width: 0;
   overflow: hidden;
-  transition: 0.5s;
+  transition: 0.8s;
 }
 
 .pdf-downloader-main input:checked ~ .pdf-downloader-menu {
-  width: 150px;
+  width: 130px;
 }
 
 .pdf-downloader-main input:checked ~  {
@@ -548,14 +548,15 @@ a {
 
 .pdf-downloader-menu li a {
   text-decoration: none;
-  color: rgb(44, 43, 43);
+  color: #ED6540;
   text-transform: uppercase;
   font-weight: 400;
   transition: 1s;
 }
 
 .pdf-downloader-menu li a:hover {
-  color: #ED6540;
+  color: #0858c0;
+  text-decoration: underline;
 }
 
 .visually-hidden {

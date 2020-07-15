@@ -256,7 +256,8 @@ router.put("/updateDiscount", async (req, res) => {
   updatedInvoice.discount = req.body.discount;
   let invoice = await Invoice.findOne({ orderId: req.body.orderId }).exec();
   updatedInvoice.totalHT = applyDiscount(invoice.totalHTDiscountFree, invoice.totalExchangeFees, updatedInvoice.discount);
-  updatedInvoice.total = updatedInvoice.totalHT + invoice.totalVat;
+  updatedInvoice.totalVat = (updatedInvoice.totalHT / 100) * 20;
+  updatedInvoice.total = updatedInvoice.totalHT + updatedInvoice.totalVat;
   try {
     await Invoice.updateOne({ orderId: req.body.orderId }, { $set: updatedInvoice }).exec();
   }

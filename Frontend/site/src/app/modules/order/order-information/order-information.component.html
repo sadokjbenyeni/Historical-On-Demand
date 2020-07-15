@@ -21,17 +21,12 @@
             <mat-list-item>{{ orderInfo.payment }}</mat-list-item>
             <mat-list-item>
                 <div *ngIf="orderInfo.proForma || orderInfo.invoice" class="pdf-downloader-main">
-                    <img src="https://img.icons8.com/offices/40/000000/export-pdf.png" />
-                    <input class='visually-hidden' type='checkbox' />
-                    <div class="pdf-downloader-menu">
-                        <li> <a target="_blank" *ngIf="orderInfo.proForma" type="button"
-                                (click)="downloadInvoice(orderInfo.proForma, 'pro forma invoice')">
-                                ProForma</a>
-                        </li>
-                        <li> <a target="_blank" *ngIf="orderInfo.invoice" type="button"
-                                (click)="downloadInvoice(orderInfo.invoice, 'invoice')">Invoice</a>
-                        </li>
-                    </div>
+                    <a target="_blank" *ngIf="orderInfo.proForma" type="button"
+                        (click)="downloadInvoice(orderInfo.proForma, 'pro forma invoice')">
+                        Pro-Forma</a>
+                    <span *ngIf="orderInfo.invoice">&#160;&#124;&#160;</span>
+                    <a target="_blank" *ngIf="orderInfo.invoice" type="button"
+                        (click)="downloadInvoice(orderInfo.invoice, 'invoice')">Invoice</a>
                 </div>
             </mat-list-item>
             <mat-list-item>{{ orderInfo.state }}</mat-list-item>
