@@ -151,9 +151,9 @@ module.exports = function (order) {
     }
   };
 
-  this.qhAddress = function (address, cp, city, country, sasu, rcs, vat, invoiceBillingAddress) {
+  this.qhAddress = function (address, postalCode, city, country, sasu, rcs, vat, invoiceBillingAddress) {
     return {
-      text: address + '\n' + cp + ' ' + city + '\n' + country + '\n' + sasu + '\n' + rcs + '\n' + vat,
+      text: address + '\n' + postalCode + ' ' + city + '\n' + country + '\n' + sasu + '\n' + rcs + '\n' + vat,
       style: invoiceBillingAddress
     };
   };
@@ -334,21 +334,7 @@ module.exports = function (order) {
     };
   };
 
-  this.precisionRound = function (number, precision) {
-    var factor = Math.pow(10, precision);
-    return Math.round(number * factor) / factor;
-  };
-
-  this.clone = function (obj) {
-    try {
-      var copy = JSON.parse(JSON.stringify(obj));
-    } catch (ex) {
-      alert("variable cloning error");
-    }
-    return copy;
-  };
   function getOrders(orders, vatValue, country) {
-
     var pervat = country.ue === "1" ? vatValue : 0;
     let listOrders = [];
     let border = [false, false, false, true];
@@ -365,6 +351,7 @@ module.exports = function (order) {
     }
     return listOrders;
   };
+
   function addProduct(listOrders, product, exchangefee, border, pervat) {
     let description = product.description ? product.description : product.contractid;
     var typeOrder = product.onetime === 1 ? "One-Off" : "Subscription";
