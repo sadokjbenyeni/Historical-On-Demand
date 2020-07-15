@@ -1,22 +1,9 @@
-<div class="container ">
-  <div class="row">
-    <div class="col-md-12">
-      <div class="panel panel-default">
-        <div class="panel-body">
-          <app-roles *ngIf="userRoles" [userRoles]="userRoles"></app-roles>
+<div class="col-md-7">
+  <app-contact-informations class="child-pading-margin" *ngIf="contactInformations"
+    [contactInformations]="contactInformations"></app-contact-informations>
+</div>
 
-          <div class="col-md-7">
-            <app-contact-informations class="child-pading-margin" *ngIf="contactInformations"
-              [contactInformations]="contactInformations"></app-contact-informations>
-          </div>
-
-          <div class="col-md-5">
-            <app-billing-informations class="child-pading-margin" *ngIf="billigInformations"
-              [billigInformations]="billigInformations"></app-billing-informations>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="col-md-5">
+  <app-billing-informations class="child-pading-margin" *ngIf="billigInformations"
+    [billigInformations]="billigInformations"></app-billing-informations>
 </div>

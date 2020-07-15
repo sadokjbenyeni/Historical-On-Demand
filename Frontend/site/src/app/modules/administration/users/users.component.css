@@ -1,7 +1,13 @@
-.no-padding{
-    padding: 0px !important;
+.no-padding {
+  padding: 0px !important;
 }
 
-.padding-row{
-    padding-top: 10px;
+.padding-row {
+  padding-top: 10px;
 }
+
+.update-button-position {
+  float: right;
+  margin-top: 18px;
+}
+

@@ -3,13 +3,9 @@ import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-
-
-
-import { UserService } from '../../../services/user.service';
-
+import Swal from 'sweetalert2';
 import { environment } from '../../../../environments/environment';
-
+import { AdministratorServiceService } from '../../../services/administrator-service.service';
 class DataTablesResponse {
   listusers: any[];
   draw: number;
@@ -24,8 +20,8 @@ class DataTablesResponse {
 })
 export class UsersComponent implements OnInit {
 
-
   user: any;
+  userToUpdate: any;
   message: string;
   users: Array<object>;
   dtOptions: DataTables.Settings = {};
@@ -34,7 +30,7 @@ export class UsersComponent implements OnInit {
   constructor(
     private router: Router,
     private httpc: HttpClient,
-    private userService: UserService
+    private adminsitratorService: AdministratorServiceService
   ) { }
 
   @ViewChild('utilisateurForm', { static: false })
@@ -42,8 +38,6 @@ export class UsersComponent implements OnInit {
 
   ngOnInit() {
     this.message = '';
-
-
     const that = this;
     this.dtOptions = {
       pagingType: 'full_numbers',
@@ -53,6 +47,7 @@ export class UsersComponent implements OnInit {
         that.httpc
           .post<DataTablesResponse>(environment.api + '/user/list', dataTablesParameters, {})
           .subscribe(res => {
+            debugger
             that.users = res.listusers;
             this.user = this.users[0];
             callback({
@@ -70,9 +65,45 @@ export class UsersComponent implements OnInit {
   }
   getUser(id) {
     if (this.user._id != id) {
-      this.userService.getUserById(id).subscribe(res => {
+      this.adminsitratorService.getUserById(id).subscribe(res => {
         this.user = res.user;
       });
     }
+  }
+  updateUser() {
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to update this user!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirm'
+    }).then((result) => {
+      if (result.value) {
+        this.adminsitratorService.updateUser(this.userToUpdate).subscribe(
+          result => {
+            Swal.fire({
+              icon: 'success',
+              title: 'User updated',
+              showConfirmButton: false,
+              timer: 1500
+            })
+          },
+          error => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Update Failed !',
+              text: error.message,
+            })
+          });
+      }
+    })
+  }
+
+  newUserRoles(newRoles) {
+    // sending user role by reference, no needs to affect them ! 
+    this.userToUpdate = this.user;
   }
 }

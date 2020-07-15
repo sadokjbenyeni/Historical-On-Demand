@@ -37,7 +37,6 @@ export class BillingInformationsComponent implements OnInit, OnChanges {
 
   ngOnChanges(userChanged): void {
     this.initFields();
-
   }
   initFields() {
 

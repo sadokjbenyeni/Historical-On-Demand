@@ -15,6 +15,8 @@ import { RouterModule } from '@angular/router';
 import { DataTablesModule } from 'angular-datatables';
 import { administrationRoutes } from './administration.routing';
 import { UserModule } from '../user/user.module';
+import { SharedModule } from '../../shared/shared.module';
+import { MaterialModule } from '../material/material.module';
 
 
 
@@ -36,7 +38,9 @@ import { UserModule } from '../user/user.module';
     TemplatesModule,
     RouterModule.forRoot(administrationRoutes),
     DataTablesModule,
-    UserModule
+    UserModule,
+    SharedModule,
+    MaterialModule
   ],
   exports:[
     ConfigElasticComponent,

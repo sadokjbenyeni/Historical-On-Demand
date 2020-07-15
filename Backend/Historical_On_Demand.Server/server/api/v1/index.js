@@ -3,6 +3,8 @@ const LoggerFactory = require('../../../logger.js');
 const logger = new LoggerFactory().createLogger('System');
 
 router.use("/support", require('./support'));
+router.use("/administrator", require('./administrator'));
+
 router.use("/internal", require('./internal'));
 
 router.use('/user', require('./user'));

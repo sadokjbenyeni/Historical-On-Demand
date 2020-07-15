@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { options } = require("../api/v1/administrator/user");
 const Users = mongoose.model("User");
 
 module.exports.getUserById = async (userId, options = { password: false }) => {
@@ -41,4 +42,16 @@ module.exports.UpdateUserDefaultCurrency = async (userId, currency) => {
     throw new error("User not found ");
   }
   return true;
+};
+
+module.exports.UpdateUser = async (user) => {
+  const userToUpdate = await Users.updateOne(
+    { _id: user._id },
+    {
+      $set: user,
+    }
+  ).exec();
+  if (userToUpdate.error) {
+    throw new error("Update failed ");
+  }
 };

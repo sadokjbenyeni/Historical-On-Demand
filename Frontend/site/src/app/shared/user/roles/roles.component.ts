@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, ɵConsole } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ɵConsole, Output, EventEmitter } from '@angular/core';
 import { UserService } from '../../../services/user.service';
 import { FormControl } from '@angular/forms';
 
@@ -7,52 +7,43 @@ import { FormControl } from '@angular/forms';
   templateUrl: './roles.component.html',
   styleUrls: ['./roles.component.css']
 })
-export class RolesComponent implements OnInit { // OnChanges,
+export class RolesComponent implements OnInit {
 
-  @Input() userRoles: any;
-  roleOfUser: any = [];
+  @Input() userRoles: any = [];
+  @Output() newUserRoles = new EventEmitter<any>();
   roles: any;
 
 
   constructor(private userService: UserService) { }
 
   ngOnInit(): void {
+    debugger
     this.getRoles();
-  }
-
-  ngOnChanges(): void {
-    this.setUserRoles();
   }
 
   getRoles() {
     this.userService.getRoles().subscribe(res => {
       this.roles = res.roles;
-      this.setUserRoles();
     });
   }
 
 
   toggleRole = (role: any) => {
-    const addChip = () => { this.roleOfUser.push(role); };
-    console.log(role)
-    const removeChip = () => {
-      this.roleOfUser.splice(this.roleOfUser.findIndex(item => item == role), 1)
+    const addChip = () => {
+      this.userRoles.push(role);
     };
-
-
+    const removeChip = () => {
+      this.userRoles.splice(this.userRoles.findIndex(item => item == role), 1)
+    };
     this.hasRole(role) ? removeChip() : addChip();
-
+    this.newRoles();
   }
-
-  private setUserRoles() {
-    this.roleOfUser = [];
-    this.userRoles.forEach(role => {
-      this.roleOfUser.push(role);
-    });
-  }
-
 
   hasRole(role) {
-    return this.roleOfUser.findIndex(item => item == role) != -1;
+    return this.userRoles.findIndex(item => item == role) != -1;
+  }
+
+  newRoles() {
+    this.newUserRoles.emit(this.userRoles);
   }
 }

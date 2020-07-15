@@ -13,19 +13,17 @@ import { MatChip, MatChipList } from '@angular/material/chips';
 })
 export class UserInformationsComponent implements OnInit, OnChanges {
 
-  userRoles: any;
   @Input() user: any;
   billigInformations: BillingInformation;
   contactInformations: ContactInformations;
-  id: any;
+  //id: any;
   constructor(
-    private route: ActivatedRoute,
-    private userService: UserService
+    //private route: ActivatedRoute,
+   // private userService: UserService
   ) {
-    route.params.subscribe(params => this.id = params.id);
+    //route.params.subscribe(params => this.id = params.id);
   }
   ngOnInit(): void {
-    this.userRoles = this.user.roleName;
   }
 
   ngOnChanges(userchanged: any): void {
@@ -34,7 +32,6 @@ export class UserInformationsComponent implements OnInit, OnChanges {
     this.contactInformations = <ContactInformations>{};
     this.setBillingInformations(userchanged.user.currentValue);
     this.setContactInformations(userchanged.user.currentValue);
-    this.userRoles = this.user.roleName;
   }
 
   setBillingInformations(user) {

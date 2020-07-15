@@ -30,6 +30,7 @@ mat-form-field {
   border-left: 0 solid #ed6540;
   padding-right: 0px;
   padding-left: 0px;
+  padding-bottom: 3px !important;
 }
 
 .display-mat-radio-button {

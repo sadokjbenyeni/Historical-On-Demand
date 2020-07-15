@@ -98,6 +98,7 @@ app.use(function (req, res, next) {
       '"' + req.rawHeaders[index] + '" : "' + req.rawHeaders[index + 1] + '"'
     );
   }
+
   req.logger = new LoggerFactory().createLogger(req.headers.loggerToken);
   req.logger.info({
     message:
