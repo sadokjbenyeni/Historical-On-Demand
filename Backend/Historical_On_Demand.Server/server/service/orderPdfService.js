@@ -221,8 +221,8 @@ module.exports = function (order) {
       table: {
         body: [
           [{ text: 'Wire transfer', fillColor: '#dddddd', fontSize: 8, }],
-          [{ text: 'Beneficiary Name : ' + 'Quanthouse', fontSize: 8, }],
-          [{ text: 'Beneficiary Address : ' + '86 boulevard Haussmann' + ' - ' + '75009' + ' ' + 'PARIS' + ' - ' + 'FRANCE', fontSize: 8, }],
+          [{ text: 'Beneficiary Name : Quanthouse', fontSize: 8, }],
+          [{ text: 'Beneficiary Address : 86 boulevard Haussmann - 75009 PARIS - FRANCE', fontSize: 8, }],
           [{ text: 'Receiving Bank Name : ' + c.rib.domiciliation, fontSize: 8, }],
           [{ text: 'IBAN : ' + c.iban.ib1 + ' ' + c.iban.ib2 + ' ' + c.iban.ib3 + ' ' + c.iban.ib4 + ' ' + c.iban.ib5 + ' ' + c.iban.ib6 + ' ' + c.iban.ib7, fontSize: 8, }],
           [{ text: 'BIC Code : ' + c.bic, fontSize: 8, }],

@@ -27,3 +27,7 @@
 .save-period-button {
     float: none;
 }
+
+.modal-title {
+    margin-bottom: 0px !important;
+}

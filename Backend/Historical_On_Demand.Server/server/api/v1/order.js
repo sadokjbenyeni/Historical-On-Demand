@@ -1407,7 +1407,7 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
   if (req.body.status === "rejected") {
     try {
       var mailer = new OrderMailService(req.logger, order);
-      corp.reason = "order is rejected by the system"; // generic message
+      corp.reason = "Order was rejected by the system";
       if (req.body.reason) {
         corp.reason = req.body.reason;
       }

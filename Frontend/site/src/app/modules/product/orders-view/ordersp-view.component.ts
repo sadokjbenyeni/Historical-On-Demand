@@ -36,7 +36,6 @@ export class OrderspViewComponent implements OnInit {
   totalFees: number;
   totalHTDiscountFree: number;
   symbol: string;
-  message: string;
   action: string;
   list: object;
   cmd: object;
@@ -79,7 +78,6 @@ export class OrderspViewComponent implements OnInit {
   ngOnInit() {
     this.cart = [];
     this.symbols = [];
-    this.message = '';
     this.reason = '';
     this.action = '';
     this.symbol = '';
@@ -97,11 +95,6 @@ export class OrderspViewComponent implements OnInit {
       this.listSales = result;
 
     })
-    // this.getVat();
-  }
-  getState(stateId) {
-    if (!this.states) return stateId;
-    return this.states.filter(state => state.id === stateId)[0] ? this.states.filter(state => state.id === stateId)[0].name : stateId;
   }
 
   setPeriod(p) {
@@ -163,13 +156,6 @@ export class OrderspViewComponent implements OnInit {
             if (p.subscription === 1) {
               this.existSubscribe = true;
             }
-            // let diff = this.dateDiff(new Date(p.begin_date), new Date(p.end_date));
-            // if (p.onetime === 1) {
-            //   p.price = (diff.day + 1) * p.price;
-            // } else if (p.subscription === 1) {
-            //   p.ht = p.period * p.price;
-
-            // }
             index++;
             let prod = {
               idx: index,
@@ -207,45 +193,39 @@ export class OrderspViewComponent implements OnInit {
     });
   }
 
-  confirm() {
-    if (this.action === 'Confirm Engagement Period Modification') {
-      this.orderService.updateEngagementPeriod({ idCmd: this.idCmd, cart: this.cart, ht: this.ht }).subscribe(res => {
-        this.message = 'Period Applied';
-      });
-    }
-    if (this.action === 'Confirm Discount Application') {
-      this.orderService.updateDiscount({ orderId: this.idOrder, totalHT: this.totalHTOld, discount: this.discount }).subscribe(res => {
-        this.message = 'Applied Discount';
-      });
-    }
-    if (this.action === 'Confirm Client Order Validation') {
-      let s = '';
-      let referer = 'Product';
-      if (this.payment === 'banktransfer') {
-        s = 'PVF';
-      } else if (this.totalTTC === 0) {
-        s = "validated";
-        referer = "ProductAutovalidateFinance";
-      } else {
-        s = 'PVF'; // cron pour l'auto-validation après délai des commandes n'excédant pas le montant max et payé par credit card ou paypal
-      }
 
-      this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: s, referer: referer, product: this.cart, email: this.cmd['email'] }).subscribe(() => {
-        this.router.navigate(['/product/orders']);
-      });
-    }
-    if (this.action === 'Confirm Client Order Rejection') {
-      this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'rejected', referer: 'Product', reason: this.reason }).subscribe(() => {
-        this.router.navigate(['/product/orders']);
-      });
-    }
-    if (this.action === 'Confirm Client Order Cancelation') {
-      this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'cancelled', referer: 'Product' }).subscribe(() => {
-        this.router.navigate(['/product/orders']);
-      });
-    }
+  cancelOrder() {
+    this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'cancelled', referer: 'Product' }).subscribe(() => {
+    });
   }
 
+  rejectOrder() {
+    this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'rejected', referer: 'Product', reason: this.reason }).subscribe(() => {
+    });
+  }
+
+  validateOrder() {
+    let statusAfterValidation = 'PVF';
+    let referer = 'Product';
+    if (this.totalTTC === 0) {
+      statusAfterValidation = 'validated';
+      referer = 'ProductAutovalidateFinance';
+    }
+    this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: statusAfterValidation, referer: referer, product: this.cart, email: this.cmd['email'] }).subscribe(() => {
+    });
+  }
+
+  applyDiscount() {
+    this.orderService.updateDiscount({ orderId: this.idOrder, totalHT: this.totalHTOld, discount: this.discount }).subscribe(res => {
+      this.alertService.success('Discount Applied Successfully', this.options);
+    });
+  }
+
+  updateEngagementPeriod() {
+    this.orderService.updateEngagementPeriod({ idCmd: this.idCmd, cart: this.cart, ht: this.ht }).subscribe(res => {
+      this.alertService.success('New Period Applied Successfully', this.options);
+    });
+  }
 
   verifState() {
     let statesForCancel = ['PVP', 'PVF', 'PSC'];
@@ -279,23 +259,6 @@ export class OrderspViewComponent implements OnInit {
     this.modalService.open(content, { size: 'sm' });
   }
 
-  openWindowCustomClass(content) {
-  }
-
-  dateDiff(date1, date2) {
-    let diff = { sec: 0, min: 0, hour: 0, day: 0 };  // Initialisation du retour
-    let tmp = date2 - date1;
-    tmp = Math.floor(tmp / 1000);                     // Nombre de secondes entre les 2 dates
-    diff.sec = tmp % 60;                            // Extraction du nombre de secondes
-    tmp = Math.floor((tmp - diff.sec) / 60);            // Nombre de minutes (partie entière)
-    diff.min = tmp % 60;                            // Extraction du nombre de minutes
-    tmp = Math.floor((tmp - diff.min) / 60);            // Nombre d'heures (entières)
-    diff.hour = tmp % 24;                           // Extraction du nombre d'heures
-    tmp = Math.floor((tmp - diff.hour) / 24);           // Nombre de jours restants
-    diff.day = tmp;
-    return diff;
-  }
-
   getHt(val) {
     if (this.currency !== 'usd') {
       return ((val / this.currencyTxUsd) * this.currencyTx);
@@ -304,16 +267,12 @@ export class OrderspViewComponent implements OnInit {
     }
   }
 
-  precisionRound(number, precision) {
-    var factor = Math.pow(10, precision);
-    return Math.round(number * factor) / factor;
-  }
-
   getListStates() {
     this.orderService.getListStates({}).subscribe(res => {
       this.states = res['states'];
     });
   }
+
   getStateName(stateId) {
     if (!this.states)
       return stateId;
@@ -326,7 +285,7 @@ export class OrderspViewComponent implements OnInit {
 
   updateChanges() {
     this.orderService.SaveOrderMetadata(this.idOrder, this.internalNote, this.choosenSale, this.choosedOrderType).subscribe(() => {
-      this.alertService.success('Changes Saved Successfully', this.options)
+      this.alertService.success('Changes Saved Successfully', this.options);
     }
     );
   }
