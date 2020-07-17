@@ -100,7 +100,8 @@
                 <th>Purchase Type</th>
                 <th>Engagement Period<br />(month) <span
                     class="btn btn-info fa fa-save save-changes-btn save-period-button"
-                    *ngIf="existSubscribe && verifState()" (click)="updateEngagementPeriod()"></span> </th>
+                    *ngIf="existSubscribe && verifState() && state == 'PVP'" (click)="updateEngagementPeriod()"></span>
+                </th>
                 <th>Date From</th>
                 <th>Date To</th>
                 <th>Pricing Tier</th>
@@ -117,8 +118,9 @@
                 <td *ngIf="c.onetime === 1 && !c.print">One-Off</td>
                 <td *ngIf="c.subscription === 1 && !c.print">Subscription</td>
                 <td *ngIf="c.subscription === 1 && verifState() && !c.print">
-                  <input class="input-style-period" type="number" [(ngModel)]="c.period" min="1"
+                  <input *ngIf="state == PVP" class="input-style-period" type="number" [(ngModel)]="c.period" min="1"
                     (ngModelChange)="setPeriod(c)" />
+                  <span *ngIf="state != PVP">{{c.period}}</span>
                 </td>
 
                 <td *ngIf="c.subscription === 1 && !verifState() && !c.print">
