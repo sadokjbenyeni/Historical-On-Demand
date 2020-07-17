@@ -19,7 +19,7 @@ export class BillingInformationsComponent implements OnInit, OnChanges {
   payments: any;
   currencies: any;
   symbol: any;
-  toUpdate: boolean = false;
+  @Input() toUpdate: boolean = false;
 
 
   constructor(
@@ -41,13 +41,13 @@ export class BillingInformationsComponent implements OnInit, OnChanges {
   initFields() {
 
     this.form = this.formBuilder.group({
-      vatctl: [{ value: this.billigInformations.vatNumber, disabled: !this.toUpdate }],
-      addressBillingctl: [{ value: this.billigInformations.billingAddress, disabled: !this.toUpdate }],
-      cityBillingctl: [{ value: this.billigInformations.billingCity, disabled: !this.toUpdate }],
-      postalCodeBillingctl: [{ value: this.billigInformations.billingPostalCode, disabled: !this.toUpdate }],
-      countryBillingctl: [{ value: this.billigInformations.billingCountry, disabled: !this.toUpdate }],
-      billingCurrency: [{ value: this.billigInformations.billingCurrency, disabled: !this.toUpdate }],
-      billingPayment: [{ value: this.billigInformations.billingPayment, disabled: !this.toUpdate }]
+      vat: [{ value: this.billigInformations.vatNumber, disabled: !this.toUpdate }],
+      addressBilling: [{ value: this.billigInformations.billingAddress, disabled: !this.toUpdate }],
+      cityBilling: [{ value: this.billigInformations.billingCity, disabled: !this.toUpdate }],
+      postalCodeBilling: [{ value: this.billigInformations.billingPostalCode, disabled: !this.toUpdate }],
+      countryBilling: [{ value: this.billigInformations.billingCountry, disabled: !this.toUpdate }],
+      currency: [{ value: this.billigInformations.billingCurrency, disabled: !this.toUpdate }],
+      payment: [{ value: this.billigInformations.billingPayment, disabled: !this.toUpdate }]
     });
   }
   getCountry() {

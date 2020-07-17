@@ -17,13 +17,17 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from '../../shared/shared.module';
 import { ValidatorsModule } from '../../validators/validators.module';
 import { accountRoutes } from './account.routing';
+import { AccountComponent } from './account/account.component';
+import { AccountSideBarComponent } from './account-side-bar/account-side-bar.component';
 
 
 
 @NgModule({
   declarations: [
     LoginComponent,
-    RegisterComponent
+    RegisterComponent,
+    AccountComponent,
+    AccountSideBarComponent
   ],
   imports: [
     FormsModule,
@@ -39,11 +43,10 @@ import { accountRoutes } from './account.routing';
     NoopAnimationsModule,
     TemplatesModule,
     SharedModule,
-    ValidatorsModule
+    ValidatorsModule,
+    MaterialModule
   ],
   exports: [
-    LoginComponent,
-    RegisterComponent,
     RouterModule
   ]
 })

@@ -47,7 +47,6 @@ export class UsersComponent implements OnInit {
         that.httpc
           .post<DataTablesResponse>(environment.api + '/user/list', dataTablesParameters, {})
           .subscribe(res => {
-            debugger
             that.users = res.listusers;
             this.user = this.users[0];
             callback({

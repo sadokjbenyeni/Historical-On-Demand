@@ -1,0 +1,30 @@
+.no-padding {
+  padding: 0px !important;
+}
+
+.padding-row {
+  padding-top: 10px;
+}
+
+.row-with-side-nav {
+  margin-top: 141px;
+  margin-left: 29px;
+  margin-right: 4px !important;
+}
+
+.row-margin-with-side-nav {
+  margin-right: 0px !important;
+}
+
+.child-pading-margin {
+  padding-top: 10px !important;
+  margin-top: 10px !important;
+}
+.panel-body {
+  padding-bottom: 0px !important;
+}
+
+.update-button {
+  float: right;
+  margin-right: 0px;
+}

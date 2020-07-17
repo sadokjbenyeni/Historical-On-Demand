@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CountriesService } from '../../../services/countries.service';
 import { ContactInformations } from '../models/contact-informations.model';
@@ -13,8 +13,7 @@ export class ContactInformationsComponent implements OnInit, OnChanges {
 
   @Input() contactInformations: ContactInformations;
   form: FormGroup;
-  toUpdate: boolean = false;
-
+  @Input() toUpdate: boolean = false;
   country: any;
   constructor(private formBuilder: FormBuilder, private countriesService: CountriesService, private router: Router) {
 
@@ -23,7 +22,7 @@ export class ContactInformationsComponent implements OnInit, OnChanges {
     this.getCountry();
   }
 
-  ngOnChanges(userChanged): void {
+  ngOnChanges(): void {
     this.initFields();
   }
   initFields() {

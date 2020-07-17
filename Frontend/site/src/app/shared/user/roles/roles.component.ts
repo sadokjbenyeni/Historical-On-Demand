@@ -17,7 +17,6 @@ export class RolesComponent implements OnInit {
   constructor(private userService: UserService) { }
 
   ngOnInit(): void {
-    debugger
     this.getRoles();
   }
 
