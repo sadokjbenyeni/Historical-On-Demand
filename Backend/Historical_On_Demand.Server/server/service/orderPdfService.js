@@ -8,6 +8,7 @@ const Country = mongoose.model('Countrie');
 const DateService = require('../service/dateService');
 const LogoService = require('./logoService');
 const { table } = require('console');
+const { text } = require('body-parser');
 const invoiceDirectory = global.environment.InvoiceDirectory;
 
 module.exports = function (order) {
@@ -80,15 +81,11 @@ module.exports = function (order) {
     let defaultStyle = {};
     var invoiceInformation = { id: invoiceId, type: invoiceType, issueDate: toCalendarFormat(new Date()), dueDate: toCalendarFormat(this.order.submissionDate) };
     var client = { company: this.order.companyName, address: this.order.addressBilling, postalCode: this.order.postalCodeBilling, city: this.order.cityBilling, country: this.order.countryBilling };
-    var company = { name: 'QUANTHOUSE', address: '86 boulevard Haussmann', postalCode: '75008', city: 'Paris', country: 'France', sasu: 'SASU au capital de 14.108.818 €', rcs: 'RCS Paris 449703248', vat: 'VAT : FR00449703248' };
+    var company = { name: 'QUANTHOUSE', address: '86 boulevard Haussmann', postalCode: '75008', city: 'Paris', country: 'France' };
     var payment = { accountNumber: user.id, taxId: this.order.vat, orderId: this.order.orderId, currency: currency.name };
 
     content.push(
-      invoiceHeader(invoiceInformation, client, company, payment),
-      // address(invoiceId, user.id, this.order.vat, toCalendarFormat(new Date()), toCalendarFormat(this.order.submissionDate), this.order.orderId, currency.name, invoiceType),
-      // '\n',
-      // clientAddress(this.order.companyName, this.order.addressBilling, this.order.postalCodeBilling, this.order.cityBilling, this.order.countryBilling),
-      // '\n',
+      headerWithLogo(invoiceInformation, client, company, payment),
       {
         table: {
           headerRows: 1,
@@ -123,7 +120,10 @@ module.exports = function (order) {
     };
     let footer = []
     const discountValue = this.order.totalHTDiscountFree - this.order.totalHT;
-    footer = bottom(logger, this.order.totalHT, this.order.totalVat, this.order.vatValue, this.order.total, currency, country, discountValue, this.order.vatValide);
+    let sasu = 'SASU au capital de 14.108.818 €';
+    let rcs = 'RCS Paris 449703248';
+    let vat = 'VAT : FR00449703248';
+    footer = bottom(logger, this.order.totalHT, this.order.totalVat, this.order.vatValue, this.order.total, currency, country, discountValue, this.order.vatValide, sasu, rcs, vat);
     invoice['style'] = style;
     invoice['pageMargins'] = [15, 15, 15, 200];
     invoice['defaultStyle'] = defaultStyle;
@@ -170,7 +170,7 @@ productMessage = function (message) {
   }
 };
 
-wireTransfer = function (vat, delay, c) {
+wireTransfer = function (vat, delay, c, sasu, rcs) {
   return {
     widths: ['100%'],
     table: {
@@ -184,6 +184,8 @@ wireTransfer = function (vat, delay, c) {
         [{ text: vat, fontSize: 8, }],
         [{ text: 'Payment ' + delay + ' days', fontSize: 8, }],
         [{ text: 'Currency : ' + c.name.toLocaleUpperCase(), fontSize: 8, }],
+        [{ text: sasu, fontSize: 8 }],
+        [{ text: rcs, fontSize: 8 }],
       ]
     },
     layout: { defaultBorder: false }
@@ -254,7 +256,7 @@ logo = function () {
 
 }
 
-companyAddress = function (company, address, postalCode, city, country, sasu, rcs, vat) {
+companyAddress = function (company, address, postalCode, city, country) {
   return {
     border: [false, false, false, false],
     table: {
@@ -262,18 +264,14 @@ companyAddress = function (company, address, postalCode, city, country, sasu, rc
       body: [
         [
           [
-            { text: 'Issued by', fontSize: 9, bold: true },
+            { text: 'ISSUED BY', fontSize: 9, bold: true },
+
             { text: '\n', fontSize: 5 },
             { text: company, fontSize: 10, bold: true },
             { text: address, fontSize: 9 },
             { text: city, fontSize: 9 },
             { text: country, fontSize: 9 },
             { text: postalCode, fontSize: 9 },
-
-            { text: '\n', fontSize: 5 },
-            { text: sasu, fontSize: 9 },
-            { text: rcs, fontSize: 9 },
-            { text: vat, fontSize: 9 }
           ]
         ]
       ]
@@ -290,7 +288,7 @@ clientAddress = function (companyName, address, postalCode, city, country) {
       body: [
         [
           [
-            { text: 'Client', fontSize: 9, bold: true },
+            { text: 'CLIENT', fontSize: 9, bold: true },
 
             { text: '\n', fontSize: 5 },
             { text: companyName, fontSize: 10, bold: true },
@@ -310,27 +308,17 @@ paymentInformation = function (accountNumber, taxId, orderId, currencyName) {
   return {
     border: [false, false, false, false],
     table: {
-      widths: ['50%', '50%'],
+      widths: ['100%'],
       body: [
         [
-          { text: 'Payment', fontSize: 9, bold: true },
-          { text: '\n', fontSize: 5 }
-        ],
-        [
-          { text: 'Account Number', fontSize: 9, bold: true },
-          { text: accountNumber, fontSize: 9 }
-        ],
-        [
-          { text: 'Tax Id Number', fontSize: 9, bold: true },
-          { text: taxId, fontSize: 9 }
-        ],
-        [
-          { text: 'Order Number', fontSize: 9, bold: true },
-          { text: orderId, fontSize: 9 }
-        ],
-        [
-          { text: 'Currency', fontSize: 9, bold: true },
-          { text: currencyName, fontSize: 9 }
+          [
+            { text: 'PAYMENT  ', fontSize: 9, bold: true },
+            { text: '\n', fontSize: 5 },
+            { text: 'Account Number  ' + accountNumber, fontSize: 9 },
+            { text: 'Tax ID Number  ' + taxId, fontSize: 9 },
+            { text: 'Order Number  ' + orderId, fontSize: 9 },
+            { text: 'Currency  ' + currencyName, fontSize: 9 },
+          ]
         ]
       ]
     },
@@ -348,8 +336,8 @@ invoiceTitle = function (invoiceId, invoiceType) {
         [
           [
             [
-              { text: invoiceType, fontSize: 14 },
-              { text: insertLineCarriage(invoiceId, invoiceType.length - 2) },
+              { text: invoiceType, fontSize: 16 },
+              { text: invoiceId, fontSize: 8 },
               { text: '\n', fontSize: 5 }
             ]
           ]
@@ -368,12 +356,13 @@ invoiceDates = function (issueDate, dueDate) {
         [
           [
             [
-              { text: 'Issue Date', fontSize: 9, bold: true },
-              { text: issueDate, fontSize: 9 }
+              { text: 'Issue Date  ' + issueDate, fontSize: 9 },
             ],
             [
-              { text: 'Due Date', fontSize: 9, bold: true },
-              { text: dueDate, fontSize: 9 }
+              { text: 'Due Date  ' + dueDate, fontSize: 9 },
+            ],
+            [
+              { text: '\n', fontSize: 8 },
             ]
           ]
         ]
@@ -391,13 +380,41 @@ invoiceHeader = function (invoice, client, company, payment) {
       body: [
         [
           [
+            marginBottom(2),
+            drawLine(5, 400, 0, 0, 1.5, 'line'),
             invoiceTitle(invoice.id, invoice.type),
             invoiceDates(invoice.issueDate, invoice.dueDate),
-            clientAddress(client.company, client.address, client.postalCode, client.city, client.country)
+            drawLine(5, 400, 0, 0, 0.1, 'line'),
+            clientAddress(client.company, client.address, client.postalCode, client.city, client.country),
+            drawLine(5, 400, 0, 0, 0.1, 'line'),
+            marginBottom(20)
           ],
           [
-            companyAddress(company.name, company.address, company.postalCode, company.city, company.country, company.sasu, company.rcs, company.vat),
-            paymentInformation(payment.accountNumber, payment.taxId, payment.orderId, payment.currency)
+            marginBottom(2),
+            companyAddress(company.name, company.address, company.postalCode, company.city, company.country),
+            paymentInformation(payment.accountNumber, payment.taxId, payment.orderId, payment.currency),
+
+          ]
+
+        ]
+      ]
+    },
+    layout: { defaultBorder: false }
+  };
+}
+
+headerWithLogo = function (invoice, client, company, payment) {
+  return {
+    border: [false, false, false, false],
+    table: {
+      widths: ['25%', '75%'],
+      body: [
+        [
+          [
+            logo()
+          ],
+          [
+            invoiceHeader(invoice, client, company, payment)
           ]
 
         ]
@@ -462,7 +479,7 @@ amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount
   };
 };
 
-bottom = function (logger, totalHt, totalVat, vatValue, totalTTC, currency, country, discount, vatok) {
+bottom = function (logger, totalHt, totalVat, vatValue, totalTTC, currency, country, discount, vatok, sasu, rcs, vat) {
   logger.info({ message: country, className: 'PDF Api' });
   let mentionvat = "";
   if (country.id === 'FR' || (country.ue === '1' && !vatok)) {
@@ -511,7 +528,7 @@ bottom = function (logger, totalHt, totalVat, vatValue, totalTTC, currency, coun
               widths: ['98%'],
               body: [[[
                 { text: '\n', fontSize: 8 },
-                wireTransfer("VAT", "delay", currency)
+                wireTransfer("VAT", "delay", currency, sasu, rcs, vat)
               ]]]
             },
             layout: { defaultBorder: false }
@@ -522,3 +539,22 @@ bottom = function (logger, totalHt, totalVat, vatValue, totalTTC, currency, coun
     layout: { defaultBorder: false }
   };
 };
+
+drawLine = function (x1, x2, y1, y2, lineWidth, type) {
+  return {
+    canvas: [
+      {
+        type: type,
+        x1: x1, y1: y1,
+        x2: x2, y2: y2,
+        lineWidth: lineWidth
+      }
+    ]
+  }
+}
+
+marginBottom = function (value) {
+  return {
+    text: '\n', fontSize: value,
+  }
+}
