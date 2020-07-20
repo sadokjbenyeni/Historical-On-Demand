@@ -55,3 +55,58 @@ module.exports.UpdateUser = async (user) => {
     throw new error("Update failed ");
   }
 };
+
+module.exports.checkPasswordIsValidAndUpdateEmailAdress = async (
+  userId,
+  password,
+  email
+) => {
+  user = await Users.findOneAndUpdate(
+    {
+      _id: userId,
+      password: password,
+    },
+    {
+      $set: {
+        email: email,
+      },
+    }
+  ).exec();
+  if (user) {
+    return true;
+  } else {
+    throw new error("Update failed ");
+  }
+};
+
+module.exports.checkEmailIfExist = async (email) => {
+  const user = await Users.findOne({ email: email }).exec();
+  if (user) {
+    return true;
+  }
+  return false;
+};
+
+module.exports.updateUserPassword = async (
+  userId,
+  oldPassword,
+  newPassword
+) => {
+  user = await Users.findOneAndUpdate(
+    {
+      _id: userId,
+      password: oldPassword,
+    },
+    {
+      $set: {
+        password: newPassword,
+      },
+    }
+  ).exec();
+
+  if (user) {
+    return true;
+  } else {
+    throw new error("Update failed !");
+  }
+};

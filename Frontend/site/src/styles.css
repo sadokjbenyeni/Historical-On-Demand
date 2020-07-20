@@ -569,9 +569,9 @@ a {
   margin-right: -25px;
 }
 
-.mat-form-field-appearance-legacy .mat-form-field-label {
+/* .mat-form-field-appearance-legacy .mat-form-field-label {
   color: #ea663b !important;
-}
+} */
 
 .mat-chip.mat-standard-chip.mat-chip-selected.mat-primary {
   background-color: #ea663b;

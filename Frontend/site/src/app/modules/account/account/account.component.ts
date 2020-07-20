@@ -4,6 +4,8 @@ import { ContactInformations } from '../../../shared/user/models/contact-informa
 import { ContactInformationsComponent } from '../../../shared/user/contact-informations/contact-informations.component';
 import { BillingInformation } from '../../../shared/user/models/billing-information.model';
 import { BillingInformationsComponent } from '../../../shared/user/billing-informations/billing-informations.component';
+import { SwalAlert } from '../../../shared/swal-alert/swal-alert';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-account',
@@ -14,7 +16,7 @@ export class AccountComponent implements OnInit {
 
   @ViewChild(ContactInformationsComponent) contactInformationsComponents: ContactInformationsComponent;
   @ViewChild(BillingInformationsComponent) billingInformationsComponents: BillingInformationsComponent;
-  sectionName: string;
+  sectionName: string = "Contact Informations";
   user: any;
   contactInformations: ContactInformations;
   billigInformations: BillingInformation;
@@ -32,11 +34,12 @@ export class AccountComponent implements OnInit {
   getSection(section) {
     if (this.sectionName == undefined) {
       this.sectionName = section;
+      //this.toSection(this.sectionName);
     }
     else {
-      debugger
       this.updateUserBySection(this.sectionName);
       this.sectionName = section;
+     // this.toSection(this.sectionName);
     }
 
   }
@@ -115,11 +118,39 @@ export class AccountComponent implements OnInit {
   }
 
   updateInformations() {
-    debugger
     this.getSection(this.sectionName);
-    this.userService.updateUser(this.user).subscribe(res => {
-      alert("ok")
-    });
+
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You are going to update your account",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirm'
+    }).then((result) => {
+      if (result.value) {
+        this.userService.updateUser(this.user).subscribe(result => {
+          if (result) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Account updated',
+              showConfirmButton: false,
+              timer: 1500
+            })
+              ,
+              error => {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Update Failed !',
+                  text: error.message,
+                })
+              }
+          }
+        });
+      }
+    })
   }
 
   getChangedValues(form: any) {
@@ -136,5 +167,15 @@ export class AccountComponent implements OnInit {
       });
 
     return this.changedValues;
+  }
+
+
+  toSection(section) {
+    if (section == "Contact Informations")
+      document.getElementById("contactInformations").scrollIntoView({ behavior: "smooth" });
+    if (section == "Billing Informations")
+      document.getElementById("billigInformations").scrollIntoView({ behavior: "smooth" });
+    if (section == "Login Informations")
+      document.getElementById("loginInformations").scrollIntoView({ behavior: "smooth" });
   }
 }

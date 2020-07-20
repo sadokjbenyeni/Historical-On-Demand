@@ -1,0 +1,85 @@
+<mat-card-subtitle> <b>Login Informations</b></mat-card-subtitle>
+
+
+<div class="row">
+  <div class="col-md-5">
+    <div [formGroup]="emailForm">
+      <mat-card>
+        <mat-card-content>
+          <mat-form-field>
+            <!--formControlName="emailAdress" -->
+            <input matInput type="text" placeholder="E-mail Adress" formControlName="emailAdress"
+              (change)="checkEmailIfExist()" required />
+            <mat-hint style="color: #f44336;" *ngIf="emailExist">This E-mail Adress already exist</mat-hint>
+
+          </mat-form-field>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="updateUserEmailAdress()" [disabled]="updateMail">Update
+            Email Address </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div [formGroup]="passwordForm">
+      <mat-card>
+        <mat-card-content>
+          <div class="row">
+            <div class="col-md-4">
+
+              <mat-form-field>
+                <mat-label>Enter your old password</mat-label>
+                <input matInput [type]="hideOld ? 'password' : 'text'" formControlName="oldPassword" name="oldPassword"
+                  required>
+                <button mat-icon-button matSuffix (click)="hideOld = !hideOld" [attr.aria-label]="'Hide password'"
+                  [attr.aria-pressed]="hideOld">
+                  <mat-icon>{{hideOld ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </button>
+                <mat-error>Field required</mat-error>
+              </mat-form-field><br />
+
+            </div>
+            <div class="col-md-4">
+
+              <mat-form-field>
+                <mat-label>Enter your new password</mat-label>
+                <input matInput [type]="hideNew ? 'password' : 'text'" formControlName="newPassword" name="newPassword"
+                  required>
+                <button mat-icon-button matSuffix (click)="hideNew = !hideNew" [attr.aria-label]="'Hide password'"
+                  [attr.aria-pressed]="hideNew">
+                  <mat-icon>{{hideNew ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </button>
+                <mat-error>Field required</mat-error>
+              </mat-form-field><br />
+            </div>
+
+            <div class="col-md-4">
+
+              <mat-form-field>
+                <mat-label>Confirm your new password</mat-label>
+                <input matInput [type]="hideConfirm ? 'password' : 'text'" formControlName="confirmPassword"
+                  name="confirmPassword" required>
+                <button mat-icon-button matSuffix (click)="hideConfirm = !hideConfirm"
+                  [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideConfirm">
+                  <mat-icon>{{hideConfirm ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </button>
+                <mat-hint style="color: #f44336;"
+                  *ngIf="passwordForm.controls.confirmPassword.value != passwordForm.controls.newPassword.value ">
+                  Password does not match </mat-hint>
+              </mat-form-field><br />
+            </div>
+
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="updateUserPassword()"
+            [disabled]=" passwordForm.controls.confirmPassword.value != passwordForm.controls.newPassword.value || passwordForm.controls.oldPassword.value === '' || passwordForm.controls.confirmPassword.value === '' ">Update
+            Password
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+</div>

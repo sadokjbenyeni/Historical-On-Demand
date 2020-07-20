@@ -19,6 +19,7 @@ import { ValidatorsModule } from '../../validators/validators.module';
 import { accountRoutes } from './account.routing';
 import { AccountComponent } from './account/account.component';
 import { AccountSideBarComponent } from './account-side-bar/account-side-bar.component';
+import { LoginModule } from '../login/login.module';
 
 
 
@@ -44,7 +45,8 @@ import { AccountSideBarComponent } from './account-side-bar/account-side-bar.com
     TemplatesModule,
     SharedModule,
     ValidatorsModule,
-    MaterialModule
+    MaterialModule,
+    LoginModule
   ],
   exports: [
     RouterModule

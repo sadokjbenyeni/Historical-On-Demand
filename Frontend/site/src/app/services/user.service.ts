@@ -69,7 +69,7 @@ export class UserService {
   }
 
   getCompte() {
-    return this.http.get<any>(environment.api + '/user/profile' );
+    return this.http.get<any>(environment.api + '/user/profile');
     // .map( res => res.json() );
   }
 
@@ -111,8 +111,18 @@ export class UserService {
     // .map( res => res.json() );
   }
 
-  getUserById(id){
+  getUserById(id) {
     return this.http.get<any>(environment.api + '/user/' + id);
   }
+  checkPasswordIsValidAndUpdateEmailAdress(passowrd, email) {
+    return this.http.post<any>(environment.api + '/user/checkPasswordIsValidAndUpdateEmailAdress', { passowrd: passowrd, email: email });
+  }
 
+  checkEmailIfExist(email) {
+    return this.http.get<any>(environment.api + '/user/checkEmailIfExist/' + email);
+  }
+
+  updateUserPassword(oldPassword, newPassword) {
+    return this.http.put<any>(environment.api + '/user/updateUserPassword', { oldPassword: oldPassword, newPassword: newPassword });
+  }
 }

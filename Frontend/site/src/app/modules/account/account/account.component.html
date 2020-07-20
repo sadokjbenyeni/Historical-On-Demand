@@ -2,7 +2,7 @@
 <div class="row page-header">
     <div class="col-lg-12">
         <ol class="breadcrumb custom-breadcrumb">
-            <li class="active">My Profile</li>
+            <li class="active">Profile</li>
         </ol>
     </div>
 </div>
@@ -15,26 +15,41 @@
 <div class="row row-with-side-nav">
     <div class="col-md-1"></div>
 
-    <div class="col-md-11 no-padding">
+    <div class="col-md-11 no-padding" *ngIf="user">
         <div class="panel panel-default">
             <div class="panel-body">
-                <div class="row update-button">
+                <div class="row update-button" *ngIf="sectionName != 'Login Informations'">
                     <button class="update-button-position" mat-raised-button color="warn"
                         (click)="updateInformations()">Update</button>
                 </div>
-                    <app-contact-informations class="child-pading-margin" *ngIf="contactInformations && sectionName === 'Contact Informations'"
-                        [contactInformations]="contactInformations" [toUpdate]="true"></app-contact-informations>
 
-                        <app-billing-informations class="child-pading-margin" *ngIf="billigInformations && sectionName === 'Billing Informations'"
+
+
+
+                <!-- <carousel>
+                    <ng-container *ngFor="let item of items;">
+                        <ng-container *carouselItem>
+                            <div class="item">{{item.title}}</div>
+                        </ng-container>
+                    </ng-container>
+                </carousel> -->
+
+
+
+
+
+                <app-contact-informations id="contactInformations" class="child-pading-margin"
+                    *ngIf="contactInformations && sectionName === 'Contact Informations' " [contactInformations]="contactInformations" [toUpdate]="true">
+                </app-contact-informations>
+
+                <app-billing-informations id="billigInformations" class="child-pading-margin"
+                    *ngIf="billigInformations && sectionName === 'Billing Informations'"
                     [billigInformations]="billigInformations" [toUpdate]="true"></app-billing-informations>
+
+                <app-login-informations id="loginInformations" class="child-pading-margin"
+                    *ngIf="user && sectionName === 'Login Informations'" [emailAdress]="user.email">
+                </app-login-informations>
             </div>
         </div>
     </div>
-
-    <!-- <div class="col-md-11 no-padding" *ngIf="sectionName === 'Login Informations'">
-        <div class="panel panel-default">
-            <div class="panel-body">
-            </div>
-        </div>
-    </div> -->
 </div>
