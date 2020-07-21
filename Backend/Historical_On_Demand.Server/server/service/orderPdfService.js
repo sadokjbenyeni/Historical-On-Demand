@@ -25,11 +25,11 @@ module.exports = function (order) {
 
   this.generatePdfFile = function (logger, currency, user, country, invoiceId, invoiceType) {
     let fonts = {
-      Roboto: {
-        normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Regular.ttf'], 'base64'),
-        bold: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Medium.ttf'], 'base64'),
-        italics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Italic.ttf'], 'base64'),
-        bolditalics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-MediumItalic.ttf'], 'base64')
+      AppleGaramond: {
+        normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond-Light.ttf'], 'base64'),
+        bold: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond-Bold.ttf'], 'base64'),
+        italics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond-LightItalic.ttf'], 'base64'),
+        bolditalics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond-BoldItalic.ttf'], 'base64')
       }
     };
     printer = new pdfMake(fonts);
@@ -78,7 +78,9 @@ module.exports = function (order) {
 
     let invoice = {};
     let content = [];
-    let defaultStyle = {};
+    let defaultStyle = {
+      font: 'AppleGaramond'
+    };
     var invoiceInformation = { id: invoiceId, type: invoiceType, issueDate: toCalendarFormat(new Date()), dueDate: toCalendarFormat(this.order.submissionDate) };
     var client = { company: this.order.companyName, address: this.order.addressBilling, postalCode: this.order.postalCodeBilling, city: this.order.cityBilling, country: this.order.countryBilling };
     var company = { name: 'QUANTHOUSE', address: '86 boulevard Haussmann', postalCode: '75008', city: 'Paris', country: 'France' };
@@ -89,7 +91,7 @@ module.exports = function (order) {
       orderTableHeader(),
       getOrders(this.order.products, this.order.vatValue, country, user),
       marginBottom(10),
-      amountTable(this.order.totalHT, this.order.totalVat, this.order.vatValue, this.order.total, this.order.discount, currency.symbol)
+      amountTable(this.order.totalHT, this.order.totalVat, this.order.vatValue, this.order.total, this.order.discount, currency)
     );
     let paginator = {};
     paginator = function (currentPage, totalPage) {
@@ -270,13 +272,13 @@ companyAddress = function (company, address, postalCode, city, country) {
       body: [
         [
           [
-            { text: 'ISSUED BY', fontSize: 9, bold: true },
+            { text: 'Issued by', fontSize: 11, bold: true },
             { text: '\n', fontSize: 5 },
             { text: company, fontSize: 10, bold: true },
-            { text: address, fontSize: 9 },
-            { text: city, fontSize: 9 },
-            { text: country, fontSize: 9 },
-            { text: postalCode, fontSize: 9 },
+            { text: address, fontSize: 10 },
+            { text: city, fontSize: 10 },
+            { text: country, fontSize: 10 },
+            { text: postalCode, fontSize: 10 },
           ]
         ]
       ]
@@ -293,14 +295,14 @@ clientAddress = function (companyName, address, postalCode, city, country) {
       body: [
         [
           [
-            { text: 'CLIENT', fontSize: 9, bold: true },
+            { text: 'Client', fontSize: 11, bold: true },
 
             { text: '\n', fontSize: 5 },
             { text: companyName, fontSize: 10, bold: true },
-            { text: address, fontSize: 9 },
-            { text: postalCode, fontSize: 9 },
-            { text: city, fontSize: 9 },
-            { text: country, fontSize: 9 }
+            { text: address, fontSize: 10 },
+            { text: postalCode, fontSize: 10 },
+            { text: city, fontSize: 10 },
+            { text: country, fontSize: 10 }
           ]
         ]
       ]
@@ -317,12 +319,12 @@ paymentInformation = function (accountNumber, taxId, orderId, currencyName) {
       body: [
         [
           [
-            { text: 'PAYMENT  ', fontSize: 9, bold: true },
+            { text: 'Payment  ', fontSize: 11, bold: true },
             { text: '\n', fontSize: 5 },
-            { text: 'Account Number  ' + accountNumber, fontSize: 9 },
-            { text: 'Tax ID Number  ' + taxId, fontSize: 9 },
-            { text: 'Order Number  ' + orderId, fontSize: 9 },
-            { text: 'Currency  ' + currencyName, fontSize: 9 },
+            { text: [{ text: 'Account Number  ', fontSize: 10, bold: true }, { text: accountNumber, fontSize: 10 }] },
+            { text: [{ text: 'Tax ID Number  ', fontSize: 10, bold: true }, { text: taxId, fontSize: 10 }] },
+            { text: [{ text: 'Order Number  ', fontSize: 10, bold: true }, { text: orderId, fontSize: 10 }] },
+            { text: [{ text: 'Currency  ', fontSize: 10, bold: true }, { text: currencyName, fontSize: 10 }] },
           ]
         ]
       ]
@@ -341,8 +343,8 @@ invoiceTitle = function (invoiceId, invoiceType) {
         [
           [
             [
-              { text: invoiceType, fontSize: 16 },
-              { text: invoiceId, fontSize: 8 },
+              { text: invoiceType, fontSize: 20, bold: true },
+              { text: invoiceId, fontSize: 10 },
               { text: '\n', fontSize: 5 }
             ]
           ]
@@ -361,10 +363,10 @@ invoiceDates = function (issueDate, dueDate) {
         [
           [
             [
-              { border: border, text: 'Issue Date  ' + issueDate, fontSize: 9 },
+              { border: border, text: [{ text: 'Issue Date  ', fontSize: 10, bold: true }, { text: issueDate, fontSize: 10 }] },
             ],
             [
-              { border: border, text: 'Due Date  ' + dueDate, fontSize: 9 },
+              { border: border, text: [{ text: 'Due Date  ', fontSize: 10, bold: true }, { text: dueDate, fontSize: 10 }] },
             ],
             [
               { text: '\n', fontSize: 8 },
@@ -397,10 +399,10 @@ invoiceHeader = function (invoice, client, company, payment) {
           [
             marginBottom(2),
             companyAddress(company.name, company.address, company.postalCode, company.city, company.country),
+            marginBottom(4),
             paymentInformation(payment.accountNumber, payment.taxId, payment.orderId, payment.currency),
 
           ]
-
         ]
       ]
     },
@@ -431,6 +433,7 @@ headerWithLogo = function (invoice, client, company, payment) {
 
 amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount, currency) {
   let border = [false, false, false, true];
+  let currencySymbol = currencySymbolToCodeConverter(currency);
   return {
     table: {
       alignment: 'center',
@@ -448,33 +451,33 @@ amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount
           },
           {
             table: {
-              widths: ['47%', '47%', '4%'],
+              widths: ['45%', '45%', '10%'],
               body: [
                 [
                   { border: border, text: 'SUBTOTAL', style: 'itemsFooterSubTitle' },
-                  { border: border, text: serviceTotal.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
-                  { border: border, text: currency, style: 'itemsFooterSubValue' }
+                  { border: border, text: currencySymbol + serviceTotal.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
+                  { border: border, text: currency.device, style: 'itemsFooterSubValue' }
                 ],
                 [
                   { border: border, text: 'TOTAL TAX', style: 'itemsFooterSubTitle' },
-                  { border: border, text: vatTotal.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
-                  { border: border, text: currency, style: 'itemsFooterSubValue' }
+                  { border: border, text: currencySymbol + vatTotal.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
+                  { border: border, text: currency.device, style: 'itemsFooterSubValue' }
                 ],
 
                 [
                   { border: border, text: 'TAX RATE', style: 'itemsFooterSubTitle' },
                   { border: border, text: vatValue * 100, style: 'itemsFooterSubValue', alignment: 'right' },
-                  { border: border, text: '%', style: 'itemsFooterSubValue' }
+                  { border: border, text: '%', style: 'itemsFooterSubValue' },
                 ],
                 [
                   { border: border, text: 'DISCOUNT', style: 'itemsFooterSubTitle' },
-                  { border: border, text: discount.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
-                  { border: border, text: currency, style: 'itemsFooterSubValue' }
+                  { border: border, text: currencySymbol + discount.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
+                  { border: border, text: currency.device, style: 'itemsFooterSubValue' }
                 ],
                 [
                   { border: border, text: 'BALANCE DUE', style: 'itemsFooterTotalTitle', bold: true },
-                  { border: border, text: invoiceTotal.toFixed(2), style: 'itemsFooterTotalValue', bold: true, alignment: 'right' },
-                  { border: border, text: currency, style: 'itemsFooterSubValue' }
+                  { border: border, text: currencySymbol + invoiceTotal.toFixed(2), style: 'itemsFooterTotalValue', bold: true, alignment: 'right' },
+                  { border: border, text: currency.device, style: 'itemsFooterSubValue' }
                 ],
               ]
             },
@@ -564,5 +567,17 @@ drawLine = function (x1, x2, y1, y2, lineWidth, type) {
 marginBottom = function (value) {
   return {
     text: '\n', fontSize: value,
+  }
+}
+
+currencySymbolToCodeConverter = function (currency) {
+  if (currency.name == "American Dollar") {
+    return String.fromCharCode(36);
+  }
+  else if (currency.name == "Euro") {
+    return String.fromCharCode(128);
+  }
+  else if (currency.name == "Pound Sterling") {
+    return String.fromCharCode(163);
   }
 }

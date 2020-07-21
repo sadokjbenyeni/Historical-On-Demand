@@ -1,8 +1,8 @@
 var pdfmake = require('pdfmake');
 
-
 var fonts = {
-	Roboto: {normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Regular.ttf'], 'base64')}
+  // Roboto: { normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Regular.ttf'], 'base64') },
+  Courier: { normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Courier.ttf'], 'base64') }
 };
 
 var PdfPrinter = require('pdfmake/src/printer');
