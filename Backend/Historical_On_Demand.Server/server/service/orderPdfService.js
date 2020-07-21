@@ -86,32 +86,9 @@ module.exports = function (order) {
 
     content.push(
       headerWithLogo(invoiceInformation, client, company, payment),
-      {
-        table: {
-          headerRows: 1,
-          widths: [240, 40, 65, 65, 100],
-          margin: [0, 0, 0, 0],
-          body: [
-            [
-              { text: 'DESCRIPTION', margin: [0, 5, 0, 5], bold: true, alignment: 'center' },
-              { text: 'UNITS', margin: [0, 5, 0, 5], bold: true, alignment: 'center' },
-              { text: 'FROM', margin: [0, 5, 0, 5], bold: true, alignment: 'center' },
-              { text: 'TO', margin: [0, 5, 0, 5], bold: true, alignment: 'center' },
-              { text: 'TOTAL', margin: [0, 5, 0, 5], bold: true, alignment: 'center' }
-            ],
-          ]
-        },
-      },
-      {
-        table: {
-          headerRows: 0,
-          widths: [240, 40, 65, 65, 100],
-          margin: [0, 0, 0, 0],
-          body: getOrders(this.order.products, this.order.vatValue, country, user)
-        },
-        layout: { defaultBorder: false }
-      },
-      '\n',
+      orderTableHeader(),
+      getOrders(this.order.products, this.order.vatValue, country, user),
+      marginBottom(10),
       amountTable(this.order.totalHT, this.order.totalVat, this.order.vatValue, this.order.total, this.order.discount, currency.symbol)
     );
     let paginator = {};
@@ -192,6 +169,27 @@ wireTransfer = function (vat, delay, c, sasu, rcs) {
   };
 };
 
+orderTableHeader = function () {
+  let border = [false, false, false, true];
+  return {
+    table: {
+      headerRows: 1,
+      widths: [240, 40, 65, 65, 100],
+      margin: [0, 5, 0, 5],
+      body: [
+        [
+          { border: border, text: 'DESCRIPTION', margin: [0, 5, 0, 5], bold: true, alignment: 'center' },
+          { border: border, text: 'UNITS', margin: [0, 5, 0, 5], bold: true, alignment: 'center' },
+          { border: border, text: 'FROM', margin: [0, 5, 0, 5], bold: true, alignment: 'center' },
+          { border: border, text: 'TO', margin: [0, 5, 0, 5], bold: true, alignment: 'center' },
+          { border: border, text: 'TOTAL', margin: [0, 5, 0, 5], bold: true, alignment: 'center' }
+        ],
+      ]
+    },
+    layout: { defaultBorder: false }
+  }
+}
+
 function getOrders(orders, vatValue, country) {
   var pervat = country.ue === "1" ? vatValue : 0;
   let listOrders = [];
@@ -207,7 +205,15 @@ function getOrders(orders, vatValue, country) {
       });
     })
   }
-  return listOrders;
+  return {
+    table: {
+      headerRows: 0,
+      widths: [240, 40, 65, 65, 100],
+      margin: [0, 5, 0, 5],
+      body: listOrders
+    },
+    layout: { defaultBorder: false }
+  }
 };
 
 function addProduct(listOrders, product, exchangefee, border, pervat) {
@@ -265,7 +271,6 @@ companyAddress = function (company, address, postalCode, city, country) {
         [
           [
             { text: 'ISSUED BY', fontSize: 9, bold: true },
-
             { text: '\n', fontSize: 5 },
             { text: company, fontSize: 10, bold: true },
             { text: address, fontSize: 9 },
@@ -348,18 +353,18 @@ invoiceTitle = function (invoiceId, invoiceType) {
 }
 
 invoiceDates = function (issueDate, dueDate) {
+  let border = [false, false, false, true];
   return {
-    border: [false, false, false, false],
     table: {
       widths: ['100%'],
       body: [
         [
           [
             [
-              { text: 'Issue Date  ' + issueDate, fontSize: 9 },
+              { border: border, text: 'Issue Date  ' + issueDate, fontSize: 9 },
             ],
             [
-              { text: 'Due Date  ' + dueDate, fontSize: 9 },
+              { border: border, text: 'Due Date  ' + dueDate, fontSize: 9 },
             ],
             [
               { text: '\n', fontSize: 8 },
@@ -425,10 +430,11 @@ headerWithLogo = function (invoice, client, company, payment) {
 }
 
 amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount, currency) {
+  let border = [false, false, false, true];
   return {
     table: {
       alignment: 'center',
-      widths: ['50%', '50%'],
+      widths: ['54%', '46%'],
       body: [
         [
           {
@@ -441,41 +447,43 @@ amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount
             }
           },
           {
-            border: [false, true, false, true],
             table: {
               widths: ['47%', '47%', '4%'],
               body: [
                 [
-                  { text: 'SUBTOTAL', style: 'itemsFooterSubTitle' },
-                  { text: serviceTotal.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
-                  { text: currency, style: 'itemsFooterSubValue' }
+                  { border: border, text: 'SUBTOTAL', style: 'itemsFooterSubTitle' },
+                  { border: border, text: serviceTotal.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
+                  { border: border, text: currency, style: 'itemsFooterSubValue' }
                 ],
                 [
-                  { text: 'TOTAL TAX', style: 'itemsFooterSubTitle' },
-                  { text: vatTotal.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
-                  { text: currency, style: 'itemsFooterSubValue' }
+                  { border: border, text: 'TOTAL TAX', style: 'itemsFooterSubTitle' },
+                  { border: border, text: vatTotal.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
+                  { border: border, text: currency, style: 'itemsFooterSubValue' }
+                ],
+
+                [
+                  { border: border, text: 'TAX RATE', style: 'itemsFooterSubTitle' },
+                  { border: border, text: vatValue * 100, style: 'itemsFooterSubValue', alignment: 'right' },
+                  { border: border, text: '%', style: 'itemsFooterSubValue' }
                 ],
                 [
-                  { text: 'DISCOUNT', style: 'itemsFooterSubTitle' },
-                  { text: discount.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
-                  { text: currency, style: 'itemsFooterSubValue' }
+                  { border: border, text: 'DISCOUNT', style: 'itemsFooterSubTitle' },
+                  { border: border, text: discount.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
+                  { border: border, text: currency, style: 'itemsFooterSubValue' }
                 ],
                 [
-                  { text: 'TAX RATE', style: 'itemsFooterSubTitle' },
-                  { text: vatValue * 100, style: 'itemsFooterSubValue', alignment: 'right' },
-                  { text: '%', style: 'itemsFooterSubValue' }
-                ],
-                [
-                  { text: 'BALANCE DUE', style: 'itemsFooterTotalTitle', bold: true },
-                  { text: invoiceTotal.toFixed(2), style: 'itemsFooterTotalValue', bold: true, alignment: 'right' },
-                  { text: currency, style: 'itemsFooterSubValue' }
+                  { border: border, text: 'BALANCE DUE', style: 'itemsFooterTotalTitle', bold: true },
+                  { border: border, text: invoiceTotal.toFixed(2), style: 'itemsFooterTotalValue', bold: true, alignment: 'right' },
+                  { border: border, text: currency, style: 'itemsFooterSubValue' }
                 ],
               ]
-            }
+            },
+            layout: { defaultBorder: false }
           }
         ]
       ]
-    }
+    },
+    layout: { defaultBorder: false }
   };
 };
 
