@@ -23,19 +23,13 @@
                         (click)="updateInformations()">Update</button>
                 </div>
 
-
-
-
                 <!-- <carousel>
-                    <ng-container *ngFor="let item of items;">
-                        <ng-container *carouselItem>
-                            <div class="item">{{item.title}}</div>
-                        </ng-container>
+                    <ng-container *ngFor="let item of items">
+                      <ng-container *carouselItem>
+                        <div class="item">{{ item.title }}</div>
+                      </ng-container>
                     </ng-container>
-                </carousel> -->
-
-
-
+                  </carousel> -->
 
 
                 <app-contact-informations id="contactInformations" class="child-pading-margin"
@@ -47,7 +41,7 @@
                     [billigInformations]="billigInformations" [toUpdate]="true"></app-billing-informations>
 
                 <app-login-informations id="loginInformations" class="child-pading-margin"
-                    *ngIf="user && sectionName === 'Login Informations'" [emailAdress]="user.email">
+                    *ngIf="user && sectionName === 'Login Informations'" [emailAdress]="user.email" (user)="getNewUser($event)">
                 </app-login-informations>
             </div>
         </div>

@@ -70,10 +70,13 @@ module.exports.checkPasswordIsValidAndUpdateEmailAdress = async (
       $set: {
         email: email,
       },
+    },
+    {
+      new: true,
     }
   ).exec();
   if (user) {
-    return true;
+    return user;
   } else {
     throw new error("Update failed ");
   }

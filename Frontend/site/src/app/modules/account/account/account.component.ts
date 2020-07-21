@@ -1,10 +1,9 @@
-import { Component, OnInit, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { UserService } from '../../../services/user.service';
 import { ContactInformations } from '../../../shared/user/models/contact-informations.model';
 import { ContactInformationsComponent } from '../../../shared/user/contact-informations/contact-informations.component';
 import { BillingInformation } from '../../../shared/user/models/billing-information.model';
 import { BillingInformationsComponent } from '../../../shared/user/billing-informations/billing-informations.component';
-import { SwalAlert } from '../../../shared/swal-alert/swal-alert';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -25,6 +24,10 @@ export class AccountComponent implements OnInit {
     private userService: UserService
   ) { }
 
+
+
+
+
   ngOnInit(): void {
     this.contactInformations = <ContactInformations>{};
     this.billigInformations = <BillingInformation>{};
@@ -39,7 +42,9 @@ export class AccountComponent implements OnInit {
     else {
       this.updateUserBySection(this.sectionName);
       this.sectionName = section;
-     // this.toSection(this.sectionName);
+      this.setContactInformations(this.user);
+
+      // this.toSection(this.sectionName);
     }
 
   }
@@ -177,5 +182,9 @@ export class AccountComponent implements OnInit {
       document.getElementById("billigInformations").scrollIntoView({ behavior: "smooth" });
     if (section == "Login Informations")
       document.getElementById("loginInformations").scrollIntoView({ behavior: "smooth" });
+  }
+
+  getNewUser(user) {
+    this.user = user
   }
 }

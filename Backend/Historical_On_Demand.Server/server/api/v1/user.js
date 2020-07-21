@@ -489,12 +489,12 @@ router.post("/checkPasswordIsValidAndUpdateEmailAdress/", async (req, res) => {
 
     const userId = jwtService.verifyToken(req.headers.authorization).id;
     if (userId) {
-      isValid = await userService.checkPasswordIsValidAndUpdateEmailAdress(
+      user = await userService.checkPasswordIsValidAndUpdateEmailAdress(
         userId,
         password,
         req.body.email
       );
-      return res.status(200).json({ isValid: isValid });
+      return res.status(200).json({ user: user });
     } else {
       return res.status(200).json({ error: "user not found !" });
     }

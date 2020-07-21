@@ -1,10 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmIdentityModalComponent } from '../confirm-identity-modal/confirm-identity-modal.component';
 import Swal from 'sweetalert2';
-import { result } from 'lodash';
 
 @Component({
   selector: 'app-login-informations',
@@ -14,6 +13,7 @@ import { result } from 'lodash';
 export class LoginInformationsComponent implements OnInit {
 
   @Input() emailAdress: string;
+  @Output() user = new EventEmitter<any>();
   emailForm: FormGroup;
   passwordForm: FormGroup;
   oldPassword: any;
@@ -57,6 +57,8 @@ export class LoginInformationsComponent implements OnInit {
     if (email) {
       if (email != this.emailAdress) {
         this.userService.checkEmailIfExist(email).subscribe(result => {
+          this.emailExist = result.exist;
+
           if (!result.exist) {
             this.updateMail = false;
           }
@@ -119,6 +121,8 @@ export class LoginInformationsComponent implements OnInit {
           if (result.value) {
             this.userService.checkPasswordIsValidAndUpdateEmailAdress(password, this.emailForm.controls.emailAdress.value).subscribe(result => {
               if (result) {
+                this.emailAdress = result.user.email;
+                this.user.emit(result.user);
                 Swal.fire({
                   icon: 'success',
                   title: 'Email updated',
