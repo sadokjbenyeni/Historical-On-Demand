@@ -19,6 +19,12 @@ export class LoginInformationsComponent implements OnInit {
   oldPassword: any;
   updateMail: boolean = true;
   updatePassword: boolean = true;
+  hideConfirm: boolean = true;
+  hideNew: boolean = true;
+  hideOld: boolean = true;
+
+  disableNew: boolean = false;
+  disableOld: boolean = false;
   emailExist: boolean;
 
   constructor(private formBuilder: FormBuilder,
@@ -39,8 +45,6 @@ export class LoginInformationsComponent implements OnInit {
       newPassword: ["", []],
       confirmPassword: ["", []],
     });
-
-    console.log(this.passwordForm.controls.oldPassword.value)
   }
 
 
@@ -102,46 +106,50 @@ export class LoginInformationsComponent implements OnInit {
   }
 
   openDialog(): void {
-    const dialogRef = this.dialog.open(ConfirmIdentityModalComponent, {
-      width: '400px',
-      disableClose: true
-    });
 
-    dialogRef.afterClosed().subscribe(password => {
-      if (password != undefined) {
-        Swal.fire({
-          title: 'Are you sure?',
-          text: "You are going to update your email adress!!",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Confirm'
-        }).then((result) => {
-          if (result.value) {
-            this.userService.checkPasswordIsValidAndUpdateEmailAdress(password, this.emailForm.controls.emailAdress.value).subscribe(result => {
-              if (result) {
-                this.emailAdress = result.user.email;
-                this.user.emit(result.user);
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You are going to update your email adress!!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirm'
+    }).then((result) => {
+      if (result.value) {
+        this.userService.UpdateEmailAdress(this.emailForm.controls.emailAdress.value).subscribe(result => {
+          if (result) {
+            this.emailAdress = result.user.email;
+            this.user.emit(result.user);
+            Swal.fire({
+              icon: 'success',
+              title: 'Email updated',
+              showConfirmButton: false,
+              timer: 1500
+            })
+              ,
+              error => {
                 Swal.fire({
-                  icon: 'success',
-                  title: 'Email updated',
-                  showConfirmButton: false,
-                  timer: 1500
+                  icon: 'error',
+                  title: 'Update Failed !',
+                  text: error.message,
                 })
-                  ,
-                  error => {
-                    Swal.fire({
-                      icon: 'error',
-                      title: 'Update Failed !',
-                      text: error.message,
-                    })
-                  }
               }
-            });
           }
-        })
+        });
       }
-    });
+    })
   }
+
+
+  disableViewOld() {
+    if (this.disableOld == false) { this.disableOld = true; }
+  }
+
+
+  disableViewNew() {
+    if (this.disableNew == false) { this.disableNew = true; }
+  }
+
 }

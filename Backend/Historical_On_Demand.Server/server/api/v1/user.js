@@ -481,17 +481,14 @@ router.put("/", (req, res) => {
   // }
 });
 
-router.post("/checkPasswordIsValidAndUpdateEmailAdress/", async (req, res) => {
+router.post("/UpdateEmailAdress/", async (req, res) => {
   try {
-    let cipher = crypto.createCipher(algorithm, req.body.passowrd);
-    let password = cipher.update(PHRASE, "utf8", "hex");
-    password += cipher.final("hex");
+
 
     const userId = jwtService.verifyToken(req.headers.authorization).id;
     if (userId) {
-      user = await userService.checkPasswordIsValidAndUpdateEmailAdress(
+      user = await userService.UpdateEmailAdress(
         userId,
-        password,
         req.body.email
       );
       return res.status(200).json({ user: user });

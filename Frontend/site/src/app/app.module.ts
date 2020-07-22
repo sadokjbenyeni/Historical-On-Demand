@@ -39,7 +39,7 @@ import { UserModule } from './modules/user/user.module';
     RouterModule.forRoot(routes),
     CommonModule,
     BrowserAnimationsModule,
-    NoopAnimationsModule,
+    //NoopAnimationsModule,
     ClientModule,
     TemplatesModule,
     OrderModule,

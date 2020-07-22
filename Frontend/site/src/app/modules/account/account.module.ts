@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { TemplatesModule } from '../templates/templates.module';
 import { LoginComponent } from '../account/login/login.component';
 import { RegisterComponent } from '../account/register/register.component';
@@ -11,7 +10,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RecaptchaModule } from 'ng-recaptcha';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { AlertModule } from '../_alert';
-import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from '../material/material.module';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from '../../shared/shared.module';
@@ -28,12 +27,13 @@ import { LoginModule } from '../login/login.module';
     LoginComponent,
     RegisterComponent,
     AccountComponent,
-    AccountSideBarComponent
+    AccountSideBarComponent,
   ],
   imports: [
     FormsModule,
     ReactiveFormsModule,
     DataTablesModule,
+    BrowserModule,
     NgbModule,
     RouterModule.forRoot(accountRoutes),
     RecaptchaModule.forRoot(),
@@ -41,7 +41,6 @@ import { LoginModule } from '../login/login.module';
     AlertModule,
     CommonModule,
     BrowserAnimationsModule,
-    NoopAnimationsModule,
     TemplatesModule,
     SharedModule,
     ValidatorsModule,

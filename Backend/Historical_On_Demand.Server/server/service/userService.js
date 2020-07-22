@@ -56,15 +56,10 @@ module.exports.UpdateUser = async (user) => {
   }
 };
 
-module.exports.checkPasswordIsValidAndUpdateEmailAdress = async (
-  userId,
-  password,
-  email
-) => {
+module.exports.UpdateEmailAdress = async (userId, email) => {
   user = await Users.findOneAndUpdate(
     {
       _id: userId,
-      password: password,
     },
     {
       $set: {

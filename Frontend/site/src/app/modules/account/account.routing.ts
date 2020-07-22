@@ -10,5 +10,4 @@ export const accountRoutes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'activation/:token', component: LoginComponent },
     { path: 'mdp/:token', component: LoginComponent }
-
 ];

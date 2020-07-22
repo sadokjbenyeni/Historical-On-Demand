@@ -5,24 +5,32 @@ import { ContactInformationsComponent } from '../../../shared/user/contact-infor
 import { BillingInformation } from '../../../shared/user/models/billing-information.model';
 import { BillingInformationsComponent } from '../../../shared/user/billing-informations/billing-informations.component';
 import Swal from 'sweetalert2';
+import { Router } from '@angular/router';
+import { trigger, state, style, transition, animate } from '@angular/animations';
+import { translateAnimation } from '../../../shared/animations/animation.animation';
 
 @Component({
   selector: 'app-account',
   templateUrl: './account.component.html',
-  styleUrls: ['./account.component.css']
+  styleUrls: ['./account.component.css'],
+  animations: [
+    translateAnimation
+  ]
 })
 export class AccountComponent implements OnInit {
 
   @ViewChild(ContactInformationsComponent) contactInformationsComponents: ContactInformationsComponent;
   @ViewChild(BillingInformationsComponent) billingInformationsComponents: BillingInformationsComponent;
-  sectionName: string = "Contact Informations";
+  sectionName: string;
   user: any;
   contactInformations: ContactInformations;
   billigInformations: BillingInformation;
   changedValues = new Map<any, any>();
   constructor(
-    private userService: UserService
+    private userService: UserService,
+    public route: Router
   ) { }
+
 
 
 
@@ -37,14 +45,11 @@ export class AccountComponent implements OnInit {
   getSection(section) {
     if (this.sectionName == undefined) {
       this.sectionName = section;
-      //this.toSection(this.sectionName);
     }
     else {
       this.updateUserBySection(this.sectionName);
       this.sectionName = section;
       this.setContactInformations(this.user);
-
-      // this.toSection(this.sectionName);
     }
 
   }
@@ -172,16 +177,6 @@ export class AccountComponent implements OnInit {
       });
 
     return this.changedValues;
-  }
-
-
-  toSection(section) {
-    if (section == "Contact Informations")
-      document.getElementById("contactInformations").scrollIntoView({ behavior: "smooth" });
-    if (section == "Billing Informations")
-      document.getElementById("billigInformations").scrollIntoView({ behavior: "smooth" });
-    if (section == "Login Informations")
-      document.getElementById("loginInformations").scrollIntoView({ behavior: "smooth" });
   }
 
   getNewUser(user) {

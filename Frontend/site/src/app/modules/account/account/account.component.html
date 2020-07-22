@@ -1,3 +1,19 @@
+<!-- <p>
+    Start editing to see some magic happen :)
+</p>
+<p>
+    <button (click)="toggle($event)">Toggle</button>
+</p>
+
+<div style="height: 300px; border: 1px solid red" *ngIf="show" [@slideInOut]> IN </div>
+<div style="height: 300px; border: 1px solid red" *ngIf="!show" [@slideInOut]> OUT <div> -->
+
+
+
+
+
+
+
 <app-menu></app-menu>
 <div class="row page-header">
     <div class="col-lg-12">
@@ -8,7 +24,7 @@
     </div>
 </div>
 <div class="row row-margin-with-side-nav">
-    <div class="col-md-5">
+    <div class="col-md-5 menu-profile-position">
         <app-account-side-bar (getSection)="getSection($event)"></app-account-side-bar>
     </div>
 </div>
@@ -19,31 +35,38 @@
     <div class="col-md-11 no-padding" *ngIf="user">
         <div class="panel panel-default">
             <div class="panel-body">
-                <div class="row update-button" *ngIf="sectionName != 'Login Informations'">
+
+                <div class="row update-button" *ngIf=" sectionName != 'Login Informations' ">
                     <button class="update-button-position" mat-raised-button color="warn"
                         (click)="updateInformations()">Update</button>
                 </div>
 
-                <!-- <carousel>
-                    <ng-container *ngFor="let item of items">
-                      <ng-container *carouselItem>
-                        <div class="item">{{ item.title }}</div>
-                      </ng-container>
-                    </ng-container>
-                  </carousel> -->
+                <div class="login-informations-style" *ngIf="sectionName === undefined ">
+                    <app-contact-informations class="child-pading-margin" *ngIf="contactInformations "
+                        [contactInformations]="contactInformations" [toUpdate]="true">
+                    </app-contact-informations>
+                </div>
 
+                <div class="login-informations-style"
+                    *ngIf="sectionName != 'Billing Informations' && sectionName != 'Login Informations' && sectionName != undefined"
+                    [@slideInOutContact]>
+                    <app-contact-informations class="child-pading-margin" *ngIf="contactInformations "
+                        [contactInformations]="contactInformations" [toUpdate]="true">
+                    </app-contact-informations>
+                </div>
 
-                <app-contact-informations id="contactInformations" class="child-pading-margin"
-                    *ngIf="contactInformations && sectionName === 'Contact Informations' " [contactInformations]="contactInformations" [toUpdate]="true">
-                </app-contact-informations>
+                <div class="login-informations-style" *ngIf=" sectionName === 'Billing Informations' "
+                    [@slideInOutBilling]>
+                    <app-billing-informations class="child-pading-margin" *ngIf="billigInformations "
+                        [billigInformations]="billigInformations" [toUpdate]="true">
+                    </app-billing-informations>
+                </div>
 
-                <app-billing-informations id="billigInformations" class="child-pading-margin"
-                    *ngIf="billigInformations && sectionName === 'Billing Informations'"
-                    [billigInformations]="billigInformations" [toUpdate]="true"></app-billing-informations>
-
-                <app-login-informations id="loginInformations" class="child-pading-margin"
-                    *ngIf="user && sectionName === 'Login Informations'" [emailAdress]="user.email" (user)="getNewUser($event)">
-                </app-login-informations>
+                <div *ngIf=" sectionName === 'Login Informations' " [@slideInOutLogin] class="login-informations-style">
+                    <app-login-informations class="child-pading-margin" *ngIf="user " [emailAdress]="user.email"
+                        (user)="getNewUser($event)">
+                    </app-login-informations>
+                </div>
             </div>
         </div>
     </div>

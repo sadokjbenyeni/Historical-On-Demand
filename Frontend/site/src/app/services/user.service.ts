@@ -114,8 +114,8 @@ export class UserService {
   getUserById(id) {
     return this.http.get<any>(environment.api + '/user/' + id);
   }
-  checkPasswordIsValidAndUpdateEmailAdress(passowrd, email) {
-    return this.http.post<any>(environment.api + '/user/checkPasswordIsValidAndUpdateEmailAdress', { passowrd: passowrd, email: email });
+  UpdateEmailAdress(email) {
+    return this.http.post<any>(environment.api + '/user/UpdateEmailAdress', { email: email });
   }
 
   checkEmailIfExist(email) {

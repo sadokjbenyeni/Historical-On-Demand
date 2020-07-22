@@ -19,12 +19,36 @@
 .child-pading-margin {
   padding-top: 10px !important;
   margin-top: 10px !important;
+  display: block !important;
 }
 .panel-body {
   padding-bottom: 0px !important;
 }
 
+.panel {
+  margin-bottom: 0% !important;
+  height: 829px !important;
+}
+
 .update-button {
   float: right;
   margin-right: 0px;
+}
+
+.element {
+  height: 500px;
+  overflow-y: scroll;
+  border: 1px solid gray;
+}
+
+.menu-profile-position {
+  position: fixed;
+}
+
+.padding-for-scroll {
+  padding-bottom: 146px;
+}
+
+.login-informations-style {
+  padding-bottom: 20px !important;
 }
