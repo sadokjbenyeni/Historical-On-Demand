@@ -27,9 +27,9 @@ module.exports = function (order) {
     let fonts = {
       AppleGaramond: {
         normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond-Light.ttf'], 'base64'),
-        bold: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond-Bold.ttf'], 'base64'),
+        bold: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond.ttf'], 'base64'),
         italics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond-LightItalic.ttf'], 'base64'),
-        bolditalics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond-BoldItalic.ttf'], 'base64')
+        bolditalics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond-Italic.ttf'], 'base64')
       }
     };
     printer = new pdfMake(fonts);
@@ -93,7 +93,9 @@ module.exports = function (order) {
       getOrders(this.order.products, this.order.vatValue, country),
       marginBottom(10),
       amountTable(this.order.totalHT, this.order.totalVat, this.order.vatValue, this.order.total, discountValue, currency),
-      generalPaymentTerms()
+      generalPaymentTerms(),
+      drawLine(340, 560, 0, 0, 0.01, 'line')
+
     );
     let paginator = {};
     paginator = function (currentPage, totalPage) {
@@ -500,10 +502,12 @@ bottom = function (currency, country, vatok, sasu, rcs) {
     border: [false, false, false, false],
     table: {
       widths: ['100%'],
+      widths: ['100%'],
       body: [[[
-        { text: 'Wire transfer', bold: true, fontSize: 9 },
+        { text: ' Wire transfer ', bold: true, fontSize: 10 },
         wireTransfer(currency, sasu, rcs, country, vatok),
-        contactInformation()
+        contactInformation(),
+        drawLine(5, 580, 0, 0, 1, 'line')
       ]]]
     },
     layout: { defaultBorder: false }
