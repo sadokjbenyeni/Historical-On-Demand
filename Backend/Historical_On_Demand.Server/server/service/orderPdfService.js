@@ -7,7 +7,7 @@ const Currency = mongoose.model('Currency');
 const Country = mongoose.model('Countrie');
 const DateService = require('../service/dateService');
 const LogoService = require('./logoService');
-const { table } = require('console');
+const { table, count } = require('console');
 const { text } = require('body-parser');
 const invoiceDirectory = global.environment.InvoiceDirectory;
 
@@ -85,26 +85,27 @@ module.exports = function (order) {
     var client = { company: this.order.companyName, address: this.order.addressBilling, postalCode: this.order.postalCodeBilling, city: this.order.cityBilling, country: this.order.countryBilling };
     var company = { name: 'QUANTHOUSE', address: '86 boulevard Haussmann', postalCode: '75008', city: 'Paris', country: 'France' };
     var payment = { accountNumber: user.id, taxId: this.order.vat, orderId: this.order.orderId, currency: currency.name };
+    const discountValue = this.order.totalHTDiscountFree - this.order.totalHT;
 
     content.push(
       headerWithLogo(invoiceInformation, client, company, payment),
       orderTableHeader(),
-      getOrders(this.order.products, this.order.vatValue, country, user),
+      getOrders(this.order.products, this.order.vatValue, country),
       marginBottom(10),
-      amountTable(this.order.totalHT, this.order.totalVat, this.order.vatValue, this.order.total, this.order.discount, currency)
+      amountTable(this.order.totalHT, this.order.totalVat, this.order.vatValue, this.order.total, discountValue, currency),
+      generalPaymentTerms()
     );
     let paginator = {};
     paginator = function (currentPage, totalPage) {
       return [{ text: currentPage.toString() + ' of ' + totalPage, alignment: 'center', fontSize: 8 }]
     };
     let footer = []
-    const discountValue = this.order.totalHTDiscountFree - this.order.totalHT;
     let sasu = 'SASU au capital de 14.108.818 €';
     let rcs = 'RCS Paris 449703248';
     let vat = 'VAT : FR00449703248';
-    footer = bottom(logger, this.order.totalHT, this.order.totalVat, this.order.vatValue, this.order.total, currency, country, discountValue, this.order.vatValide, sasu, rcs, vat);
+    footer = bottom(currency, country, this.order.vatValide, sasu, rcs);
     invoice['style'] = style;
-    invoice['pageMargins'] = [15, 15, 15, 200];
+    invoice['pageMargins'] = [15, 15, 15, 80];
     invoice['defaultStyle'] = defaultStyle;
     invoice['page'] = paginator;
     invoice['content'] = content;
@@ -122,49 +123,54 @@ module.exports = function (order) {
   };
 }
 
-
-
-
 condition = function (conditions) {
   let tabCondition = [];
-  tabCondition.push([{ text: 'General payment terms', fillColor: '#dddddd', bold: true, fontSize: 8, }]);
+  tabCondition.push([{ text: 'General payment terms', bold: true, fontSize: 9 }]);
   conditions.forEach(cond => {
-    tabCondition.push([{ text: '- ' + cond, fontSize: 8, }]);
+    tabCondition.push([{ text: '- ' + cond, fontSize: 9 }]);
   });
   return tabCondition;
 };
 
-contact = function (tel, email) {
-  return [
-    { text: tel, fontSize: 8 },
-    { text: email, link: email, color: '#3a65ff', fontSize: 8 }
-  ];
-};
+wireTransfer = function (currency, sasu, rcs, country, vatok) {
+  const beneficiaryName = 'Quanthouse';
+  const beneficiaryAddress = '86 boulevard Haussmann - 75008 PARIS - FRANCE';
+  const vat = 'FR00449703248';
+  let bic = 'BIC Code :';
+  let bank = 'Receiving Bank Name :';
+  let iban = 'IBAN :';
 
-productMessage = function (message) {
-  if (message) {
-    return [{ colSpan: 2, fillColor: '#dddddd', text: message, fontSize: 8 }, ''];
-  } else {
-    return [{ colSpan: 2, fillColor: '#FFFFFF', text: '', fontSize: 8 }, ''];
+  if (currency.id == 'usd' || currency.id == 'gbp') {
+    bic = '';
+    bank = '';
+    iban = '';
   }
-};
-
-wireTransfer = function (vat, delay, c, sasu, rcs) {
   return {
-    widths: ['100%'],
+    widths: ['30%', '10%', '25%', '10%', '25%'],
     table: {
-      body: [
-        [{ text: 'Wire transfer', fillColor: '#dddddd', bold: true, fontSize: 8, }],
-        [{ text: 'Beneficiary Name : Quanthouse', fontSize: 8, }],
-        [{ text: 'Beneficiary Address : 86 boulevard Haussmann - 75008 PARIS - FRANCE', fontSize: 8, }],
-        [{ text: 'Receiving Bank Name : ' + c.rib.domiciliation, fontSize: 8, }],
-        [{ text: 'IBAN : ' + c.iban.ib1 + ' ' + c.iban.ib2 + ' ' + c.iban.ib3 + ' ' + c.iban.ib4 + ' ' + c.iban.ib5 + ' ' + c.iban.ib6 + ' ' + c.iban.ib7, fontSize: 8, }],
-        [{ text: 'BIC Code : ' + c.bic, fontSize: 8, }],
-        [{ text: vat, fontSize: 8, }],
-        [{ text: 'Payment ' + delay + ' days', fontSize: 8, }],
-        [{ text: 'Currency : ' + c.name.toLocaleUpperCase(), fontSize: 8, }],
-        [{ text: sasu, fontSize: 8 }],
-        [{ text: rcs, fontSize: 8 }],
+      body: [[
+        [
+          [{ text: [{ text: 'Beneficiary Name : ', fontSize: 9, bold: true }, { text: beneficiaryName, fontSize: 9 }] }],
+          [{ text: [{ text: 'Beneficiary Address : ', fontSize: 9, bold: true }, { text: beneficiaryAddress, fontSize: 9 }] }],
+          [{ text: [{ text: 'VAT : ', fontSize: 9, bold: true }, { text: vat, fontSize: 9 }] }]
+        ],
+        [
+          { text: '' }
+        ],
+        [
+          [{ text: sasu, fontSize: 9 }],
+          [{ text: rcs, fontSize: 9 }],
+          [{ text: vatType(country, vatok), fontSize: 9 }]
+        ],
+        [
+          { text: '' }
+        ],
+        [
+          [{ text: [{ text: bic, fontSize: 9, bold: true }, { text: currency.bic, fontSize: 9 }] }],
+          [{ text: [{ text: bank, fontSize: 9, bold: true }, { text: currency.rib.domiciliation, fontSize: 9 }] }],
+          [{ text: [{ text: iban, fontSize: 9, bold: true }, { text: currency.iban.ib1 + ' ' + currency.iban.ib2 + ' ' + currency.iban.ib3 + ' ' + currency.iban.ib4 + ' ' + currency.iban.ib5 + ' ' + currency.iban.ib6 + ' ' + currency.iban.ib7, fontSize: 9 }] }]
+        ]
+      ]
       ]
     },
     layout: { defaultBorder: false }
@@ -200,10 +206,12 @@ function getOrders(orders, vatValue, country) {
     eid => {
       eid.allproducts = eid.subscription.concat(eid.onetime)
     })
+  let colorCounter = 1;
   if (orders.length > 0) {
     orders.forEach(eid => {
       eid.allproducts.forEach(product => {
-        addProduct(listOrders, product, eid.exchangefee, border, pervat);
+        addProduct(listOrders, product, eid.exchangefee, border, pervat, colorCounter);
+        colorCounter++;
       });
     })
   }
@@ -218,24 +226,20 @@ function getOrders(orders, vatValue, country) {
   }
 };
 
-function addProduct(listOrders, product, exchangefee, border, pervat) {
+function addProduct(listOrders, product, exchangefee, border, pervat, colorCounter) {
   let description = product.description ? product.description : product.contractid;
   var typeOrder = product.onetime === 1 ? "One-Off" : "Subscription";
   var dateDebut = product.onetime === 1 ? toCalendarFormat(product.begin_date) : toCalendarFormat(product.begin_date_ref);
   var dateFin = product.onetime === 1 ? toCalendarFormat(product.end_date) : toCalendarFormat(product.end_date_ref);
   var dataset = product.dataset === "L1TRADEONLY" ? "L1 - Trades" : product.dataset
+  let backgroundColor = colorCounter % 2 == 0 ? "#f7fcfc" : "#ffffff";
   listOrders.push([
-    {
-      border: border,
-      text: product.idx + '\t' + typeOrder + " " + dataset + "\n" + description,
-      fontSize: 10
-    },
-    { border: border, text: "1", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-    { border: border, text: dateDebut, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-    { border: border, text: dateFin, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-    { border: border, text: product.ht.toFixed(2), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
+    { border: border, text: product.idx + '\t' + typeOrder + " " + dataset, fontSize: 10, fillColor: backgroundColor },
+    { border: border, text: "1", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor },
+    { border: border, text: dateDebut, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor },
+    { border: border, text: dateFin, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor },
+    { border: border, text: product.ht.toFixed(2), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor },
   ]);
-
   if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
     listOrders.push([
       { border: border, text: "\tExchanges fees", margin: [0, 5, 0, 5], fontSize: 10 },
@@ -245,6 +249,7 @@ function addProduct(listOrders, product, exchangefee, border, pervat) {
       { border: border, text: exchangefee.toFixed(2), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 }
     ]);
   }
+
 }
 
 insertLineCarriage = function (sentence, insertPostion) {
@@ -437,7 +442,7 @@ amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount
   return {
     table: {
       alignment: 'center',
-      widths: ['54%', '46%'],
+      widths: ['60%', '40%'],
       body: [
         [
           {
@@ -451,38 +456,38 @@ amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount
           },
           {
             table: {
-              widths: ['45%', '45%', '10%'],
+              widths: ['35%', '55%', '10%'],
               body: [
                 [
-                  { border: border, text: 'SUBTOTAL', style: 'itemsFooterSubTitle' },
-                  { border: border, text: currencySymbol + serviceTotal.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
-                  { border: border, text: currency.device, style: 'itemsFooterSubValue' }
+                  { border: border, text: 'SUBTOTAL', fontSize: 10, style: 'itemsFooterSubTitle' },
+                  { border: border, text: currencySymbol + serviceTotal.toFixed(2), fontSize: 10, style: 'itemsFooterSubValue', alignment: 'right' },
+                  { border: border, text: currency.device, fontSize: 10, style: 'itemsFooterSubValue' }
                 ],
                 [
-                  { border: border, text: 'TOTAL TAX', style: 'itemsFooterSubTitle' },
-                  { border: border, text: currencySymbol + vatTotal.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
-                  { border: border, text: currency.device, style: 'itemsFooterSubValue' }
+                  { border: border, text: 'TOTAL TAX', fontSize: 10, style: 'itemsFooterSubTitle' },
+                  { border: border, text: currencySymbol + vatTotal.toFixed(2), fontSize: 10, style: 'itemsFooterSubValue', alignment: 'right' },
+                  { border: border, text: currency.device, fontSize: 10, style: 'itemsFooterSubValue' }
                 ],
 
                 [
-                  { border: border, text: 'TAX RATE', style: 'itemsFooterSubTitle' },
-                  { border: border, text: vatValue * 100, style: 'itemsFooterSubValue', alignment: 'right' },
-                  { border: border, text: '%', style: 'itemsFooterSubValue' },
+                  { border: border, text: 'TAX RATE', fontSize: 10, style: 'itemsFooterSubTitle' },
+                  { border: border, text: vatValue * 100, fontSize: 10, style: 'itemsFooterSubValue', alignment: 'right' },
+                  { border: border, text: '%', fontSize: 10, style: 'itemsFooterSubValue' },
                 ],
                 [
-                  { border: border, text: 'DISCOUNT', style: 'itemsFooterSubTitle' },
-                  { border: border, text: currencySymbol + discount.toFixed(2), style: 'itemsFooterSubValue', alignment: 'right' },
-                  { border: border, text: currency.device, style: 'itemsFooterSubValue' }
+                  { border: border, text: 'DISCOUNT', fontSize: 10, style: 'itemsFooterSubTitle' },
+                  { border: border, text: currencySymbol + discount.toFixed(2), fontSize: 10, style: 'itemsFooterSubValue', alignment: 'right' },
+                  { border: border, text: currency.device, fontSize: 10, style: 'itemsFooterSubValue' }
                 ],
                 [
-                  { border: border, text: 'BALANCE DUE', style: 'itemsFooterTotalTitle', bold: true },
-                  { border: border, text: currencySymbol + invoiceTotal.toFixed(2), style: 'itemsFooterTotalValue', bold: true, alignment: 'right' },
-                  { border: border, text: currency.device, style: 'itemsFooterSubValue' }
+                  { border: border, text: 'BALANCE DUE', fontSize: 10, style: 'itemsFooterTotalTitle', bold: true },
+                  { border: border, text: currencySymbol + invoiceTotal.toFixed(2), fontSize: 10, style: 'itemsFooterTotalValue', bold: true, alignment: 'right' },
+                  { border: border, text: currency.device, fontSize: 10, style: 'itemsFooterSubValue' }
                 ],
               ]
             },
             layout: { defaultBorder: false }
-          }
+          },
         ]
       ]
     },
@@ -490,62 +495,16 @@ amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount
   };
 };
 
-bottom = function (logger, totalHt, totalVat, vatValue, totalTTC, currency, country, discount, vatok, sasu, rcs, vat) {
-  logger.info({ message: country, className: 'PDF Api' });
-  let mentionvat = "";
-  if (country.id === 'FR' || (country.ue === '1' && !vatok)) {
-    mentionvat = "VAT payment based on invoicing";
-  }
-  if (country.ue === '1' && vatok) {
-    mentionvat = "Reverse-charge";
-  }
-  if (country.ue === '0') {
-    mentionvat = "Outside the territorial scope – Article 44 of Directive 2006/112/EC";
-  }
+bottom = function (currency, country, vatok, sasu, rcs) {
   return {
+    border: [false, false, false, false],
     table: {
-      alignment: 'center',
-      widths: ['50%', '50%'],
-      body: [
-        productMessage(""),
-        [
-          {
-            border: [false, true, false, true],
-            table: {
-              widths: ['98%'],
-              body: [
-                [
-                  [
-                    { text: '\n', fontSize: 8 },
-                    {
-                      widths: ['100%'],
-                      table: { body: condition(['The amount must be paid in full without deducting any bank charges', 'No discount for early payment', 'Late payment fee equal to 1.5 times the French legal rate of interest, form the due date until the date of payment', 'Surchage of EUR 40 for collection costs in case of late payment', 'To ensure proper credit, please quote invoice # with your remittance or send remittance advice to accounts-receivable@quanthouse.com']) },
-                      layout: { defaultBorder: false }
-                    },
-                    { text: '\n', fontSize: 8 },
-                    { text: 'For enquiries contact :', fontSize: 8 },
-                    contact('+ 33 1 73 02 32 15', 'accounts-receivable@quanthouse.com'),
-                    { text: mentionvat, fontSize: 8 },
-                    { text: '\n', fontSize: 16 }
-                  ]
-                ]
-              ]
-            },
-            layout: { defaultBorder: false }
-          },
-          {
-            border: [false, true, false, true],
-            table: {
-              widths: ['98%'],
-              body: [[[
-                { text: '\n', fontSize: 8 },
-                wireTransfer("VAT", "delay", currency, sasu, rcs, vat)
-              ]]]
-            },
-            layout: { defaultBorder: false }
-          }
-        ]
-      ]
+      widths: ['100%'],
+      body: [[[
+        { text: 'Wire transfer', bold: true, fontSize: 9 },
+        wireTransfer(currency, sasu, rcs, country, vatok),
+        contactInformation()
+      ]]]
     },
     layout: { defaultBorder: false }
   };
@@ -570,6 +529,29 @@ marginBottom = function (value) {
   }
 }
 
+contactInformation = function () {
+  return {
+    border: [false, false, false, false],
+    table: {
+      widths: ['25%', '25%', '50%'],
+      body: [
+        [
+          [
+            { text: '+ 33 1 73 02 32 15', fontSize: 9 }
+          ],
+          [
+            { text: 'accounts-receivable@quanthouse.com', fontSize: 9 }
+          ],
+          [
+            { text: '' }
+          ]
+        ]
+      ]
+    },
+    layout: { defaultBorder: false }
+  }
+}
+
 currencySymbolToCodeConverter = function (currency) {
   if (currency.name == "American Dollar") {
     return String.fromCharCode(36);
@@ -579,5 +561,64 @@ currencySymbolToCodeConverter = function (currency) {
   }
   else if (currency.name == "Pound Sterling") {
     return String.fromCharCode(163);
+  }
+}
+
+generalPaymentTerms = function (country, vatok) {
+  return {
+    border: [false, false, false, false],
+    table: {
+      alignment: 'center',
+      widths: ['59%', '41%'],
+      body: [
+        [
+          {
+            border: [false, false, false, false],
+            table: {
+              widths: ['100%'],
+              body: [
+                { text: ' ' }
+              ]
+            }
+          },
+          {
+            table: {
+              widths: ['100%'],
+              body: [
+                [
+                  [
+                    {
+                      widths: ['100%'],
+                      table: {
+                        body: condition(['The amount must be paid in full without deducting any bank charges',
+                          'No discount for early payment',
+                          'Late payment fee equal to 1.5 times the French legal rate of interest, form the due date until the date of payment',
+                          'Surchage of EUR 40 for collection costs in case of late payment',
+                          'To ensure proper credit, please quote invoice # with your remittance or send remittance advice to accounts-receivable@quanthouse.com'])
+                      },
+                      layout: { defaultBorder: false }
+                    }
+                  ]
+                ]
+              ]
+            },
+            layout: { defaultBorder: false }
+          },
+        ]
+      ]
+    },
+    layout: { defaultBorder: false }
+  }
+}
+
+function vatType(country, vatok) {
+  if (country.id === 'FR' || (country.ue === '1' && !vatok)) {
+    return "VAT payment based on invoicing";
+  }
+  if (country.ue === '1' && vatok) {
+    return "Reverse-charge";
+  }
+  if (country.ue === '0') {
+    return "Outside the territorial scope – Article 44 of Directive 2006/112/EC";
   }
 }
