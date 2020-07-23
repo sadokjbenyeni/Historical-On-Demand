@@ -59,7 +59,8 @@ export class UsersComponent implements OnInit {
       },
       columns: [
         { data: 'lastname' },
-        { data: 'firstname' }
+        { data: 'firstname' },
+        { data: 'companyName' }
       ]
     };
   }

@@ -26,14 +26,16 @@
             <table datatable [dtOptions]="dtOptions" class="row-border hover" width="100%">
               <thead>
                 <tr>
-                  <th>LastName</th>
-                  <th>FirstName</th>
+                  <th>Last Name</th>
+                  <th>First Name</th>
+                  <th>Company Name</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let user of users" class="clickable" (click)="getUser(user._id)">
                   <td>{{ user.lastname }}</td>
                   <td>{{ user.firstname }}</td>
+                  <td>{{ user.companyName }}</td>
                 </tr>
               </tbody>
             </table>
@@ -47,11 +49,13 @@
           <div class="panel panel-default">
             <div class="panel-body">
               <div class="col-md-11 no-padding">
-                <app-roles *ngIf="user?.roleName" [userRoles]="user.roleName" (newUserRoles)="newUserRoles($event)"></app-roles>
+                <app-roles *ngIf="user?.roleName" [userRoles]="user.roleName" (newUserRoles)="newUserRoles($event)">
+                </app-roles>
 
               </div>
               <div class="col-md-1 no-padding">
-                <button class="update-button-position" mat-raised-button color="warn" (click)="updateUser()">Update roles</button>
+                <button class="update-button-position" mat-raised-button color="warn" (click)="updateUser()">Update
+                  roles</button>
               </div>
               <div class="col-md-12 no-padding">
                 <app-user-informations [user]="user" *ngIf="user"></app-user-informations>

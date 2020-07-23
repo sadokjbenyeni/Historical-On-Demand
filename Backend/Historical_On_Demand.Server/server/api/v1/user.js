@@ -540,6 +540,24 @@ router.post("/list", (req, res) => {
           { firstname: new RegExp(req.body.search.value, "i") },
           { lastname: new RegExp(req.body.search.value, "i") },
           { roleName: new RegExp(req.body.search.value, "i") },
+          { email: new RegExp(req.body.search.value, "i") },
+          { currency: new RegExp(req.body.search.value, "i") },
+          { address: new RegExp(req.body.search.value, "i") },
+          { addressBilling: new RegExp(req.body.search.value, "i") },
+          { city: new RegExp(req.body.search.value, "i") },
+          { cityBilling: new RegExp(req.body.search.value, "i") },
+          { companyType: new RegExp(req.body.search.value, "i") },
+          { country: new RegExp(req.body.search.value, "i") },
+          { countryBilling: new RegExp(req.body.search.value, "i") },
+          { job: new RegExp(req.body.search.value, "i") },
+          { postalCode: new RegExp(req.body.search.value, "i") },
+          { region: new RegExp(req.body.search.value, "i") },
+          { phone: new RegExp(req.body.search.value, "i") },
+          { companyName: new RegExp(req.body.search.value, "i") },
+          { vat: new RegExp(req.body.search.value, "i") },
+          { postalCodeBilling: new RegExp(req.body.search.value, "i") },
+          { payment: new RegExp(req.body.search.value, "i") },
+          { website: new RegExp(req.body.search.value, "i") }
         ];
       }
       User.countDocuments(search).then((cf) => {
