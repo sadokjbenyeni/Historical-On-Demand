@@ -25,11 +25,11 @@ module.exports = function (order) {
 
   this.generatePdfFile = function (logger, currency, user, country, invoiceId, invoiceType) {
     let fonts = {
-      AppleGaramond: {
-        normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond-Light.ttf'], 'base64'),
-        bold: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond.ttf'], 'base64'),
-        italics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond-LightItalic.ttf'], 'base64'),
-        bolditalics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['AppleGaramond-Italic.ttf'], 'base64')
+      GentiumBookBasic: {
+        normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['gentium-book-basic.regular.ttf'], 'base64'),
+        bold: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['gentium-book-basic.bold.ttf'], 'base64'),
+        italics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['gentium-book-basic.italic.ttf'], 'base64'),
+        bolditalics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['gentium-book-basic.bold-italic.ttf'], 'base64')
       }
     };
     printer = new pdfMake(fonts);
@@ -79,20 +79,20 @@ module.exports = function (order) {
     let invoice = {};
     let content = [];
     let defaultStyle = {
-      font: 'AppleGaramond'
+      font: 'GentiumBookBasic'
     };
     var invoiceInformation = { id: invoiceId, type: invoiceType, issueDate: toCalendarFormat(new Date()), dueDate: toCalendarFormat(this.order.submissionDate) };
     var client = { company: this.order.companyName, address: this.order.addressBilling, postalCode: this.order.postalCodeBilling, city: this.order.cityBilling, country: this.order.countryBilling };
     var company = { name: 'QUANTHOUSE', address: '86 boulevard Haussmann', postalCode: '75008', city: 'Paris', country: 'France' };
     var payment = { accountNumber: user.id, taxId: this.order.vat, orderId: this.order.orderId, currency: currency.name };
-    const discountValue = this.order.totalHTDiscountFree - this.order.totalHT;
-
     content.push(
       headerWithLogo(invoiceInformation, client, company, payment),
       orderTableHeader(),
+      drawLine(0, 555, 0, 0, 3, 'line', '#EA663B'),
       getOrders(this.order.products, this.order.vatValue, country),
       marginBottom(10),
-      amountTable(this.order.totalHT, this.order.totalVat, this.order.vatValue, this.order.total, discountValue, currency),
+      amountTable(this.order.totalHTDiscountFree, this.order.totalVat, this.order.vatValue, this.order.total, this.order.discount, currency, this.order.totalHT),
+      drawLine(342, 560, -3, -3, 1, 'line', '#EA663B'),
       generalPaymentTerms(),
       drawLine(340, 560, 0, 0, 0.01, 'line')
 
@@ -107,7 +107,7 @@ module.exports = function (order) {
     let vat = 'VAT : FR00449703248';
     footer = bottom(currency, country, this.order.vatValide, sasu, rcs);
     invoice['style'] = style;
-    invoice['pageMargins'] = [15, 15, 15, 80];
+    invoice['pageMargins'] = [15, 15, 15, 105];
     invoice['defaultStyle'] = defaultStyle;
     invoice['page'] = paginator;
     invoice['content'] = content;
@@ -127,9 +127,9 @@ module.exports = function (order) {
 
 condition = function (conditions) {
   let tabCondition = [];
-  tabCondition.push([{ text: 'General payment terms', bold: true, fontSize: 9 }]);
+  tabCondition.push([{ text: 'General payment terms', bold: true, fontSize: 9, color: '#303030', fillColor: '#F6F6F6' }]);
   conditions.forEach(cond => {
-    tabCondition.push([{ text: '- ' + cond, fontSize: 9 }]);
+    tabCondition.push([{ text: '- ' + cond, fontSize: 9, color: '#6C6C6C', fillColor: '#F6F6F6' }]);
   });
   return tabCondition;
 };
@@ -152,25 +152,25 @@ wireTransfer = function (currency, sasu, rcs, country, vatok) {
     table: {
       body: [[
         [
-          [{ text: [{ text: 'Beneficiary Name : ', fontSize: 9, bold: true }, { text: beneficiaryName, fontSize: 9 }] }],
-          [{ text: [{ text: 'Beneficiary Address : ', fontSize: 9, bold: true }, { text: beneficiaryAddress, fontSize: 9 }] }],
-          [{ text: [{ text: 'VAT : ', fontSize: 9, bold: true }, { text: vat, fontSize: 9 }] }]
+          [{ text: [{ text: 'Beneficiary Name : ', fontSize: 9, bold: true, color: '#303030' }, { text: beneficiaryName, fontSize: 9, color: '#6C6C6C' }] }],
+          [{ text: [{ text: 'Beneficiary Address : ', fontSize: 9, bold: true, color: '#303030' }, { text: beneficiaryAddress, fontSize: 9, color: '#6C6C6C' }] }],
+          [{ text: [{ text: 'VAT : ', fontSize: 9, bold: true, color: '#303030' }, { text: vat, fontSize: 9, color: '#6C6C6C' }] }]
         ],
         [
           { text: '' }
         ],
         [
-          [{ text: sasu, fontSize: 9 }],
-          [{ text: rcs, fontSize: 9 }],
-          [{ text: vatType(country, vatok), fontSize: 9 }]
+          [{ text: sasu, fontSize: 9, color: '#6C6C6C' }],
+          [{ text: rcs, fontSize: 9, color: '#6C6C6C' }],
+          [{ text: vatType(country, vatok), fontSize: 9, color: '#6C6C6C' }]
         ],
         [
           { text: '' }
         ],
         [
-          [{ text: [{ text: bic, fontSize: 9, bold: true }, { text: currency.bic, fontSize: 9 }] }],
-          [{ text: [{ text: bank, fontSize: 9, bold: true }, { text: currency.rib.domiciliation, fontSize: 9 }] }],
-          [{ text: [{ text: iban, fontSize: 9, bold: true }, { text: currency.iban.ib1 + ' ' + currency.iban.ib2 + ' ' + currency.iban.ib3 + ' ' + currency.iban.ib4 + ' ' + currency.iban.ib5 + ' ' + currency.iban.ib6 + ' ' + currency.iban.ib7, fontSize: 9 }] }]
+          [{ text: [{ text: bic, fontSize: 9, bold: true, color: '#303030' }, { text: currency.bic, fontSize: 9, color: '#6C6C6C' }] }],
+          [{ text: [{ text: bank, fontSize: 9, bold: true, color: '#303030' }, { text: currency.rib.domiciliation, fontSize: 9, color: '#6C6C6C' }] }],
+          [{ text: [{ text: iban, fontSize: 9, bold: true, color: '#303030' }, { text: currency.iban.ib1 + ' ' + currency.iban.ib2 + ' ' + currency.iban.ib3 + ' ' + currency.iban.ib4 + ' ' + currency.iban.ib5 + ' ' + currency.iban.ib6 + ' ' + currency.iban.ib7, fontSize: 9, color: '#6C6C6C' }] }]
         ]
       ]
       ]
@@ -188,11 +188,11 @@ orderTableHeader = function () {
       margin: [0, 5, 0, 5],
       body: [
         [
-          { border: border, text: 'DESCRIPTION', margin: [0, 5, 0, 5], bold: true, alignment: 'center' },
-          { border: border, text: 'UNITS', margin: [0, 5, 0, 5], bold: true, alignment: 'center' },
-          { border: border, text: 'FROM', margin: [0, 5, 0, 5], bold: true, alignment: 'center' },
-          { border: border, text: 'TO', margin: [0, 5, 0, 5], bold: true, alignment: 'center' },
-          { border: border, text: 'TOTAL', margin: [0, 5, 0, 5], bold: true, alignment: 'center' }
+          { border: border, text: 'DESCRIPTION', margin: [0, 5, 0, 5], bold: true, alignment: 'center', color: '#6C6C6C' },
+          { border: border, text: 'UNITS', margin: [0, 5, 0, 5], bold: true, alignment: 'center', color: '#6C6C6C' },
+          { border: border, text: 'FROM', margin: [0, 5, 0, 5], bold: true, alignment: 'center', color: '#6C6C6C' },
+          { border: border, text: 'TO', margin: [0, 5, 0, 5], bold: true, alignment: 'center', color: '#6C6C6C' },
+          { border: border, text: 'TOTAL', margin: [0, 5, 0, 5], bold: true, alignment: 'center', color: '#6C6C6C' }
         ],
       ]
     },
@@ -234,21 +234,21 @@ function addProduct(listOrders, product, exchangefee, border, pervat, colorCount
   var dateDebut = product.onetime === 1 ? toCalendarFormat(product.begin_date) : toCalendarFormat(product.begin_date_ref);
   var dateFin = product.onetime === 1 ? toCalendarFormat(product.end_date) : toCalendarFormat(product.end_date_ref);
   var dataset = product.dataset === "L1TRADEONLY" ? "L1 - Trades" : product.dataset
-  let backgroundColor = colorCounter % 2 == 0 ? "#f7fcfc" : "#ffffff";
+  let backgroundColor = colorCounter % 2 == 0 ? "#F6F6F6" : "#ffffff";
   listOrders.push([
-    { border: border, text: product.idx + '\t' + typeOrder + " " + dataset, fontSize: 10, fillColor: backgroundColor },
-    { border: border, text: "1", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor },
-    { border: border, text: dateDebut, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor },
-    { border: border, text: dateFin, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor },
-    { border: border, text: product.ht.toFixed(2), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor },
+    { border: border, text: product.idx + '\t' + typeOrder + "  " + dataset, margin: [0, 5, 0, 5], fontSize: 10, fillColor: backgroundColor, color: '#6C6C6C' },
+    { border: border, text: "1", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor, color: '#6C6C6C' },
+    { border: border, text: dateDebut, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor, color: '#6C6C6C' },
+    { border: border, text: dateFin, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor, color: '#6C6C6C' },
+    { border: border, text: product.ht.toFixed(2), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor, color: '#6C6C6C' },
   ]);
   if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
     listOrders.push([
-      { border: border, text: "\tExchanges fees", margin: [0, 5, 0, 5], fontSize: 10 },
-      { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-      { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-      { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 },
-      { border: border, text: exchangefee.toFixed(2), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10 }
+      { border: border, text: "\tExchanges fees", margin: [0, 5, 0, 5], fontSize: 10, color: '#6C6C6C' },
+      { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C' },
+      { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C' },
+      { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C' },
+      { border: border, text: exchangefee.toFixed(2), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C' }
     ]);
   }
 
@@ -279,13 +279,13 @@ companyAddress = function (company, address, postalCode, city, country) {
       body: [
         [
           [
-            { text: 'Issued by', fontSize: 11, bold: true },
+            { text: 'Issued by', fontSize: 11, bold: true, color: '#303030' },
             { text: '\n', fontSize: 5 },
-            { text: company, fontSize: 10, bold: true },
-            { text: address, fontSize: 10 },
-            { text: city, fontSize: 10 },
-            { text: country, fontSize: 10 },
-            { text: postalCode, fontSize: 10 },
+            { text: company, fontSize: 10, bold: true, color: '#303030' },
+            { text: address, fontSize: 10, color: '#6C6C6C' },
+            { text: city, fontSize: 10, color: '#6C6C6C' },
+            { text: country, fontSize: 10, color: '#6C6C6C' },
+            { text: postalCode, fontSize: 10, color: '#6C6C6C' },
           ]
         ]
       ]
@@ -302,14 +302,14 @@ clientAddress = function (companyName, address, postalCode, city, country) {
       body: [
         [
           [
-            { text: 'Client', fontSize: 11, bold: true },
+            { text: 'Client', fontSize: 11, bold: true, color: '#303030' },
 
             { text: '\n', fontSize: 5 },
-            { text: companyName, fontSize: 10, bold: true },
-            { text: address, fontSize: 10 },
-            { text: postalCode, fontSize: 10 },
-            { text: city, fontSize: 10 },
-            { text: country, fontSize: 10 }
+            { text: companyName, fontSize: 10, bold: true, color: '#303030' },
+            { text: address, fontSize: 10, color: '#6C6C6C' },
+            { text: postalCode, fontSize: 10, color: '#6C6C6C' },
+            { text: city, fontSize: 10, color: '#6C6C6C' },
+            { text: country, fontSize: 10, color: '#6C6C6C' }
           ]
         ]
       ]
@@ -326,12 +326,12 @@ paymentInformation = function (accountNumber, taxId, orderId, currencyName) {
       body: [
         [
           [
-            { text: 'Payment  ', fontSize: 11, bold: true },
+            { text: 'Payment  ', fontSize: 11, bold: true, color: '#303030' },
             { text: '\n', fontSize: 5 },
-            { text: [{ text: 'Account Number  ', fontSize: 10, bold: true }, { text: accountNumber, fontSize: 10 }] },
-            { text: [{ text: 'Tax ID Number  ', fontSize: 10, bold: true }, { text: taxId, fontSize: 10 }] },
-            { text: [{ text: 'Order Number  ', fontSize: 10, bold: true }, { text: orderId, fontSize: 10 }] },
-            { text: [{ text: 'Currency  ', fontSize: 10, bold: true }, { text: currencyName, fontSize: 10 }] },
+            { text: [{ text: 'Account Number  ', fontSize: 10, bold: true, color: '#303030' }, { text: accountNumber, fontSize: 10, color: '#6C6C6C' }] },
+            { text: [{ text: 'Tax ID Number  ', fontSize: 10, bold: true, color: '#303030' }, { text: taxId, fontSize: 10, color: '#6C6C6C' }] },
+            { text: [{ text: 'Order Number  ', fontSize: 10, bold: true, color: '#303030' }, { text: orderId, fontSize: 10, color: '#6C6C6C' }] },
+            { text: [{ text: 'Currency  ', fontSize: 10, bold: true, color: '#303030' }, { text: currencyName, fontSize: 10, color: '#6C6C6C' }] },
           ]
         ]
       ]
@@ -350,8 +350,8 @@ invoiceTitle = function (invoiceId, invoiceType) {
         [
           [
             [
-              { text: invoiceType, fontSize: 20, bold: true },
-              { text: invoiceId, fontSize: 10 },
+              { text: invoiceType, fontSize: 18, color: '#EA663B' },
+              { text: invoiceId, fontSize: 9, color: '#6C6C6C' },
               { text: '\n', fontSize: 5 }
             ]
           ]
@@ -370,10 +370,10 @@ invoiceDates = function (issueDate, dueDate) {
         [
           [
             [
-              { border: border, text: [{ text: 'Issue Date  ', fontSize: 10, bold: true }, { text: issueDate, fontSize: 10 }] },
+              { border: border, text: [{ text: 'Issue Date  ', fontSize: 10, bold: true, color: '#303030' }, { text: issueDate, fontSize: 10, color: '#6C6C6C' }] },
             ],
             [
-              { border: border, text: [{ text: 'Due Date  ', fontSize: 10, bold: true }, { text: dueDate, fontSize: 10 }] },
+              { border: border, text: [{ text: 'Due Date  ', fontSize: 10, bold: true, color: '#303030' }, { text: dueDate, fontSize: 10, color: '#6C6C6C' }] },
             ],
             [
               { text: '\n', fontSize: 8 },
@@ -395,7 +395,7 @@ invoiceHeader = function (invoice, client, company, payment) {
         [
           [
             marginBottom(2),
-            drawLine(5, 400, 0, 0, 1.5, 'line'),
+            drawLine(5, 400, 0, 0, 1.5, 'line', '#EA663B'),
             invoiceTitle(invoice.id, invoice.type),
             invoiceDates(invoice.issueDate, invoice.dueDate),
             drawLine(5, 400, 0, 0, 0.1, 'line'),
@@ -406,7 +406,6 @@ invoiceHeader = function (invoice, client, company, payment) {
           [
             marginBottom(2),
             companyAddress(company.name, company.address, company.postalCode, company.city, company.country),
-            marginBottom(4),
             paymentInformation(payment.accountNumber, payment.taxId, payment.orderId, payment.currency),
 
           ]
@@ -421,11 +420,14 @@ headerWithLogo = function (invoice, client, company, payment) {
   return {
     border: [false, false, false, false],
     table: {
-      widths: ['25%', '75%'],
+      widths: ['20%', '7%', '73%'],
       body: [
         [
           [
             logo()
+          ],
+          [
+            { text: '' }
           ],
           [
             invoiceHeader(invoice, client, company, payment)
@@ -438,9 +440,9 @@ headerWithLogo = function (invoice, client, company, payment) {
   };
 }
 
-amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount, currency) {
+amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount, currency, totalLessDiscount) {
   let border = [false, false, false, true];
-  let currencySymbol = currencySymbolToCodeConverter(currency);
+  let currencySymbol = currency.symbol;
   return {
     table: {
       alignment: 'center',
@@ -458,33 +460,37 @@ amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount
           },
           {
             table: {
-              widths: ['35%', '55%', '10%'],
+              widths: ['60%', '30%', '10%'],
               body: [
                 [
-                  { border: border, text: 'SUBTOTAL', fontSize: 10, style: 'itemsFooterSubTitle' },
-                  { border: border, text: currencySymbol + serviceTotal.toFixed(2), fontSize: 10, style: 'itemsFooterSubValue', alignment: 'right' },
-                  { border: border, text: currency.device, fontSize: 10, style: 'itemsFooterSubValue' }
+                  { border: border, text: 'SUBTOTAL', fontSize: 10, style: 'itemsFooterSubTitle', color: '#6C6C6C' },
+                  { border: border, text: currencySymbol + serviceTotal.toFixed(2), fontSize: 10, style: 'itemsFooterSubValue', alignment: 'right', color: '#6C6C6C' },
+                  { border: border, text: currency.device, fontSize: 10, style: 'itemsFooterSubValue', color: '#6C6C6C' }
                 ],
                 [
-                  { border: border, text: 'TOTAL TAX', fontSize: 10, style: 'itemsFooterSubTitle' },
-                  { border: border, text: currencySymbol + vatTotal.toFixed(2), fontSize: 10, style: 'itemsFooterSubValue', alignment: 'right' },
-                  { border: border, text: currency.device, fontSize: 10, style: 'itemsFooterSubValue' }
-                ],
-
-                [
-                  { border: border, text: 'TAX RATE', fontSize: 10, style: 'itemsFooterSubTitle' },
-                  { border: border, text: vatValue * 100, fontSize: 10, style: 'itemsFooterSubValue', alignment: 'right' },
-                  { border: border, text: '%', fontSize: 10, style: 'itemsFooterSubValue' },
+                  { border: border, text: 'DISCOUNT', fontSize: 10, style: 'itemsFooterSubTitle', color: '#6C6C6C' },
+                  { border: border, text: discount, fontSize: 10, style: 'itemsFooterSubValue', alignment: 'right', color: '#6C6C6C' },
+                  { border: border, text: '%', fontSize: 10, style: 'itemsFooterSubValue', color: '#6C6C6C' }
                 ],
                 [
-                  { border: border, text: 'DISCOUNT', fontSize: 10, style: 'itemsFooterSubTitle' },
-                  { border: border, text: currencySymbol + discount.toFixed(2), fontSize: 10, style: 'itemsFooterSubValue', alignment: 'right' },
-                  { border: border, text: currency.device, fontSize: 10, style: 'itemsFooterSubValue' }
+                  { border: border, text: 'SUBTOTAL LESS DISCOUNT', fontSize: 10, style: 'itemsFooterSubTitle', color: '#6C6C6C' },
+                  { border: border, text: currencySymbol + totalLessDiscount, fontSize: 10, style: 'itemsFooterSubValue', alignment: 'right', color: '#6C6C6C' },
+                  { border: border, text: currency.device, fontSize: 10, style: 'itemsFooterSubValue', color: '#6C6C6C' }
                 ],
                 [
-                  { border: border, text: 'BALANCE DUE', fontSize: 10, style: 'itemsFooterTotalTitle', bold: true },
-                  { border: border, text: currencySymbol + invoiceTotal.toFixed(2), fontSize: 10, style: 'itemsFooterTotalValue', bold: true, alignment: 'right' },
-                  { border: border, text: currency.device, fontSize: 10, style: 'itemsFooterSubValue' }
+                  { border: border, text: 'TAX RATE', fontSize: 10, style: 'itemsFooterSubTitle', color: '#6C6C6C' },
+                  { border: border, text: vatValue * 100, fontSize: 10, style: 'itemsFooterSubValue', alignment: 'right', color: '#6C6C6C' },
+                  { border: border, text: '%', fontSize: 10, style: 'itemsFooterSubValue', color: '#6C6C6C' },
+                ],
+                [
+                  { border: border, text: 'TOTAL TAX', fontSize: 10, style: 'itemsFooterSubTitle', color: '#6C6C6C' },
+                  { border: border, text: currencySymbol + vatTotal.toFixed(2), fontSize: 10, style: 'itemsFooterSubValue', alignment: 'right', color: '#6C6C6C' },
+                  { border: border, text: currency.device, fontSize: 10, style: 'itemsFooterSubValue', color: '#6C6C6C' }
+                ],
+                [
+                  { border: [false, false, false, false], text: 'BALANCE DUE', fontSize: 10, style: 'itemsFooterTotalTitle', bold: true, color: '#EA663B' },
+                  { border: [false, false, false, false], text: currencySymbol + invoiceTotal.toFixed(2), fontSize: 10, style: 'itemsFooterTotalValue', bold: true, alignment: 'right', color: '#ffffff', fillColor: '#EA663B' },
+                  { border: [false, false, false, false], text: currency.device, fontSize: 10, style: 'itemsFooterSubValue', color: '#ffffff', fillColor: '#EA663B' }
                 ],
               ]
             },
@@ -504,24 +510,28 @@ bottom = function (currency, country, vatok, sasu, rcs) {
       widths: ['100%'],
       widths: ['100%'],
       body: [[[
-        { text: ' Wire transfer ', bold: true, fontSize: 10 },
+        {
+          text: ' Wire transfer ', bold: true, fontSize: 10, color: '#303030'
+        },
+        drawLine(0, 60, 0, 0, 1, 'line', '#EA663B'),
         wireTransfer(currency, sasu, rcs, country, vatok),
         contactInformation(),
-        drawLine(5, 580, 0, 0, 1, 'line')
+        drawLine(5, 580, 0, 0, 1, 'line', '#EA663B')
       ]]]
     },
     layout: { defaultBorder: false }
   };
 };
 
-drawLine = function (x1, x2, y1, y2, lineWidth, type) {
+drawLine = function (x1, x2, y1, y2, lineWidth, type, color = '#000000') {
   return {
     canvas: [
       {
         type: type,
         x1: x1, y1: y1,
         x2: x2, y2: y2,
-        lineWidth: lineWidth
+        lineWidth: lineWidth,
+        lineColor: color
       }
     ]
   }
@@ -537,14 +547,14 @@ contactInformation = function () {
   return {
     border: [false, false, false, false],
     table: {
-      widths: ['25%', '25%', '50%'],
+      widths: ['30%', '30%', '40%'],
       body: [
         [
           [
-            { text: '+ 33 1 73 02 32 15', fontSize: 9 }
+            { text: '+ 33 1 73 02 32 15', fontSize: 9, color: '#303030' }
           ],
           [
-            { text: 'accounts-receivable@quanthouse.com', fontSize: 9 }
+            { text: 'accounts-receivable@quanthouse.com', fontSize: 9, color: '#303030' }
           ],
           [
             { text: '' }
@@ -556,19 +566,7 @@ contactInformation = function () {
   }
 }
 
-currencySymbolToCodeConverter = function (currency) {
-  if (currency.name == "American Dollar") {
-    return String.fromCharCode(36);
-  }
-  else if (currency.name == "Euro") {
-    return String.fromCharCode(128);
-  }
-  else if (currency.name == "Pound Sterling") {
-    return String.fromCharCode(163);
-  }
-}
-
-generalPaymentTerms = function (country, vatok) {
+generalPaymentTerms = function () {
   return {
     border: [false, false, false, false],
     table: {
