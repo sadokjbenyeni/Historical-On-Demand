@@ -144,11 +144,11 @@ function addProduct(listOrders, product, exchangefee, border, colorCounter) {
   ]);
   if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
     listOrders.push([
-      { border: border, text: "\tExchanges fees", margin: [0, 5, 0, 5], fontSize: 10, color: '#6C6C6C' },
-      { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C' },
-      { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C' },
-      { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C' },
-      { border: border, text: exchangefee.toFixed(2), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C' }
+      { border: border, text: "\tExchanges fees", margin: [0, 5, 0, 5], alignment: 'right', fontSize: 10, color: '#6C6C6C', fillColor: '#FFFCF9' },
+      { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C', fillColor: '#FFFCF9' },
+      { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C', fillColor: '#FFFCF9' },
+      { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C', fillColor: '#FFFCF9' },
+      { border: border, text: exchangefee.toFixed(2), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C', fillColor: '#FFFCF9' }
     ]);
   }
 
@@ -574,20 +574,3 @@ wireTransfer = function (currency, country, vatok) {
     layout: { defaultBorder: false }
   };
 };
-
-// let footer = function (currentPage, pageCount) {
-//   return {
-//     border: [false, false, false, false],
-//     table: {
-//       widths: ['100%'],
-//       body: [
-//         [
-//           [
-//             { text: currentPage + ' of ' + pageCount, alignment: 'center', fontSize: 8 }
-//           ]
-//         ]
-//       ]
-//     },
-//     layout: { defaultBorder: false }
-//   };
-// }
