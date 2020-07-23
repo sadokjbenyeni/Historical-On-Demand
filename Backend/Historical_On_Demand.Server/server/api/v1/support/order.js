@@ -51,7 +51,6 @@ supportOrderDetails = async function (order) {
     if (user) {
         container.token = user.token;
     }
-    }
     return container;
 }
 

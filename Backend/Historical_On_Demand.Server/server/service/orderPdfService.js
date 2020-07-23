@@ -9,6 +9,7 @@ const DateService = require('../service/dateService');
 const LogoService = require('./logoService');
 const { table, count } = require('console');
 const { text } = require('body-parser');
+const { tree } = require('gulp');
 const invoiceDirectory = global.environment.InvoiceDirectory;
 
 module.exports = function (order) {
@@ -403,9 +404,8 @@ bottom = function (currency, country, vatok) {
       widths: ['100%'],
       widths: ['100%'],
       body: [[[
-        {
-          text: ' Wire transfer ', bold: true, fontSize: 9, color: '#303030'
-        },
+        drawLine(5, 580, -5, -5, 1, 'line', '#F6F6F6'),
+        { text: ' Wire transfer ', bold: true, fontSize: 9, color: '#303030' },
         wireTransfer(currency, country, vatok),
         contactInformation(),
         drawLine(5, 580, 0, 0, 1, 'line', '#EA663B')
@@ -443,10 +443,10 @@ contactInformation = function () {
       body: [
         [
           [
-            { text: '+ 33 1 73 02 32 15', fontSize: 9, color: '#303030' }
+            { text: '+ 33 1 73 02 32 15', fontSize: 9, bold: true, color: '#303030' }
           ],
           [
-            { text: 'accounts-receivable@quanthouse.com', fontSize: 9, color: '#303030' }
+            { text: 'accounts-receivable@quanthouse.com', fontSize: 9, bold: true, color: '#303030' }
           ],
           [
             { text: '' }
