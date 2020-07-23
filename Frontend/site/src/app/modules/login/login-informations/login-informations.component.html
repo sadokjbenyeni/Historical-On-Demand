@@ -33,9 +33,9 @@
                 <mat-label>Enter your old password</mat-label>
                 <input matInput [type]="hideOld ? 'password' : 'text'" formControlName="oldPassword" name="oldPassword"
                   required>
-                <button mat-icon-button matSuffix [disabled]="disableOld" (click)="hideOld = !hideOld" [attr.aria-label]="'Hide password'"
-                  [attr.aria-pressed]="hideOld">
-                  <mat-icon >{{hideOld ? 'visibility_off' : 'visibility'}}</mat-icon>
+                <button mat-icon-button matSuffix [disabled]="disableOld" (click)="hideOld = !hideOld"
+                  [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideOld">
+                  <mat-icon>{{hideOld ? 'visibility_off' : 'visibility'}}</mat-icon>
                 </button>
                 <mat-error>Field required</mat-error>
               </mat-form-field><br />
@@ -45,10 +45,10 @@
 
               <mat-form-field>
                 <mat-label>Enter your new password</mat-label>
-                <input matInput [type]="hideNew ? 'password' : 'text'" formControlName="newPassword" name="newPassword" (change)="disableViewOld()"
-                  required>
-                <button mat-icon-button matSuffix (click)="hideNew = !hideNew" [attr.aria-label]="'Hide password'" [disabled]="disableNew"
-                  [attr.aria-pressed]="hideNew">
+                <input matInput [type]="hideNew ? 'password' : 'text'" formControlName="newPassword" name="newPassword"
+                  (keyup)="disableViewOld()" required>
+                <button mat-icon-button matSuffix (click)="hideNew = !hideNew" [attr.aria-label]="'Hide password'"
+                  [disabled]="disableNew" [attr.aria-pressed]="hideNew">
                   <mat-icon>{{hideNew ? 'visibility_off' : 'visibility'}}</mat-icon>
                 </button>
                 <mat-error>Field required</mat-error>
@@ -59,12 +59,13 @@
 
               <mat-form-field>
                 <mat-label>Confirm your new password</mat-label>
-                <input matInput [type]="hideConfirm ? 'password' : 'text'" formControlName="confirmPassword" (change)="disableViewNew()"
-                  name="confirmPassword" required>
+                <input matInput [type]="hideConfirm ? 'password' : 'text'" formControlName="confirmPassword"
+                  (keyup)="disableViewNew()" name="confirmPassword" required>
                 <button mat-icon-button matSuffix (click)="hideConfirm = !hideConfirm"
                   [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideConfirm">
                   <mat-icon>{{hideConfirm ? 'visibility_off' : 'visibility'}}</mat-icon>
                 </button>
+                <mat-error>Field required</mat-error>
                 <mat-hint style="color: #f44336;"
                   *ngIf="passwordForm.controls.confirmPassword.value != passwordForm.controls.newPassword.value ">
                   Password does not match </mat-hint>

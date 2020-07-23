@@ -8,7 +8,7 @@ export class SwalAlertService {
 
   constructor() { }
 
-  getSwalForConfirm(title: string, text: string, icon: SweetAlertIcon, showCancelButton: boolean, confirmButtonColor: string, cancelButtonColor: string, confirmButtonText: string) {
+  getSwalForConfirm(title: string, text: string, icon: SweetAlertIcon = 'warning', showCancelButton: boolean = true, confirmButtonColor: string = '#3085d6', cancelButtonColor: string = '#d33', confirmButtonText: string = 'Confirm') {
     return Swal.fire({
       title: title,
       text: text,
@@ -20,14 +20,13 @@ export class SwalAlertService {
     })
   }
 
-
-  getSwalForNotification(title: string, text: string, icon: SweetAlertIcon, timer: number) {
+  getSwalForNotification(title: string, text: string, icon: SweetAlertIcon = 'success', timer: number = 1500) {
     return Swal.fire({
       icon: icon,
       title: title,
       text: text,
       showConfirmButton: false,
-      timer: timer ? timer : 1500
+      timer: timer
     })
   }
 }

@@ -53,7 +53,7 @@ export class LoginInformationsComponent implements OnInit {
   updateUserEmailAdress() {
     this.checkEmailIfExist();
     if (this.emailForm.valid) {
-      this.openDialog();
+      this.openDialogForUpdateEmailAdress();
     }
   }
 
@@ -74,27 +74,25 @@ export class LoginInformationsComponent implements OnInit {
 
   }
 
-  updateUserPassword() {
-    this.swalService.getSwalForConfirm('Are you sure?', "You are going to update your password!", 'warning', true, '#3085d6', '#d33', 'Confirm')
-      .then((result) => {
-        if (result.value) {
-          this.userService.updateUserPassword(this.passwordForm.controls.oldPassword.value, this.passwordForm.controls.newPassword.value)
-            .subscribe(result => {
-              if (result.updated) {
+  async updateUserPassword() {
+    var result = await this.swalService.getSwalForConfirm('Are you sure?', "You are going to update your password!")
+    if (result.value) {
+      this.userService.updateUserPassword(this.passwordForm.controls.oldPassword.value, this.passwordForm.controls.newPassword.value)
+        .subscribe(result => {
+          if (result.updated) {
+            this.initFields();
+            this.swalService.getSwalForNotification('password updated', 'Your password have been updated!'),
+              error => {
                 this.initFields();
-                this.swalService.getSwalForNotification('password updated', 'Your password have been updated!', 'success', 1500),
-                  error => {
-                    this.initFields();
-                    this.swalService.getSwalForNotification('Updating password Failed !', error.message, 'error', 1500)
-                  }
+                this.swalService.getSwalForNotification('Updating password Failed !', error.message, 'error')
               }
-            })
-        }
-      })
+          }
+        })
+    }
   }
 
-  openDialog(): void {
-    this.swalService.getSwalForConfirm('Are you sure?', "You are going to update your email adress!", 'warning', true, '#3085d6', '#d33', 'Confirm')
+  openDialogForUpdateEmailAdress(): void {
+    this.swalService.getSwalForConfirm('Are you sure?', "You are going to update your email adress!")
       .then((result) => {
         if (result.value) {
           this.userService.UpdateEmailAdress(this.emailForm.controls.emailAdress.value)
@@ -102,9 +100,9 @@ export class LoginInformationsComponent implements OnInit {
               if (result) {
                 this.emailAdress = result.user.email;
                 this.user.emit(result.user);
-                this.swalService.getSwalForNotification('Email updated', 'Your email adress have been updated!', 'success', 1500),
+                this.swalService.getSwalForNotification('Email updated', 'Your email adress have been updated!'),
                   error => {
-                    this.swalService.getSwalForNotification('Updating email adress Failed !', error.message, 'error', 1500)
+                    this.swalService.getSwalForNotification('Updating email adress Failed !', error.message, 'error')
                   }
               }
             })
@@ -114,12 +112,24 @@ export class LoginInformationsComponent implements OnInit {
 
 
   disableViewOld() {
-    if (this.disableOld == false) { this.disableOld = true; }
+    if (this.passwordForm.controls.newPassword.value === '') {
+      this.disableOld = false;
+    }
+    else {
+      this.disableOld = true;
+      this.hideOld = true;
+    }
   }
 
 
   disableViewNew() {
-    if (this.disableNew == false) { this.disableNew = true; }
+    if (this.passwordForm.controls.confirmPassword.value === '') {
+      this.disableNew = false;
+    }
+    else {
+      this.disableNew = true;
+      this.hideNew = true;
+    }
   }
 
 }

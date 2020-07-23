@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import { environment } from '../../../../environments/environment';
 import { AdministratorServiceService } from '../../../services/administrator-service.service';
+import { SwalAlertService } from '../../../shared/swal-alert/swal-alert.service';
 class DataTablesResponse {
   listusers: any[];
   draw: number;
@@ -28,7 +29,7 @@ export class UsersComponent implements OnInit {
   dtTrigger: Subject<any> = new Subject();
 
   constructor(
-    private router: Router,
+    private swalService: SwalAlertService,
     private httpc: HttpClient,
     private adminsitratorService: AdministratorServiceService
   ) { }
@@ -69,36 +70,19 @@ export class UsersComponent implements OnInit {
       });
     }
   }
-  updateUser() {
-
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to update this user!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Confirm'
-    }).then((result) => {
-      if (result.value) {
-        this.adminsitratorService.updateUser(this.userToUpdate).subscribe(
-          result => {
-            Swal.fire({
-              icon: 'success',
-              title: 'User updated',
-              showConfirmButton: false,
-              timer: 1500
-            })
-          },
-          error => {
-            Swal.fire({
-              icon: 'error',
-              title: 'Update Failed !',
-              text: error.message,
-            })
-          });
-      }
-    })
+  async updateUser() {
+    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to update ${this.userToUpdate.firstname} ${this.userToUpdate.lastname} roles!`)
+    if (result.value) {
+      this.adminsitratorService.updateUser(this.userToUpdate)
+        .subscribe(result => {
+          if (result) {
+            this.swalService.getSwalForNotification(`${this.userToUpdate.firstname} ${this.userToUpdate.lastname} roles updated`, `${this.userToUpdate.firstname} ${this.userToUpdate.lastname}roles have been updated!`),
+              error => {
+                this.swalService.getSwalForNotification('Updating roles Failed !', error.message, 'error')
+              }
+          }
+        })
+    }
   }
 
   newUserRoles(newRoles) {
