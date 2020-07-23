@@ -4,7 +4,6 @@ import { LoginInformationsComponent } from './login-informations/login-informati
 import { MaterialModule } from '../material/material.module';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ConfirmIdentityModalComponent } from './confirm-identity-modal/confirm-identity-modal.component';
-import { ClickOutsideModule } from 'ng-click-outside';
 
 
 
@@ -16,7 +15,6 @@ import { ClickOutsideModule } from 'ng-click-outside';
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
-    ClickOutsideModule
   ],
   exports: [
     LoginInformationsComponent

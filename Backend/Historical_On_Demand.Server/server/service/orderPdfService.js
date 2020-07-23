@@ -54,19 +54,18 @@ module.exports = function (order) {
       amountTable(this.order.totalHTDiscountFree, this.order.totalVat, this.order.vatValue, this.order.total, this.order.discount, currency, this.order.totalHT),
       drawLine(342, 560, -3, -3, 1, 'line', '#EA663B'),
       generalPaymentTerms(),
-      drawLine(340, 560, 0, 0, 0.01, 'line')
+      drawLine(340, 560, 0, 0, 0.01, 'line'),
     );
 
-    let paginator = {};
-    paginator = function (currentPage, totalPage) {
-      return [{ text: currentPage.toString() + ' of ' + totalPage, alignment: 'center', fontSize: 8 }]
+    let isVatValid = this.order.vatValide;
+    let footer = function (currentPage, pageCount) {
+      return [
+        bottom(currency, country, isVatValid),
+        { text: currentPage + ' of ' + pageCount, alignment: 'center', fontSize: 8 }]
     };
 
-    let footer = []
-    footer = bottom(currency, country, this.order.vatValide);
     invoice['pageMargins'] = [15, 15, 15, 105];
     invoice['defaultStyle'] = defaultStyle;
-    invoice['page'] = paginator;
     invoice['content'] = content;
     invoice['footer'] = footer;
 
@@ -405,9 +404,8 @@ bottom = function (currency, country, vatok) {
       widths: ['100%'],
       body: [[[
         {
-          text: ' Wire transfer ', bold: true, fontSize: 10, color: '#303030'
+          text: ' Wire transfer ', bold: true, fontSize: 9, color: '#303030'
         },
-        drawLine(0, 60, 0, 0, 1, 'line', '#EA663B'),
         wireTransfer(currency, country, vatok),
         contactInformation(),
         drawLine(5, 580, 0, 0, 1, 'line', '#EA663B')
@@ -576,3 +574,20 @@ wireTransfer = function (currency, country, vatok) {
     layout: { defaultBorder: false }
   };
 };
+
+// let footer = function (currentPage, pageCount) {
+//   return {
+//     border: [false, false, false, false],
+//     table: {
+//       widths: ['100%'],
+//       body: [
+//         [
+//           [
+//             { text: currentPage + ' of ' + pageCount, alignment: 'center', fontSize: 8 }
+//           ]
+//         ]
+//       ]
+//     },
+//     layout: { defaultBorder: false }
+//   };
+// }
