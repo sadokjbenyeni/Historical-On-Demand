@@ -179,31 +179,34 @@ router.put('/finish', async (req, res) => {
     req.logger.error({ message: JSON.stringify(error), className:'Todo API'});
   }
   try {
-    let lks = "";
-    if(req.status === 'active') {
-      if(recup.subscription == 1) {
-        lks = req.link[0].link.split("|")[0].split("_")[0];
-        removePool(req.id_cmd, lks, recup.onetime, recup.subscription);
+    let lks = req.body.begin_date;
+    if(req.body.begin_date === undefined || req.body.begin_date === '')
+    {
+      lks = req.body.link[0].link.split("|")[0].split("_")[0];
+    }
+    if(req.body.status === 'active') {
+      if(req.body.subscription === 1) {        
+        removePool(req.body.id_cmd, lks, order.onetime, order.subscription, req.logger);
       } else {
-        removePool(req.id_cmd, lks, recup.onetime, recup.subscription);
+        removePool(req.body.id_cmd, lks, order.onetime, order.subscription, req.logger);
       }
     }
-    if(req.status === 'failed'&& recup.onetime === 1) {
-      updatePool(req.body.id_cmd, req.status, req.body.begin_date);
+    if(req.body.status === 'failed'&& order.onetime === 1) {
+      updatePool(req.body.id_cmd, req.body.status, req.body.begin_date);
       var users = await User.find({roleName:"Product"},{email:true, _id:false}).exec();
       users.forEach(user => {
         var mailer = new OrderMailService(req.logger, { id: req.body.id_cmd });
         mailer.orderFailedJob({
           idCmd: req.body.id_cmd,
           email: user.email,
-          description: req.state_description,
+          description: req.body.state_description,
           date: new Date(),
-          logs: req.log
+          logs: req.body.log
         });
       });      
     }
-    if(req.status === 'failed' && recup.onetime === 0) {
-      removePool(req.id_cmd, lks, recup.onetime, recup.subscription);
+    if(req.body.status === 'failed' && order.onetime === 0) {
+      removePool(req.body.id_cmd, lks, order.onetime, order.subscription, req.logger);
     }
     return res.status(200).json({"ok":"ok"});
   }  
@@ -256,20 +259,19 @@ updatePool = (async (id, status, date) => {
   }
 });
 
-removePool = (async (id, lks, onetime, subscription) => {
-  try {
-    if(subscription == 1){
-      await Pool.deleteMany({id_cmd: id, begin_date: lks}).exec();
-    } else {
+removePool = (async (id, beginDate, onetime, subscription, logger) => {
+  
+    if(subscription === 1) {
+      await Pool.deleteMany({id_cmd: id, begin_date: beginDate}).exec();
+    } else if(onetime === 1) {
       await Pool.deleteMany({id_cmd: id}).exec();
     }
+    else {
+      logger.warn("Pool is not onetime and not subscription { id_cmd: "+id+ ", begin_date: "+ beginDate+ " }");
+      await Pool.deleteMany({id_cmd: id, begin_date: beginDate}).exec();
+    }
     return true;
-  }
-  catch(error){
-    logger.error({ message: error.message, className: 'Todo API', error: error});
-    logger.error({ message: JSON.stringify(error), className:'Todo API'});
-    return false;
-  }
+  
 });
 
 Date.prototype.previousDay = function() {

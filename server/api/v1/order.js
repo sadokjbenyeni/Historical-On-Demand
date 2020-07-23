@@ -1129,7 +1129,7 @@ async function UpdateOrderFinance(orderUpdated, req, log, res) {
 
         let c = 0;
         for (let d = debut; d <= end; d.setDate(d.getDate() + 1)) {
-          id = p.id_undercmd.split("-")[0];
+          var id = p.id_undercmd.split("-")[0];
 
           suffixe = p.id_undercmd.split("§")[1];
 
