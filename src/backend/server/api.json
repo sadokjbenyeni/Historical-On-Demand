@@ -1,0 +1,545 @@
+{
+    "status":"OK","eid_catalogue":{
+    "1000":{
+    "entitlement_id":"1000","mnemo":"OTC","name":"OTC Markets including Pinksheets","is_active":true,"comment":"Exchange used to be called Pink Sheets","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1004":{
+    "entitlement_id":"1004","mnemo":"ATH","name":"Athens Securities","is_active":true,"comment":"Equities; all Securities (Stocks, Bonds, ETF\u2019s) traded on the  Exchange Securities Market and the Alternative Market.","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1005":{
+    "entitlement_id":"1005","mnemo":"AUD","name":"ASX 24 Derivatives","is_active":true,"comment":"Exchange does not split out L1 or L2. Contains futures & options from the old Sydney Futures Exchange","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1006":{
+    "entitlement_id":"1006","mnemo":"AUE","name":"ASX Total Equities","is_active":true,"comment":"Exchange does not split out L1 or L2. Segments include; indices; equities from TradeMatch & PureMatch, BookBuild, some derivatives.","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1007":{
+    "entitlement_id":"1007","mnemo":"BAE","name":"Cboe Europe BXE and CXE","is_active":true,"comment":"Segments; UK and Ireland; France, the Netherlands, Belgium and Portugal; Sweden, Finland, Denmark and Norway; Germany and Austria; Spain, Italy and Switzerland","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1009":{
+    "entitlement_id":"1009","mnemo":"BZX","name":"Cboe BZX","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1012":{
+    "entitlement_id":"1012","mnemo":"BME","name":"BME SIB Equities","is_active":true,"comment":"Segments include: Continuous Market Equities, Fixing Equities, ETFs, Latibex, MaB, Electronic Outcry Trading, IBEX and FTSE Latibex Indices. Exchanges included; Madrid, Valencia, Barcelola, Bilbao","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1013":{
+    "entitlement_id":"1013","mnemo":"MEF","name":"BME MEFF Derivatives","is_active":true,"comment":"Segments included; Equity Derivatives and Fixed Income Derivatives","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1014":{
+    "entitlement_id":"1014","mnemo":"NBD","name":"Euronext BondMatch","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1015":{
+    "entitlement_id":"1015","mnemo":"AFF","name":"Borsa Italiana Affari Equities","is_active":true,"comment":"Please note that for display usage, AFF, MOT, IND & IDEM is not split into separate products. It is L1 or L2 and you can access all products.\r\nAFF includes; MTA, MTF, TAH, SeDeX, ETFP, AIMIT, MIV\r\nMOT - needs own EID - MOT, ExtraMOT\r\n\r\nPM note: TAH not available","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1016":{
+    "entitlement_id":"1016","mnemo":"MOT","name":"Borsa Italiana MOT Bonds","is_active":true,"comment":"Please note that for display usage, AFF, MOT, IND & IDEM is not split into separate products. It is L1 or L2 and you can access all products.\r\nSegments included; DomesticMOT, EuroMOT, ExtraMOT","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1018":{
+    "entitlement_id":"1018","mnemo":"IDM","name":"Borsa Italiana IDEM Derivatives","is_active":true,"comment":"Please note that for display usage, AFF, MOT, IND & IDEM is not split into separate products. It is L1 or L2 and you can access all products.\r\nSegments include; IDEM","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1022":{
+    "entitlement_id":"1022","mnemo":"CBO","name":"Chicago Board of Trade CBOT","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1027":{
+    "entitlement_id":"1027","mnemo":"CME","name":"Chicago Mercantile Exchange CME","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1028":{
+    "entitlement_id":"1028","mnemo":"CMX","name":"JPX Osaka Stock Exchange Futures","is_active":true,"comment":"As a display end user, they get all the information. MDR to be grouped back for terminal users","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1029":{
+    "entitlement_id":"1029","mnemo":"CTA","name":"CTA Network A NBBO","is_active":true,"comment":"CTA Network A NBBO","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1030":{
+    "entitlement_id":"1030","mnemo":"CTB","name":"CTA Network B NBBO","is_active":true,"comment":"CTA Network B NBBO","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1032":{
+    "entitlement_id":"1032","mnemo":"EUF","name":"Eurex Ultra Futures","is_active":true,"comment":"Ensure MDR maps both EID 1032 & EID 1033 together for one price and one reporting code\r\nFixed income derivatives; Equity derivatives; Equity index derivatives; Exchange traded funds derivatives; KOSPI 200 options; Dividend derivatives; Infl ation derivatives; Commodity derivatives; Volatility index derivatives; Weather derivatives; Property derivatives","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1033":{
+    "entitlement_id":"1033","mnemo":"EUO","name":"Eurex Ultra Options","is_active":true,"comment":"Ensure MDR maps both EID 1032 & EID 1033 together for one price and one reporting code\r\nFixed income derivatives; Equity derivatives; Equity index derivatives; Exchange traded funds derivatives; KOSPI 200 options; Dividend derivatives; Infl ation derivatives; Commodity derivatives; Volatility index derivatives; Weather derivatives; Property derivatives","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1034":{
+    "entitlement_id":"1034","mnemo":"EUR","name":"Euronext Cash Market","is_active":true,"comment":"Segments; Amsterdam, Brussels, Lisbon and Paris regulated cash markets","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1035":{
+    "entitlement_id":"1035","mnemo":"EUI","name":"Euronext All Indices","is_active":true,"comment":"Segments; main indices AEX; Bel 20; CAC 40; PSI 20; global/Euronext indices such as Euronext 100 and Next 150 and a wide variety of sector and other indices, volatility indices computed by Euronext such as the VCAC, VAEX, and VBEL and strategy indices computed by Euronext.","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1037":{
+    "entitlement_id":"1037","mnemo":"GLO","name":"JPX Osaka Stock Exchange Options","is_active":true,"comment":"As a display end user, they get all the information. MDR to be grouped back for terminal users","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1038":{
+    "entitlement_id":"1038","mnemo":"HKE","name":"HKEx Securities","is_active":true,"comment":"Segments; Equities, Warrants, REITs, Debt securities, Exchange-traded funds, Unit trusts/mutual funds, Equity-linked instruments, Derivatives warrants,\r\nCallable bull/bear contracts","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1039":{
+    "entitlement_id":"1039","mnemo":"HKD","name":"HKEx Derivatives","is_active":true,"comment":"Segments; Stock futures and options products, Equity index futures and options products, Interest rate and fixed income products, Commodities futures","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1041":{
+    "entitlement_id":"1041","mnemo":"ICE","name":"ICE Futures EU Commodities","is_active":true,"comment":"Contracts; Brent / Brent NX; Coal South China CFR; WTI; Coal Richards Bay; Middle East Sour; Coal Rotterdam; ASCI; Coal gC Newcastle; Gas Oil / Gas Oil LS; Coal Powder River Basin; Heating Oil; EUA; NYH (RBOB) Gasoline; EUAA; UK Nat Gas; CER; UK Power Peak / Base; ERU; Coal CSX; Inter Product Spreads on above contracts; Coal Central Appalachian; Coal Indo Sub-Bit","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1042":{
+    "entitlement_id":"1042","mnemo":"ICU","name":"ICE Futures US","is_active":true,"comment":"Contracts; Cocoa; Wheat; Corn; Russell 1000 Mini; Cotton No.2; Russell 1000 Mini Growth; Coffee \u201cC\u201d; Russell 1000 Mini Value; FCOJ A; Russell 2000 Mini; Soybean; Russell 2000 Mini Growth; Soybean Meal;\r\nRussell 2000 Mini Value; Soybean Oil; US Dollar Index; Sugar 11; Markit CDX WI; Sugar 16; All Currency Pairs","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1043":{
+    "entitlement_id":"1043","mnemo":"ICC","name":"ICE Futures Canada","is_active":true,"comment":"Contracts; Barley; Canola; Durum Wheat; Milling Wheat","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1044":{
+    "entitlement_id":"1044","mnemo":"IRI","name":"Irish Stock Exchange Indices","is_active":true,"comment":"ISEQ\u00ae Overall Index (Overall index); ISEQ\u00ae Financial, ISEQ\u00ae General, ISEQ\u00ae Small Cap; ISEQ\u00ae 20; ISEQ\u00ae ESM","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1045":{
+    "entitlement_id":"1045","mnemo":"IRH","name":"Irish Stock Exchange","is_active":true,"comment":"Equities and ETF securities from the Main Securities Market of the Irish Stock Exchange; Equities from the Enterprise Securites Market; Debt and other securities from the Global Exchange Market","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1047":{
+    "entitlement_id":"1047","mnemo":"JSE","name":"JSE Equities","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1048":{
+    "entitlement_id":"1048","mnemo":"KBT","name":"JPX Osaka Stock Exchange JGB Futures & Options","is_active":true,"comment":"As a display end user, they get all the information. MDR to be grouped back for terminal users","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1049":{
+    "entitlement_id":"1049","mnemo":"KSE","name":"Korea  Exchange KOSPI stock - Securities A","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1051":{
+    "entitlement_id":"1051","mnemo":"KOS","name":"Korea Exchange KOSDAQ Stocks - Securities B","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1053":{
+    "entitlement_id":"1053","mnemo":"LSE","name":"LSE UK Market","is_active":true,"comment":"Segments include; SETS; SEAQ; SETSqx; AIM","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1054":{
+    "entitlement_id":"1054","mnemo":"LEE","name":"LSE European Market","is_active":true,"comment":"Segments include; ITR and European Quote Service","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1055":{
+    "entitlement_id":"1055","mnemo":"LEI","name":"LSE International Market","is_active":true,"comment":"Segments include; International Order book and the European Markets","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1056":{
+    "entitlement_id":"1056","mnemo":"LUX","name":"Bourse de Luxembourg","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1057":{
+    "entitlement_id":"1057","mnemo":"MGE","name":"Minneapolis Grain Exchange","is_active":true,"comment":"Data via CME","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1058":{
+    "entitlement_id":"1058","mnemo":"MCX","name":"JPX Osaka Stock Exchange Multilegs","is_active":true,"comment":"As a display end user, they get all the information. MDR to be grouped back for terminal users","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1063":{
+    "entitlement_id":"1063","mnemo":"NAS","name":"NASDAQ TotalView","is_active":true,"comment":"24 hour delay","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1064":{
+    "entitlement_id":"1064","mnemo":"NUT","name":"NASDAQ UTP NBBO","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1065":{
+    "entitlement_id":"1065","mnemo":"NBA","name":"Nasdaq Basic NYSE Issues","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1066":{
+    "entitlement_id":"1066","mnemo":"GID","name":"NASDAQ GIDS US","is_active":true,"comment":"Ensure MDR maps both EID 1066 & 1119 to one fee and reportable code\r\nDelayed datafeeds are fee liable","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1068":{
+    "entitlement_id":"1068","mnemo":"NGM","name":"Nordic Growth Market","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1069":{
+    "entitlement_id":"1069","mnemo":"NYM","name":"New York Mercantile Exchange NYMEX","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1071":{
+    "entitlement_id":"1071","mnemo":"LIR","name":"Euronext Currency Derivatives","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1072":{
+    "entitlement_id":"1072","mnemo":"LII","name":"Euronext Equity and Index Derivatives","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1073":{
+    "entitlement_id":"1073","mnemo":"LIC","name":"Euronext Commodities Derivatives","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1076":{
+    "entitlement_id":"1076","mnemo":"NOI","name":"Korea Exchange Futures (CME night session) - Derivatives A","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1081":{
+    "entitlement_id":"1081","mnemo":"OPA","name":"OPRA NBBO","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1082":{
+    "entitlement_id":"1082","mnemo":"OSE","name":"Shanghai Stock Exchange","is_active":true,"comment":"Effective 1st July 2017, L2 Shanghai data cannot be distributed to clients in Mainland China. If we wanted to do this, would need to have a local POP in China plus additional paperwork. L1 is now technically available to distribute.","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1083":{
+    "entitlement_id":"1083","mnemo":"OSD","name":"Shanghai Stock Exchange SSE and CSI Indices","is_active":true,"comment":"Effective 1st July 2017, Indices data cannot be distributed to clients in Mainland China. If we wanted to do this, would need to have a local POP in China plus additional paperwork.","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1084":{
+    "entitlement_id":"1084","mnemo":"OSL","name":"Oslo Bors Fixed Income and Equities","is_active":true,"comment":"Oslo indices  (EID 1086) already split and ready for production. To join back up within MDR (tbc) EID 1084 & 1086)","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1086":{
+    "entitlement_id":"1086","mnemo":"OSI","name":"Oslo Bors SE Indices","is_active":true,"comment":"Oslo indices  (EID 1086) already split and ready for production. To join back up within MDR (tbc) EID 1084 & 1086)","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1090":{
+    "entitlement_id":"1090","mnemo":"SSX","name":"SIX Structured Products (ex Scoach SWX)","is_active":true,"comment":"Segments; stucture products","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1091":{
+    "entitlement_id":"1091","mnemo":"SGX","name":"SGX Singapore Exchange Equities","is_active":true,"comment":"Used to be 20 mins delayed (recently changed)","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1093":{
+    "entitlement_id":"1093","mnemo":"SWX","name":"SIX Swiss incl. SWX Europe","is_active":true,"comment":"Segments: SWX Europe; ETF's; Currency Cross Rates & iNAVs;\r\nSIX Swiss; equities; bonds; ETF's; ","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1095":{
+    "entitlement_id":"1095","mnemo":"TSE","name":"JPX Tokyo Stock Exchange Equities","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1097":{
+    "entitlement_id":"1097","mnemo":"TMX","name":"TMX Toronto","is_active":true,"comment":"Need to ensure that within MDR can have options of inside/outside Canada and CEG. Fees/reporting codes need to be correct","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1098":{
+    "entitlement_id":"1098","mnemo":"TRQ","name":"Turquoise","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1101":{
+    "entitlement_id":"1101","mnemo":"WAR","name":"Warsaw Stock Exchange","is_active":true,"comment":"Segments include; cash, derivatives, indices. Exchange does not split out the products","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1102":{
+    "entitlement_id":"1102","mnemo":"DES","name":"Xetra Core","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1105":{
+    "entitlement_id":"1105","mnemo":"DEI","name":"Deutsche Boerse Indices and Xetra ETF","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1106":{
+    "entitlement_id":"1106","mnemo":"DJI","name":"STOXX Indices","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1108":{
+    "entitlement_id":"1108","mnemo":"DEP","name":"Xetra Ultra","is_active":true,"comment":"Segments; SMG, Xetra US Stars, Xetra EU Stars, Xetra International, ETF's traded on Xetra","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1112":{
+    "entitlement_id":"1112","mnemo":"BSE","name":"Budapest ADH including Indices","is_active":true,"comment":"Data via Wiener Borse. \r\nMDR to reflect same price/data as EID 1144. Indices \r\nare being received","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1113":{
+    "entitlement_id":"1113","mnemo":"SSE","name":"Sapporo Securities Exchange","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1114":{
+    "entitlement_id":"1114","mnemo":"FSE","name":"Fukuoka Stock Exchange","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1117":{
+    "entitlement_id":"1117","mnemo":"DEX","name":"Cboe EDGX","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1118":{
+    "entitlement_id":"1118","mnemo":"XEA","name":"Boerse Frankfurt Certificates and Warrants (ex SCOACH)","is_active":true,"comment":"Segments include; Discount certificates, Bonus certificates, Index/tracker certificates, Basket certificates, Outperformance certificates, Express certificates, Sprint certificates, Guarantee certificates, Reverse convertibles, Alpha certificates, Warrants, Knock-outs, Exotic warrants","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1122":{
+    "entitlement_id":"1122","mnemo":"TSX","name":"TMX Toronto Venture","is_active":true,"comment":"Need to ensure that within MDR can have options of inside/outside Canada and CEG. Fees/reporting codes need to be correct","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1123":{
+    "entitlement_id":"1123","mnemo":"CBE","name":"Cboe Futures Exchange","is_active":true,"comment":"Contains both BBO and Depth of Book feed. For normalized product only.\r\nAdvance = CFE Enhanced Market Data is a market data service that includes surface quotes, contingency quantity for surface quotes, surface spread information, daily settlement values, end of day summary information, and index values underlying products traded on CFE","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1124":{
+    "entitlement_id":"1124","mnemo":"CBI","name":"Cboe CSMI","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1134":{
+    "entitlement_id":"1134","mnemo":"SAP","name":"UTP SmartPool","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1135":{
+    "entitlement_id":"1135","mnemo":"TGT","name":"Tradegate","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1136":{
+    "entitlement_id":"1136","mnemo":"REG","name":"Regional Exchanges Germany","is_active":true,"comment":"Exchanges include; Berlin, D\u00fcsseldorf, Hamburg-Hanover and Munich","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1140":{
+    "entitlement_id":"1140","mnemo":"EEX","name":"EEX Spot and Derivatives Market","is_active":true,"comment":"Segments; Prices of traded intraday spot contracts on Power (EPEX SPOT); Prices of futures on Power (Phelix Futures, French Futures, Dutch Futures and Phelix Options); Prices of traded EU Allowances on the Spot Market; Prices of the traded futures on EU Allowances (EUA,\r\nEUAA, ERU) and Certifi ed Emissions Reductions (CERs) on the Derivatives Market; Prices of traded futures contracts on Coal Prices of traded Gurantees of Origin on the Derivatives Market","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1141":{
+    "entitlement_id":"1141","mnemo":"COM","name":"NY Commodity Exchange COMEX","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1142":{
+    "entitlement_id":"1142","mnemo":"NBB","name":"Nasdaq Basic NYSE MKT Issues","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1143":{
+    "entitlement_id":"1143","mnemo":"NBC","name":"Nasdaq Basic NASDAQ Issues","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1144":{
+    "entitlement_id":"1144","mnemo":"RBD","name":"Budapest rapidADH","is_active":true,"comment":"Data via Wiener Borse.\r\nMDR to reflect same price/data as EID 1112. No indices","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1146":{
+    "entitlement_id":"1146","mnemo":"LUI","name":"Bourse de Luxembourg Indices","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1147":{
+    "entitlement_id":"1147","mnemo":"TAS","name":"Tel Aviv Shares","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1148":{
+    "entitlement_id":"1148","mnemo":"TAB","name":"Tel Aviv Bonds","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1149":{
+    "entitlement_id":"1149","mnemo":"TAI","name":"Tel Aviv Indices","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1150":{
+    "entitlement_id":"1150","mnemo":"TAD","name":"Tel Aviv Derivatives","is_active":true,"comment":"PM note : we don't have currency and derivatives on currency","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1154":{
+    "entitlement_id":"1154","mnemo":"CES","name":"Eurex Strategies","is_active":true,"comment":"Can be include with Eurex. Need to ensure MDR is correct","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1158":{
+    "entitlement_id":"1158","mnemo":"UKX","name":"Ukrainian Exchange","is_active":true,"comment":"Ukrainian; UX Index, Stock, Derivatives","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1159":{
+    "entitlement_id":"1159","mnemo":"ETS","name":"ETS Commodity Exchange (Kazakhstan)","is_active":true,"comment":"ETS Commodity; Commodites, Derivatives. trading on all the \u00c5urasian \u00d2rade System \u00d1ommodity Exchange markets (Kazakhstan)","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1160":{
+    "entitlement_id":"1160","mnemo":"MXD","name":"Moscow Futures & Options","is_active":true,"comment":"Exchange does not split L1 or L2.\r\nFutures & Options; trading in standard contracts on Moscow Exchange Group","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1161":{
+    "entitlement_id":"1161","mnemo":"BMQ","name":"Bursa Malaysia Equities","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1162":{
+    "entitlement_id":"1162","mnemo":"BMI","name":"Bursa Malaysia Sectorial Indices","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1171":{
+    "entitlement_id":"1171","mnemo":"TSI","name":"Topix Indices","is_active":true,"comment":"Data via Tokyo SE","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1172":{
+    "entitlement_id":"1172","mnemo":"CYP","name":"Cyprus Stock Exchange","is_active":true,"comment":"Segments; all Securities (Stocks, Bonds) traded on the Cyprus Stock Exchange plus Cyprus Exchange Indices","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1174":{
+    "entitlement_id":"1174","mnemo":"ATI","name":"Athens Indices including FTSE/Athens Indices","is_active":true,"comment":"One index package - need to ensure MDR is correct price/reporting\r\nIndices; ATHEX Composite Share Price Index,; ATHEX Mid \u2013 Small Cap Price Index; ATHEX Composite Index Total Return Index and ATHEX Alternative Market Price Index","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1175":{
+    "entitlement_id":"1175","mnemo":"ICL","name":"ICE Futures EU Financials","is_active":true,"comment":"Same data as EID 1192. Needs to be join up within MDR\r\nInterest Rates Contracts,  Cocoa, Euroswiss, Swapnote, Euribor ,FTSE 100, Softs Contracts, White Sugar, Long Gilt, Coffee, Short Sterling, Medium Gilt, London Equity Contracts, London Equities, Short Gilt","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1176":{
+    "entitlement_id":"1176","mnemo":"MXE","name":"Moscow Equities","is_active":true,"comment":"Exchange does not split L1 or L2.\r\nIncludes OTC. Equities; trading in equities, fund units, depository receipts on Moscow Exchange Group","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1177":{
+    "entitlement_id":"1177","mnemo":"MXB","name":"Moscow Bonds","is_active":true,"comment":"Exchange does not split L1 or L2.\r\nBond; trading in bonds on Moscow Exchange Group","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1178":{
+    "entitlement_id":"1178","mnemo":"MXI","name":"Moscow Indices","is_active":true,"comment":"Includes RTS indices and MICEX indices ","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1179":{
+    "entitlement_id":"1179","mnemo":"MXF","name":"Moscow FX","is_active":true,"comment":"Exchange does not split L1 or L2.\r\nCurrencies; trading in foreign curriences on Moscow Exchange Group","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1182":{
+    "entitlement_id":"1182","mnemo":"TMI","name":"S&P/TSX Indices","is_active":true,"comment":"Need to ensure that within MDR can have options of inside/outside Canada and CEG. Fees/reporting codes need to be correct","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1187":{
+    "entitlement_id":"1187","mnemo":"EUT","name":"EuroTLX","is_active":true,"comment":"Post trade included in data","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1188":{
+    "entitlement_id":"1188","mnemo":"THA","name":"Stock Exchange of Thailand Equities","is_active":true,"comment":"Includes Thailand indices (not FTSE/Thailand indices)","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1189":{
+    "entitlement_id":"1189","mnemo":"NSE","name":"India NSE Capital Markets","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1192":{
+    "entitlement_id":"1192","mnemo":"ICA","name":"ICE Futures EU Financial Chicago Contracts","is_active":true,"comment":"Same data as EID 1115. Needs to be join up within MDR","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1193":{
+    "entitlement_id":"1193","mnemo":"BIE","name":"Borsa Istanbul Equities","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1203":{
+    "entitlement_id":"1203","mnemo":"IBX","name":"BME IBEX and FTSE LATIBEX Indices","is_active":true,"comment":null,"dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1205":{
+    "entitlement_id":"1205","mnemo":"ICM","name":"ICE Futures EU Commodities Chicago Contracts","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1208":{
+    "entitlement_id":"1208","mnemo":"BII","name":"Borsa Istanbul Indices","is_active":true,"comment":null,"dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1209":{
+    "entitlement_id":"1209","mnemo":"IRU","name":"Irish Stock Exchange Ultra","is_active":true,"comment":null,"dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1211":{
+    "entitlement_id":"1211","mnemo":"BTR","name":"Cboe Europe BXTR","is_active":true,"comment":null,"dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1215":{
+    "entitlement_id":"1215","mnemo":"OTD","name":"OTC Bulletin Board (OTCBB)","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1217":{
+    "entitlement_id":"1217","mnemo":"SIX","name":"SIX Swiss incl. SWX Europe IMI","is_active":true,"comment":"EId for SWX IMI protocol\r\ndifferent from 1090 and 1093","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1218":{
+    "entitlement_id":"1218","mnemo":"SIY","name":"SIX Structured Products (ex Scoach SWX) IMI","is_active":true,"comment":"same as EID 1090, however this EID is for IMI protocol","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1221":{
+    "entitlement_id":"1221","mnemo":"SGY","name":"Singapore SE Derivatives Commodity Futures & Options","is_active":true,"comment":"SGX Commodity Futures and Options","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1222":{
+    "entitlement_id":"1222","mnemo":"SGZ","name":"Singapore SE Derivatives Index Futures & Options and Foreign Exchange Futures","is_active":true,"comment":"SGX Index Futures and Options\r\nSGX Foreign Futures and Options","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1224":{
+    "entitlement_id":"1224","mnemo":"CTC","name":"CTA Network A Bid/Ask NBBO","is_active":true,"comment":"CQS NBBO","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1225":{
+    "entitlement_id":"1225","mnemo":"CTD","name":"CTA Network B Bid/Ask NBBO","is_active":true,"comment":"CQS NBBO","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1227":{
+    "entitlement_id":"1227","mnemo":"AQU","name":"Aquis Exchange","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1230":{
+    "entitlement_id":"1230","mnemo":"WAS","name":"Warsaw Stock Exchange (NewConnect)","is_active":true,"comment":"Warsaw New Connect segment. Only includes equities and indices","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1232":{
+    "entitlement_id":"1232","mnemo":"KOV","name":"Korea Exchange Futures - Derivatives A","is_active":true,"comment":"Korea Exchange Futures - Derivatives A\r\nmerge all legacy EID :\r\n1078 Korea Exchange KOSPI200 Index Futures\r\n1077 Korea Exchange Equity Futures\r\n1219 Korea Currency Futures\r\n1229 Korea Interest Futures\r\n\r\n\r\n","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1233":{
+    "entitlement_id":"1233","mnemo":"KOW","name":"Korea Exchange ETFs, ETNs, ELWs  - Securities C","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1234":{
+    "entitlement_id":"1234","mnemo":"LSF","name":"LSE Off Book","is_active":true,"comment":"This EID carry data from TradEcho : Quote from System Internalizer and OffBook trade\r\nNote that other LSE EID don't carry off book trade anymore","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1235":{
+    "entitlement_id":"1235","mnemo":"GLP","name":"Global OTC","is_active":false,"comment":"","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1240":{
+    "entitlement_id":"1240","mnemo":"EUS","name":"Euronext Cash Market APA Service","is_active":true,"comment":"Euronext Cash Market APA Service","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1241":{
+    "entitlement_id":"1241","mnemo":"EUU","name":"Euronext Derivatives APA Service","is_active":true,"comment":"Euronext Derivatives APA Service","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1243":{
+    "entitlement_id":"1243","mnemo":"NAW","name":"Nasdaq Last Sale","is_active":true,"comment":"Created for raw data production creation","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1244":{
+    "entitlement_id":"1244","mnemo":"NAX","name":"Nasdaq Last Sale Plus","is_active":true,"comment":"Created for raw data production creation","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1262":{
+    "entitlement_id":"1262","mnemo":"ICF","name":"ICE Futures EU Financials (Full Implied)","is_active":true,"comment":"","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1264":{
+    "entitlement_id":"1264","mnemo":"NAY","name":"Nasdaq BX Basic","is_active":true,"comment":"Nasdaq BX Basic RAW ONLY","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1265":{
+    "entitlement_id":"1265","mnemo":"NAZ","name":"Nasdaq PSX Basic","is_active":true,"comment":"Nasdaq PSX Basic RAW ONLY","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1270":{
+    "entitlement_id":"1270","mnemo":"ELE","name":"BME Electronic Outcry Trading (Floor Markets) ","is_active":true,"comment":"BME : Electronic Outcry Trading instruments (Floor Markets) ","dataset":{
+    "0":"Trades","1":"L1","2":"MBL"}
+    }
+    ,"1277":{
+    "entitlement_id":"1277","mnemo":"CTE","name":"CTA Network A Regionals","is_active":true,"comment":"CTA Network A Regional","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1278":{
+    "entitlement_id":"1278","mnemo":"CTF","name":"CTA Network B Regionals","is_active":true,"comment":"CTA Network B Regional","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    ,"1281":{
+    "entitlement_id":"1281","mnemo":"NAA","name":"NASDAQ UTP Regionals","is_active":true,"comment":"NASDAQ UTP Regional","dataset":{
+    "0":"Trades","1":"L1"}
+    }
+    }
+}
+    

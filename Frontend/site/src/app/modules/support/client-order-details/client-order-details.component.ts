@@ -219,6 +219,7 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
     });
   }
 
+    orderDetails.details.token = order.details.token;
 
 
   listCurrencies() {

@@ -1,0 +1,44 @@
+<div class="panel panel-default">
+  <div class="panel-body">
+    <div class="table-responsive">
+      <div class="panel panel-primary" *ngIf="message">
+        <div class="panel-heading">
+          <h5 class="text-center">{{message}}</h5>
+        </div>
+      </div>
+      <table datatable [dtOptions]="dtOptions" class="row-border hover" width="100%">
+        <thead>
+          <tr class='searchRow'>
+            <th><input type="text" placeholder="Territory ID" name="search-id" class="form-control input-border-color" (keyup)="onKey($event, 0)"></th>
+            <th><input type="text" placeholder="Name" name="search-name" class="form-control input-border-color" (keyup)="onKey($event, 1)"></th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Territory Id</th>
+            <th>Name</th>
+            <th>UE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let country of countries; let i = index;" class="clickable">
+            <td class="" *ngIf="row === '' || row !== country._id" (click)="detail(country)">{{ country.id }}</td>
+            <td class="text-left" *ngIf="row === '' || row !== country._id" (click)="detail(country)">{{ country.name }}</td>
+            <td *ngIf="row === '' || row !== country._id" (click)="detail(country)">
+              <span class="fa fa-check-circle text-success" *ngIf="country.ue === '1'"></span>
+              <span class="fa fa-times-circle text-danger" *ngIf="country.ue === '0'"></span>
+            </td>
+            <td colspan="3" *ngIf="row === country._id">
+              {{ country.name }} is UE ?
+              <label><input type="radio" name="ue" [(ngModel)]="country.ue" value="1"> Yes</label>
+              <label><input type="radio" name="ue" [(ngModel)]="country.ue" value="0"> No</label>
+              <button class="btn btn-success fa fa-save" (click)="save(country)">Save</button> <button class="btn btn-danger fa fa-times" (click)="cancel(i)">Cancel</button>
+            </td>
+          </tr>
+          <tr *ngIf="countries?.length == 0">
+            <td colspan="3" class="no-data-available">No data!</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

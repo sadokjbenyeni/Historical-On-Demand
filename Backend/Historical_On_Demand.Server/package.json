@@ -1,6 +1,6 @@
 {
   "name": "histodataweb",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Historical On Demand by QuantHouse",
   "main": "server.js",
   "scripts": {
