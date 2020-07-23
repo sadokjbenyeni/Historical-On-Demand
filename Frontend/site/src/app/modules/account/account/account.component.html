@@ -41,14 +41,8 @@
                         (click)="updateInformations()">Update</button>
                 </div>
 
-                <div class="login-informations-style" *ngIf="sectionName === undefined ">
-                    <app-contact-informations class="child-pading-margin" *ngIf="contactInformations "
-                        [contactInformations]="contactInformations" [toUpdate]="true">
-                    </app-contact-informations>
-                </div>
-
                 <div class="login-informations-style"
-                    *ngIf="sectionName != 'Billing Informations' && sectionName != 'Login Informations' && sectionName != undefined"
+                    *ngIf="sectionName != 'Billing Informations' && sectionName != 'Login Informations' "
                     [@slideInOutContact]>
                     <app-contact-informations class="child-pading-margin" *ngIf="contactInformations "
                         [contactInformations]="contactInformations" [toUpdate]="true">

@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { translateAnimation } from '../../../shared/animations/animation.animation';
+import { SwalAlertService } from '../../../shared/swal-alert/swal-alert.service';
 
 @Component({
   selector: 'app-account',
@@ -28,7 +29,7 @@ export class AccountComponent implements OnInit {
   changedValues = new Map<any, any>();
   constructor(
     private userService: UserService,
-    public route: Router
+    private swalService: SwalAlertService
   ) { }
 
 
@@ -131,36 +132,20 @@ export class AccountComponent implements OnInit {
     this.getSection(this.sectionName);
 
 
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "You are going to update your account",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Confirm'
-    }).then((result) => {
-      if (result.value) {
-        this.userService.updateUser(this.user).subscribe(result => {
-          if (result) {
-            Swal.fire({
-              icon: 'success',
-              title: 'Account updated',
-              showConfirmButton: false,
-              timer: 1500
-            })
-              ,
-              error => {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Update Failed !',
-                  text: error.message,
-                })
+    this.swalService.getSwalForConfirm('Are you sure?', "You are going to update your account!", 'warning', true, '#3085d6', '#d33', 'Confirm')
+      .then((result) => {
+        if (result.value) {
+          this.userService.updateUser(this.user)
+            .subscribe(result => {
+              if (result) {
+                this.swalService.getSwalForNotification('Account updated', 'Your account have been updated!', 'success', 1500),
+                  error => {
+                    this.swalService.getSwalForNotification('Updating account Failed !', error.message, 'error', 1500)
+                  }
               }
-          }
-        });
-      }
-    })
+            })
+        }
+      })
   }
 
   getChangedValues(form: any) {
@@ -182,4 +167,5 @@ export class AccountComponent implements OnInit {
   getNewUser(user) {
     this.user = user
   }
+
 }

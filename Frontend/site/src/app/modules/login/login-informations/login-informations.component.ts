@@ -4,6 +4,7 @@ import { UserService } from '../../../services/user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmIdentityModalComponent } from '../confirm-identity-modal/confirm-identity-modal.component';
 import Swal from 'sweetalert2';
+import { SwalAlertService } from '../../../shared/swal-alert/swal-alert.service';
 
 @Component({
   selector: 'app-login-informations',
@@ -29,7 +30,8 @@ export class LoginInformationsComponent implements OnInit {
 
   constructor(private formBuilder: FormBuilder,
     private userService: UserService,
-    public dialog: MatDialog) { }
+    public dialog: MatDialog,
+    private swalService: SwalAlertService) { }
 
   ngOnInit(): void {
     this.initFields();
@@ -71,75 +73,43 @@ export class LoginInformationsComponent implements OnInit {
     }
 
   }
-  updateUserPassword() {
 
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "You are going to update your password!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Confirm'
-    }).then((result) => {
-      if (result.value) {
-        this.userService.updateUserPassword(this.passwordForm.controls.oldPassword.value, this.passwordForm.controls.newPassword.value).subscribe(result => {
-          if (result.updated) {
-            Swal.fire({
-              icon: 'success',
-              title: 'password updated',
-              showConfirmButton: false,
-              timer: 1500
-            })
-              ,
-              error => {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Updating password Failed !',
-                  text: error.message,
-                })
+  updateUserPassword() {
+    this.swalService.getSwalForConfirm('Are you sure?', "You are going to update your password!", 'warning', true, '#3085d6', '#d33', 'Confirm')
+      .then((result) => {
+        if (result.value) {
+          this.userService.updateUserPassword(this.passwordForm.controls.oldPassword.value, this.passwordForm.controls.newPassword.value)
+            .subscribe(result => {
+              if (result.updated) {
+                this.initFields();
+                this.swalService.getSwalForNotification('password updated', 'Your password have been updated!', 'success', 1500),
+                  error => {
+                    this.initFields();
+                    this.swalService.getSwalForNotification('Updating password Failed !', error.message, 'error', 1500)
+                  }
               }
-          }
-        });
-      }
-    })
+            })
+        }
+      })
   }
 
   openDialog(): void {
-
-
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "You are going to update your email adress!!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Confirm'
-    }).then((result) => {
-      if (result.value) {
-        this.userService.UpdateEmailAdress(this.emailForm.controls.emailAdress.value).subscribe(result => {
-          if (result) {
-            this.emailAdress = result.user.email;
-            this.user.emit(result.user);
-            Swal.fire({
-              icon: 'success',
-              title: 'Email updated',
-              showConfirmButton: false,
-              timer: 1500
-            })
-              ,
-              error => {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Update Failed !',
-                  text: error.message,
-                })
+    this.swalService.getSwalForConfirm('Are you sure?', "You are going to update your email adress!", 'warning', true, '#3085d6', '#d33', 'Confirm')
+      .then((result) => {
+        if (result.value) {
+          this.userService.UpdateEmailAdress(this.emailForm.controls.emailAdress.value)
+            .subscribe(result => {
+              if (result) {
+                this.emailAdress = result.user.email;
+                this.user.emit(result.user);
+                this.swalService.getSwalForNotification('Email updated', 'Your email adress have been updated!', 'success', 1500),
+                  error => {
+                    this.swalService.getSwalForNotification('Updating email adress Failed !', error.message, 'error', 1500)
+                  }
               }
-          }
-        });
-      }
-    })
+            })
+        }
+      })
   }
 
 
