@@ -1,6 +1,6 @@
 <app-menu></app-menu>
 <div class="row page-header">
-  <div class="col-lg-12">
+  <div class="col-lg-8">
     <ol class="breadcrumb custom-breadcrumb">
       <li class="active">Product</li>
       <li class="active">Client Orders</li>
@@ -9,6 +9,19 @@
     <div class="container text-center">
       <alert></alert>
       <router-outlet></router-outlet>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="table-responsive text-center">
+      <div class="btn-action">
+        <button *ngIf="verifStatePVP() && state == 'PVP'" (click)="openModal(UpdateStatus)">Update Status</button>
+        <button *ngIf="state == 'PVF'" (click)="cancelValidation()" [routerLink]="['/product/orders']"> Cancel
+          Validation</button>
+        <button [routerLink]="['/product/orders']">Close</button>
+        <button *ngIf="state=='PVP' && editOff"
+          (click)="updateChanges(); applyDiscount(); updateEngagementPeriod(); toggleEdit()"> Save Changes</button>
+        <button *ngIf="state == 'PVP' && !editOff" (click)="toggleEdit()"> Edit</button>
+      </div>
     </div>
   </div>
 </div>
@@ -49,24 +62,26 @@
               </p>
               <p>
                 Order Type:
-                <select name="search" class="input-border-color" [(ngModel)]="choosedOrderType" *ngIf="state == 'PVP'">
+                <select name="search" class="input-border-color" [(ngModel)]="choosedOrderType"
+                  *ngIf="state == 'PVP' && editOff">
                   <option value="NA">NA</option>
                   <option value="Client order">Client order </option>
                   <option value="Free sample order for client">Free sample order for client
                   </option>
                   <option value="Internal order">Internal order </option>
                 </select>
-                <b *ngIf="state != 'PVP'"><span [class]="textcolor">{{ choosedOrderType }}</span></b>
+                <b *ngIf="state != 'PVP' || !editOff"><span [class]="textcolor">{{ choosedOrderType }}</span></b>
               </p>
               <p>
                 Sales:
-                <select name="search" class="input-border-color" [(ngModel)]="choosenSale" *ngIf="state == 'PVP'">
+                <select name="search" class="input-border-color" [(ngModel)]="choosenSale"
+                  *ngIf="state == 'PVP' && editOff">
                   <option value="no sales">no sales</option>
                   <option *ngFor="let s of listSales" [value]="s.name">{{
                     s.name
                   }}</option>
                 </select>
-                <b *ngIf="state != 'PVP'"><span [class]="textcolor">{{ choosenSale }}</span></b>
+                <b *ngIf="state != 'PVP' || !editOff"><span [class]="textcolor">{{ choosenSale }}</span></b>
               </p>
             </div>
             <div class="col-md-6">
@@ -98,10 +113,7 @@
                 <th>Exchange</th>
                 <th>Product ID</th>
                 <th>Purchase Type</th>
-                <th>Engagement Period<br />(month) <span
-                    class="btn btn-info fa fa-save save-changes-btn save-period-button"
-                    *ngIf="existSubscribe && verifState() && state == 'PVP'" (click)="updateEngagementPeriod()"></span>
-                </th>
+                <th>Engagement Period<br />(month)</th>
                 <th>Date From</th>
                 <th>Date To</th>
                 <th>Pricing Tier</th>
@@ -118,9 +130,9 @@
                 <td *ngIf="c.onetime === 1 && !c.print">One-Off</td>
                 <td *ngIf="c.subscription === 1 && !c.print">Subscription</td>
                 <td *ngIf="c.subscription === 1 && verifState() && !c.print">
-                  <input *ngIf="state == PVP" class="input-style-period" type="number" [(ngModel)]="c.period" min="1"
-                    (ngModelChange)="setPeriod(c)" />
-                  <span *ngIf="state != PVP">{{c.period}}</span>
+                  <input *ngIf="state == 'PVP' && editOff" class="input-style-period" type="number"
+                    [(ngModel)]="c.period" min="1" (ngModelChange)="setPeriod(c)" />
+                  <span *ngIf="state != 'PVP' || !editOff">{{c.period}}</span>
                 </td>
 
                 <td *ngIf="c.subscription === 1 && !verifState() && !c.print">
@@ -159,8 +171,9 @@
           <div class="col-md-9 margin-left-zero">
             <p><b>Internal Notes:</b></p>
             <p>
-              <textarea class="responsive-field" name="internNotesText" [(ngModel)]="internalNote"
+              <textarea *ngIf="editOff" class="responsive-field" name="internNotesText" [(ngModel)]="internalNote"
                 id="internalNotesTextArea">{{ internalNote }}</textarea>
+              <span *ngIf="!editOff">{{ internalNote }}</span>
             </p>
           </div>
           <div class="col-md-3">
@@ -177,14 +190,11 @@
               </tr>
               <tr>
                 <td>Discount (%)</td>
-                <td *ngIf="state == 'PVP'">
-                  <input class="input-style" type="number" [(ngModel)]="discount" (change)="onDiscountChange()" min="0"
-                    max="100" />
-                  <span class="btn btn-info fa fa-save" *ngIf="verifState() && state == 'PVP'"
-                    (click)="applyDiscount()"> </span>
+                <td>
+                  <input *ngIf="state == 'PVP' && editOff" class="input-style" type="number" [(ngModel)]="discount"
+                    (change)="onDiscountChange()" min="0" max="100" />
+                  <span *ngIf="state != 'PVP' || !editOff">{{discount}}</span>
                 </td>
-
-                <td *ngIf="state != 'PVP'">{{ discount }}</td>
               </tr>
               <tr>
                 <td>VAT ({{ vat }}%)</td>
@@ -201,84 +211,30 @@
             </table>
           </div>
         </div>
-        <div class="table-responsive text-center">
-          <div class="btn-action">
-            <span class="btn btn-info fa fa-save save-note-btn" *ngIf="state == 'PVP'" id="save-changes-button"
-              (click)="updateChanges()">
-              Save Changes</span>
-            <span class="btn btn-success fa fa-handshake" *ngIf="verifStatePVP() && state == 'PVP'" (click)="
-                openModal(validation);">
-              Validate</span>
-            <span class="btn btn-danger fa fa-power-off" [routerLink]="['/product/orders']">
-              Close</span>
-            <span class="btn btn-danger fa fa-times" *ngIf="verifStatePVP() && state == 'PVP'" (click)="
-                openModal(rejection)">
-              Reject</span>
-            <span class="btn btn-warning fa fa-trash" *ngIf="verifStateForCancel() && state == 'PVP'" (click)="
-                openModal(cancelation);">
-              Cancel Order</span>
-            <span class="btn btn-warning fa fa-trash" *ngIf="state == 'PVF'" (click)="cancelValidation()"
-              [routerLink]="['/product/orders']">
-              Cancel Validation</span>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modals Templates -->
-<ng-template #cancelation let-close="close">
+<ng-template #UpdateStatus let-close="close">
   <div class="modal-header">
     <h4 class="modal-title">
-      Confirm Client Order Cancelation
+      Update Client Order Status
     </h4>
     <button class="close" aria-label="Close" (click)="close('')">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
   <div class="modal-body text-right">
-    <button class="btn btn-success" (click)="cancelOrder(); close('')" [routerLink]="['/product/orders']">
-      Confirm
+    <button (click)="cancelOrder(); close('')" [routerLink]="['/product/orders']">
+      Cancel Order
     </button>
-  </div>
-</ng-template>
-
-<ng-template #rejection let-close="close">
-  <div class="modal-header">
-    <h4 class="modal-title">
-      Confirm Client Order Rejection
-    </h4>
-    <button class="close" aria-label="Close" (click)="close('')">
-      <span aria-hidden="true">&times;</span>
+    <button (click)="rejectOrder(); close('')" [routerLink]="['/product/orders']">
+      Reject Order
     </button>
-  </div>
-  <div class="modal-body text-right">
-    <div class="text-left">
-      <p>Reason :</p>
-      <p><textarea rows="8" cols="40" class="form-control"></textarea></p>
-    </div>
-    <button class="btn btn-success" (click)="rejectOrder(); close('')" [routerLink]="['/product/orders']">
-      Confirm
-    </button>
-  </div>
-</ng-template>
-
-<ng-template #validation let-close="close">
-  <div class="modal-header">
-    <h4 class="modal-title">
-      Confirm Client Order Validation
-    </h4>
-    <button class="close" aria-label="Close" (click)="close('')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body text-right">
-    <button class="btn btn-success"
-      (click)="validateOrder(); close(''); applyDiscount(); updateEngagementPeriod(); updateChanges()"
+    <button (click)="validateOrder(); close(''); applyDiscount(); updateEngagementPeriod(); updateChanges()"
       [routerLink]="['/product/orders']">
-      Confirm
+      Validate Order
     </button>
   </div>
 </ng-template>
-<!-- End Modals Templates -->

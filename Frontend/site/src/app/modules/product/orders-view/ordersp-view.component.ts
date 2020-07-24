@@ -56,7 +56,7 @@ export class OrderspViewComponent implements OnInit {
   choosenSale: string;
   listSales: string[] = [];
   choosedOrderType: string;
-
+  editOff: boolean = false;
   options = {
     autoClose: true,
     keepAfterRouteChange: false
@@ -193,12 +193,79 @@ export class OrderspViewComponent implements OnInit {
     });
   }
 
+  verifState() {
+    let statesForCancel = ['PVP', 'PVF', 'PSC'];
+    return statesForCancel.includes(this.state);
+  }
+  verifStatePVP() {
+    let statesForCancel = ['PVP', 'PVF'];
+    return statesForCancel.includes(this.state);
+  }
+  verifStateForCancel() {
+    let statesForCancel = ['PVP', 'PVF', 'PSC', 'active', 'validated'];
+    return statesForCancel.includes(this.state);
+  }
+  getHt(val) {
+    if (this.currency !== 'usd') {
+      return ((val / this.currencyTxUsd) * this.currencyTx);
+    } else {
+      return val;
+    }
+  }
+  getListStates() {
+    this.orderService.getListStates({}).subscribe(res => {
+      this.states = res['states'];
+    });
+  }
+  getStateName(stateId) {
+    if (!this.states)
+      return stateId;
+    return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
+  }
 
+  applyDiscount() {
+    this.orderService.updateDiscount({ orderId: this.idOrder, totalHT: this.totalHTOld, discount: this.discount }).subscribe(res => {
+    });
+  }
+  updateEngagementPeriod() {
+    this.orderService.updateEngagementPeriod({ idCmd: this.idCmd, cart: this.cart, ht: this.ht }).subscribe(res => {
+    });
+  }
+  updateChanges() {
+    this.orderService.SaveOrderMetadata(this.idOrder, this.internalNote, this.choosenSale, this.choosedOrderType).subscribe(() => {
+      this.alertService.success('Changes Saved Successfully', this.options);
+    }
+    );
+  }
+
+
+  onDiscountChange() {
+    if (this.discount < 0 || this.discount == null) this.discount = 0;
+    if (this.discount > 100) this.discount = 100;
+    let totaHTExchangeFeesFree = this.totalHTDiscountFree - this.totalFees;
+    this.totalHT = (totaHTExchangeFeesFree - (totaHTExchangeFeesFree * this.discount / 100)) + this.totalFees;
+    this.totalVat = (this.totalHT / 100) * 20;
+    this.totalTTC = this.totalHT + this.totalVat;
+  }
+
+  actions(action) {
+    this.action = action;
+  }
+  openModal(content) {
+    this.modalService.open(content, { size: 'md' });
+  }
+
+  downloadInvoice(invoice, pdfType) {
+    this.downloadInvoiceService.getInvoice(this.idOrder, invoice, pdfType);
+  }
+
+  cancelValidation() {
+    this.orderService.cancelProductValidation(this.idOrder).subscribe();
+  }
   cancelOrder() {
     this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'cancelled', referer: 'Product' }).subscribe(() => {
     });
   }
-
   rejectOrder() {
     this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'rejected', referer: 'Product', reason: this.reason }).subscribe(() => {
     });
@@ -215,82 +282,7 @@ export class OrderspViewComponent implements OnInit {
     });
   }
 
-  applyDiscount() {
-    this.orderService.updateDiscount({ orderId: this.idOrder, totalHT: this.totalHTOld, discount: this.discount }).subscribe(res => {
-      this.alertService.success('Discount Applied Successfully', this.options);
-    });
-  }
-
-  updateEngagementPeriod() {
-    this.orderService.updateEngagementPeriod({ idCmd: this.idCmd, cart: this.cart, ht: this.ht }).subscribe(res => {
-      this.alertService.success('New Period Applied Successfully', this.options);
-    });
-  }
-
-  verifState() {
-    let statesForCancel = ['PVP', 'PVF', 'PSC'];
-    return statesForCancel.includes(this.state);
-  }
-
-  verifStatePVP() {
-    let statesForCancel = ['PVP', 'PVF'];
-    return statesForCancel.includes(this.state);
-  }
-
-  verifStateForCancel() {
-    let statesForCancel = ['PVP', 'PVF', 'PSC', 'active', 'validated'];
-    return statesForCancel.includes(this.state);
-  }
-
-  onDiscountChange() {
-    if (this.discount < 0 || this.discount == null) this.discount = 0;
-    if (this.discount > 100) this.discount = 100;
-    let totaHTExchangeFeesFree = this.totalHTDiscountFree - this.totalFees;
-    this.totalHT = (totaHTExchangeFeesFree - (totaHTExchangeFeesFree * this.discount / 100)) + this.totalFees;
-    this.totalVat = (this.totalHT / 100) * 20;
-    this.totalTTC = this.totalHT + this.totalVat;
-  }
-
-  actions(action) {
-    this.action = action;
-  }
-
-  openModal(content) {
-    this.modalService.open(content, { size: 'sm' });
-  }
-
-  getHt(val) {
-    if (this.currency !== 'usd') {
-      return ((val / this.currencyTxUsd) * this.currencyTx);
-    } else {
-      return val;
-    }
-  }
-
-  getListStates() {
-    this.orderService.getListStates({}).subscribe(res => {
-      this.states = res['states'];
-    });
-  }
-
-  getStateName(stateId) {
-    if (!this.states)
-      return stateId;
-    return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
-  }
-
-  downloadInvoice(invoice, pdfType) {
-    this.downloadInvoiceService.getInvoice(this.idOrder, invoice, pdfType);
-  }
-
-  updateChanges() {
-    this.orderService.SaveOrderMetadata(this.idOrder, this.internalNote, this.choosenSale, this.choosedOrderType).subscribe(() => {
-      this.alertService.success('Changes Saved Successfully', this.options);
-    }
-    );
-  }
-
-  cancelValidation() {
-    this.orderService.cancelProductValidation(this.idOrder).subscribe();
+  toggleEdit() {
+    this.editOff = !this.editOff;
   }
 }
