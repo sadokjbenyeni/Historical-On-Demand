@@ -419,7 +419,7 @@ re-captcha > div {
 /* Buttons Styling */
 .bottom-button {
   width: 8vw;
-  max-width: 10vw;
+  max-width: 12vw;
   font-size: 14px;
   font-weight: 500;
   color: #fff;
@@ -455,7 +455,7 @@ re-captcha > div {
 
 /* Cancel Order Button */
 .bottom-button.yellow-color {
-  background-color: #dfc534;
+  background-color: #ffbc20;
   box-shadow: 5px 5px 5px rgba(230, 241, 74, 0.2);
 }
 
@@ -467,6 +467,10 @@ re-captcha > div {
 .bottom-button.orange-color {
   background-color: rgb(230, 84, 44);
   box-shadow: 5px0 5px 5px rgba(192, 127, 6, 0.2);
+}
+.bottom-button.grey-color {
+  background-color: rgb(117, 112, 112);
+  box-shadow: 5px0 5px 5px rgba(113, 114, 122, 0.2);
 }
 
 /*******************/

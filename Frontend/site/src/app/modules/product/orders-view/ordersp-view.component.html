@@ -14,13 +14,23 @@
   <div class="col-lg-4">
     <div class="table-responsive text-center">
       <div class="btn-action">
-        <button *ngIf="verifStatePVP() && state == 'PVP'" (click)="openModal(UpdateStatus)">Update Status</button>
-        <button *ngIf="state == 'PVF'" (click)="cancelValidation()" [routerLink]="['/product/orders']"> Cancel
+        <button class="bottom-button red-color" [routerLink]="['/product/orders']"><i class="fa fa-chevron-left"></i>
+          Back</button>
+
+        <button class="bottom-button orange-color" *ngIf="verifStatePVP() && state == 'PVP'"
+          (click)="openModal(UpdateStatus)"><i class="fa fa-refresh"></i>Update Status</button>
+
+        <button class="bottom-button yellow-color" *ngIf="state == 'PVF'" (click)="cancelValidation()"
+          [routerLink]="['/product/orders']"><i class="fa fa-ban"></i> Cancel
           Validation</button>
-        <button [routerLink]="['/product/orders']">Close</button>
-        <button *ngIf="state=='PVP' && editOff"
-          (click)="updateChanges(); applyDiscount(); updateEngagementPeriod(); toggleEdit()"> Save Changes</button>
-        <button *ngIf="state == 'PVP' && !editOff" (click)="toggleEdit()"> Edit</button>
+
+        <button class="bottom-button green-color" *ngIf="state=='PVP' && editOff"
+          (click)="updateChanges(); applyDiscount(); updateEngagementPeriod(); toggleEdit()"><i
+            class="fa fa-floppy-o"></i>Save Changes</button>
+
+        <button class="bottom-button grey-color" *ngIf="state == 'PVP' && !editOff" (click)="toggleEdit()"><i
+            class="fa fa-pencil"></i>
+          Edit</button>
       </div>
     </div>
   </div>
@@ -226,14 +236,17 @@
     </button>
   </div>
   <div class="modal-body text-right">
-    <button (click)="cancelOrder(); close('')" [routerLink]="['/product/orders']">
-      Cancel Order
-    </button>
-    <button (click)="rejectOrder(); close('')" [routerLink]="['/product/orders']">
-      Reject Order
-    </button>
-    <button (click)="validateOrder(); close(''); applyDiscount(); updateEngagementPeriod(); updateChanges()"
+    <button class="bottom-button yellow-color space-between-buttons" (click)="cancelOrder(); close('')"
       [routerLink]="['/product/orders']">
+      <i class="fa fa-trash-o"></i> Cancel Order
+    </button>
+    <button class="bottom-button red-color space-between-buttons" (click)="rejectOrder(); close('')"
+      [routerLink]="['/product/orders']">
+      <i class="fa fa-times"></i>Reject Order
+    </button>
+    <button class="bottom-button green-color space-between-buttons"
+      (click)="validateOrder(); close(''); applyDiscount(); updateEngagementPeriod(); updateChanges()"
+      [routerLink]="['/product/orders']"><i class="fa fa-check"></i>
       Validate Order
     </button>
   </div>
