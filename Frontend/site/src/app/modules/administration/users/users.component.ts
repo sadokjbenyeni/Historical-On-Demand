@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { AdministratorServiceService } from '../../../services/administrator-service.service';
 import { SwalAlertService } from '../../../shared/swal-alert/swal-alert.service';
@@ -16,17 +16,18 @@ export class UsersComponent implements OnInit {
 
   user: any;
   userToUpdate: any;
-  search: string = "";
+  //search: string = "";
   users: Array<object>;
   displayedColumns: string[] = ['firstname', 'lastname', 'companyName'];
   dataSource: MatTableDataSource<any>;
   totalCount: number;
-  limit: number;
-  page: number;
-  offset: number;
+  limit: number = 7;
+  page: number = 0;
+  offset: number = 0;
   order: any[] = [{ column: 'lastname', dir: "asc" }];
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
+  @ViewChild("search") search: ElementRef;
 
   constructor(
     private swalService: SwalAlertService,
@@ -66,21 +67,16 @@ export class UsersComponent implements OnInit {
     this.userToUpdate = this.user;
   }
 
-  getUsersSorted(event?: PageEvent, search = "", offset: number = 0, limit: number = 7, page: number = 0) {
+  getUsersSorted(event?: PageEvent) {
     if (event) {
       this.limit = event.pageSize;
       this.page = event.pageIndex;
       this.offset = this.limit * (event.pageIndex);
-    } else {
-      this.limit = limit;
-      this.page = page;
-      this.offset = offset;
     }
     if (this.sort.active != undefined) {
       this.order = [{ column: this.sort.active, dir: this.sort.direction }];
     }
-
-    this.getUsers(this.displayedColumns, this.order, search, this.offset, this.limit, this.page);
+    this.getUsers(this.displayedColumns, this.order, this.search.nativeElement.value, this.offset, this.limit, this.page);
   }
 
 
@@ -95,10 +91,5 @@ export class UsersComponent implements OnInit {
       }
 
     })
-  }
-
-
-  filter(event) {
-    this.getUsersSorted(null, event.currentTarget.value);
   }
 }
