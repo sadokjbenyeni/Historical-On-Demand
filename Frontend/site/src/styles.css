@@ -419,17 +419,17 @@ re-captcha > div {
 /* Buttons Styling */
 .bottom-button {
   width: 8vw;
-  max-width: 12vw;
+  max-width: 10vw;
   font-size: 14px;
   font-weight: 500;
   color: #fff;
   cursor: pointer;
-  height: 35px;
+  height: 45px;
   text-align: center;
   border: none;
   background-size: 300% 100%;
 
-  border-radius: 5px;
+  border-radius: 3px;
   -moz-transition: all 0.4s ease-in-out;
   -o-transition: all 0.4s ease-in-out;
   -webkit-transition: all 0.4s ease-in-out;
@@ -449,28 +449,57 @@ re-captcha > div {
 }
 /* Close Button */
 .bottom-button.red-color {
-  background-color: #bd010a;
-  box-shadow: 5px 5px 5px rgba(241, 74, 79, 0.2);
+  background-color: #fbfbfb;
+  color: #bd010a;
+  border: 2px none #eeecec
 }
+
+.bottom-button.red-color:hover {
+  background-color: #bd010a;
+  color: #fbfbfb;
+  border: 2px none #fbfbfb
+}
+
 
 /* Cancel Order Button */
 .bottom-button.yellow-color {
+  background-color: #fbfbfb;
+  color: #ffbc20;
+}
+
+.bottom-button.yellow-color:hover {
   background-color: #ffbc20;
-  box-shadow: 5px 5px 5px rgba(230, 241, 74, 0.2);
+  color: #fbfbfb;
 }
 
 .bottom-button.green-color {
+  background-color: #fbfbfb;
+  color: #0f5f30;
+}
+
+.bottom-button.green-color:hover {
   background-color: #0f5f30;
-  box-shadow: 5px 5px 5px rgba(2, 148, 14, 0.2);
+  color: #fbfbfb;
 }
 
 .bottom-button.orange-color {
-  background-color: rgb(230, 84, 44);
-  box-shadow: 5px0 5px 5px rgba(192, 127, 6, 0.2);
+  background-color: #fbfbfb;
+  color: rgb(230, 84, 44);
 }
+
+.bottom-button.orange-color:hover {
+  background-color: rgb(230, 84, 44);
+  color: #fbfbfb;
+}
+
 .bottom-button.grey-color {
-  background-color: rgb(117, 112, 112);
-  box-shadow: 5px0 5px 5px rgba(113, 114, 122, 0.2);
+  background-color: #fbfbfb;
+  color: rgb(134, 129, 129);
+}
+
+.bottom-button.grey-color:hover {
+  background-color: rgb(134, 129, 129);
+  color: #fbfbfb;
 }
 
 /*******************/

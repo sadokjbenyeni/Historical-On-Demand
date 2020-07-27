@@ -284,5 +284,7 @@ export class OrderspViewComponent implements OnInit {
 
   toggleEdit() {
     this.editOff = !this.editOff;
+    var element = <HTMLInputElement>document.getElementById("updateButton");
+    element.disabled = this.editOff;
   }
 }

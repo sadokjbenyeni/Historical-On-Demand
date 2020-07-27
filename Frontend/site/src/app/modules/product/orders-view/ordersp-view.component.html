@@ -18,19 +18,17 @@
           Back</button>
 
         <button class="bottom-button orange-color" *ngIf="verifStatePVP() && state == 'PVP'"
-          (click)="openModal(UpdateStatus)"><i class="fa fa-refresh"></i>Update Status</button>
+          (click)="openModal(UpdateStatus)" id="updateButton"><i class="fa fa-refresh"></i> Update Status</button>
 
         <button class="bottom-button yellow-color" *ngIf="state == 'PVF'" (click)="cancelValidation()"
-          [routerLink]="['/product/orders']"><i class="fa fa-ban"></i> Cancel
-          Validation</button>
+          [routerLink]="['/product/orders']"><i class="fa fa-ban"></i> Cancel Validation</button>
 
         <button class="bottom-button green-color" *ngIf="state=='PVP' && editOff"
           (click)="updateChanges(); applyDiscount(); updateEngagementPeriod(); toggleEdit()"><i
-            class="fa fa-floppy-o"></i>Save Changes</button>
+            class="fa fa-floppy-o"></i> Save Changes</button>
 
         <button class="bottom-button grey-color" *ngIf="state == 'PVP' && !editOff" (click)="toggleEdit()"><i
-            class="fa fa-pencil"></i>
-          Edit</button>
+            class="fa fa-pencil"></i> Edit</button>
       </div>
     </div>
   </div>
@@ -238,16 +236,14 @@
   <div class="modal-body text-right">
     <button class="bottom-button yellow-color space-between-buttons" (click)="cancelOrder(); close('')"
       [routerLink]="['/product/orders']">
-      <i class="fa fa-trash-o"></i> Cancel Order
+      <i class="fa fa-trash-o"></i> Cancel
     </button>
     <button class="bottom-button red-color space-between-buttons" (click)="rejectOrder(); close('')"
       [routerLink]="['/product/orders']">
-      <i class="fa fa-times"></i>Reject Order
+      <i class="fa fa-times"></i> Reject
     </button>
-    <button class="bottom-button green-color space-between-buttons"
-      (click)="validateOrder(); close(''); applyDiscount(); updateEngagementPeriod(); updateChanges()"
-      [routerLink]="['/product/orders']"><i class="fa fa-check"></i>
-      Validate Order
+    <button class="bottom-button green-color space-between-buttons" (click)="validateOrder(); close('')"
+      [routerLink]="['/product/orders']"><i class="fa fa-check"></i> Validate
     </button>
   </div>
 </ng-template>
