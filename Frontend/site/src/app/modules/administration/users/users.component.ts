@@ -1,18 +1,11 @@
-import { Component, OnInit, AfterViewChecked, ViewChild, EventEmitter, Output } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import Swal from 'sweetalert2';
-import { environment } from '../../../../environments/environment';
 import { AdministratorServiceService } from '../../../services/administrator-service.service';
 import { SwalAlertService } from '../../../shared/swal-alert/swal-alert.service';
-class DataTablesResponse {
-  listusers: any[];
-  draw: number;
-  recordsFiltered: number;
-  recordsTotal: number;
-}
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+
 
 @Component({
   selector: 'app-users',
@@ -23,46 +16,28 @@ export class UsersComponent implements OnInit {
 
   user: any;
   userToUpdate: any;
-  message: string;
+  search: string = "";
   users: Array<object>;
-  dtOptions: DataTables.Settings = {};
-  dtTrigger: Subject<any> = new Subject();
+  displayedColumns: string[] = ['firstname', 'lastname', 'companyName'];
+  dataSource: MatTableDataSource<any>;
+  totalCount: number;
+  limit: number;
+  page: number;
+  offset: number;
+  order: any[] = [{ column: 'lastname', dir: "asc" }];
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   constructor(
     private swalService: SwalAlertService,
-    private httpc: HttpClient,
     private adminsitratorService: AdministratorServiceService
   ) { }
 
+
   @ViewChild('utilisateurForm', { static: false })
-  private userForm: NgForm;
 
   ngOnInit() {
-    this.message = '';
-    const that = this;
-    this.dtOptions = {
-      pagingType: 'full_numbers',
-      pageLength: 10,
-      serverSide: true,
-      ajax: (dataTablesParameters: any, callback) => {
-        that.httpc
-          .post<DataTablesResponse>(environment.api + '/user/list', dataTablesParameters, {})
-          .subscribe(res => {
-            that.users = res.listusers;
-            this.user = this.users[0];
-            callback({
-              recordsTotal: res.recordsTotal,
-              recordsFiltered: res.recordsFiltered,
-              data: [],
-            });
-          });
-      },
-      columns: [
-        { data: 'lastname' },
-        { data: 'firstname' },
-        { data: 'companyName' }
-      ]
-    };
+    this.getUsers(this.displayedColumns, this.order, "", 0, 7, 1);
   }
   getUser(id) {
     if (this.user._id != id) {
@@ -89,5 +64,41 @@ export class UsersComponent implements OnInit {
   newUserRoles(newRoles) {
     // sending user role by reference, no needs to affect them ! 
     this.userToUpdate = this.user;
+  }
+
+  getUsersSorted(event?: PageEvent, search = "", offset: number = 0, limit: number = 7, page: number = 0) {
+    if (event) {
+      this.limit = event.pageSize;
+      this.page = event.pageIndex;
+      this.offset = this.limit * (event.pageIndex);
+    } else {
+      this.limit = limit;
+      this.page = page;
+      this.offset = offset;
+    }
+    if (this.sort.active != undefined) {
+      this.order = [{ column: this.sort.active, dir: this.sort.direction }];
+    }
+
+    this.getUsers(this.displayedColumns, this.order, search, this.offset, this.limit, this.page);
+  }
+
+
+  getUsers(columns, order, search, offset, limit, page) {
+    this.adminsitratorService.getUsers(columns, order, search, offset, limit, page).subscribe(res => {
+      this.users = res.listusers;
+      this.user = this.users[0];
+      this.dataSource = new MatTableDataSource(this.users);
+      this.totalCount = res.totalRows;
+      if (parseInt(res.totalRows) != parseInt(res.recordsFiltered)) {
+        this.totalCount = res.recordsFiltered;
+      }
+
+    })
+  }
+
+
+  filter(event) {
+    this.getUsersSorted(null, event.currentTarget.value);
   }
 }

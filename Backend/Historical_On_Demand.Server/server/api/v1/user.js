@@ -114,17 +114,17 @@ router.post("/changeDefaultCurrency", async (req, res) => {
 });
 
 router.get("/", (req, res) => {
-  if (URLS.indexOf(req.headers.referer) !== -1) {
-    User.find()
-      .sort({ firstname: 1, lastname: 1 })
-      .then((users) => {
-        if (!users) {
-          return res.sendStatus(404);
-        }
-        return res.status(200).json({ users: users });
-      });
-  } else {
-    return res.status(404).end();
+   if (URLS.indexOf(req.headers.referer) !== -1) {
+  User.find()
+    .sort({ firstname: 1, lastname: 1 })
+    .then((users) => {
+      if (!users) {
+        return res.sendStatus(404);
+      }
+      return res.status(200).json({ users: users });
+    });
+   } else {
+     return res.status(404).end();
   }
 });
 
@@ -483,14 +483,9 @@ router.put("/", (req, res) => {
 
 router.post("/UpdateEmailAdress/", async (req, res) => {
   try {
-
-
     const userId = jwtService.verifyToken(req.headers.authorization).id;
     if (userId) {
-      user = await userService.UpdateEmailAdress(
-        userId,
-        req.body.email
-      );
+      user = await userService.UpdateEmailAdress(userId, req.body.email);
       return res.status(200).json({ user: user });
     } else {
       return res.status(200).json({ error: "user not found !" });
@@ -528,52 +523,55 @@ router.put("/mdpmodif/", (req, res) => {
 
 router.post("/list", (req, res) => {
   let sort = {};
-  for (var i = 0; i < req.body.order.length; i++) {
-    sort[req.body.columns[req.body.order[i].column].data] =
-      req.body.order[i].dir;
-  }
+
+  sort[req.body.parameters.order[0].column] = req.body.parameters.order[0].dir;
+
   User.countDocuments({ state: { $ne: "" }, state: { $exists: true } }).then(
     (c) => {
       let search = {};
-      if (req.body.search.value !== "") {
+      if (req.body.parameters.search !== "") {
         search["$or"] = [
-          { firstname: new RegExp(req.body.search.value, "i") },
-          { lastname: new RegExp(req.body.search.value, "i") },
-          { roleName: new RegExp(req.body.search.value, "i") },
-          { email: new RegExp(req.body.search.value, "i") },
-          { currency: new RegExp(req.body.search.value, "i") },
-          { address: new RegExp(req.body.search.value, "i") },
-          { addressBilling: new RegExp(req.body.search.value, "i") },
-          { city: new RegExp(req.body.search.value, "i") },
-          { cityBilling: new RegExp(req.body.search.value, "i") },
-          { companyType: new RegExp(req.body.search.value, "i") },
-          { country: new RegExp(req.body.search.value, "i") },
-          { countryBilling: new RegExp(req.body.search.value, "i") },
-          { job: new RegExp(req.body.search.value, "i") },
-          { postalCode: new RegExp(req.body.search.value, "i") },
-          { region: new RegExp(req.body.search.value, "i") },
-          { phone: new RegExp(req.body.search.value, "i") },
-          { companyName: new RegExp(req.body.search.value, "i") },
-          { vat: new RegExp(req.body.search.value, "i") },
-          { postalCodeBilling: new RegExp(req.body.search.value, "i") },
-          { payment: new RegExp(req.body.search.value, "i") },
-          { website: new RegExp(req.body.search.value, "i") }
+          { firstname: new RegExp(req.body.parameters.search, "i") },
+          { lastname: new RegExp(req.body.parameters.search, "i") },
+          { roleName: new RegExp(req.body.parameters.search, "i") },
+          { email: new RegExp(req.body.parameters.search, "i") },
+          { currency: new RegExp(req.body.parameters.search, "i") },
+          { address: new RegExp(req.body.parameters.search, "i") },
+          { addressBilling: new RegExp(req.body.parameters.search, "i") },
+          { city: new RegExp(req.body.parameters.search, "i") },
+          { cityBilling: new RegExp(req.body.parameters.search, "i") },
+          { companyType: new RegExp(req.body.parameters.search, "i") },
+          { country: new RegExp(req.body.parameters.search, "i") },
+          { countryBilling: new RegExp(req.body.parameters.search, "i") },
+          { job: new RegExp(req.body.parameters.search, "i") },
+          { postalCode: new RegExp(req.body.parameters.search, "i") },
+          { region: new RegExp(req.body.parameters.search, "i") },
+          { phone: new RegExp(req.body.parameters.search, "i") },
+          { companyName: new RegExp(req.body.parameters.search, "i") },
+          { vat: new RegExp(req.body.parameters.search, "i") },
+          { postalCodeBilling: new RegExp(req.body.parameters.search, "i") },
+          { payment: new RegExp(req.body.parameters.search, "i") },
+          { website: new RegExp(req.body.parameters.search, "i") },
         ];
       }
-      User.countDocuments(search).then((cf) => {
+    User.countDocuments(search).then((cf) => {
         User.find(search)
-          .skip(req.body.start)
-          .limit(req.body.length)
+          .skip(req.body.parameters.offset)
+          .limit(req.body.parameters.limit)
+          .collation({
+            locale: "en",
+            caseLevel: true
+          })
           .sort(sort)
           .then((users) => {
             if (!users) {
               return res.status(404);
             }
+
             return res.status(200).json({
               recordsFiltered: cf,
-              recordsTotal: c,
-              draw: req.body.draw,
               listusers: users,
+              totalRows: c,
             });
           });
       });

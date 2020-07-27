@@ -14,31 +14,46 @@
     <div class="col-md-3 no-padding">
       <div class="panel panel-default">
         <div class="panel-body">
-          <!-- <h4> -->
-          <!-- <div class="pull-left alert">{{message}}</div> -->
-          <!-- </h4> -->
-          <!-- <div class="pull-right mg-down-5">
-            <button type="button" class="btn btn-primary btn-sm btn-circle" data-toggle="modal"
-              [attr.data-target]="'#0'" title="Ajouter" (click)="add()" disabled><i
-                class="fa fa-plus-square"></i></button>
-          </div> -->
-          <div class="table-responsive">
-            <table datatable [dtOptions]="dtOptions" class="row-border hover" width="100%">
-              <thead>
-                <tr>
-                  <th>Last Name</th>
-                  <th>First Name</th>
-                  <th>Company Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let user of users" class="clickable" (click)="getUser(user._id)">
-                  <td>{{ user.lastname }}</td>
-                  <td>{{ user.firstname }}</td>
-                  <td>{{ user.companyName }}</td>
-                </tr>
-              </tbody>
+          <mat-form-field>
+            <mat-label>Search</mat-label>
+            <input matInput placeholder="Ex. QuantHouse" (keyup)="filter($event)" #search name="search">
+          </mat-form-field>
+
+          <div class="mat-elevation-z8">
+            <table mat-table [dataSource]="dataSource" matSort>
+
+              <ng-container matColumnDef="firstname">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="clickable"
+                  (click)="getUsersSorted(null, '',offset , limit, page)">
+                  First Name </th>
+                <td mat-cell *matCellDef="let user" class="clickable" (click)="getUser(user._id)"> {{user.firstname}}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="lastname">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="clickable"
+                  (click)="getUsersSorted(null, '',offset , limit, page)"> Last
+                  Name </th>
+                <td mat-cell *matCellDef="let user" class="clickable" (click)="getUser(user._id)"> {{user.lastname}}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="companyName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="clickable"
+                  (click)="getUsersSorted(null, '',offset , limit, page)">
+                  Company Name </th>
+                <td mat-cell *matCellDef="let user" class="clickable" (click)="getUser(user._id)"> {{user.companyName}}
+                </td>
+              </ng-container>
+
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let user; columns: displayedColumns;"></tr>
             </table>
+
+            <mat-paginator *ngIf="totalCount > 0" [pageSizeOptions]="[7, 25, 100]" [length]="totalCount"
+              [pageIndex]="page" (page)="getUsersSorted($event, '',offset , limit, page)">
+            </mat-paginator>
           </div>
         </div>
       </div>
@@ -51,7 +66,6 @@
               <div class="col-md-11 no-padding">
                 <app-roles *ngIf="user?.roleName" [userRoles]="user.roleName" (newUserRoles)="newUserRoles($event)">
                 </app-roles>
-
               </div>
               <div class="col-md-1 no-padding">
                 <button class="update-button-position" mat-raised-button color="warn" (click)="updateUser()">Update
