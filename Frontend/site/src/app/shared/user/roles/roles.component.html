@@ -1,8 +1,12 @@
-<div class="form-group input-group margin-bottom">
-    <label>Roles</label>
-    <!-- [formControl]="chipControl" -->
-    <mat-chip-list *ngIf="roles" [multiple]="true" [selectable]="true" > 
-      <mat-chip *ngFor="let role of roles" (click)="toggleRole(role.name)" [selected]="hasRole(role.name)">
-        {{ role.name }}</mat-chip>
-    </mat-chip-list>
-  </div>
+<mat-card class="width-card">
+  <mat-card-content>
+    <div class="form-group input-group margin">
+      <label class="margin-label">Roles</label>
+      <!-- [formControl]="chipControl" -->
+      <mat-chip-list *ngIf="roles" [multiple]="true" [selectable]="true">
+        <mat-chip *ngFor="let role of roles" (click)="toggleRole(role.name)" [selected]="hasRole(role.name)">
+          {{ role.name }}</mat-chip>
+      </mat-chip-list>
+    </div>
+  </mat-card-content>
+</mat-card>

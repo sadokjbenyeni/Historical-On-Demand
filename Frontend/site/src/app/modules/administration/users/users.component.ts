@@ -16,18 +16,18 @@ export class UsersComponent implements OnInit {
 
   user: any;
   userToUpdate: any;
-  //search: string = "";
   users: Array<object>;
   displayedColumns: string[] = ['firstname', 'lastname', 'companyName'];
   dataSource: MatTableDataSource<any>;
   totalCount: number;
-  limit: number = 7;
+  limit: number = 10;
   page: number = 0;
   offset: number = 0;
   order: any[] = [{ column: 'lastname', dir: "asc" }];
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild("search") search: ElementRef;
+  selectedRowIndex: any;
 
   constructor(
     private swalService: SwalAlertService,
@@ -38,12 +38,14 @@ export class UsersComponent implements OnInit {
   @ViewChild('utilisateurForm', { static: false })
 
   ngOnInit() {
-    this.getUsers(this.displayedColumns, this.order, "", 0, 7, 1);
+    this.getUsers(this.displayedColumns, this.order, "", this.offset, this.limit, this.page);
   }
   getUser(id) {
     if (this.user._id != id) {
+
       this.adminsitratorService.getUserById(id).subscribe(res => {
         this.user = res.user;
+        this.selectedRowIndex = this.user._id;
       });
     }
   }
@@ -84,12 +86,12 @@ export class UsersComponent implements OnInit {
     this.adminsitratorService.getUsers(columns, order, search, offset, limit, page).subscribe(res => {
       this.users = res.listusers;
       this.user = this.users[0];
+      this.selectedRowIndex = this.user._id;
       this.dataSource = new MatTableDataSource(this.users);
       this.totalCount = res.totalRows;
       if (parseInt(res.totalRows) != parseInt(res.recordsFiltered)) {
         this.totalCount = res.recordsFiltered;
       }
-
     })
   }
 }

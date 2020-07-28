@@ -1,3 +1,11 @@
-.margin-bottom {
-  margin-bottom: 10px;
+.margin {
+  margin-bottom: 13px !important;
+}
+
+.margin-label {
+  margin-bottom: 13px !important;
+}
+
+.width-card {
+  width: 1110px !important;
 }

@@ -2,16 +2,27 @@
   padding: 0px !important;
 }
 
+.margin-informations {
+  margin-top: 30px !important;
+}
+
 .padding-row {
   padding-top: 10px;
 }
 
 .update-button-position {
   float: right;
-  margin-top: 18px;
+  margin-right: 10px !important;
+  margin-top: 10px !important;
 }
+
+.button-position {
+  margin-top: 13px !important;
+}
+
 table {
-  width: 100%;
+  width: 99%;
+  margin-left: 2px;
 }
 
 .mat-form-field {
@@ -22,4 +33,40 @@ table {
 td,
 th {
   width: 25%;
+}
+
+.scroll-table {
+  height: 539px;
+  overflow: auto;
+}
+
+.mat-footer-row:first-child td {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.mat-footer-cell .mat-paginator {
+  margin-left: -24px;
+  margin-right: -24px;
+}
+
+.height-body {
+  height: 705px !important;
+  padding-bottom: 0px !important;
+}
+
+.information-background-color {
+  background-color: #f6f6f6 !important;
+}
+
+.list-background-color {
+  background-color: #f6f6f663 !important;
+}
+
+.mat-row.active {
+  background: #f6f6f6;
+  border-left-color: #ff9100;
+  border-left-style: solid;
+  border-right-color: #ff9100;
+  border-right-style: solid;
+  /* border: 1px solid #ff9100; */
 }

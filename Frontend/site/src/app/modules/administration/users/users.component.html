@@ -13,47 +13,52 @@
     <app-configuration></app-configuration>
     <div class="col-md-3 no-padding">
       <div class="panel panel-default">
-        <div class="panel-body">
+
+        <div class="panel-body height-body list-background-color">
           <mat-form-field>
             <mat-label>Search</mat-label>
-            <!-- (keyup)="filter($event)" -->
             <input matInput placeholder="Ex. QuantHouse" (keyup)="getUsersSorted()" #search name="search">
           </mat-form-field>
-          <div class="mat-elevation-z8">
+          <div class="scroll-table mat-elevation-z8">
             <table mat-table [dataSource]="dataSource" matSort>
               <ng-container matColumnDef="firstname">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header class="clickable" (click)="getUsersSorted()">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
                   First Name </th>
-                <td mat-cell *matCellDef="let user" class="clickable" (click)="getUser(user._id)"> {{user.firstname}}
+                <td mat-cell *matCellDef="let user"> {{user.firstname}}
                 </td>
               </ng-container>
               <ng-container matColumnDef="lastname">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header class="clickable" (click)="getUsersSorted()"> Last
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Last
                   Name </th>
-                <td mat-cell *matCellDef="let user" class="clickable" (click)="getUser(user._id)"> {{user.lastname}}
+                <td mat-cell *matCellDef="let user"> {{user.lastname}}
                 </td>
               </ng-container>
               <ng-container matColumnDef="companyName">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header class="clickable" (click)="getUsersSorted()">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
                   Company Name </th>
-                <td mat-cell *matCellDef="let user" class="clickable" (click)="getUser(user._id)"> {{user.companyName}}
+                <td mat-cell *matCellDef="let user"> {{user.companyName}}
                 </td>
               </ng-container>
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let user; columns: displayedColumns;"></tr>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns  sticky: true" class="clickable"
+                (click)="getUsersSorted()"></tr>
+              <tr mat-row *matRowDef="let user; columns: displayedColumns;" class="clickable" 
+                [ngClass]="{'active': selectedRowIndex === user._id}" (click)="getUser(user._id)"></tr>
+
             </table>
-            <mat-paginator *ngIf="totalCount > 0" [pageSizeOptions]="[7, 25, 100]" [length]="totalCount"
-              [pageIndex]="page" (page)="getUsersSorted($event)">
-            </mat-paginator>
           </div>
+          <mat-paginator *ngIf="totalCount > 0" [pageSizeOptions]="[10, 25, 100]" [length]="totalCount"
+            [pageIndex]="page" (page)="getUsersSorted($event)">
+          </mat-paginator>
         </div>
+
       </div>
     </div>
     <div class="container ">
       <div class="row">
         <div class="col-md-8 no-padding">
           <div class="panel panel-default">
-            <div class="panel-body">
+            <div class="panel-body height-body information-background-color">
               <div class="col-md-11 no-padding">
                 <app-roles *ngIf="user?.roleName" [userRoles]="user.roleName" (newUserRoles)="newUserRoles($event)">
                 </app-roles>
@@ -62,7 +67,7 @@
                 <button class="update-button-position" mat-raised-button color="warn" (click)="updateUser()">Update
                   roles</button>
               </div>
-              <div class="col-md-12 no-padding">
+              <div class="col-md-12 no-padding margin-informations">
                 <app-user-informations [user]="user" *ngIf="user"></app-user-informations>
               </div>
             </div>
