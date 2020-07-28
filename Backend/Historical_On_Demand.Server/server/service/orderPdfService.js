@@ -26,18 +26,18 @@ module.exports = function (order) {
 
   this.generatePdfFile = function (currency, user, country, invoiceId, invoiceType) {
     let fonts = {
-      GentiumBookBasic: {
-        normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['gentium-book-basic.regular.ttf'], 'base64'),
-        bold: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['gentium-book-basic.bold.ttf'], 'base64'),
-        italics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['gentium-book-basic.italic.ttf'], 'base64'),
-        bolditalics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['gentium-book-basic.bold-italic.ttf'], 'base64')
+      Roboto: {
+        normal: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Regular.ttf'], 'base64'),
+        bold: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Medium.ttf'], 'base64'),
+        italics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-Italic.ttf'], 'base64'),
+        bolditalics: new Buffer(require('pdfmake/build/vfs_fonts.js').pdfMake.vfs['Roboto-MediumItalic.ttf'], 'base64')
       }
     };
 
     printer = new pdfMake(fonts);
     let invoice = {};
     let defaultStyle = {
-      font: 'GentiumBookBasic'
+      font: 'Roboto'
     };
 
     var invoiceInformation = { id: invoiceId, type: invoiceType, issueDate: toCalendarFormat(new Date()), dueDate: toCalendarFormat(this.order.submissionDate) };
@@ -244,8 +244,8 @@ invoiceTitle = function (invoiceId, invoiceType) {
         [
           [
             [
-              { text: invoiceType, fontSize: 18, color: '#EA663B' },
-              { text: invoiceId, fontSize: 9, color: '#6C6C6C' },
+              { text: invoiceType, fontSize: 16, color: '#EA663B' },
+              { text: invoiceId, fontSize: 7, color: '#6C6C6C' },
               { text: '\n', fontSize: 5 }
             ]
           ]
@@ -289,12 +289,14 @@ invoiceHeader = function (invoice, client, company, payment) {
         [
           [
             marginBottom(2),
-            drawLine(5, 400, 0, 0, 1.5, 'line', '#EA663B'),
+            drawLine(5, 383, 0, 0, 1.5, 'line', '#EA663B'),
             invoiceTitle(invoice.id, invoice.type),
             invoiceDates(invoice.issueDate, invoice.dueDate),
-            drawLine(5, 400, 0, 0, 0.1, 'line'),
+            drawLine(5, 383, 3, 3, 0.1, 'line'),
+            marginBottom(3),
             clientAddress(client.company, client.address, client.postalCode, client.city, client.country),
-            drawLine(5, 400, 0, 0, 0.1, 'line'),
+            marginBottom(5),
+            drawLine(5, 383, 0, 0, 0.1, 'line'),
             marginBottom(20)
           ],
           [
@@ -354,7 +356,7 @@ amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount
           },
           {
             table: {
-              widths: ['60%', '30%', '10%'],
+              widths: ['55%', '35%', '10%'],
               body: [
                 [
                   { border: border, text: 'SUBTOTAL', fontSize: 10, color: '#6C6C6C' },
@@ -367,7 +369,7 @@ amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount
                   { border: border, text: '%', fontSize: 10, color: '#6C6C6C' }
                 ],
                 [
-                  { border: border, text: 'SUBTOTAL LESS DISCOUNT', fontSize: 10, color: '#6C6C6C' },
+                  { border: border, text: 'LESS DISCOUNT', fontSize: 10, color: '#6C6C6C' },
                   { border: border, text: currencySymbol + totalLessDiscount.toFixed(2), fontSize: 10, alignment: 'right', color: '#6C6C6C' },
                   { border: border, text: currency.device, fontSize: 10, color: '#6C6C6C' }
                 ],
@@ -548,25 +550,25 @@ wireTransfer = function (currency, country, vatok) {
     table: {
       body: [[
         [
-          [{ text: [{ text: 'Beneficiary Name : ', fontSize: 9, bold: true, color: '#303030' }, { text: beneficiaryName, fontSize: 9, color: '#6C6C6C' }] }],
-          [{ text: [{ text: 'Beneficiary Address : ', fontSize: 9, bold: true, color: '#303030' }, { text: beneficiaryAddress, fontSize: 9, color: '#6C6C6C' }] }],
-          [{ text: [{ text: 'VAT : ', fontSize: 9, bold: true, color: '#303030' }, { text: vat, fontSize: 9, color: '#6C6C6C' }] }]
+          [{ text: [{ text: 'Beneficiary Name : ', fontSize: 8, bold: true, color: '#303030' }, { text: beneficiaryName, fontSize: 8, color: '#6C6C6C' }] }],
+          [{ text: [{ text: 'Beneficiary Address : ', fontSize: 8, bold: true, color: '#303030' }, { text: beneficiaryAddress, fontSize: 8, color: '#6C6C6C' }] }],
+          [{ text: [{ text: 'VAT : ', fontSize: 8, bold: true, color: '#303030' }, { text: vat, fontSize: 8, color: '#6C6C6C' }] }]
         ],
         [
           { text: '' }
         ],
         [
-          [{ text: sasu, fontSize: 9, color: '#6C6C6C' }],
-          [{ text: rcs, fontSize: 9, color: '#6C6C6C' }],
-          [{ text: vatType(country, vatok), fontSize: 9, color: '#6C6C6C' }]
+          [{ text: sasu, fontSize: 8, color: '#6C6C6C' }],
+          [{ text: rcs, fontSize: 8, color: '#6C6C6C' }],
+          [{ text: vatType(country, vatok), fontSize: 8, color: '#6C6C6C' }]
         ],
         [
           { text: '' }
         ],
         [
-          [{ text: [{ text: bic, fontSize: 9, bold: true, color: '#303030' }, { text: currency.bic, fontSize: 9, color: '#6C6C6C' }] }],
-          [{ text: [{ text: bank, fontSize: 9, bold: true, color: '#303030' }, { text: currency.rib.domiciliation, fontSize: 9, color: '#6C6C6C' }] }],
-          [{ text: [{ text: iban, fontSize: 9, bold: true, color: '#303030' }, { text: currency.iban.ib1 + ' ' + currency.iban.ib2 + ' ' + currency.iban.ib3 + ' ' + currency.iban.ib4 + ' ' + currency.iban.ib5 + ' ' + currency.iban.ib6 + ' ' + currency.iban.ib7, fontSize: 9, color: '#6C6C6C' }] }]
+          [{ text: [{ text: bic, fontSize: 8, bold: true, color: '#303030' }, { text: currency.bic, fontSize: 8, color: '#6C6C6C' }] }],
+          [{ text: [{ text: bank, fontSize: 8, bold: true, color: '#303030' }, { text: currency.rib.domiciliation, fontSize: 8, color: '#6C6C6C' }] }],
+          [{ text: [{ text: iban, fontSize: 8, bold: true, color: '#303030' }, { text: currency.iban.ib1 + ' ' + currency.iban.ib2 + ' ' + currency.iban.ib3 + ' ' + currency.iban.ib4 + ' ' + currency.iban.ib5 + ' ' + currency.iban.ib6 + ' ' + currency.iban.ib7, fontSize: 8, color: '#6C6C6C' }] }]
         ]
       ]
       ]
