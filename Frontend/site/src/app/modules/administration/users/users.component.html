@@ -42,8 +42,8 @@
 
               <tr mat-header-row *matHeaderRowDef="displayedColumns  sticky: true" class="clickable"
                 (click)="getUsersSorted()"></tr>
-              <tr mat-row *matRowDef="let user; columns: displayedColumns;" class="clickable" 
-                [ngClass]="{'active': selectedRowIndex === user._id}" (click)="getUser(user._id)"></tr>
+              <tr mat-row *matRowDef="let user; columns: displayedColumns;" class="clickable"
+                [ngClass]="{'active': selectedUser === user._id}" (click)="getUser(user._id)"></tr>
 
             </table>
           </div>
@@ -58,18 +58,21 @@
       <div class="row">
         <div class="col-md-8 no-padding">
           <div class="panel panel-default">
-            <div class="panel-body height-body information-background-color">
+            <div *ngIf="user" class="panel-body height-body information-background-style">
               <div class="col-md-11 no-padding">
                 <app-roles *ngIf="user?.roleName" [userRoles]="user.roleName" (newUserRoles)="newUserRoles($event)">
                 </app-roles>
               </div>
-              <div class="col-md-1 no-padding">
+              <div *ngIf="user" class="col-md-1 no-padding">
                 <button class="update-button-position" mat-raised-button color="warn" (click)="updateUser()">Update
                   roles</button>
               </div>
               <div class="col-md-12 no-padding margin-informations">
                 <app-user-informations [user]="user" *ngIf="user"></app-user-informations>
               </div>
+            </div>
+            <div *ngIf="!user" class="panel-body height-body no-data-style">
+              User not found !
             </div>
           </div>
         </div>

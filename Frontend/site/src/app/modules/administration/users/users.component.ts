@@ -27,7 +27,7 @@ export class UsersComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild("search") search: ElementRef;
-  selectedRowIndex: any;
+  selectedUser: any;
 
   constructor(
     private swalService: SwalAlertService,
@@ -39,13 +39,14 @@ export class UsersComponent implements OnInit {
 
   ngOnInit() {
     this.getUsers(this.displayedColumns, this.order, "", this.offset, this.limit, this.page);
+
   }
   getUser(id) {
     if (this.user._id != id) {
 
       this.adminsitratorService.getUserById(id).subscribe(res => {
         this.user = res.user;
-        this.selectedRowIndex = this.user._id;
+        this.selectedUser = this.user._id;
       });
     }
   }
@@ -70,6 +71,9 @@ export class UsersComponent implements OnInit {
   }
 
   getUsersSorted(event?: PageEvent) {
+    this.dataSource = null;
+    this.offset = 0;
+    this.page = 0;
     if (event) {
       this.limit = event.pageSize;
       this.page = event.pageIndex;
@@ -86,7 +90,7 @@ export class UsersComponent implements OnInit {
     this.adminsitratorService.getUsers(columns, order, search, offset, limit, page).subscribe(res => {
       this.users = res.listusers;
       this.user = this.users[0];
-      this.selectedRowIndex = this.user._id;
+      this.selectedUser = this.user?._id;
       this.dataSource = new MatTableDataSource(this.users);
       this.totalCount = res.totalRows;
       if (parseInt(res.totalRows) != parseInt(res.recordsFiltered)) {

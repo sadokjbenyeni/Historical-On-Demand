@@ -54,8 +54,14 @@ th {
   padding-bottom: 0px !important;
 }
 
-.information-background-color {
+.information-background-style {
   background-color: #f6f6f6 !important;
+
+  border-color: #ff9100;
+  border-top-style: solid;
+  border-top-color: #ff9100;
+  border-bottom-style: solid;
+  border-bottom-color: #ff9100;
 }
 
 .list-background-color {
@@ -68,5 +74,11 @@ th {
   border-left-style: solid;
   border-right-color: #ff9100;
   border-right-style: solid;
-  /* border: 1px solid #ff9100; */
+}
+
+.no-data-style {
+  text-align: center !important;
+  font-size: large !important;
+  margin-top: 20px !important;
+  color: orangered !important;
 }
