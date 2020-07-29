@@ -36,8 +36,10 @@ th {
 }
 
 .scroll-table {
-  height: 539px;
+  height: 537px;
   overflow: auto;
+  scrollbar-color: #ea663b rgb(246, 246, 246) !important;
+  scrollbar-width: thin !important;
 }
 
 .mat-footer-row:first-child td {
@@ -81,4 +83,26 @@ th {
   font-size: large !important;
   margin-top: 20px !important;
   color: orangered !important;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey !important;
+  border-radius: 10px !important;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #ea663b !important;
+  border-radius: 10px !important;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #c26e00 !important;
 }
