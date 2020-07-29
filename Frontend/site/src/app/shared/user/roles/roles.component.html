@@ -1,8 +1,10 @@
-<mat-card class="width-card">
+<mat-card>
+  <mat-card-subtitle> <b>Roles</b></mat-card-subtitle>
   <mat-card-content>
     <div class="form-group input-group margin">
-      <label class="margin-label">Roles</label>
-      <!-- [formControl]="chipControl" -->
+      <button class="update-button-position" mat-raised-button color="warn" (click)="updateUser()">Update
+        roles</button>
+
       <mat-chip-list *ngIf="roles" [multiple]="true" [selectable]="true">
         <mat-chip *ngFor="let role of roles" (click)="toggleRole(role.name)" [selected]="hasRole(role.name)">
           {{ role.name }}</mat-chip>

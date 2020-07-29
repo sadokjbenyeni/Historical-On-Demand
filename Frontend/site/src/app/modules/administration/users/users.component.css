@@ -107,7 +107,7 @@ th {
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #c26e00 !important;
+  background: #f1480f !important;
 }
 
 /* Buttons */
@@ -126,22 +126,25 @@ th {
   border-color: transparent transparent #ea663b transparent;
 }
 
-/* ::-webkit-scrollbar-button:vertical:decrement:hover
-{
-  border-color: transparent transparent #ea663b transparent;
-} */
-
-
 /* Down */
 ::-webkit-scrollbar-button:vertical:increment
 {
   border-width: 14px 7px 0 7px;
   border-color: #ea663b transparent transparent transparent;
 }
-/* 
-::-webkit-scrollbar-button:vertical:increment:hover
+
+/* Left */
+::-webkit-scrollbar-button:horizontal:decrement
 {
-  border-color: #ea663b transparent transparent transparent;
-} */
+  border-width: 7px 14px 7px 0;
+  border-color: transparent #ea663b transparent transparent;
+}
+
+/* Right */
+::-webkit-scrollbar-button:horizontal:increment
+{
+  border-width: 7px 0 7px 14px;
+  border-color: transparent transparent transparent #ea663b;
+}
 
 /* end scrollbar styling */

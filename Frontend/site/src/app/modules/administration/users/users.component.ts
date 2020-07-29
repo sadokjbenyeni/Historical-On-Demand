@@ -1,7 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { NgForm } from '@angular/forms';
 import { AdministratorServiceService } from '../../../services/administrator-service.service';
-import { SwalAlertService } from '../../../shared/swal-alert/swal-alert.service';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -30,7 +28,6 @@ export class UsersComponent implements OnInit {
   selectedUser: any;
 
   constructor(
-    private swalService: SwalAlertService,
     private adminsitratorService: AdministratorServiceService
   ) { }
 
@@ -39,7 +36,6 @@ export class UsersComponent implements OnInit {
 
   ngOnInit() {
     this.getUsers(this.displayedColumns, this.order, "", this.offset, this.limit, this.page);
-
   }
   getUser(id) {
     if (this.user._id != id) {
@@ -49,25 +45,6 @@ export class UsersComponent implements OnInit {
         this.selectedUser = this.user._id;
       });
     }
-  }
-  async updateUser() {
-    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to update ${this.userToUpdate.firstname} ${this.userToUpdate.lastname} roles!`)
-    if (result.value) {
-      this.adminsitratorService.updateUser(this.userToUpdate)
-        .subscribe(result => {
-          if (result) {
-            this.swalService.getSwalForNotification(`${this.userToUpdate.firstname} ${this.userToUpdate.lastname} roles updated`, `${this.userToUpdate.firstname} ${this.userToUpdate.lastname}roles have been updated!`),
-              error => {
-                this.swalService.getSwalForNotification('Updating roles Failed !', error.message, 'error')
-              }
-          }
-        })
-    }
-  }
-
-  newUserRoles(newRoles) {
-    // sending user role by reference, no needs to affect them ! 
-    this.userToUpdate = this.user;
   }
 
   getUsersSorted(event?: PageEvent) {

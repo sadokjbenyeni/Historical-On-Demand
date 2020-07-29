@@ -615,6 +615,9 @@ a {
 .bread-crumb{
   font-weight: 300;
   font-size: 23px;
+.swal2-content {
+  font-size: 1.3em !important;
+}
   color: grey;
   cursor: pointer;
 }

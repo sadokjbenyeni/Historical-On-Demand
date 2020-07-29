@@ -1,22 +1,27 @@
-import { Component, OnInit, Input, OnChanges, ɵConsole, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, ɵConsole, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { UserService } from '../../../services/user.service';
-import { FormControl } from '@angular/forms';
+import { AdministratorServiceService } from '../../../services/administrator-service.service';
+import { SwalAlertService } from '../../swal-alert/swal-alert.service';
 
 @Component({
   selector: 'app-roles',
   templateUrl: './roles.component.html',
   styleUrls: ['./roles.component.css']
 })
-export class RolesComponent implements OnInit {
+export class RolesComponent implements OnInit, OnChanges {
 
-  @Input() userRoles: any = [];
-  @Output() newUserRoles = new EventEmitter<any>();
+  userRoles: any = [];
+  @Input() user: any = [];
   roles: any;
 
 
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService, private swalService: SwalAlertService, private adminsitratorService: AdministratorServiceService) { }
+  ngOnChanges(userChanged): void {
+    this.userRoles = userChanged.user.currentValue.roleName;
+  }
 
   ngOnInit(): void {
+    this.userRoles = this.user.roleName;
     this.getRoles();
   }
 
@@ -35,14 +40,24 @@ export class RolesComponent implements OnInit {
       this.userRoles.splice(this.userRoles.findIndex(item => item == role), 1)
     };
     this.hasRole(role) ? removeChip() : addChip();
-    this.newRoles();
   }
 
   hasRole(role) {
     return this.userRoles.findIndex(item => item == role) != -1;
   }
 
-  newRoles() {
-    this.newUserRoles.emit(this.userRoles);
+  async updateUser() {
+    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to update <b> ${this.user.firstname} ${this.user.lastname} </b> roles!`)
+    if (result.value) {
+      this.adminsitratorService.updateUser(this.user)
+        .subscribe(result => {
+          if (result) {
+            this.swalService.getSwalForNotification(`${this.user.firstname} ${this.user.lastname} roles updated`, ` <b> ${this.user.firstname} ${this.user.lastname} </b>  roles have been updated!`),
+              error => {
+                this.swalService.getSwalForNotification('Updating roles Failed !', error.message, 'error')
+              }
+          }
+        })
+    }
   }
 }
