@@ -36,11 +36,7 @@
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "paypal-rest-sdk": "^1.8.1",
-<<<<<<< HEAD
     "pdfmake": "^0.1.67",
-=======
-    "pdfmake": "^0.1.66",
->>>>>>> Fixed all bug after merge and migration order to invoice
     "rand-token": "^1.0.1",
     "request-progress": "^3.0.0",
     "rxjs-tslint": "^0.1.8",

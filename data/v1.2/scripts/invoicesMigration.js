@@ -113,5 +113,4 @@ function groupProductsbyEID(order) {
 function deleteuselessfields(order) {
     delete order.historical_data;
     delete order.logs;
-    delete order.eid;
 }

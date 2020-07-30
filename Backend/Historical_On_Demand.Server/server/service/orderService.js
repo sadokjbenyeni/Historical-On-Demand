@@ -247,12 +247,18 @@ function setOrderValuesFromInvoice(order, invoice) {
         product.ht = productsEID[checkifSubscription(product)].find(
             (item) => item.idcmd == product.idcmd
         ).ht;
-        product.exchangefees =
-            productsEID.historical_data.backfill_applyfee &&
+        product.exchangefees = getExchangeFees(productsEID);
+    });
+
+    function getExchangeFees(productsEID) {
+        if(productsEID && productsEID.historical_data){
+            return productsEID.historical_data.backfill_applyfee &&
                 !productsEID.historical_data.direct_billing
                 ? productsEID.exchangefee
                 : 0;
-    });
+        }
+        return 0;
+    }
 }
 module.exports.calculateAmountsOfOrder = async (order, currency, cube) => {
     if (!cube) {
