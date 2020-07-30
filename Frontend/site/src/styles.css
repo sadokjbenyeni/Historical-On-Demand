@@ -614,17 +614,14 @@ a {
 
 .bread-crumb{
   font-weight: 300;
-  font-size: 23px;
-.swal2-content {
-  font-size: 1.3em !important;
-}
+  font-size: 21px;
   color: grey;
   cursor: pointer;
 }
 
 .current-bread-crumb{
   font-weight: 400;
-  font-size: 25px;
+  font-size: 21px;
   color: #ea663b;
 }
 
@@ -634,4 +631,8 @@ a {
 
 .breadcrumb {
   background-color: white;
+}
+
+.swal2-content {
+  font-size: 1.3em !important;
 }

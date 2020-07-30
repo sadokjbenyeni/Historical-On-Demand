@@ -221,14 +221,14 @@ export class OrderscViewComponent implements OnInit {
   }
 
   async validateOrder() {
-    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to validate order number <b> ${this.idOrder}</b> !`)
+    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to validate order number <b> ${this.idOrder}</b>`)
     if (result.value) {
       this.orderService.state({ idCmd: this.idCmd, status: 'PVP', referer: 'Compliance', email: this.cmd['email'] })
         .subscribe(result => {
           if (result) {
             this.swalService.getSwalForNotification(`Order ${this.idOrder} validatd`, ` <b> Order ${this.idOrder} validatd`),
               error => {
-                this.swalService.getSwalForNotification('Updating roles Failed !', error.message, 'error')
+                this.swalService.getSwalForNotification('Validation Failed !', error.message, 'error')
               }
           }
         })

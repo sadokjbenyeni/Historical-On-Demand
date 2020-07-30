@@ -59,12 +59,20 @@
   color: #666666;
 }
 
-.bottom-button{
+.button-adjusment{
     margin-left: 20px;
     height: 4vh;
 }
 
+.button-list{
+    margin-left: 2px;
+}
 .back-button{
     width: 50px;
     border-radius: 100%;
+}
+
+.dropdown-menu{
+    left: 1.2em;
+    width:90%
 }

@@ -8,8 +8,8 @@
     </ol>
   </div>
   <div class="col-lg-2">
-    <button class="bottom-button green-color" *ngIf="verifState()"
-      (click)="openModal(content); actions('Confirm Client Order Validation')"><i class="fa fa-check"></i> Validate
+    <button class="bottom-button green-color" *ngIf="verifState()" (click)="validateOrder()"><i class="fa fa-check"></i>
+      Validate
     </button>
   </div>
 </div>

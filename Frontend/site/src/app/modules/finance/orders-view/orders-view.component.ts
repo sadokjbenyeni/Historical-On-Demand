@@ -6,6 +6,7 @@ import { ConfigService } from '../../../services/config.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { DownloadInvoiceService } from '../../../services/Intern/download-invoice.service';
+import { SwalAlertService } from '../../../../app/shared/swal-alert/swal-alert.service';
 
 @Component({
   selector: 'app-orders-view',
@@ -57,7 +58,8 @@ export class OrdersViewComponent implements OnInit {
     private modalService: NgbModal,
     private currencyService: CurrencyService,
     private orderService: OrderService,
-    private downloadInvoiceService: DownloadInvoiceService
+    private downloadInvoiceService: DownloadInvoiceService,
+    private swalService: SwalAlertService
 
   ) {
     route.params.subscribe(_ => this.idCmd = _.id);
@@ -171,31 +173,12 @@ export class OrdersViewComponent implements OnInit {
     });
   }
 
-  confirm() {
-    if (this.action === 'Confirm Client Order Validation') {
-      this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'validated', referer: 'Finance', product: this.cart, email: this.cmd['email'] }).subscribe(() => {
-        this.router.navigate(['/finance/orders']);
-      });
-    }
-  }
-
   verifState() {
     if (this.state === 'PVF') {
       return true;
     } else {
       return false;
     }
-  }
-
-  actions(action) {
-    this.action = action;
-  }
-
-  openModal(content) {
-    this.modalService.open(content, { size: 'sm' });
-  }
-
-  openWindowCustomClass(content) {
   }
 
   dateDiff(date1, date2) {
@@ -238,4 +221,21 @@ export class OrdersViewComponent implements OnInit {
   downloadInvoice(invoice, pdfType) {
     this.downloadInvoiceService.getInvoice(this.idOrder, invoice, pdfType);
   }
+
+  async validateOrder() {
+    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to validate order number <b> ${this.idOrder}</b>`)
+    if (result.value) {
+      this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'validated', referer: 'Finance', product: this.cart, email: this.cmd['email'] })
+        .subscribe(result => {
+          if (result) {
+            this.swalService.getSwalForNotification(`Order ${this.idOrder} validatd`, ` <b> Order ${this.idOrder} validatd`),
+              error => {
+                this.swalService.getSwalForNotification('Validation Failed !', error.message, 'error')
+              }
+          }
+        })
+    }
+    this.router.navigate(['/finance/orders']);
+  }
+
 }

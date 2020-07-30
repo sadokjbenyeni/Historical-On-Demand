@@ -210,7 +210,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
   }
 
   getClientOrderDetails() {
-    // httpOptions.headers = httpOptions.headers.set('Authorization', this.token);
     this.orderService.getOrderDetailsById(this.id).subscribe((order) => {
       this.clientInfo = <ClientInformation>{}
       this.orderInfo = <OrderInformation>{}

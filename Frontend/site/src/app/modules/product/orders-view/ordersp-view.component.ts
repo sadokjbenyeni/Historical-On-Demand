@@ -9,6 +9,7 @@ import { AlertService } from '../../_alert';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SalesService } from '../../../services/sales.service';
 import { DownloadInvoiceService } from '../../../services/Intern/download-invoice.service';
+import { SwalAlertService } from '../../../../app/shared/swal-alert/swal-alert.service';
 
 @Component({
   selector: 'app-ordersp-view',
@@ -70,7 +71,8 @@ export class OrderspViewComponent implements OnInit {
     private orderService: OrderService,
     private salesService: SalesService,
     protected alertService: AlertService,
-    private downloadInvoiceService: DownloadInvoiceService
+    private downloadInvoiceService: DownloadInvoiceService,
+    private swalService: SwalAlertService
   ) {
     route.params.subscribe(_ => this.idCmd = _.id);
   }
@@ -233,11 +235,9 @@ export class OrderspViewComponent implements OnInit {
   }
   updateChanges() {
     this.orderService.SaveOrderMetadata(this.idOrder, this.internalNote, this.choosenSale, this.choosedOrderType).subscribe(() => {
-      this.alertService.success('Changes Saved Successfully', this.options);
     }
     );
   }
-
 
   onDiscountChange() {
     if (this.discount < 0 || this.discount == null) this.discount = 0;
@@ -248,38 +248,8 @@ export class OrderspViewComponent implements OnInit {
     this.totalTTC = this.totalHT + this.totalVat;
   }
 
-  actions(action) {
-    this.action = action;
-  }
-  openModal(content) {
-    this.modalService.open(content, { size: 'md' });
-  }
-
   downloadInvoice(invoice, pdfType) {
     this.downloadInvoiceService.getInvoice(this.idOrder, invoice, pdfType);
-  }
-
-  cancelValidation() {
-    this.orderService.cancelProductValidation(this.idOrder).subscribe();
-  }
-  cancelOrder() {
-    this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'cancelled', referer: 'Product' }).subscribe(() => {
-    });
-  }
-  rejectOrder() {
-    this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'rejected', referer: 'Product', reason: this.reason }).subscribe(() => {
-    });
-  }
-
-  validateOrder() {
-    let statusAfterValidation = 'PVF';
-    let referer = 'Product';
-    if (this.totalTTC === 0) {
-      statusAfterValidation = 'validated';
-      referer = 'ProductAutovalidateFinance';
-    }
-    this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: statusAfterValidation, referer: referer, product: this.cart, email: this.cmd['email'] }).subscribe(() => {
-    });
   }
 
   toggleEdit() {
@@ -287,4 +257,81 @@ export class OrderspViewComponent implements OnInit {
     var element = <HTMLInputElement>document.getElementById("updateButton");
     element.disabled = this.editOff;
   }
+
+  async validateOrder() {
+    let statusAfterValidation = 'PVF';
+    let referer = 'Product';
+    if (this.totalTTC === 0) {
+      statusAfterValidation = 'validated';
+      referer = 'ProductAutovalidateFinance';
+    }
+    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to validate order number <b> ${this.idOrder}</b>`)
+    if (result.value) {
+      this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: statusAfterValidation, referer: referer, product: this.cart, email: this.cmd['email'] })
+        .subscribe(result => {
+          if (result) {
+            this.swalService.getSwalForNotification(`Order ${this.idOrder} validatd`, ` <b> Order ${this.idOrder} validatd`),
+              error => {
+                this.swalService.getSwalForNotification('Validation Failed !', error.message, 'error')
+              }
+          }
+        })
+    }
+    this.router.navigate(['/product/orders']);
+  }
+
+  async rejectOrder() {
+    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to reject order number <b> ${this.idOrder}</b>`)
+    if (result.value) {
+      this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'rejected', referer: 'Product', reason: this.reason })
+        .subscribe(result => {
+          if (result) {
+            this.swalService.getSwalForNotification(`Order ${this.idOrder} rejected`, ` <b> Order ${this.idOrder} rejected`),
+              error => {
+                this.swalService.getSwalForNotification('Rejection Failed !', error.message, 'error')
+              }
+          }
+        })
+    }
+    this.router.navigate(['/product/orders']);
+  }
+
+  async cancelOrder() {
+    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to cancel order number <b> ${this.idOrder}</b>`)
+    if (result.value) {
+      this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'cancelled', referer: 'Product' })
+        .subscribe(result => {
+          if (result) {
+            this.swalService.getSwalForNotification(`Order ${this.idOrder} cancelled`, ` <b> Order ${this.idOrder} cancelled`),
+              error => {
+                this.swalService.getSwalForNotification('Cancellation Failed !', error.message, 'error')
+              }
+          }
+        })
+    }
+    this.router.navigate(['/product/orders']);
+  }
+
+  async cancelValidation() {
+    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to cancel order validation number <b> ${this.idOrder}</b>`)
+    if (result.value) {
+      this.orderService.cancelProductValidation(this.idOrder)
+        .subscribe(result => {
+          if (result) {
+            this.swalService.getSwalForNotification(`Order ${this.idOrder} validation cancelled`, ` <b> Order ${this.idOrder} validation cancelled`),
+              error => {
+                this.swalService.getSwalForNotification('Validation Cancellation Failed !', error.message, 'error')
+              }
+          }
+        })
+    }
+    this.router.navigate(['/product/orders']);
+  }
+
+  async getSwalToastNotification() {
+    this.swalService.getSwalToastNotification(false, 4000, true, 'Changes Saved');
+  }
 }
+
+
+

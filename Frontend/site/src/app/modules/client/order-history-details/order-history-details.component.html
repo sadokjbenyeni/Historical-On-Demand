@@ -1,23 +1,19 @@
 <app-menu></app-menu>
 <div class="row page-header" *ngIf="!isSupport">
-    <div class="col-lg-9">
+    <div class="col-lg-10">
         <ol class="breadcrumb">
             <li class="bread-crumb" [routerLink]="['/order']">Home</li>
             <li class="bread-crumb" [routerLink]="['/order/history']">Order History</li>
-            <li class="current-bread-crumb">Order History {{idOrder}}</li>
+            <li class="current-bread-crumb">Order Details {{orderInfo.id}}</li>
         </ol>
     </div>
-    <div class="col-lg-3">
-        <div class="table-responsive text-center">
-            <div class="btn-action">
-                <button mat-button class="bottom-button orange-color" *ngIf="getState(state)=='Active'"
-                    (click)="downloadLinks()"><i class="fa fa-cloud-download"></i>Download Links</button>
-                <button mat-button class="bottom-button yellow-color" (click)="openDialog()" *ngIf=" (state === 'PVC' ||
-                          state === 'PVP' ||
-                          state === 'PVF') && payment !== 'creditcard'"><i class="fa fa-trash-o"></i> Cancel Order
-                </button>
-            </div>
-        </div>
+    <div class="col-lg-2">
+        <button mat-button class="bottom-button orange-color button-adjusment" *ngIf="getState(state)=='Active'"
+            (click)="downloadLinks()"><i class="fa fa-cloud-download"></i>Download Links</button>
+        <button mat-button class="bottom-button yellow-color button-adjusment" (click)="openDialog()"
+            *ngIf="state === 'PVC' || state === 'PVP' || state === 'PVF'"><i class="fa fa-trash-o"></i>
+            Cancel Order
+        </button>
     </div>
 </div>
 <div [ngClass]="{'page-content': !isSupport}">

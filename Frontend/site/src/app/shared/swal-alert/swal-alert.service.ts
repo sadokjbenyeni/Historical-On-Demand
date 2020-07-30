@@ -19,7 +19,7 @@ export class SwalAlertService {
       cancelButtonColor: cancelButtonColor,
       allowOutsideClick: allowOutsideClick,
       allowEscapeKey: allowEscapeKey,
-      
+
     })
   }
 
@@ -30,6 +30,25 @@ export class SwalAlertService {
       html: text,
       showConfirmButton: false,
       timer: timer
+    })
+  }
+
+  getSwalToastNotification(showConfirmButton, time, timerProgressBar, title) {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-right',
+      showConfirmButton: showConfirmButton,
+      timer: time,
+      timerProgressBar: timerProgressBar,
+      width: 400,
+      onOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
+    })
+    return Toast.fire({
+      icon: "success",
+      title: title
     })
   }
 }
