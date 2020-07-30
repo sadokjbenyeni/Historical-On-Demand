@@ -46,7 +46,7 @@ export class UserRolesComponent implements OnInit, OnChanges {
     return this.userRoles.findIndex(item => item == role) != -1;
   }
 
-  async updateUser() {
+  async updateUserRoles() {
     var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to update <b> ${this.user.firstname} ${this.user.lastname} </b> roles!`)
     if (result.value) {
       this.adminsitratorService.updateUser(this.user)

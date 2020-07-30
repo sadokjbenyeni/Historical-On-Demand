@@ -7,6 +7,7 @@ import { CurrencyService } from '../../../services/currency.service';
 
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { DownloadInvoiceService } from '../../../services/Intern/download-invoice.service';
+import { SwalAlertService } from '../../../../app/shared/swal-alert/swal-alert.service';
 
 @Component({
   selector: 'app-ordersc-view',
@@ -57,7 +58,8 @@ export class OrderscViewComponent implements OnInit {
     private configService: ConfigService,
     private currencyService: CurrencyService,
     private orderService: OrderService,
-    private downloadInvoiceService: DownloadInvoiceService
+    private downloadInvoiceService: DownloadInvoiceService,
+    private swalService: SwalAlertService
   ) {
     route.params.subscribe(_ => { this.idCmd = _.id; });
   }
@@ -176,20 +178,6 @@ export class OrderscViewComponent implements OnInit {
     }
   }
 
-  confirm() {
-    this.orderService.state({ idCmd: this.idCmd, status: 'PVP', referer: 'Compliance', email: this.cmd['email'] }).subscribe(() => {
-      this.router.navigate(['/compliance/orders']);
-    });
-  }
-
-  actions(action) {
-    this.action = action;
-  }
-
-  openModal(content) {
-    this.modalService.open(content, { size: 'sm' });
-  }
-
   getHt(val) {
     if (this.currency !== 'usd') {
       return ((val / this.currencyTxUsd) * this.currencyTx);
@@ -230,5 +218,21 @@ export class OrderscViewComponent implements OnInit {
 
   downloadInvoice(invoice, pdfType) {
     this.downloadInvoiceService.getInvoice(this.idOrder, invoice, pdfType);
+  }
+
+  async validateOrder() {
+    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to validate order number <b> ${this.idOrder}</b> !`)
+    if (result.value) {
+      this.orderService.state({ idCmd: this.idCmd, status: 'PVP', referer: 'Compliance', email: this.cmd['email'] })
+        .subscribe(result => {
+          if (result) {
+            this.swalService.getSwalForNotification(`Order ${this.idOrder} validatd`, ` <b> Order ${this.idOrder} validatd`),
+              error => {
+                this.swalService.getSwalForNotification('Updating roles Failed !', error.message, 'error')
+              }
+          }
+        })
+    }
+    this.router.navigate(['/compliance/orders']);
   }
 }

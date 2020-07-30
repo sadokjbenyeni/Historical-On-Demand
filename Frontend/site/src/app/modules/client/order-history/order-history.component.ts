@@ -22,18 +22,16 @@ export class OrderHistoryComponent implements OnInit {
   symbols: any[];
   statusList: Array<any>;
   clientOrderTableColumns: string[] = ['orderId', 'submissionDateTime', 'orderStatus', 'totalOrderAmount', 'invoice', 'details'];
-  public dataSource = new MatTableDataSource();
+  public dataSource: MatTableDataSource<any>;
 
   constructor(
     private orderService: OrderService,
     private currencyService: CurrencyService,
     private downloadInvoiceService: DownloadInvoiceService
-  ) {
-  }
+  ) { }
 
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-
   ngOnInit() {
     this.symbols = [];
     this.listCurrencies();
@@ -46,9 +44,9 @@ export class OrderHistoryComponent implements OnInit {
         orderTable['listorders'].map(order => new OrderPreview(order['id'], order['submissionDate'], this.getStatusName(order['state']), order.total.toFixed(2) + ' ' + this.getCurrency(order.currency), order, order['_id']))
     ))
       .subscribe(result => {
-        this.dataSource.data = result;
+        this.dataSource = new MatTableDataSource(result);
         this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+         this.dataSource.sort = this.sort;
       }, error => console.log(error));
   }
 

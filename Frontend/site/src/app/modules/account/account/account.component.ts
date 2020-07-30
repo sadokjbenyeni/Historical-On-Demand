@@ -44,6 +44,7 @@ export class AccountComponent implements OnInit {
   }
 
   getSection(section) {
+    debugger
     if (this.sectionName == undefined) {
       this.sectionName = section;
     }
