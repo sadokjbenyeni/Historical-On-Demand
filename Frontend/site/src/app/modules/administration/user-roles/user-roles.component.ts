@@ -1,14 +1,14 @@
 import { Component, OnInit, Input, OnChanges, ɵConsole, Output, EventEmitter, SimpleChanges } from '@angular/core';
 import { UserService } from '../../../services/user.service';
 import { AdministratorServiceService } from '../../../services/administrator-service.service';
-import { SwalAlertService } from '../../swal-alert/swal-alert.service';
+import { SwalAlertService } from '../../../shared/swal-alert/swal-alert.service';
 
 @Component({
-  selector: 'app-roles',
-  templateUrl: './roles.component.html',
-  styleUrls: ['./roles.component.css']
+  selector: 'app-user-roles',
+  templateUrl: './user-roles.component.html',
+  styleUrls: ['./user-roles.component.css']
 })
-export class RolesComponent implements OnInit, OnChanges {
+export class UserRolesComponent implements OnInit, OnChanges {
 
   userRoles: any = [];
   @Input() user: any = [];

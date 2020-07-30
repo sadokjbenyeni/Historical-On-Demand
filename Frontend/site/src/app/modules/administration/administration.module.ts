@@ -17,6 +17,7 @@ import { administrationRoutes } from './administration.routing';
 import { UserModule } from '../user/user.module';
 import { SharedModule } from '../../shared/shared.module';
 import { MaterialModule } from '../material/material.module';
+import { UserRolesComponent } from './user-roles/user-roles.component';
 
 
 
@@ -31,7 +32,8 @@ import { MaterialModule } from '../material/material.module';
     UserDetailComponent,
     UsersComponent,
     VariableComponent,
-    ComCountriesComponent
+    ComCountriesComponent,
+    UserRolesComponent
   ],
   imports: [
     CommonModule,

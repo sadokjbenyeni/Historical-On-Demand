@@ -60,8 +60,8 @@
           <div class="panel panel-default">
             <div *ngIf="user" class="panel-body height-body information-background-style">
               <div class="col-md-12 no-padding">
-                <app-roles *ngIf="user?.roleName" [user]="user">
-                </app-roles>
+                <app-user-roles *ngIf="user?.roleName" [user]="user">
+                </app-user-roles>
               </div>
               <div class="col-md-12 no-padding margin-informations">
                 <app-user-informations [user]="user" *ngIf="user"></app-user-informations>

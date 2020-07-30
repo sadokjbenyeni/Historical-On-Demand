@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { LoginInformationsComponent } from './login-informations/login-informations.component';
 import { MaterialModule } from '../material/material.module';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { loginRoutes } from './login.routing';
 
 
 
@@ -13,10 +15,12 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MaterialModule
+    MaterialModule,
+    RouterModule.forRoot(loginRoutes)
     ],
   exports: [
-    LoginInformationsComponent
+    LoginInformationsComponent,
+    RouterModule
   ],
   entryComponents: []
 })
