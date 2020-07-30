@@ -1,51 +1,47 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { UserService } from '../../../services/user.service';
-import * as jwt_decode from 'jwt-decode';
+import { AuthentificationService } from '../../../services/authentification.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.css']
 })
-export class MenuComponent implements OnInit {
+export class MenuComponent implements OnInit, OnDestroy {
   link: any = "";
-  role: string = "";
-
+  role: string[] = new Array<string>();
+  private authSubscription : Subscription;
   constructor(
     private router: Router,
-    private userService: UserService
+    private authService: AuthentificationService
   ) {
 
   }
 
-  ngOnInit() {
-    let token = sessionStorage.getItem('token');
-    if (token) {
-      this.role = jwt_decode(token).roleName
+  ngOnDestroy(): void {
+    if(this.authSubscription){
+      this.authSubscription.unsubscribe();
     }
+  }
+
+  ngOnInit() {
+    this.authSubscription = this.authService.subscribe(event => this.onAuthEventEmitted(event))
+    // this.logoutEvent.subscribe(event => this.logout());
+    this.role = this.authService.getRoles();
   }
 
   logout() {
-    let token = sessionStorage.getItem('token');
-    if (token) {
-      this.userService.logout({ token: token }).subscribe(() => {
-        this.role = '';
-        sessionStorage.removeItem('token');
-        sessionStorage.setItem('dataset', JSON.stringify({ "dataset": "", "title": "" }));
-        this.router.navigate(['/home']);
-      });
-    }
+    this.authService.logout().subscribe(() => { });
   }
 
-
-
-  // openNav() {
-  //   document.getElementById('mySidenav').style.width = '250px';
-  // }
-
-  // closeNav() {
-  //   document.getElementById('mySidenav').style.width = '0';
-  // }
+  onAuthEventEmitted(eventParameters) {
+    this.role = this.authService.getRoles();
+    // if (eventParameters && eventParameters.event === 'logout') {
+      // this.role = "";
+      // this.router.navigated = false;
+      // this.router.navigate(['/home']);
+    // }
+  }
 }

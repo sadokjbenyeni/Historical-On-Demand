@@ -330,12 +330,7 @@ router.put("/state", async (req, res) => {
         message: err.message + "\n" + err.stack,
         className: "Order API",
       });
-      return res.status(503).json({
-        message:
-          "An error has been thrown, please contact support with '" +
-          req.headers.loggerToken +
-          "'",
-      });
+      res.status(503).json({ message: "An error has been thrown, please contact support with '" + req.headers.loggerToken +"'" });
     }
   }
   if (
@@ -350,41 +345,30 @@ router.put("/state", async (req, res) => {
         message: err.message + "\n" + err.stack,
         className: "Order API",
       });
-      return res.status(503).json({
-        message:
-          "An error has been thrown, please contact support with '" +
-          req.loggerToken +
-          "'",
-      });
+      return res.status(503).json({ message: "An error has been thrown, please contact support with '" + req.loggerToken + "'" });
     }
-  } else if (
-    req.body.referer.toLowerCase() === "client" ||
-    req.body.status.toLowerCase() === "cancelled"
-  ) {
-    req.logger.info("order updating (" + JSON.stringify(orderUpdated) + ")...");
+  } else if (req.body.referer.toLowerCase() === "client" ||req.body.status.toLowerCase() === "cancelled") {
+    req.logger.info("order canelling...");
+    req.logger.debug("data order update: {" + JSON.stringify(orderUpdated) + "}");
     await Order.updateOne(
       { id_cmd: req.body.idCmd },
       { $set: orderUpdated, $push: { logs: log } }
     ).exec();
-    await Invoice.updateOne(
-      { orderId: req.body.id },
-      { $set: orderUpdated, $push: { logs: log } }
-    ).exec();
-
-    return res.status(201).json({ ok: true });
-  } else {
-    req.logger.info("order updating (" + JSON.stringify(orderUpdated) + ")...");
-    await Order.updateOne(
-      { id_cmd: req.body.idCmd },
-      { $set: orderUpdated, $push: { logs: log } }
-    ).exec();
-    await Invoice.updateOne(
-      { orderId: req.body.id },
-      { $set: orderUpdated, $push: { logs: log } }
-    ).exec();
-    // .then((r) => {
+    await Invoice.updateOne({ orderId: req.body.id },{ $set: orderUpdated, $push: { logs: log } }).exec();
     return res.status(201).json({ ok: true });
   }
+  req.logger.info("order updating...");
+  req.logger.debug("data order update: {" + JSON.stringify(orderUpdated) + "}");
+  await Order.updateOne(
+    { id_cmd: req.body.idCmd },
+    { $set: orderUpdated, $push: { logs: log } }
+  ).exec();
+  await Invoice.updateOne(
+    { orderId: req.body.id },
+    { $set: orderUpdated, $push: { logs: log } }
+  ).exec();
+  // .then((r) => {
+  return res.status(201).json({ ok: true });
 });
 
 router.put("/update", async (request, res) => {
@@ -702,11 +686,9 @@ router.get("/details/:id", async (req, res) => {
     );
     return res.status(200).json(order);
   } catch (error) {
+    req.logger.error({message: error.message + '\n' + error.stack, className: 'Order API'});
     res.status(503).json({
-      message:
-        "an error has been raised please contact support with this identifier [" +
-        req.headers.loggerToken +
-        "]",
+      message:"an error has been raised please contact support with this identifier [" + req.headers.loggerToken +"]",
     });
   }
 });
@@ -774,7 +756,8 @@ router.get("/idCmd/:id", async (req, res) => {
     var order = await OrderService.getOrderById(req.params.id);
     return res.status(200).json({ cmd: order });
   } catch (error) {
-    return res.status(503).json({ error: error.message });
+    req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
+    return res.status(503).json({ error: 'An error has been throw, please contact support with id: '+ req.headers.loggerToken });
   }
 });
 

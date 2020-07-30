@@ -3,6 +3,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { NgForm } from '@angular/forms';
 
 import { UserService } from '../../../services/user.service';
+import { AuthentificationService } from '../../../services/authentification.service';
 
 
 @Component({
@@ -26,6 +27,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private router: Router,
     private userService: UserService,
+    private authService: AuthentificationService,
     private activatedRoute: ActivatedRoute
   ) {
   }
@@ -109,14 +111,11 @@ export class LoginComponent implements OnInit {
   }
 
   check() {
-    this.userService.check({ email: this.email, pwd: this.password }).subscribe(res => {
+    this.authService.login({ email: this.email, pwd: this.password }).subscribe(res => {
       if (!res.token) {
         this.message = res.message;
         this.colorMessage = 'alert alert-danger';
       } else {
-        sessionStorage.setItem('token', res.token);
-        localStorage.setItem('ula', 'true');
-        sessionStorage.removeItem('register')
         this.router.navigate(['/home']);
       }
     });

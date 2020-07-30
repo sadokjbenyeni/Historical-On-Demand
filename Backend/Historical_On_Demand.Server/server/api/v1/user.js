@@ -38,7 +38,7 @@ router.get("/profile/", async (req, res) => {
     }
     return res.status(200).json({ user: user });
   } catch (error) {
-    return res.status(200).json({ error: error.message });
+    return res.status(401).json({ error: error.message });
   }
 });
 
@@ -232,7 +232,20 @@ router.post("/", async (req, res) => {
 });
 
 router.post("/logout/", (req, res) => {
-  const userId = jwtService.verifyToken(req.headers.authorization).id;
+  var userId = "";
+  try{
+    userId = jwtService.decodeToken(req.headers.authorization).id;
+  }
+  catch(error){
+    req.logger.error({ message: err.message, className: "User API" });
+    req.logger.debug({ message: err.stack, className: "User API" });
+    return res.status(401).json({message: "Token not valid, please clear your browser's cache and storage"});
+  }
+  if(userId == null || userId === ""){
+    req.logger.warn({ message: 'userId not found in the token', className: "User API" });
+    req.logger.debug({ message: 'JWT Token: '+req.headers.authorization, className: "User API" });
+    return res.status(200).json({message: "success"});
+  }
   User.updateOne({ _id: userId }, { $set: { islogin: false } })
     .then((val) => {
       res.status(200).json({});
@@ -263,13 +276,12 @@ router.post("/islogin/", async (req, res) => {
       return res.status(401).json({ islogin: false });
     }
   } catch (error) {
-    req.logger.error({
-      message: error.message + "\n" + error.stack,
-      className: "User API",
-    });
-    return res
-      .status(500)
-      .json({ message: "Unhandle error id " + req.headers.loggerToken });
+    if(error.name === 'TokenExpiredError'){
+      req.logger.debug({ message: 'Access denied: ' + error.message ,className: "User API"});   // todo change in debug
+      return res.status(401).json({ message: "Your token expired, please sign-in." + req.headers.loggerToken });
+    }
+    req.logger.error({message: error.message + "\n" + error.stack,className: "User API"});
+    return res.status(401).json({ message: "Your token expired, please sign-in." + req.headers.loggerToken });
   }
 });
 

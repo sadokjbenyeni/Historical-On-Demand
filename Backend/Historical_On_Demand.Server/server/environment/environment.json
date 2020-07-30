@@ -5,7 +5,7 @@
   "domain": "https://hod-lab.quanthouse.com",
   "localdomain": "http://gateway01.hod-lab.quanthouse.com",
   "rtconfig": ["192.168.10.10"],
-  "InvoiceDirectory": "c:/temp/files/invoice/",
+  "InvoiceDirectory": "/var/histodataweb/invoices/",
   "hostsES": ["http://10.0.10.102:9200"],
   "environment": "UAT",
   "phrase": "14cb4a9235d7360d2911d6444aa69f02",
@@ -36,7 +36,7 @@
   "jwtCredentials": {
     "secret": "HodQuanthouse",
     "options": {
-      "expiresIn": "1d"
+      "expiresIn": "12h"
     }
   }
 }

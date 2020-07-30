@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
+import * as jwt_decode from 'jwt-decode';
 
 // export interface User {
 //   islogin: boolean;
@@ -48,10 +49,6 @@ export class UserService {
     // .map( res => res.json() );
   }
 
-  check(user) {
-    return this.http.post<any>(environment.api + '/user/check', user);
-    // .map( res => res.json() );
-  }
 
   info(user) {
     return this.http.post<any>(environment.api + '/user/info', user);
@@ -78,9 +75,7 @@ export class UserService {
     // .map( res => res.json() );
   }
 
-  islogin(url) {
-    return this.http.post<any>(environment.api + '/user/islogin', url);// .map( res => res.json() );
-  }
+  
 
   mdpmail(val) {
     return this.http.post<any>(environment.api + '/mail/mdp', val);
@@ -97,10 +92,6 @@ export class UserService {
     return this.authenticatedUser;
   }
 
-  logout(token) {
-    return this.http.post<any>(environment.api + '/user/logout', token);
-    // .map( res => res.json() );
-  }
   preferBilling(prefer) {
     return this.http.post<any>(environment.api + '/user/preferBilling', prefer);
     // .map( res => res.json() );

@@ -36,7 +36,7 @@ mongoose.connect(global.environment.database.connectionString, {
 mongoose.set("debug", true);
 
 logger.info({
-  message: "Starting hod web site backend version 1.1.4...",
+  message: "Starting hod web site backend version 1.2.0...",
   className: "Server",
 });
 

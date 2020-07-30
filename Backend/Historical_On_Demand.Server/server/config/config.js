@@ -10,9 +10,7 @@ exports.localdomain = () => { return "http://gateway01.hod-lab.quanthouse.com"; 
 //     return "/mapr/client_invoices/";
 // }
 
-exports.InvoiceDirectory = () => {
-    return "c:/temp/files/invoice/";
-}
+exports.InvoiceDirectory = () => { return "/var/histodataweb/invoices"; }
 // IPs ElastcSearch
 exports.hostsES = () => { return ['http://10.0.10.102:9200']; }
 

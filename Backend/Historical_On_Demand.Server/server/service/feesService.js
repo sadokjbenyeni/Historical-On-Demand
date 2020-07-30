@@ -2,7 +2,7 @@ const currencyService = require('./currencyService');
 const fluxService = require('./fluxService')
 module.exports.calculatefeesOfOrder = (order, currency, cube) => {
     if (order.products) {
-        order.products = splitproductsbyEID(order);
+        order.products = groupProductsbyEID(order);
         order.products.forEach(item => {
             var totalmounths = 0;
             if (item.historical_data.backfill_applyfee && !(item.historical_data.direct_billing)) {
@@ -28,7 +28,7 @@ module.exports.calculatefeesOfOrder = (order, currency, cube) => {
     }
 }
 
-function splitproductsbyEID(order) {
+function groupProductsbyEID(order) {
     var setEID = new Set(Array.from(order.products, item => item.eid));
     var mapEID = []
     setEID.forEach(eid => {

@@ -7,3 +7,6 @@ module.exports.createTokentoUser = (user) => {
 module.exports.verifyToken = (token) => {
     return jwtManager.verify(token, global.environment.jwtCredentials.secret)
 }
+module.exports.decodeToken = (token) => {
+    return jwtManager.decode(token, global.environment.jwtCredentials.secret);
+}

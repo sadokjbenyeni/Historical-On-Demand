@@ -47,7 +47,7 @@
           <ul class="nav navbar-nav" *ngIf="role.indexOf('Support') != -1 ">
             <li class="nav-item"><a class="nav-link" routerLink = "/support/clientorder">Support</a></li>
           </ul>
-          <ul class="nav navbar-nav" *ngIf="role.length > 0 || role ">
+          <ul class="nav navbar-nav" *ngIf="role.length > 0">
             <li class="nav-item clickable"><a class="nav-link" (click)="logout()">Logout</a></li>
           </ul>
         </div>
