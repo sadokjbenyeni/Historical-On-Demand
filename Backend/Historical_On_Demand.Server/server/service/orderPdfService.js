@@ -369,7 +369,7 @@ amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount
                   { border: border, text: '%', fontSize: 10, color: '#6C6C6C' }
                 ],
                 [
-                  { border: border, text: 'LESS DISCOUNT', fontSize: 10, color: '#6C6C6C' },
+                  { border: border, text: 'TOTAL', fontSize: 10, color: '#6C6C6C' },
                   { border: border, text: currencySymbol + totalLessDiscount.toFixed(2), fontSize: 10, alignment: 'right', color: '#6C6C6C' },
                   { border: border, text: currency.device, fontSize: 10, color: '#6C6C6C' }
                 ],

@@ -1,11 +1,16 @@
 <app-menu></app-menu>
 <div class="row page-header">
-  <div class="col-lg-12">
-    <ol class="breadcrumb custom-breadcrumb">
-      <li class="active">Compliance</li>
-      <li class="active">Client Orders</li>
-      <li class="active">Order Details </li>
+  <div class="col-lg-10">
+    <ol class="breadcrumb">
+      <li class="bread-crumb" [routerLink]="['/compliance']">Home</li>
+      <li class="bread-crumb" [routerLink]="['/compliance/orders']">Compliance</li>
+      <li class="current-bread-crumb">Order Details {{idOrder}}</li>
     </ol>
+  </div>
+  <div class="col-lg-2">
+    <button class="bottom-button green-color" *ngIf="verifState()"
+      (click)="openModal(content); actions('Confirm Client Order Validation')"><i class="fa fa-check"></i> Validate
+    </button>
   </div>
 </div>
 <div class="container page-content">
@@ -123,13 +128,6 @@
                 <td>{{ totalTTC | number:'1.2-2' }} {{ symbols[currency] }}</td>
               </tr>
             </table>
-          </div>
-        </div>
-        <div class="table-responsive text-center">
-          <div class="btn-action">
-            <span class="btn btn-success fa fa-handshake" *ngIf="verifState()"
-              (click)="openModal(content); actions('Confirm Client Order Validation')"> Validate</span>
-            <span class="btn btn-danger fa fa-power-off" [routerLink]='["/compliance/orders"]'> Close</span>
           </div>
         </div>
       </div>

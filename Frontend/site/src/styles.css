@@ -355,12 +355,12 @@ span.cap {
   position: fixed;
   right: 0;
   left: 0;
-  top: 70px;
+  top: 80px;
   z-index: 1000;
   border-bottom: 1px solid #eee;
   background-color: #fff;
   margin: 0;
-  padding-bottom: 9px;
+  height: 5vh;
 }
 
 .page-content {
@@ -429,7 +429,7 @@ re-captcha > div {
   border: none;
   background-size: 300% 100%;
 
-  border-radius: 3px;
+  border-radius: 2px;
   -moz-transition: all 0.4s ease-in-out;
   -o-transition: all 0.4s ease-in-out;
   -webkit-transition: all 0.4s ease-in-out;
@@ -609,4 +609,26 @@ a {
 .mat-chip.mat-standard-chip.mat-chip-selected.mat-primary {
   background-color: #ea663b;
   color: #fff;
+}
+
+
+.bread-crumb{
+  font-weight: 300;
+  font-size: 23px;
+  color: grey;
+  cursor: pointer;
+}
+
+.current-bread-crumb{
+  font-weight: 400;
+  font-size: 25px;
+  color: #ea663b;
+}
+
+.bread-crumb:hover{
+  color: #ea663b;
+}
+
+.breadcrumb {
+  background-color: white;
 }
