@@ -566,7 +566,7 @@ a {
 }
 
 .pdf-downloader-main input:checked ~ .pdf-downloader-menu {
-  width: 130px;
+  width: 150px;
 }
 
 .pdf-downloader-main input:checked ~  {
