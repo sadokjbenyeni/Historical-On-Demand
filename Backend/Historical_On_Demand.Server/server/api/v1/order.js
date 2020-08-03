@@ -330,7 +330,7 @@ router.put("/state", async (req, res) => {
         message: err.message + "\n" + err.stack,
         className: "Order API",
       });
-      res.status(503).json({ message: "An error has been thrown, please contact support with '" + req.headers.loggerToken +"'" });
+      res.status(503).json({ message: "An error has been thrown, please contact support with '" + req.headers.loggerToken + "'" });
     }
   }
   if (
@@ -347,14 +347,14 @@ router.put("/state", async (req, res) => {
       });
       return res.status(503).json({ message: "An error has been thrown, please contact support with '" + req.loggerToken + "'" });
     }
-  } else if (req.body.referer.toLowerCase() === "client" ||req.body.status.toLowerCase() === "cancelled") {
+  } else if (req.body.referer.toLowerCase() === "client" || req.body.status.toLowerCase() === "cancelled") {
     req.logger.info("order canelling...");
     req.logger.debug("data order update: {" + JSON.stringify(orderUpdated) + "}");
     await Order.updateOne(
       { id_cmd: req.body.idCmd },
       { $set: orderUpdated, $push: { logs: log } }
     ).exec();
-    await Invoice.updateOne({ orderId: req.body.id },{ $set: orderUpdated, $push: { logs: log } }).exec();
+    await Invoice.updateOne({ orderId: req.body.id }, { $set: orderUpdated, $push: { logs: log } }).exec();
     return res.status(201).json({ ok: true });
   }
   req.logger.info("order updating...");
@@ -686,9 +686,9 @@ router.get("/details/:id", async (req, res) => {
     );
     return res.status(200).json(order);
   } catch (error) {
-    req.logger.error({message: error.message + '\n' + error.stack, className: 'Order API'});
+    req.logger.error({ message: error.message + '\n' + error.stack, className: 'Order API' });
     res.status(503).json({
-      message:"an error has been raised please contact support with this identifier [" + req.headers.loggerToken +"]",
+      message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]",
     });
   }
 });
@@ -757,7 +757,7 @@ router.get("/idCmd/:id", async (req, res) => {
     return res.status(200).json({ cmd: order });
   } catch (error) {
     req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
-    return res.status(503).json({ error: 'An error has been throw, please contact support with id: '+ req.headers.loggerToken });
+    return res.status(503).json({ error: 'An error has been throw, please contact support with id: ' + req.headers.loggerToken });
   }
 });
 
@@ -896,7 +896,7 @@ router.put("/changePresubmitState", async (req, res) => {
   try {
     const idUser = jwtService.verifyToken(req.headers.authorization).id
     var updated = await OrderService.updatePreSubmitStateCaddy(
-     idUser,
+      idUser,
       req.body.state
     );
     return res.status(200).json({ udpated: updated });
@@ -905,12 +905,28 @@ router.put("/changePresubmitState", async (req, res) => {
   }
 });
 
-// router.post('/caddies', (req, res) => {
-//   Order.find({ idUser: req.body.id, state: { $in: ['CART', 'PLI', 'PBI', 'PSC'] } })
-//     .then((cmd) => {
-//       return res.status(200).json({ cmd: cmd });
-//     });
-// });
+router.put("/abortOrder", async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+  const orderToDelete = await OrderService.getRawCaddy(userId);
+  if (orderToDelete) {
+    await Order.updateOne(
+      { _id: orderToDelete._id },
+      {
+        $set: {
+          state: "Deleted After Abortion",
+          logs: {
+            status: "Deleted After Abortion",
+            referer: "System",
+            date: Date.now()
+          },
+        }
+      }
+    ).exec();
+  }
+
+})
 
 router.post("/sortProducts", (req, res) => {
   Order.findOne({ id_cmd: req.body.idCmd }).then((cmd) => {
@@ -979,6 +995,7 @@ router.put("/updateProductDate", async (req, res) => {
   if (result) return res.status(200).json({ message: "Ok" });
   else return res.status(200).json({ error: "Product not found in the caddy" });
 });
+
 
 
 pdfpost = async function (id, logger, invoiceId, invoiceType) {

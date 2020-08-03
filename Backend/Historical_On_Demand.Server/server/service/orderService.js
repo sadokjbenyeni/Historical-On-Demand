@@ -67,6 +67,7 @@ clientOrderDetails = function (order) {
     container.products.forEach(product => {
         delete product.logs
     });
+    container.idUser = order.idUser;
     container.currency = order.currency;
     container.currencyTx = order.currencyTx;
     container.currencyTxUsd = order.currencyTxUsd;
@@ -250,7 +251,7 @@ function setOrderValuesFromInvoice(order, invoice) {
     });
 
     function getExchangeFees(productsEID) {
-        if(productsEID && productsEID.historical_data){
+        if (productsEID && productsEID.historical_data) {
             return productsEID.historical_data.backfill_applyfee &&
                 !productsEID.historical_data.direct_billing
                 ? productsEID.exchangefee

@@ -6,7 +6,7 @@ import { Observable, ObservableInput } from 'rxjs';
 import { OrderService } from '../../../services/order.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { ConfigService } from '../../../services/config.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import 'rxjs/add/operator/map';
 
 
@@ -22,6 +22,9 @@ import { DownloadInvoiceService } from '../../../services/Intern/download-invoic
 import { OrderAmount } from '../../order/models/order-amount.model';
 import { OrderInformation } from '../../order/models/order-information.model';
 import { Product } from '../../../core/models/product.model';
+import { SwalAlertService } from '../../../../app/shared/swal-alert/swal-alert.service';
+import { result } from 'lodash';
+import { TestBed } from '@angular/core/testing';
 
 @Component({
   selector: 'app-order-history-details',
@@ -58,15 +61,19 @@ export class OrderHistoryDetailsComponent implements OnInit {
   clientInfo: ClientInformation;
   orderAmount: OrderAmount;
   orderInfo: OrderInformation;
+  userId: string;
+  isCartFull: boolean = false;
   @Input() isSupport: boolean;
 
   constructor(
     public dialog: MatDialog,
+    private router: Router,
     private orderService: OrderService,
     private route: ActivatedRoute,
     private currencyService: CurrencyService,
     private configService: ConfigService,
-    private deliverablesService: DeliverablesService
+    private deliverablesService: DeliverablesService,
+    private swalService: SwalAlertService
   ) {
     this.route.params.subscribe(_ => { this.id = _.id; });
   }
@@ -76,6 +83,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.period = [];
     this.getPeriod();
     // this.listCurrencies();
+    this.verifyOrderInCart();
 
     this.token = JSON.parse(sessionStorage.getItem('user'))?.token;
     this.gateway = environment.gateway;
@@ -199,10 +207,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
     return countlk;
   }
 
-  confirm() {
-    this.orderService.state({ idCmd: this.id, status: 'cancelled', referer: 'Client' }).subscribe(() => { });
-  }
-
   getListStates() {
     this.orderService.getListStates({}).subscribe(res => {
       this.states = res['states'];
@@ -237,6 +241,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.totalHT = order.totalHT
     this.totalVat = this.totalHT * (this.vat / 100);
     this.totalTTC = order.total
+    this.userId = order.idUser;
     let index = 0;
     this.details = [];
     if (order.products.length > 0) {
@@ -284,15 +289,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
     });
   }
 
-  openDialog(): void {
-    const dialogReference = this.dialog.open(CancelOrderDialogComponent, {
-      width: '250px',
-      data: { idCmd: this.idCmd, status: 'cancelled', referer: 'Client', orderId: this.orderInfo.id }
-    });
-    dialogReference.afterClosed().subscribe(result => {
-    });
-  }
-
   downloadLinks() {
     let fileName = this.orderInfo.id + "_Manifest";
     let downloadablelinks = [];
@@ -331,11 +327,68 @@ export class OrderHistoryDetailsComponent implements OnInit {
       })
   }
 
-
-
   handleError(error): ObservableInput<any> {
     console.log(error);
     return Promise.all(new Array<any>());
+  }
+
+  verifState() {
+    let state = this.orderInfo.state;
+    let pvp = 'Pending Validation by Product';
+    let pvf = 'Pending Validation by Finance';
+    let pvc = 'Pending Validation by Compliance';
+    if (state === pvc || state === pvp || state === pvf) return true;
+    else return false;
+  }
+
+  verifyOrderInCart() {
+    return new Promise((resolve, reject) => {
+      this.orderService.getCaddy().subscribe(caddy => {
+        if (caddy) this.isCartFull = true
+        resolve(caddy)
+      }, error => {
+        reject(error);
+      })
+    })
+  }
+
+
+  async abortOrder() {
+    if (this.isCartFull) {
+      var isReadyToLooseCartItems = await this.swalService.getSwalForConfirm('Are you sure?', `This action will delete all your cart items <b>Permanently</b>`, 'error');
+      if (!isReadyToLooseCartItems.value) {
+        return false;
+      }
+    }
+
+    var isReadyToAbort = await this.swalService.getSwalForConfirm('Are you sure ?', `You are going to abort order number <b> ${this.orderInfo.id} </b> back to you cart`);
+    if (isReadyToAbort.value) {
+      this.orderService.abortOrder().subscribe(result => {
+        if (result) {
+          this.swalService.getSwalForNotification(`Order ${this.orderInfo.id} aborted`, ` <b> Order ${this.orderInfo.id} aborted`)
+        }
+        error => {
+          this.swalService.getSwalForNotification('Abortion Failed !', error.message, 'error')
+        }
+      })
+    }
+    this.router.navigate(['/order/history']);
+  }
+
+  async cancelOrder() {
+    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to cancel order number <b> ${this.orderInfo.id}</b>`)
+    if (result.value) {
+      this.orderService.state({ idCmd: this.id, status: 'cancelled', referer: 'Client' })
+        .subscribe(result => {
+          if (result) {
+            this.swalService.getSwalForNotification(`Order ${this.orderInfo.id} cancelled`, ` <b> Order ${this.orderInfo.id} cancelled`),
+              error => {
+                this.swalService.getSwalForNotification('Cancellation Failed !', error.message, 'error')
+              }
+          }
+        })
+    }
+    this.router.navigate(['/order/history']);
   }
 }
 
