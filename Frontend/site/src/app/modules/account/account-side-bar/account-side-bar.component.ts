@@ -15,7 +15,7 @@ export class AccountSideBarComponent implements OnInit {
   ngOnInit(): void {}
   
   getSectionName(event) {
-    this.sectionName = event.toElement.textContent;
+    this.sectionName = event.target.innerText;
     this.getSection.emit(this.sectionName);
   }
 

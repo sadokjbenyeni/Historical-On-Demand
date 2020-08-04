@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const { options } = require("../api/v1/administrator/user");
 const Users = mongoose.model("User");
-
+const UserMailService = require("../service/userMailerService");
+const jwtService = require("../service/jwtService");
 module.exports.getUserById = async (userId, options = { password: false }) => {
   const user = await Users.findOne({ _id: userId }, options).exec();
   return user;
@@ -56,6 +57,23 @@ module.exports.UpdateUser = async (user) => {
   }
 };
 
+module.exports.SendMailForEmailUpdateVerification = async (
+  logger,
+  userId,
+  email
+) => {
+  const user = await this.getUserById(userId);
+  if (user) {
+    const token = jwtService.createTokentoUpdateUserMail({
+      id: user._id,
+      email: email,
+    });
+    var mailer = new UserMailService(logger, user);
+    await mailer.ConfirmUpdateEmail(token);
+  } else {
+    throw new Error("User not found ");
+  }
+};
 module.exports.UpdateEmailAdress = async (userId, email) => {
   user = await Users.findOneAndUpdate(
     {
@@ -85,6 +103,26 @@ module.exports.checkEmailIfExist = async (email) => {
   return false;
 };
 
+module.exports.SendMailForPasswordUpdateVerification = async (
+  logger,
+  userId,
+  oldPassword,
+  newPassword
+) => {
+  const user = await this.getUserById(userId);
+  if (user) {
+    const token = jwtService.createTokentoUpdateUserMail({
+      id: user._id,
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+    });
+    var mailer = new UserMailService(logger, user);
+    await mailer.ConfirmUpdatePassword(token);
+  } else {
+    throw new Error("User not found ");
+  }
+};
+
 module.exports.updateUserPassword = async (
   userId,
   oldPassword,
@@ -105,6 +143,6 @@ module.exports.updateUserPassword = async (
   if (user) {
     return true;
   } else {
-    throw new error("Update failed !");
+    throw new Error("Update failed, please check your password");
   }
 };

@@ -2,8 +2,6 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmIdentityModalComponent } from '../confirm-identity-modal/confirm-identity-modal.component';
-import Swal from 'sweetalert2';
 import { SwalAlertService } from '../../../shared/swal-alert/swal-alert.service';
 
 @Component({
@@ -39,7 +37,7 @@ export class LoginInformationsComponent implements OnInit {
 
   initFields() {
     this.emailForm = this.formBuilder.group({
-      emailAdress: [this.emailAdress, [Validators.email]],
+      emailAdress: [this.emailAdress, [Validators.email]]
     });
 
     this.passwordForm = this.formBuilder.group({
@@ -49,67 +47,61 @@ export class LoginInformationsComponent implements OnInit {
     });
   }
 
+  sendEmailVerificationForUpdateEmailAdress() {
+    this.userService.requestUpdateEmailAdress(this.emailForm.controls.emailAdress.value).subscribe(res => {
 
-  updateUserEmailAdress() {
-    this.checkEmailIfExist();
-    if (this.emailForm.valid) {
-      this.openDialogForUpdateEmailAdress();
-    }
+      if (res.mail) {
+        const swalTitle = "Email for update sent";
+        const swalText = "Please check your email, <b>you have 30 minutes</b> to confirm the email adress update !"
+        this.swalService.getSwalForNotification(swalTitle, swalText, 'success', 1900);
+      }
+      else {
+        const swalTitle = "Email not sent";
+        const swalText = "Some error occured !"
+        this.swalService.getSwalForNotification(swalTitle, swalText, 'error', 1700);
+      }
+
+    },
+      error => {
+        console.log(error);
+      });
+  }
+
+
+  sendEmailVerificationForUpdatePassword() {
+    this.userService.requestUpdatePassword(this.passwordForm.controls.oldPassword.value, this.passwordForm.controls.newPassword.value).subscribe(res => {
+
+      if (res.mail) {
+        const swalTitle = "Email for update sent";
+        const swalText = "Please check your email, <b>you have 30 minutes</b> to confirm the password update !"
+        this.swalService.getSwalForNotification(swalTitle, swalText, 'success', 1900);
+      }
+      else {
+        const swalTitle = "Email not sent";
+        const swalText = "Some error occured !"
+        this.swalService.getSwalForNotification(swalTitle, swalText, 'error', 1700);
+      }
+
+    },
+      error => {
+        console.log(error);
+      });
   }
 
   checkEmailIfExist() {
-    this.updateMail = true;
+    this.updateMail = false;
     let email = this.emailForm.controls["emailAdress"].value;
     if (email) {
       if (email != this.emailAdress) {
         this.userService.checkEmailIfExist(email).subscribe(result => {
           this.emailExist = result.exist;
-
-          if (!result.exist) {
-            this.updateMail = false;
+          if (result.exist) {
+            this.updateMail = true;
           }
         });
       }
     }
-
   }
-
-  async updateUserPassword() {
-    var result = await this.swalService.getSwalForConfirm('Are you sure?', "You are going to update your password!")
-    if (result.value) {
-      this.userService.updateUserPassword(this.passwordForm.controls.oldPassword.value, this.passwordForm.controls.newPassword.value)
-        .subscribe(result => {
-          if (result.updated) {
-            this.initFields();
-            this.swalService.getSwalForNotification('password updated', 'Your password have been updated!'),
-              error => {
-                this.initFields();
-                this.swalService.getSwalForNotification('Updating password Failed !', error.message, 'error')
-              }
-          }
-        })
-    }
-  }
-
-  openDialogForUpdateEmailAdress(): void {
-    this.swalService.getSwalForConfirm('Are you sure?', "You are going to update your email adress!")
-      .then((result) => {
-        if (result.value) {
-          this.userService.UpdateEmailAdress(this.emailForm.controls.emailAdress.value)
-            .subscribe(result => {
-              if (result) {
-                this.emailAdress = result.user.email;
-                this.user.emit(result.user);
-                this.swalService.getSwalForNotification('Email updated', 'Your email adress have been updated!'),
-                  error => {
-                    this.swalService.getSwalForNotification('Updating email adress Failed !', error.message, 'error')
-                  }
-              }
-            })
-        }
-      })
-  }
-
 
   disableViewOld() {
     if (this.passwordForm.controls.newPassword.value === '') {

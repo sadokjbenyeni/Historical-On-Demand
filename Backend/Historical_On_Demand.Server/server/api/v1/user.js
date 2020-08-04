@@ -42,89 +42,18 @@ router.get("/profile/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
-  if (!req.headers.authorization) {
-    return res.status(401).json({ error: "No token provided" });
-  }
-
-  try {
-    var user = await userService.getUserById(req.params.id);
-    if (user) {
-      return res.status(200).json({ user: user });
-    } else {
-      return res.status(200).json({ error: "User not found" });
-    }
-  } catch (error) {
-    req.logger.error({ message: error.message, className: "User API" });
-    req.logger.error({
-      message: JSON.stringify(error) + "\n" + error.stacktrace,
-      className: "User API",
-    });
-    return res.status(501).json({ error: error });
-  }
-});
-router.post("/changedefaultaddress", async (req, res) => {
-  if (!req.headers.authorization) {
-    return res.status(401).json({ error: "No token provided" });
-  }
-  if (!req.body.vat) {
-    return res.status(401).json({ error: "No vat number provided" });
-  }
-  if (!req.body.address) {
-    return res.status(401).json({ error: "No address provided" });
-  }
-  if (!req.body.city) {
-    return res.status(401).json({ error: "No city provided" });
-  }
-  if (!req.body.country) {
-    return res.status(401).json({ error: "No country provided" });
-  }
-  if (!req.body.postalCode) {
-    return res.status(401).json({ error: "No postalCode provided" });
-  }
-  try {
-    const userId = jwtService.verifyToken(req.headers.authorization).id;
-    await userService.UpdateUserDefaultBillingInfo(
-      userId,
-      req.body.vat,
-      req.body.address,
-      req.body.city,
-      req.body.country,
-      req.body.postalCode
-    );
-    return res.status(200).json({ ok: true });
-  } catch (error) {
-    return res.status(200).json({ error: error.message });
-  }
-});
-router.post("/changeDefaultCurrency", async (req, res) => {
-  if (!req.headers.authorization) {
-    return res.status(401).json({ error: "No token provided" });
-  }
-  if (!req.body.currency) {
-    return res.status(401).json({ error: "No currency provided" });
-  }
-  try {
-    const userId = jwtService.verifyToken(req.headers.authorization).id;
-    await userService.UpdateUserDefaultCurrency(userId, req.body.currency);
-    return res.status(200).json({ ok: true });
-  } catch (error) {
-    return res.status(401).json({ error: error.message });
-  }
-});
-
 router.get("/", (req, res) => {
-   if (URLS.indexOf(req.headers.referer) !== -1) {
-  User.find()
-    .sort({ firstname: 1, lastname: 1 })
-    .then((users) => {
-      if (!users) {
-        return res.sendStatus(404);
-      }
-      return res.status(200).json({ users: users });
-    });
-   } else {
-     return res.status(404).end();
+  if (URLS.indexOf(req.headers.referer) !== -1) {
+    User.find()
+      .sort({ firstname: 1, lastname: 1 })
+      .then((users) => {
+        if (!users) {
+          return res.sendStatus(404);
+        }
+        return res.status(200).json({ users: users });
+      });
+  } else {
+    return res.status(404).end();
   }
 });
 
@@ -493,18 +422,100 @@ router.put("/", (req, res) => {
   // }
 });
 
-router.post("/UpdateEmailAdress/", async (req, res) => {
+router.post("/UpdateEmailAdressVerification", async (req, res) => {
   try {
     const userId = jwtService.verifyToken(req.headers.authorization).id;
     if (userId) {
-      user = await userService.UpdateEmailAdress(userId, req.body.email);
-      return res.status(200).json({ user: user });
+      await userService.SendMailForEmailUpdateVerification(
+        req.logger,
+        userId,
+        req.body.email
+      );
+      return res.status(200).json({ mail: true });
     } else {
       return res.status(200).json({ error: "user not found !" });
     }
   } catch (error) {
+    req.logger.error({ message: error.message, className: "Mailer API" });
+    req.logger.error({
+      message: JSON.stringify(error) + "\n" + error.stacktrace,
+      className: "User API",
+    });
+    return res.status(501).json({ mail: false });
+  }
+});
+
+router.post("/UpdatePasswordVerification", async (req, res) => {
+  try {
+    const userId = jwtService.verifyToken(req.headers.authorization).id;
+    if (userId) {
+      await userService.SendMailForPasswordUpdateVerification(
+        req.logger,
+        userId,
+        req.body.oldPassword,
+        req.body.newPassword
+      );
+      return res.status(200).json({ mail: true });
+    } else {
+      return res.status(200).json({ error: "user not found !" });
+    }
+  } catch (error) {
+    req.logger.error({ message: error.message, className: "Mailer API" });
+    req.logger.error({
+      message: JSON.stringify(error) + "\n" + error.stacktrace,
+      className: "User API",
+    });
+    return res.status(501).json({ mail: false });
+  }
+});
+
+router.post("/UpdateEmailAdress/", async (req, res) => {
+  try {
+    const payload = jwtService.verifyToken(req.body.token);
+    if (payload.id) {
+      user = await userService.UpdateEmailAdress(payload.id, payload.email);
+      return res.status(200).json({ user: user });
+    } else {
+      return res.status(304).json({ error: "user not found !" });
+    }
+  } catch (error) {
     req.logger.error({ message: error.message, className: "User API" });
-    req.logger.error(error);
+    req.logger.error({
+      message: JSON.stringify(error) + "\n",
+      className: "User API",
+    });
+    return res.status(403).json({ error: error.message });
+  }
+});
+router.put("/updateUserPassword", async (req, res) => {
+  try {
+    const payload = jwtService.verifyToken(req.body.token);
+
+    let cipherOld = crypto.createCipher(algorithm, payload.oldPassword);
+    let oldPassword = cipherOld.update(PHRASE, "utf8", "hex");
+    oldPassword += cipherOld.final("hex");
+
+    let cipherNew = crypto.createCipher(algorithm, payload.newPassword);
+    let newPassword = cipherNew.update(PHRASE, "utf8", "hex");
+    newPassword += cipherNew.final("hex");
+
+    if (payload.id) {
+      updated = await userService.updateUserPassword(
+        payload.id,
+        oldPassword,
+        newPassword
+      );
+      return res.status(200).json({ updated: updated });
+    } else {
+      return res.status(304).json({ error: "Update password failed !" });
+    }
+  } catch (error) {
+    req.logger.error({ message: error.message, className: "User API" });
+    req.logger.error({
+      message: JSON.stringify(error) + "\n",
+      className: "User API",
+    });
+    return res.status(403).json({ error: error.message });
   }
 });
 
@@ -566,13 +577,13 @@ router.post("/list", (req, res) => {
           { website: new RegExp(req.body.parameters.search, "i") },
         ];
       }
-    User.countDocuments(search).then((cf) => {
+      User.countDocuments(search).then((cf) => {
         User.find(search)
           .skip(req.body.parameters.offset)
           .limit(req.body.parameters.limit)
           .collation({
             locale: "en",
-            caseLevel: true
+            caseLevel: true,
           })
           .sort(sort)
           .then((users) => {
@@ -661,32 +672,6 @@ router.get("/checkEmailIfExist/:email", async (req, res) => {
   }
 });
 
-router.put("/updateUserPassword", async (req, res) => {
-  try {
-    let cipherOld = crypto.createCipher(algorithm, req.body.oldPassword);
-    let oldPassword = cipherOld.update(PHRASE, "utf8", "hex");
-    oldPassword += cipherOld.final("hex");
-
-    let cipherNew = crypto.createCipher(algorithm, req.body.newPassword);
-    let newPassword = cipherNew.update(PHRASE, "utf8", "hex");
-    newPassword += cipherNew.final("hex");
-
-    const userId = jwtService.verifyToken(req.headers.authorization).id;
-    if (userId) {
-      updated = await userService.updateUserPassword(
-        userId,
-        oldPassword,
-        newPassword
-      );
-      return res.status(200).json({ updated: updated });
-    } else {
-      return res.status(200).json({ error: "Update password failed !" });
-    }
-  } catch (error) {
-    req.logger.error({ message: error.message, className: "User API" });
-    req.logger.error(error);
-  }
-});
 function download(url, dest, cb) {
   // on créé un stream d'écriture qui nous permettra
   // d'écrire au fur et à mesure que les données sont téléchargées
@@ -730,5 +715,77 @@ function download(url, dest, cb) {
     cb(err.message);
   });
 }
+
+router.post("/changedefaultaddress", async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+  if (!req.body.vat) {
+    return res.status(401).json({ error: "No vat number provided" });
+  }
+  if (!req.body.address) {
+    return res.status(401).json({ error: "No address provided" });
+  }
+  if (!req.body.city) {
+    return res.status(401).json({ error: "No city provided" });
+  }
+  if (!req.body.country) {
+    return res.status(401).json({ error: "No country provided" });
+  }
+  if (!req.body.postalCode) {
+    return res.status(401).json({ error: "No postalCode provided" });
+  }
+  try {
+    const userId = jwtService.verifyToken(req.headers.authorization).id;
+    await userService.UpdateUserDefaultBillingInfo(
+      userId,
+      req.body.vat,
+      req.body.address,
+      req.body.city,
+      req.body.country,
+      req.body.postalCode
+    );
+    return res.status(200).json({ ok: true });
+  } catch (error) {
+    return res.status(200).json({ error: error.message });
+  }
+});
+router.post("/changeDefaultCurrency", async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+  if (!req.body.currency) {
+    return res.status(401).json({ error: "No currency provided" });
+  }
+  try {
+    const userId = jwtService.verifyToken(req.headers.authorization).id;
+    await userService.UpdateUserDefaultCurrency(userId, req.body.currency);
+    return res.status(200).json({ ok: true });
+  } catch (error) {
+    return res.status(401).json({ error: error.message });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+
+  try {
+    var user = await userService.getUserById(req.params.id);
+    if (user) {
+      return res.status(200).json({ user: user });
+    } else {
+      return res.status(200).json({ error: "User not found" });
+    }
+  } catch (error) {
+    req.logger.error({ message: error.message, className: "User API" });
+    req.logger.error({
+      message: JSON.stringify(error) + "\n" + error.stacktrace,
+      className: "User API",
+    });
+    return res.status(501).json({ error: error });
+  }
+});
 
 module.exports = router;

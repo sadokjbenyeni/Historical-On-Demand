@@ -105,15 +105,23 @@ export class UserService {
   getUserById(id) {
     return this.http.get<any>(environment.api + '/user/' + id);
   }
-  UpdateEmailAdress(email) {
-    return this.http.post<any>(environment.api + '/user/UpdateEmailAdress', { email: email });
+
+  requestUpdateEmailAdress(email) {
+    return this.http.post<any>(environment.api + '/user/UpdateEmailAdressVerification', { email: email });
+  }
+
+  requestUpdatePassword(oldPassword, newPassword) {
+    return this.http.post<any>(environment.api + '/user/UpdatePasswordVerification', { oldPassword: oldPassword, newPassword: newPassword });
+  }
+  updateEmailAdress(token) {
+    return this.http.post<any>(environment.api + '/user/UpdateEmailAdress/', { token: token });
   }
 
   checkEmailIfExist(email) {
     return this.http.get<any>(environment.api + '/user/checkEmailIfExist/' + email);
   }
 
-  updateUserPassword(oldPassword, newPassword) {
-    return this.http.put<any>(environment.api + '/user/updateUserPassword', { oldPassword: oldPassword, newPassword: newPassword });
+  updateUserPassword(token) {
+    return this.http.put<any>(environment.api + '/user/updateUserPassword', {  token: token });
   }
 }

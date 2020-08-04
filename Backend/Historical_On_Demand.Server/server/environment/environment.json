@@ -29,7 +29,7 @@
   },
 
   "smtpconf": {
-    "host": "quanthouse-com.mail.protection.outlook.com",
+    "host": "localhost",
     "port": 25,
     "secure": false,
     "tls": {
@@ -42,6 +42,19 @@
     "secret": "HodQuanthouse",
     "options": {
       "expiresIn": "12h"
+    }
+  },
+  "jwtMailCredentials": {
+    "secret": "HodQuanthouse",
+    "options": {
+      "expiresIn": "30m"
+    }
+  },
+
+  "jwtPasswordCredentials": {
+    "secret": "HodQuanthouse",
+    "options": {
+      "expiresIn": "30m"
     }
   }
 }

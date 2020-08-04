@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { routes } from './app.routing';
-import { NoopAnimationsModule, BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FileSelectDirective } from 'ng2-file-upload';
 import { AppComponent } from './app.component';
 import { CommonModule } from '@angular/common';
@@ -23,7 +23,6 @@ import { ComplianceModule } from './modules/compliance/compliance.module';
 import { FinanceModule } from './modules/finance/finance.module';
 import { ProductModule } from './modules/product/product.module';
 import { SupportModule } from './modules/support/support.module';
-import { UserModule } from './modules/user/user.module';
 
 @NgModule({
   declarations: [
@@ -39,7 +38,6 @@ import { UserModule } from './modules/user/user.module';
     RouterModule.forRoot(routes),
     CommonModule,
     BrowserAnimationsModule,
-    //NoopAnimationsModule,
     ClientModule,
     TemplatesModule,
     OrderModule,
@@ -51,7 +49,6 @@ import { UserModule } from './modules/user/user.module';
     FinanceModule,
     ProductModule,
     SupportModule,
-    UserModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }

@@ -19,6 +19,8 @@ import { accountRoutes } from './account.routing';
 import { AccountComponent } from './account/account.component';
 import { AccountSideBarComponent } from './account-side-bar/account-side-bar.component';
 import { LoginModule } from '../login/login.module';
+import { ConfirmEmailUpdateComponent } from './confirm-email-update/confirm-email-update.component';
+import { ConfirmPasswordUpdateComponent } from './confirm-password-update/confirm-password-update.component';
 
 
 
@@ -28,6 +30,8 @@ import { LoginModule } from '../login/login.module';
     RegisterComponent,
     AccountComponent,
     AccountSideBarComponent,
+    ConfirmEmailUpdateComponent,
+    ConfirmPasswordUpdateComponent,
   ],
   imports: [
     FormsModule,
