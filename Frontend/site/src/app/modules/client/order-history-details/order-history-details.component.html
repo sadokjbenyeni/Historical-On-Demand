@@ -16,8 +16,8 @@
                     <i class="fa fa-refresh"></i> Update Status
                 </button>
                 <div class="dropdown-menu" aria-labelledby="updateButton">
-                    <button mat-button class="bottom-button yellow-color" (click)="cancelOrder()" *ngIf="verifState()"><i
-                            class="fa fa-trash-o"></i>
+                    <button mat-button class="bottom-button yellow-color" (click)="cancelOrder()"
+                        *ngIf="verifState()"><i class="fa fa-trash-o"></i>
                         Cancel Order
                     </button>
                     <button mat-button class="bottom-button red-color" (click)="abortOrder()" *ngIf="verifState()"><i

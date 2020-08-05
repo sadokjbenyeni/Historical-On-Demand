@@ -33,31 +33,6 @@ const { calculatefeesOfOrder } = require("../../service/feesService");
 
 // Library token (aka "PublicKeyToken") : 8215198215590909
 
-// Facture du type QH_HISTO_000000n avec n auto-incrémental number
-
-/*
- * Les états d'une commandes
- * =========================
- *
- * Durant le panier
- * ----------------
- * Pending Licensing Information : PLI
- * Pending Billing Information : PBI
- * Pending Submission by Client : PSC
- *
- * Plateforme Quanthouse
- * ---------------------
- * Pending Validation by Compliance : PVC
- * Pending Validation by Finance : PVF
- * Pending Validation by Product : PVP
- *
- * États d'avancement de la commande
- * ---------------------------------
- * Active : active
- * Inactive : inactive
- * Rejected : rejected
- * Cancelled : cancelled
- */
 
 router.post("/verify", (req, res) => {
   let options = {
@@ -210,47 +185,6 @@ router.put("/delProductCaddy", async (req, res) => {
   return res.status(200).json({ error: "Product Not found" });
 });
 
-// router.put('/updtProductCaddy', (req, res) => {
-//   let updt = {};
-//   if (req.body.begin_date) {
-//     updt["products.$.begin_date"] = req.body.begin_date;
-//   }
-//   if (req.body.end_date) {
-//     updt["products.$.end_date"] = req.body.end_date;
-//   }
-//   if (req.body.period) {
-//     updt["products.$.period"] = req.body.period;
-//   }
-//   if (req.body.ht) {
-//     updt["products.$.ht"] = req.body.ht;
-//   }
-//   // if(req.body.totalHT){
-//   //   updt["totalHT"] = req.body.totalHT;
-//   // }
-//   if (req.body.status) {
-//     updt["products.$.status"] = req.body.status;
-//   }
-//   Order.updateOne(
-//     { id_cmd: req.body.idCmd, 'products.id_undercmd': req.body.idElem },
-//     { $set: updt }
-//   )
-
-//     .then((r) => {
-//       Order.findOne({ id_cmd: req.body.idCmd }).then(p => {
-//         let totalHT = 0;
-
-//         p.products.forEach(prd => {
-//           totalHT += prd.ht;
-//         });
-//         return totalHT;
-//       }).then(o => {
-//         Order.updateOne({ id_cmd: req.body.idCmd }, { $set: { totalHT: o } }).then(() => {
-//           res.status(201).json({ ok: true });
-//         });
-//       });
-//     });
-// });
-
 router.put("/updateDiscount", async (req, res) => {
   let updatedInvoice = {};
   updatedInvoice.discount = req.body.discount;
@@ -367,7 +301,6 @@ router.put("/state", async (req, res) => {
     { orderId: req.body.id },
     { $set: orderUpdated, $push: { logs: log } }
   ).exec();
-  // .then((r) => {
   return res.status(201).json({ ok: true });
 });
 
@@ -637,8 +570,7 @@ router.post("/caddies", async (req, res) => {
   );
   return res.status(200).json(order);
 });
-//this is a temporary web service, it will be cleared on the rework of search page
-//TODO : Rework the api name
+
 router.get("/caddy", async (req, res) => {
   if (!req.headers.authorization) {
     return res.sendStatus(401);
@@ -909,23 +841,19 @@ router.put("/abortOrder", async (req, res) => {
   if (!req.headers.authorization) {
     return res.status(401).json({ error: "No token provided" });
   }
-  const orderToDelete = await OrderService.getRawCaddy(userId);
-  if (orderToDelete) {
-    await Order.updateOne(
-      { _id: orderToDelete._id },
-      {
-        $set: {
-          state: "Deleted After Abortion",
-          logs: {
-            status: "Deleted After Abortion",
-            referer: "System",
-            date: Date.now()
-          },
-        }
-      }
-    ).exec();
-  }
+  try {
 
+    const orderToDelete = await OrderService.getRawCaddy(userId);
+    if (orderToDelete) {
+      await deleteOrderFromCart(orderToDelete);
+    }
+    await deleteInvoiceRelatedToOrder(req);
+    await moveOrderToCart(req);
+    return res.status(200).json({ ok: true });
+  } catch (error) {
+    req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
+    return res.status(503).json({ error: 'An error has been throw, please contact support with id: ' + req.headers.loggerToken });
+  }
 })
 
 router.post("/sortProducts", (req, res) => {
@@ -1028,7 +956,7 @@ Date.prototype.nextMonth = function (period) {
   this.setMonth(this.getMonth() + period);
   return this;
 };
-
+ 
 verifWeek = function (dt) {
   dt.previousDay();
   while (dt.getDay() === 0 || dt.getDay() === 6) {
@@ -1048,7 +976,7 @@ verifWeekNext = function (dt) {
 Date.prototype.yyyymmdd = function () {
   var mm = this.getMonth() + 1;
   var dd = this.getDate();
-  return [
+  return [ 
     this.getFullYear(),
     (mm > 9 ? "" : "0") + mm,
     (dd > 9 ? "" : "0") + dd,
@@ -1128,7 +1056,7 @@ convertOrderExport = function (orderItem) {
   if (orderItem.validationFinance) {
     orderItem.logs.forEach((lo) => {
       if (lo.referer === "Finance") {
-        orderValues["Payment_Date"] = lo.date; // (validation by Finance)
+        orderValues["Payment_Date"] = lo.date;
       }
     });
   }
@@ -1148,7 +1076,7 @@ convertOrderExport = function (orderItem) {
   }
   orderValues["Payment_Method"] = orderItem.payment;
   orderValues["Payment_Reference"] = pay;
-  orderValues["TOTAL_Order_Amount"] = orderItem.total; // CB : mettre la référence Adyen
+  orderValues["TOTAL_Order_Amount"] = orderItem.total;
   orderValues["Internal_Note"] = orderItem.internalNote;
   orderValues["sales"] = orderItem.sales;
 };
@@ -1185,7 +1113,6 @@ ComputeTotalTtcUsd = function (order) {
 autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   let log = {};
   var order = await Order.findOne({ id_cmd: idCmd }).exec();
-  // Order.findOne({ id_cmd: idCmd }).then(order => {
   log.date = new Date();
   let eids = [];
   let corp = {};
@@ -1199,7 +1126,6 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   order.eid = eids;
   if (order.state === "PVC") {
     logger.info("PVC autovalidation");
-    // Envoi email aux compliances
     await autovalidationOrderStateIsPendingValidationByCompliance(
       corp,
       order,
@@ -1209,7 +1135,6 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   }
   if (order.state === "PVP") {
     logger.info("PVP autovalidation");
-    // Envoi email aux products
     await autoValidationOrderStateIsPendingValidationbyProduct(
       corp,
       order,
@@ -1226,19 +1151,7 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
       logger
     );
   }
-  // var updateStatus = await Order.updateOne({ id_cmd: idCmd },
-  //   {
-  //     $push: {
-  //       logsPayment: logsPayment,
-  //       logs: log
-  //     },
-  //     $set: {
-  //       validationCompliance: order.validationCompliance,
-  //       submissionDate: new Date(),
-  //       state: order.state
-  //     }
-  //   }).exec();
-  //   return res.status(201).json(updateStatus);
+
   await Order.updateOne(
     { id_cmd: idCmd },
     {
@@ -1253,9 +1166,55 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
       },
     }
   ).exec();
-  // .then(updateStatus => res.status(201).json(updateStatus));
-  // });
 };
+
+async function moveOrderToCart(req) {
+  await Order.updateOne(
+    { id: req.body.id },
+    {
+      $set: {
+        state: "CART",
+        logs: {
+          status: "Returned to Cart After Abortion",
+          referer: "Client",
+          date: Date.now()
+        }
+      }
+    }
+  ).exec();
+}
+
+async function deleteInvoiceRelatedToOrder(req) {
+  await Invoice.updateOne(
+    { orderId: req.body.id },
+    {
+      $set: {
+        state: "Aborted",
+        logs: {
+          status: "Aborted By Client",
+          referer: "Client",
+          date: Date.now()
+        }
+      }
+    }
+  ).exec(); 
+}
+
+async function deleteOrderFromCart(orderToDelete) {
+  await Order.updateOne(
+    { _id: orderToDelete._id },
+    {
+      $set: {
+        state: "Deleted",
+        logs: {
+          status: "Deleted After Abortion",
+          referer: "System",
+          date: Date.now()
+        },
+      }
+    }
+  ).exec();
+}
 
 async function UpdateOrderFinance(orderUpdated, req, log) {
   let corp = {};
@@ -1267,7 +1226,6 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
   let cart = [];
   req.body.product.forEach((p) => {
     if (!p.print) {
-      //actual product lines without Exchange fees
       p.dataset = p.quotation_level;
       p.exchangeName = p.exchange;
       if (p.subscription === 1) {
@@ -1290,8 +1248,6 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
           addPool({
             index: p.index,
             id: req.body.id,
-            // id_cmd: id + "§" + suffixe,
-            // id_cmd: p.id_undercmd + '|' + c++,
             id_cmd: p.id_undercmd,
             onetime: p.onetime,
             subscription: p.subscription,
@@ -1305,7 +1261,7 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
             begin_date: d.yyyymmdd(),
 
             end_date: d.yyyymmdd(),
-            status: req.body.status, // peut prendre activated, toretry, nodata, active, inactive
+            status: req.body.status,
           });
         }
 
@@ -1322,7 +1278,6 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
           index: p.index,
           id: req.body.id,
           id_cmd: p.id_undercmd,
-          // id_cmd: p.id_undercmd + '|' + c++,
           onetime: p.onetime,
           subscription: p.subscription,
           eid: p.eid,
@@ -1334,7 +1289,7 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
           begin_date: yyyymmdd(p.begin_date),
 
           end_date: yyyymmdd(p.end_date),
-          status: req.body.status, // peut prendre activated, toretry, nodata, active, inactive
+          status: req.body.status
         });
       }
       cart.push(p);
@@ -1387,7 +1342,6 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
     paymentdate: new Date(),
     service: "Finance",
   };
-  // Email validation au pvf
   var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
   var invoice = await Invoice.findOne({ orderId: order.id }).exec();
   let idProForma = await setInvoiceId("QH_ProFormaInvoice_");
@@ -1461,7 +1415,6 @@ async function UpdateStateCompliance(updt, corp, req) {
     paymentdate: new Date(),
     service: "Product",
   };
-  // Email validation au pvp
   var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
   let eids = [];
   order.products.forEach((p) => {
@@ -1484,7 +1437,6 @@ async function autoValidationOrderStatePendingValidationByFinance(
   logsPayment,
   logger
 ) {
-  // var users = await User.find({ roleName: "Finance" }, { email: true, _id: false, firstname: true, lastname: true }).exec();
   User.find({ roleName: "Finance" }).then((users) => {
     var mailer = new OrderMailService(logger, order);
     users.forEach(async (user) => {
@@ -1505,7 +1457,6 @@ async function autoValidationOrderStateIsPendingValidationbyProduct(
   logsPayment,
   logger
 ) {
-  // var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
   User.find({ roleName: "Product" }).then((users) => {
     var mailer = new OrderMailService(logger, order);
     users.forEach(async (user) => {
@@ -1525,7 +1476,6 @@ async function autovalidationOrderStateIsPendingValidationByCompliance(
   logsPayment,
   logger
 ) {
-  // var users = await User.find({ roleName: "Compliance" }, { email: true, _id: false , firstname: true, lastname: true}).exec();
   User.find({ roleName: "Compliance" }).then((users) => {
     var mailer = new OrderMailService(logger, order);
     users.forEach(async (user) => {
@@ -1563,7 +1513,6 @@ async function autoValidationOrderStateIsPSC(order, log, logger) {
       log.referer = "Autovalidation";
       order.state = "PVP";
       log.status = "PVP";
-      // Envoi email aux products
     }
   });
 }

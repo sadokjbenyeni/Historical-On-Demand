@@ -363,7 +363,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
 
     var isReadyToAbort = await this.swalService.getSwalForConfirm('Are you sure ?', `You are going to abort order number <b> ${this.orderInfo.id} </b> back to you cart`);
     if (isReadyToAbort.value) {
-      this.orderService.abortOrder().subscribe(result => {
+      this.orderService.abortOrder(this.orderInfo.id).subscribe(result => {
         if (result) {
           this.swalService.getSwalForNotification(`Order ${this.orderInfo.id} aborted`, ` <b> Order ${this.orderInfo.id} aborted`)
         }

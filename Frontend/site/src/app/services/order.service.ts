@@ -127,8 +127,8 @@ export class OrderService {
     return this.http.put<any>(environment.api + '/order/cancelValidation', { id: orderId });
   }
 
-  abortOrder() {
-    return this.http.put<any>(environment.api + '/order/abortOrder', {});
+  abortOrder(orderId) {
+    return this.http.put<any>(environment.api + '/order/abortOrder', { id: orderId });
   }
 
 }
