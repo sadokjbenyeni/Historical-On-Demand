@@ -16,6 +16,10 @@
   "paymentSetup": "https://checkout-test.adyen.com/services/PaymentSetupAndVerification/v32/setup",
   "paymentKey": "AQElhmfuXNWTK0Qc+iSBp0UWk8y0fbhoaeebbhXE6Bp3O9OVDwjXkhDBXVsNvuR83LVYjEgiTGAH-72Ru3lyilp3K6oonHc6t8HPeGM63I61nZCG9LeyUyxk=-43mwGjBQkT2EbcVp",
 
+  "logger": {
+    "level": "http"
+  },
+
   "database": {
     "connectionString": "mongodb://localhost:27017",
     "dbname": "histodataweb",
@@ -33,6 +37,7 @@
     },
     "debug": false
   },
+
   "jwtCredentials": {
     "secret": "HodQuanthouse",
     "options": {

@@ -1,3 +1,6 @@
+
+//loading environment variables into global environment
+global.environment = require("./server/environment/environment.json");
 //Import dependencies
 const LoggerFactory = require("./logger.js");
 const logger = new LoggerFactory().createLogger("System");
@@ -15,8 +18,6 @@ const cors = require("cors");
 //const MDB = require("./server/config/configmdb.js").mdb;
 //const Config = require("./server/config/config.js");
 
-//loading environment variables into global environment
-global.environment = require("./server/environment/environment.json");
 logger.info({
   message: `Starting application on ${global.environment.environment_name} environment`,
   className: "Server",
@@ -101,20 +102,8 @@ app.use(function (req, res, next) {
 
   req.logger = new LoggerFactory().createLogger(req.headers.loggerToken);
   req.logger.info({
-    message:
-      "HttpRequest: { ip: " +
-      req.ip +
-      ", hostname: " +
-      req.hostname +
-      ", Http method: " +
-      req.method +
-      ", url: " +
-      req.path +
-      ", " +
-      headers.join(", ") +
-      " }",
-    className: "Middleware",
-  });
+    message: "HttpRequest: { ip: " + req.ip + ", hostname: " +req.hostname + ", Http method: " + 
+      req.method + ", url: " + req.path + ", " + headers.join(", ") +" }", className: "Middleware",});
   req.logger.info({
     message: "Body: " + JSON.stringify(req.body),
     className: "Middleware",
@@ -134,17 +123,17 @@ const api = require("./server/api/");
 app.use("/api", api);
 
 //Static path to dist
-// app.use(express.static(path.join(__dirname, "../../FrontEnd/site/dist")));
-// app.use("/files", express.static(path.join(__dirname, "files")));
-// app.use("/cmd", express.static(path.join(__dirname, "files/command")));
-// app.use("/iv", express.static(path.join(__dirname, "files/invoice")));
-// app.use('/loadfile', express.static('/mapr/client_exports/'));
-// app.use("/help/dataguide", express.static(path.join(__dirname, "dataguide/")));
+app.use(express.static(path.join(__dirname, "../../FrontEnd/site/dist")));
+app.use("/files", express.static(path.join(__dirname, "files")));
+app.use("/cmd", express.static(path.join(__dirname, "files/command")));
+app.use("/iv", express.static(path.join(__dirname, "files/invoice")));
+app.use('/loadfile', express.static('/mapr/client_exports/'));
+app.use("/help/dataguide", express.static(path.join(__dirname, "dataguide/")));
 
 //Catch all other routes and return to the index file
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "../../FrontEnd/site/dist/index.html"));
-// });
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../FrontEnd/site/dist/index.html"));
+});
 
 //Get environment port or use 3000
 const port = process.env.PORT || "3000";

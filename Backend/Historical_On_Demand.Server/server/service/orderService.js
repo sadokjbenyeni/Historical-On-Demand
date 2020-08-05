@@ -16,7 +16,6 @@ module.exports.getOrderDetails = async (orderId, userId) => {
     if (!RawOrder) {
         throw new error("Order not found");
     }
-
     if (isInvoice(RawOrder.state)) {
         var invoice = await Invoices.findOne({
             orderIdReference: RawOrder._id,
