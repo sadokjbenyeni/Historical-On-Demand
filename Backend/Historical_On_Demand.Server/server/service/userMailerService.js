@@ -135,26 +135,14 @@ module.exports = function (logger, user) {
     let mailOptions = {
       from: "quanthouse@emailserver.com",
       to: this.user.email,
-      subject: global.environment.environment + "Password Initialization",
-      text:
-        `Hello,
-    
-        To reinitialize your password, please click on the following link: ` +
-        domain +
-        `/mdp/` +
-        token +
-        `
-        If clicking the above link does not work, you can copy and paste the URL in a new browser window.
-        If you have received this email by error, you do not need to take any action. Your password will remain unchanged.
-    
-        The Quanthouse team`,
-
+      subject: global.environment.environment + " Password Initialization",
       html:
         `Hello,<br><br>        
         To reinitialize your password, please click on the following link: <a href="` +
         `http://localhost:4200/resetPassword/` +
         token +
         `">Modify password</a><br>
+        <b>Notice</b>: You have 30 minutes to confirm your update before the link expired<br>
         If clicking the above link does not work, you can copy and paste the URL in a new browser window.<br>
         If you have received this email by error, you do not need to take any action. Your password will remain unchanged.<br><br>
         <b>The Quanthouse team</b>`,

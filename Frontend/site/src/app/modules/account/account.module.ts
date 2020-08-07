@@ -4,7 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TemplatesModule } from '../templates/templates.module';
 import { LoginComponent } from '../account/login/login.component';
-import { RegisterComponent } from '../account/register/register.component';
 import { DataTablesModule } from 'angular-datatables';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RecaptchaModule } from 'ng-recaptcha';
@@ -26,7 +25,6 @@ import { ConfirmEmailUpdateComponent } from './confirm-email-update/confirm-emai
 @NgModule({
   declarations: [
     LoginComponent,
-    RegisterComponent,
     AccountComponent,
     AccountSideBarComponent,
     ConfirmEmailUpdateComponent,
