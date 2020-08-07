@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../../services/user.service';
 import { SwalAlertService } from '../../../shared/swal-alert/swal-alert.service';
+import { JwtService } from '../../../services/jwt.service';
 
 @Component({
   selector: 'app-confirm-email-update',
@@ -15,12 +16,29 @@ export class ConfirmEmailUpdateComponent implements OnInit {
     private userService: UserService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
+    private jwtService: JwtService,
     private swalService: SwalAlertService) {
   }
 
   ngOnInit(): void {
     this.token = this.activatedRoute.snapshot.params.token;
-    this.openDialogForUpdateEmailAdress();
+    if (this.token) {
+      this.jwtService.verifyTokenValidity(this.token).subscribe(result => {
+        if (result.valid) {
+          this.openDialogForUpdateEmailAdress();
+        }
+      },
+        error => {
+          if (error.error.error == "jwt expired") {
+            this.swalService.getSwalForNotification("Updating email adress Failed!", "<b>The link is expired, please try again or contact the support team </b>!", "error", 2000);
+            this.router.navigate(['/login'])
+          }
+          else {
+            this.swalService.getSwalForNotification("Updating email adress Failed!", error.error.error, "error", 2000);
+            this.router.navigate(['/login'])
+          }
+        });
+    }
   }
 
 
@@ -39,12 +57,10 @@ export class ConfirmEmailUpdateComponent implements OnInit {
               this.router.navigate(['/login']);
             },
               error => {
-                if (error.error.error === "jwt expired") {
-                  this.swalService.getSwalForNotification('Updating email adress Failed!', " <b> Your link has expired ! </b>", 'error', 2000);
-                }
-                else {
-                  this.swalService.getSwalForNotification('Updating email adress Failed!', " <b> error.error.error ! </b>", 'error', 2000);
-                }
+
+
+                this.swalService.getSwalForNotification('Updating email adress Failed!', `<b>` + error.error.error + `! </b>`, 'error', 2000);
+
                 this.router.navigate(['/login']);
               })
         }

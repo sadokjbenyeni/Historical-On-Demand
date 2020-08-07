@@ -23,7 +23,7 @@ router.use('/config', require('./config'));
 router.use('/sales', require('./sales'));
 router.use('/deliverables', require('./deliverables'));
 router.use('/invoice', require('./invoice'));
-
+router.use('/jwt', require('./jwt'));
 logger.info({ message: "V1 of API is loaded and available", className: "Index" });
 logger.close();
 module.exports = router;
