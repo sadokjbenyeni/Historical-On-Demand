@@ -175,7 +175,7 @@
                 (click)="register() "
                 class="btn btn-success"
                 *ngIf="page === '/register'"
-                [disabled]="userForm.invalid || userForm.pending || checkrobot || exist"
+                [disabled]="userForm.invalid || userForm.pending || exist"
               >Register</button>
               <button class="btn btn-success" *ngIf="page === '/account'" [disabled]="userForm.invalid || userForm.pending" (click)="update()">Update</button>
             </div>

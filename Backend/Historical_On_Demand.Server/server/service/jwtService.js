@@ -23,7 +23,7 @@ module.exports.createTokentoUpdateUserMail = (user) => {
 };
 
 
-module.exports.createTokentoUpdateUserPassword = (user) => {
+module.exports.createTokentoResetPassword = (user) => {
   return jwtManager.sign(
     user,
     global.environment.jwtPasswordCredentials.secret,

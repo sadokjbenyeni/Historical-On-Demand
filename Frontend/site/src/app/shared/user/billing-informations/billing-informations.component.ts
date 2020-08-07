@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { CountriesService } from '../../../services/countries.service';
 import { PaymentService } from '../../../services/payment.service';
@@ -13,13 +13,15 @@ import { CurrencyService } from '../../../services/currency.service';
 export class BillingInformationsComponent implements OnInit, OnChanges {
 
   @Input() billigInformations: BillingInformation;
+  @Output() emitBilligInformations = new EventEmitter();
   form: FormGroup;
 
-  country: any;
+  countries: any;
   payments: any;
   currencies: any;
   symbol: any;
   @Input() toUpdate: boolean = false;
+  @Input() forRegister: boolean;
 
 
   constructor(
@@ -52,7 +54,7 @@ export class BillingInformationsComponent implements OnInit, OnChanges {
   }
   getCountry() {
     this.countriesService.getCountries().subscribe(res => {
-      this.country = res.countries;
+      this.countries = res.countries;
     });
   }
 
@@ -66,5 +68,19 @@ export class BillingInformationsComponent implements OnInit, OnChanges {
     this.currencyService.getCurrencies().subscribe(result => {
       this.currencies = result.currencies;
     });
+  }
+
+  fillBillingInformations() {
+    this.billigInformations.billingAddress = this.form.controls.addressBilling.value;
+    this.billigInformations.billingCity = this.form.controls.cityBilling.value;
+    this.billigInformations.billingCountry = this.form.controls.countryBilling.value;
+    this.billigInformations.billingCurrency = this.form.controls.currency.value;
+    this.billigInformations.billingPayment = this.form.controls.payment.value;
+    this.billigInformations.billingPostalCode = this.form.controls.postalCodeBilling.value;
+    this.billigInformations.vatNumber = this.form.controls.vat.value;
+  }
+  sendBillingInformations() {
+    this.fillBillingInformations();
+    this.emitBilligInformations.emit({ billigInformations: this.billigInformations, billingInformationsIsCompleted: true })
   }
 }

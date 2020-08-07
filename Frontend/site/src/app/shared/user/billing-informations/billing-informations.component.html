@@ -1,4 +1,4 @@
-<mat-card-subtitle><b>Billing Informations</b></mat-card-subtitle>
+<mat-card-subtitle *ngIf="forRegister != true"><b>Billing Informations</b></mat-card-subtitle>
 <div [formGroup]="form">
   <div class="row">
     <mat-card>
@@ -6,7 +6,7 @@
         <!-- <div class="row"> -->
         <!-- <div class="col-md-6"> -->
         <mat-form-field>
-          <input matInput type="text" (change)="checkVat()" placeholder="VAT Number" formControlName="vat" />
+          <input matInput type="text" placeholder="VAT Number" formControlName="vat" />
           <mat-hint style="color: #f44336;" *ngIf="invalidVat">You have entered an invalid VAT Number
           </mat-hint>
         </mat-form-field>
@@ -36,7 +36,7 @@
         <mat-form-field>
           <mat-label>Select Country</mat-label>
           <mat-select name="countryBilling" formControlName="countryBilling" required>
-            <mat-option *ngFor="let c of country" [value]="c.id">{{
+            <mat-option *ngFor="let c of countries" [value]="c.id">{{
             c.name
           }}</mat-option>
           </mat-select>
@@ -59,6 +59,11 @@
         <!-- </div> -->
         <!-- </div> -->
       </mat-card-content>
+      <mat-card-actions *ngIf="forRegister === true">
+        <button mat-raised-button matStepperPrevious>Back</button>
+        <button mat-raised-button color="warn" matStepperNext [disabled]="!form.valid"
+          (click)="sendBillingInformations()">Next</button>
+      </mat-card-actions>
     </mat-card>
   </div>
 </div>

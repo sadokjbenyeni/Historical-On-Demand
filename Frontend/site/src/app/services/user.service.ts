@@ -110,8 +110,8 @@ export class UserService {
     return this.http.post<any>(environment.api + '/user/UpdateEmailAdressVerification', { email: email });
   }
 
-  requestUpdatePassword(oldPassword, newPassword) {
-    return this.http.post<any>(environment.api + '/user/UpdatePasswordVerification', { oldPassword: oldPassword, newPassword: newPassword });
+  updateUserPassword(oldPassword, newPassword) {
+    return this.http.post<any>(environment.api + '/user/UpdatePassword', { oldPassword: oldPassword, newPassword: newPassword });
   }
   updateEmailAdress(token) {
     return this.http.post<any>(environment.api + '/user/UpdateEmailAdress/', { token: token });
@@ -121,7 +121,12 @@ export class UserService {
     return this.http.get<any>(environment.api + '/user/checkEmailIfExist/' + email);
   }
 
-  updateUserPassword(token) {
-    return this.http.put<any>(environment.api + '/user/updateUserPassword', {  token: token });
+  requestForResetPassword(email) {
+    return this.http.post<any>(environment.api + '/user/requestForResetPassword', { email: email })
   }
+
+  resetPassword(token, password) {
+    return this.http.post<any>(environment.api + '/user/resetPassword', { token: token, password: password })
+  }
+
 }

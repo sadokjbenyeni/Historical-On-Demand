@@ -1,5 +1,4 @@
-
-<mat-card-subtitle> <b>Contact Informations</b></mat-card-subtitle>
+<mat-card-subtitle *ngIf="forRegister != true"> <b>Contact Informations</b></mat-card-subtitle>
 
 <div [formGroup]="form">
   <div class="row">
@@ -25,8 +24,12 @@
           </div>
           <div class="col-md-6">
             <mat-form-field>
-              <input matInput type="text" name="emailAdress" placeholder="Email Adress" formControlName="emailAdress" />
+              <input matInput type="text" name="emailAdress" placeholder="Email Adress" formControlName="emailAdress"
+                (change)="checkEmailIfExist()" required />
               <mat-error>Field required</mat-error>
+              <mat-error>E-mail Adress is not valid</mat-error>
+              <mat-hint style="color: #f44336;" *ngIf="emailExist">This E-mail Adress already exist</mat-hint>
+              
             </mat-form-field>
             <br />
             <mat-form-field>
@@ -59,9 +62,15 @@
           </div>
           <div class="col-md-6">
             <mat-form-field>
-              <input matInput type="text" name="country" placeholder="Country" formControlName="country" required />
+              <mat-label>Select Country</mat-label>
+              <mat-select name="country" formControlName="country" required>
+                <mat-option *ngFor="let c of countries" [value]="c.id">{{
+                c.name
+              }}</mat-option>
+              </mat-select>
               <mat-error>Field required</mat-error>
-            </mat-form-field><br />
+            </mat-form-field>
+            <br />
             <mat-form-field>
               <input matInput type="text" name="region" placeholder="Region" formControlName="region" />
               <mat-error>Field required</mat-error>
@@ -80,6 +89,10 @@
           </div>
         </div>
       </mat-card-content>
+      <mat-card-actions *ngIf="forRegister === true">
+        <button mat-raised-button color="warn" matStepperNext [disabled]="!form.valid || emailExist"
+          (click)="sendContactInformations()">Next</button>
+      </mat-card-actions>
     </mat-card>
   </div>
 </div>

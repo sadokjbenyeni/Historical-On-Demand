@@ -82,12 +82,15 @@ export class LoginComponent implements OnInit {
 
   mdp() {
     this.userService.verifmail({ email: this.email }).subscribe(res => {
+      debugger
       if (!res.valid) {
         this.colorMessage = 'alert alert-danger';
         this.message = res.message;
       } else {
-        this.userService.mdpmail({ email: this.email, token: res.token }).subscribe(r => {
-          if (r.mail) {
+        debugger
+        this.userService.requestForResetPassword(this.email).subscribe(result => {
+          debugger
+          if (result.mail) {
             this.colorMessage = 'alert alert-info';
             this.message = 'An email has just been sent';
           } else {

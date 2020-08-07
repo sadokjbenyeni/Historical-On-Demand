@@ -10,13 +10,13 @@
             <input matInput type="text" placeholder="E-mail Adress" formControlName="emailAdress"
               (change)="checkEmailIfExist()" required />
             <mat-hint style="color: #f44336;" *ngIf="emailExist">This E-mail Adress already exist</mat-hint>
-            <mat-hint style="color: #f44336;" *ngIf=" !emailForm.valid ">E-mail Adress not valid</mat-hint>
+            <mat-error >E-mail Adress is not valid</mat-error>
           </mat-form-field>
         </mat-card-content>
 
         <mat-card-actions>
           <button mat-raised-button color="primary" (click)="sendEmailVerificationForUpdateEmailAdress()"
-            [disabled]="!updateMail && !emailForm.valid ">Update
+            [disabled]="updateMail || !emailForm.valid ">Update
             Email Address </button>
         </mat-card-actions>
       </mat-card>
@@ -75,7 +75,7 @@
           </div>
         </mat-card-content>
         <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="sendEmailVerificationForUpdatePassword()"
+          <button mat-raised-button color="primary" (click)="updateUserPassword()"
             [disabled]=" passwordForm.controls.confirmPassword.value != passwordForm.controls.newPassword.value || passwordForm.controls.oldPassword.value === '' || passwordForm.controls.confirmPassword.value === '' ">Update
             Password
           </button>

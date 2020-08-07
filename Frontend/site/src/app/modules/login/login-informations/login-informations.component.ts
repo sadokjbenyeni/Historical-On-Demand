@@ -68,16 +68,16 @@ export class LoginInformationsComponent implements OnInit {
   }
 
 
-  sendEmailVerificationForUpdatePassword() {
-    this.userService.requestUpdatePassword(this.passwordForm.controls.oldPassword.value, this.passwordForm.controls.newPassword.value).subscribe(res => {
+  updateUserPassword() {
+    this.userService.updateUserPassword(this.passwordForm.controls.oldPassword.value, this.passwordForm.controls.newPassword.value).subscribe(res => {
 
-      if (res.mail) {
-        const swalTitle = "Email for update sent";
-        const swalText = "Please check your email, <b>you have 30 minutes</b> to confirm the password update !"
+      if (res.updated) {
+        const swalTitle = "Password updated !";
+        const swalText = "Your password has been updated with success"
         this.swalService.getSwalForNotification(swalTitle, swalText, 'success', 1900);
       }
       else {
-        const swalTitle = "Email not sent";
+        const swalTitle = "Update failed !";
         const swalText = "Some error occured !"
         this.swalService.getSwalForNotification(swalTitle, swalText, 'error', 1700);
       }
@@ -89,6 +89,7 @@ export class LoginInformationsComponent implements OnInit {
   }
 
   checkEmailIfExist() {
+    debugger
     this.updateMail = false;
     let email = this.emailForm.controls["emailAdress"].value;
     if (email) {

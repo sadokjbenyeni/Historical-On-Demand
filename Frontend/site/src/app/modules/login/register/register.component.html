@@ -1,0 +1,82 @@
+<app-menu></app-menu>
+<div class="row page-header">
+    <div class="col-lg-12">
+        <ol class="breadcrumb custom-breadcrumb">
+            <li class="active">Register</li>
+        </ol>
+    </div>
+</div>
+<div class="container page-content">
+    <div class="row">
+        <mat-horizontal-stepper linear #stepper>
+            <mat-step state="contactInformations">
+                <ng-template matStepLabel>Contact Informations</ng-template>
+                <div class="mat-horizontal-content">
+                    <app-contact-informations [toUpdate]="true" [contactInformations]="contactInformations"
+                        (emitContactInformations)="getContactInformations($event)" [forRegister]="true">
+                    </app-contact-informations>
+
+                </div>
+            </mat-step>
+
+            <mat-step state="billingInformations">
+                <ng-template matStepLabel>Billing Informations</ng-template>
+                <div class="mat-horizontal-content">
+                    <app-billing-informations [forRegister]="true" [toUpdate]="true"
+                        (emitBilligInformations)="getBillingInformations($event)"
+                        [billigInformations]="billigInformations">
+                    </app-billing-informations>
+
+                </div>
+            </mat-step>
+
+
+            <mat-step state="loginInformations">
+                <ng-template matStepLabel>Login Informations</ng-template>
+                <div class="mat-horizontal-content login-margin">
+                    <app-password-informations (emitPassword)="getPassword($event)" [forRegister]="true">
+                    </app-password-informations>
+
+                </div>
+            </mat-step>
+
+            <mat-step state="toRegister">
+                <ng-template matStepLabel>Register</ng-template>
+                <div class="mat-horizontal-content">
+                    <div class="col-lg-4 col-lg-offset-4 text-center">
+                        <mat-checkbox class="cvg-color" [(ngModel)]="cvg">I agree to QH’s term & services, and cookie
+                            policy
+                        </mat-checkbox>
+                        <mat-checkbox [(ngModel)]="commercial">Subscribe to commercial emails</mat-checkbox>
+                        <br><br>
+                        <!-- <div class="col-lg-4 col-lg-offset-4" *ngIf="page === '/register' ">
+                            <re-captcha (resolved)="resolved($event)" [siteKey]="key"></re-captcha>
+                        </div> -->
+                        <br><br>
+                        <button mat-raised-button matStepperPrevious>Back</button> &nbsp;&nbsp;&nbsp;
+                        <button mat-raised-button color="warn" (click)="register()" [disabled]="!cvg">Register</button>
+                    </div>
+                </div>
+            </mat-step>
+
+
+            <!-- Icon overrides. -->
+            <ng-template matStepperIcon="contactInformations">
+                <mat-icon>person</mat-icon>
+            </ng-template>
+
+            <ng-template matStepperIcon="billingInformations">
+                <mat-icon>home</mat-icon>
+            </ng-template>
+
+            <ng-template matStepperIcon="loginInformations">
+                <mat-icon>login</mat-icon>
+            </ng-template>
+
+            <ng-template matStepperIcon="toRegister">
+                <mat-icon>how_to_reg</mat-icon>
+            </ng-template>
+
+        </mat-horizontal-stepper>
+    </div>
+</div>

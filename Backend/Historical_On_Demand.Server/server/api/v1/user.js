@@ -436,7 +436,7 @@ router.post("/UpdateEmailAdressVerification", async (req, res) => {
       return res.status(200).json({ error: "user not found !" });
     }
   } catch (error) {
-    req.logger.error({ message: error.message, className: "Mailer API" });
+    req.logger.error({ message: error.message, className: "User API" });
     req.logger.error({
       message: JSON.stringify(error) + "\n" + error.stacktrace,
       className: "User API",
@@ -445,17 +445,35 @@ router.post("/UpdateEmailAdressVerification", async (req, res) => {
   }
 });
 
-router.post("/UpdatePasswordVerification", async (req, res) => {
+router.post("/requestForResetPassword", async (req, res) => {
+  try {
+    await userService.SendMailForResetPassword(req.logger, req.body.email);
+    return res.status(200).json({ mail: true });
+  } catch (error) {
+    req.logger.error({ message: error.message, className: "User API" });
+    req.logger.error({
+      message: JSON.stringify(error) + "\n" + error.stacktrace,
+      className: "User API",
+    });
+    return res.status(501).json({ mail: false });
+  }
+});
+
+router.post("/UpdatePassword", async (req, res) => {
   try {
     const userId = jwtService.verifyToken(req.headers.authorization).id;
+
+    let cipherOld = crypto.createCipher(algorithm, req.body.oldPassword);
+    let oldPassword = cipherOld.update(PHRASE, "utf8", "hex");
+    oldPassword += cipherOld.final("hex");
+
+    let cipherNew = crypto.createCipher(algorithm, req.body.newPassword);
+    let newPassword = cipherNew.update(PHRASE, "utf8", "hex");
+    newPassword += cipherNew.final("hex");
+
     if (userId) {
-      await userService.SendMailForPasswordUpdateVerification(
-        req.logger,
-        userId,
-        req.body.oldPassword,
-        req.body.newPassword
-      );
-      return res.status(200).json({ mail: true });
+      await userService.updateUserPassword(userId, oldPassword, newPassword);
+      return res.status(200).json({ updated: true });
     } else {
       return res.status(200).json({ error: "user not found !" });
     }
@@ -465,7 +483,30 @@ router.post("/UpdatePasswordVerification", async (req, res) => {
       message: JSON.stringify(error) + "\n" + error.stacktrace,
       className: "User API",
     });
-    return res.status(501).json({ mail: false });
+    return res.status(501).json({ updated: false });
+  }
+});
+
+router.post("/resetPassword", async (req, res) => {
+  try {
+    const payload = jwtService.verifyToken(req.body.token);
+    if (payload.email) {
+      let cipherOld = crypto.createCipher(algorithm, req.body.password);
+      let password = cipherOld.update(PHRASE, "utf8", "hex");
+      password += cipherOld.final("hex");
+
+      await userService.resetPassword(payload.email, password);
+      return res.status(200).json({ updated: true });
+    } else {
+      return res.status(304).json({ error: "Update failed !" });
+    }
+  } catch (error) {
+    req.logger.error({ message: error.message, className: "User API" });
+    req.logger.error({
+      message: JSON.stringify(error) + "\n",
+      className: "User API",
+    });
+    return res.status(403).json({ error: error.message });
   }
 });
 
@@ -477,37 +518,6 @@ router.post("/UpdateEmailAdress/", async (req, res) => {
       return res.status(200).json({ user: user });
     } else {
       return res.status(304).json({ error: "user not found !" });
-    }
-  } catch (error) {
-    req.logger.error({ message: error.message, className: "User API" });
-    req.logger.error({
-      message: JSON.stringify(error) + "\n",
-      className: "User API",
-    });
-    return res.status(403).json({ error: error.message });
-  }
-});
-router.put("/updateUserPassword", async (req, res) => {
-  try {
-    const payload = jwtService.verifyToken(req.body.token);
-
-    let cipherOld = crypto.createCipher(algorithm, payload.oldPassword);
-    let oldPassword = cipherOld.update(PHRASE, "utf8", "hex");
-    oldPassword += cipherOld.final("hex");
-
-    let cipherNew = crypto.createCipher(algorithm, payload.newPassword);
-    let newPassword = cipherNew.update(PHRASE, "utf8", "hex");
-    newPassword += cipherNew.final("hex");
-
-    if (payload.id) {
-      updated = await userService.updateUserPassword(
-        payload.id,
-        oldPassword,
-        newPassword
-      );
-      return res.status(200).json({ updated: updated });
-    } else {
-      return res.status(304).json({ error: "Update password failed !" });
     }
   } catch (error) {
     req.logger.error({ message: error.message, className: "User API" });

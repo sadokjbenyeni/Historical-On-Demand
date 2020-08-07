@@ -8,6 +8,7 @@ import { MaterialModule } from '../modules/material/material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ContactInformationsComponent } from './user/contact-informations/contact-informations.component';
+import { PasswordInformationsComponent } from './user/password-informations/password-informations.component';
 
 
 
@@ -16,7 +17,8 @@ import { ContactInformationsComponent } from './user/contact-informations/contac
     ShowErrorsComponent,
     NgbdModalContent,
     BillingInformationsComponent,
-    ContactInformationsComponent
+    ContactInformationsComponent,
+    PasswordInformationsComponent
   ],
   imports: [
     CommonModule,
@@ -34,7 +36,8 @@ import { ContactInformationsComponent } from './user/contact-informations/contac
     ShowErrorsComponent,
     NgbdModalContent,
     BillingInformationsComponent,
-    ContactInformationsComponent
+    ContactInformationsComponent,
+    PasswordInformationsComponent
   ]
 })
 export class SharedModule { }

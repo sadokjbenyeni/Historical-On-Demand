@@ -127,13 +127,13 @@ module.exports = function (logger, user) {
     });
   };
 
-  this.RenewPassword = function () {
+  this.RenewPassword = function (token) {
     this.logger.debug({
       message: "user: " + JSON.stringify(user),
       className: "UserMailer service",
     });
     let mailOptions = {
-      from: "no-reply@quanthouse.com",
+      from: "quanthouse@emailserver.com",
       to: this.user.email,
       subject: global.environment.environment + "Password Initialization",
       text:
@@ -142,7 +142,7 @@ module.exports = function (logger, user) {
         To reinitialize your password, please click on the following link: ` +
         domain +
         `/mdp/` +
-        this.user.token +
+        token +
         `
         If clicking the above link does not work, you can copy and paste the URL in a new browser window.
         If you have received this email by error, you do not need to take any action. Your password will remain unchanged.
@@ -152,9 +152,8 @@ module.exports = function (logger, user) {
       html:
         `Hello,<br><br>        
         To reinitialize your password, please click on the following link: <a href="` +
-        domain +
-        `/mdp/` +
-        this.user.token +
+        `http://localhost:4200/resetPassword/` +
+        token +
         `">Modify password</a><br>
         If clicking the above link does not work, you can copy and paste the URL in a new browser window.<br>
         If you have received this email by error, you do not need to take any action. Your password will remain unchanged.<br><br>
@@ -195,46 +194,6 @@ module.exports = function (logger, user) {
         `http://localhost:4200/user/confirmEmailUpdate/` +
         token +
         `">Update Email</a><br>
-        <b>Notice</b>: You have 30 minutes to confirm your update before the link expired<br>
-        If clicking the above link does not work, you can copy and paste the URL in a new browser window.<br>
-        If you have received this email by error, you do not need to take any action. Your email will remain unchanged.<br><br>
-        <b>The Quanthouse team</b>`,
-    };
-    this.logger.debug({
-      message: "mailOptions: " + JSON.stringify(mailOptions),
-      className: "UserMailer service",
-    });
-    smtpTransport.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        this.logger.error({
-          message: err.message,
-          className: "UserMailer service",
-          error: error,
-        });
-        this.logger.error({
-          message: JSON.stringify(error),
-          className: "UserMailer service",
-        });
-        throw error;
-      }
-    });
-  };
-
-  this.ConfirmUpdatePassword = function (token) {
-    this.logger.debug({
-      message: "user: " + JSON.stringify(user),
-      className: "UserMailer service",
-    });
-    let mailOptions = {
-      from: "quanthouse@emailserver.com",
-      to: this.user.email,
-      subject: global.environment.environment + " Update Password",
-      html:
-        `Hello,<br><br>        
-        To update your password, please click on the following link: <a href="` +
-        `http://localhost:4200/user/confirmPasswordUpdate/` +
-        token +
-        `">Update Password</a><br>
         <b>Notice</b>: You have 30 minutes to confirm your update before the link expired<br>
         If clicking the above link does not work, you can copy and paste the URL in a new browser window.<br>
         If you have received this email by error, you do not need to take any action. Your email will remain unchanged.<br><br>

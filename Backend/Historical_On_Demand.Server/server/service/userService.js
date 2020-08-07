@@ -103,23 +103,20 @@ module.exports.checkEmailIfExist = async (email) => {
   return false;
 };
 
-module.exports.SendMailForPasswordUpdateVerification = async (
-  logger,
-  userId,
-  oldPassword,
-  newPassword
-) => {
-  const user = await this.getUserById(userId);
-  if (user) {
-    const token = jwtService.createTokentoUpdateUserMail({
-      id: user._id,
-      oldPassword: oldPassword,
-      newPassword: newPassword,
-    });
-    var mailer = new UserMailService(logger, user);
-    await mailer.ConfirmUpdatePassword(token);
+module.exports.SendMailForResetPassword = async (logger, email) => {
+  if (email) {
+    const user = await Users.findOne({ email: email }).exec();
+    if (user) {
+      const token = jwtService.createTokentoResetPassword({
+        email: email,
+      });
+      var mailer = new UserMailService(logger, user);
+      await mailer.RenewPassword(token);
+    } else {
+      throw new Error("User not found");
+    }
   } else {
-    throw new Error("User not found ");
+    throw new Error("Email Adress not valid ");
   }
 };
 
@@ -136,6 +133,25 @@ module.exports.updateUserPassword = async (
     {
       $set: {
         password: newPassword,
+      },
+    }
+  ).exec();
+
+  if (user) {
+    return true;
+  } else {
+    throw new Error("Update failed, please check your password");
+  }
+};
+
+module.exports.resetPassword = async (email, password) => {
+  user = await Users.findOneAndUpdate(
+    {
+      email: email,
+    },
+    {
+      $set: {
+        password: password,
       },
     }
   ).exec();
