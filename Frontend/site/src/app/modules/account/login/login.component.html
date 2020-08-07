@@ -9,7 +9,7 @@
   <div class="col-md-4 col-md-offset-4 login-form" *ngIf="(page ==='login' || page ==='activation') && !viewterms">
     <div class="login-panel panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">Log in to your Quanthouse account</h3>
+        <h3 class="panel-title">Sign In to your Quanthouse account</h3>
       </div>
       <div class="anim panel-body">
         <form (ngSubmit)="check()" #loginForm="ngForm" role="form">
@@ -23,8 +23,8 @@
             </div>
             Forgot your <a data-toggle="modal" [attr.data-target]="'#useridModal'" class="clickable">User ID</a> and/or <a data-toggle="modal" [attr.data-target]="'#mdpModal'" class="clickable">Password</a><br>
             <input type="checkbox" name="ula"  [(ngModel)]="ula" value="ula"> By logging in, you agree with the <a class="clickable" (click)="termsOpen()">User License Agreement</a><br>
-            <button type="submit" class="btn btn-lg btn-success btn-block" [disabled]="email === '' || password === '' || !ula">Log In</button>
-            <a routerLink="/register" class="btn btn-lg btn-info btn-block">Register</a>
+            <button type="submit" class="btn btn-lg btn-success btn-block" [disabled]="email === '' || password === '' || !ula">Sign In</button>
+            <a routerLink="/register" class="btn btn-lg btn-info btn-block">Sign Up</a>
           </fieldset>
         </form>
       </div>
