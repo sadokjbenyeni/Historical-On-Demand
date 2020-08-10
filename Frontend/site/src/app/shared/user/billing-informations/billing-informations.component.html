@@ -3,8 +3,6 @@
   <div class="row">
     <mat-card>
       <mat-card-content>
-        <!-- <div class="row"> -->
-        <!-- <div class="col-md-6"> -->
         <mat-form-field>
           <input matInput type="text" placeholder="VAT Number" formControlName="vat" />
           <mat-hint style="color: #f44336;" *ngIf="invalidVat">You have entered an invalid VAT Number
@@ -24,8 +22,6 @@
           <mat-error>Field required</mat-error>
         </mat-form-field>
         <br />
-        <!-- </div> -->
-        <!-- <div class="col-md-6"> -->
         <mat-form-field>
           <input matInput type="text" name="postalCodeBilling" placeholder="Billing Postal Code"
             formControlName="postalCodeBilling" required />
@@ -43,21 +39,21 @@
           <mat-error>Field required</mat-error>
         </mat-form-field>
 
-        <label id="paymenTitle">Select your payment method</label>
-        <mat-radio-group class="display-mat-radio-button" formControlName="payment" aria-labelledby="paymenTitle">
+        <label id="paymenTitle">Select your payment method *</label>
+        <mat-radio-group class="display-mat-radio-button" formControlName="payment" aria-labelledby="paymenTitle"
+          required>
           <mat-radio-button *ngFor="let payment of payments" name="payment" [value]="payment.id">
             {{ payment.name }}</mat-radio-button>
         </mat-radio-group>
 
-        <label id="currencyTitle">Select your billing currency</label>
-        <mat-radio-group class="display-mat-radio-button" formControlName="currency" aria-labelledby="currencyTitle">
+        <label id="currencyTitle">Select your billing currency *</label>
+        <mat-radio-group class="display-mat-radio-button" formControlName="currency" aria-labelledby="currencyTitle"
+          required>
           <ng-container *ngFor="let currency of currencies">
             <mat-radio-button name="currency" [value]="currency.id" [title]="currency.name">
               {{ currency.device }} </mat-radio-button><br />
           </ng-container>
         </mat-radio-group>
-        <!-- </div> -->
-        <!-- </div> -->
       </mat-card-content>
       <mat-card-actions *ngIf="forRegister === true">
         <button mat-raised-button matStepperPrevious>Back</button>

@@ -6,7 +6,7 @@
         </ol>
     </div>
 </div>
-<div class="container page-content">
+<div class="container page-content margin-bottom">
     <div class="row">
         <mat-horizontal-stepper linear #stepper>
             <mat-step state="contactInformations">
@@ -44,8 +44,10 @@
                 <ng-template matStepLabel>Sign Up</ng-template>
                 <div class="mat-horizontal-content">
                     <div class="col-lg-4 col-lg-offset-4 text-center">
-                        <mat-checkbox class="cvg-color" [(ngModel)]="cvg">I agree to QH’s term & services, and cookie
-                            policy
+                        <mat-checkbox class="cvg-color" [(ngModel)]="cvg">
+                            <p class="terms-margin" (click)="showTerms($event.checked)"> agree to QH’s term & services,
+                                and cookie
+                                policy</p>
                         </mat-checkbox>
                         <mat-checkbox [(ngModel)]="commercial">Subscribe to commercial emails</mat-checkbox>
                         <br><br>
@@ -78,5 +80,15 @@
             </ng-template>
 
         </mat-horizontal-stepper>
+    </div>
+
+</div>
+<div class="footer">
+    <img src="assets/img/lower_banner.jpg">
+    <div class="copyright">
+        <p>All Material © QuantHouse; Latest Update 2019</p>
+    </div>
+    <div class="col-md-12 text-center">
+        <img src="assets/img/lower_logo.jpg" alt="Quanthouse">
     </div>
 </div>

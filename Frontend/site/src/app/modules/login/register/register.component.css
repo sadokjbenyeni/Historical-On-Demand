@@ -31,3 +31,24 @@
 .cvg-color {
   color: #ea663b !important;
 }
+
+.terms-margin {
+  margin-bottom: 0px !important;
+}
+
+.footer {
+  margin-top: -50px !important;
+}
+.footer > img {
+  display: block;
+  margin: auto;
+  width: 100%;
+  height: 150px;
+}
+.footer > img {
+  height: 80px;
+}
+
+.margin-bottom{
+  margin-bottom: 102px !important ;
+}

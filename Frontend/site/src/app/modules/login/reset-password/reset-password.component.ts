@@ -51,7 +51,7 @@ export class ResetPasswordComponent implements OnInit {
     let title = "Confirm your new password!"
     let text = "Do you confirm to save your new password ?"
     this.swalService.getSwalForConfirm(title, text).then(result => {
-      if (result) {
+      if (result.value) {
         debugger
         this.userService.resetPassword(this.token, this.newPassword).subscribe(res => {
           if (res.updated) {
