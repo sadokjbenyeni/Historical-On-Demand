@@ -19,6 +19,7 @@ module.exports.getOrderDetails = async (orderId, userId) => {
     if (isInvoice(RawOrder.state)) {
         var invoice = await Invoices.findOne({
             orderIdReference: RawOrder._id,
+            state: { $ne: 'Aborted' }
         }).exec();
         RawOrder.idCommande = invoice.invoiceId;
         RawOrder.idProForma = invoice.proFormaId
@@ -27,11 +28,6 @@ module.exports.getOrderDetails = async (orderId, userId) => {
         var user = await userService.getUserById(userId);
         var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(RawOrder)), user.currency, undefined)
         invoice.total = invoice.totalHT;
-        // if (await vatService.applyVat(user.countryBilling, user.vat)) {
-        //     let configVat = await configService.getVat();
-        //     invoice.vatValue = configVat.valueVat / 100;
-        //     invoice.total *= (1 + (invoice.vatValue))
-        // }
     }
     setOrderValuesFromInvoice(RawOrder, invoice);
 
@@ -81,13 +77,14 @@ clientOrderDetails = function (order) {
     container.vatValue = order.vatValue;
     return container;
 }
+
 function checkifSubscription(product) {
     return product.subscription == 1 ? "subscription" : "onetime";
 }
 module.exports.getUserOrdersHistory = async (userId) => {
     user = await userService.getUserById(userId, { currency: true });
     var caddy = await this.getCaddy(undefined, undefined, user);
-    var invoices = await Invoices.find({ userId: userId }).exec();
+    var invoices = await Invoices.find({ userId: userId, state: { $ne: 'Aborted' } }).exec();
     invoices = invoices.map((item) => ToOrderDto(item, false));
     if (caddy) {
         caddy = ToOrderDto(caddy, true, user.currency);
@@ -199,7 +196,7 @@ module.exports.getLinks = async (user, order, logger) => {
 module.exports.getOrderById = async (OrderId) => {
     var order = await Orders.findOne({ _id: OrderId }).exec();
     if (isInvoice(order.state)) {
-        var invoice = await Invoices.findOne({ orderId: order.id });
+        var invoice = await Invoices.findOne({ orderId: order.id, state: { $ne: 'Aborted' } });
     } else {
         var user = await userService.getUserById(order.idUser);
         var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(order)), user.currency);

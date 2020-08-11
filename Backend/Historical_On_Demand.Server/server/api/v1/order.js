@@ -841,14 +841,13 @@ router.put("/abortOrder", async (req, res) => {
   if (!req.headers.authorization) {
     return res.status(401).json({ error: "No token provided" });
   }
+  const orderToDelete = await OrderService.getRawCaddy(userId);
   try {
-
-    const orderToDelete = await OrderService.getRawCaddy(userId);
     if (orderToDelete) {
-      await deleteOrderFromCart(orderToDelete);
+      await deleteOrderFromCart(orderToDelete, req);
     }
     await deleteInvoiceRelatedToOrder(req);
-    await moveOrderToCart(req);
+    await moveOrderToCart(req, orderToDelete);
     return res.status(200).json({ ok: true });
   } catch (error) {
     req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
@@ -956,7 +955,7 @@ Date.prototype.nextMonth = function (period) {
   this.setMonth(this.getMonth() + period);
   return this;
 };
- 
+
 verifWeek = function (dt) {
   dt.previousDay();
   while (dt.getDay() === 0 || dt.getDay() === 6) {
@@ -976,7 +975,7 @@ verifWeekNext = function (dt) {
 Date.prototype.yyyymmdd = function () {
   var mm = this.getMonth() + 1;
   var dd = this.getDate();
-  return [ 
+  return [
     this.getFullYear(),
     (mm > 9 ? "" : "0") + mm,
     (dd > 9 ? "" : "0") + dd,
@@ -1168,14 +1167,44 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   ).exec();
 };
 
-async function moveOrderToCart(req) {
+async function moveOrderToCart(req, replacedOrder) {
+  let comment = 'No replaced Order';
+  if (replacedOrder) {
+    comment = `Order ${req.body.id} replaced order ${replacedOrder.id}`;
+  }
   await Order.updateOne(
     { id: req.body.id },
     {
       $set: {
+        total: 0,
+        survey: null,
+        validationCompliance: false,
+        validationProduct: false,
+        payment: null,
+        logs: null,
         state: "CART",
         logs: {
-          status: "Returned to Cart After Abortion",
+          status: comment,
+          referer: "Client",
+          date: Date.now()
+        }
+      },
+      $unset: {
+        idProForma: "",
+        reason: ""
+      }
+    }
+  ).exec();
+}
+
+async function deleteInvoiceRelatedToOrder(req) {
+  await Invoice.updateOne(
+    { orderId: req.body.id, state: { $in: ['PVP', 'PVC', 'PVF'] } },
+    {
+      $set: {
+        state: "Aborted",
+        logs: {
+          status: `Invoice deleted after returning order ${req.body.id} to cart`,
           referer: "Client",
           date: Date.now()
         }
@@ -1184,31 +1213,15 @@ async function moveOrderToCart(req) {
   ).exec();
 }
 
-async function deleteInvoiceRelatedToOrder(req) {
-  await Invoice.updateOne(
-    { orderId: req.body.id },
-    {
-      $set: {
-        state: "Aborted",
-        logs: {
-          status: "Aborted By Client",
-          referer: "Client",
-          date: Date.now()
-        }
-      }
-    }
-  ).exec(); 
-}
-
-async function deleteOrderFromCart(orderToDelete) {
+async function deleteOrderFromCart(orderToDelete, req) {
   await Order.updateOne(
     { _id: orderToDelete._id },
     {
       $set: {
         state: "Deleted",
         logs: {
-          status: "Deleted After Abortion",
-          referer: "System",
+          status: `Order ${orderToDelete.id} is replaced by ${req.body.id} by the client`,
+          referer: "Client",
           date: Date.now()
         },
       }
@@ -1376,7 +1389,7 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
     eids.push(p.eid);
   });
   req.logger.info({ message: "sending email...", className: "Order API" });
-  if (req.body.status !== "cancelled") {
+  if (req.body.status !== "cancelled" && req.body.status !== "Aborted") {
     var users = await User.find({ roleName: "Product" }).exec();
     var mailer = new OrderMailService(req.logger, order);
     await new OrderPdfService(invoice).createInvoicePdf(
