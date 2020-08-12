@@ -9,7 +9,7 @@ const fluxService = require("./fluxService");
 const configService = require("../service/configService");
 const vatService = require("../service/vatService");
 const userService = require("../service/userService");
-const { invoice } = require("paypal-rest-sdk");
+const { invoice, order } = require("paypal-rest-sdk");
 
 module.exports.getOrderDetails = async (orderId, userId) => {
     var RawOrder = await Orders.findOne({ idUser: userId, _id: orderId }).exec();
@@ -24,13 +24,13 @@ module.exports.getOrderDetails = async (orderId, userId) => {
         RawOrder.idCommande = invoice.invoiceId;
         RawOrder.idProForma = invoice.proFormaId
         RawOrder.discount = invoice.discount;
+
     } else {
         var user = await userService.getUserById(userId);
         var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(RawOrder)), user.currency, undefined)
         invoice.total = invoice.totalHT;
+        setOrderValuesFromInvoice(RawOrder, invoice);
     }
-    setOrderValuesFromInvoice(RawOrder, invoice);
-
     try {
         return clientOrderDetails(RawOrder);
     } catch (error) {
@@ -84,7 +84,8 @@ function checkifSubscription(product) {
 module.exports.getUserOrdersHistory = async (userId) => {
     user = await userService.getUserById(userId, { currency: true });
     var caddy = await this.getCaddy(undefined, undefined, user);
-    var invoices = await Invoices.find({ userId: userId, state: { $ne: 'Aborted' } }).exec();
+    var invoices = await Invoices.find({ userId: userId, state: { $ne: 'Aborted' } }).sort({ orderId: 1, updatedAt: 1 }).exec();
+    uniqueInvoicesSelector(invoices);
     invoices = invoices.map((item) => ToOrderDto(item, false));
     if (caddy) {
         caddy = ToOrderDto(caddy, true, user.currency);
@@ -92,6 +93,22 @@ module.exports.getUserOrdersHistory = async (userId) => {
     }
     return invoices;
 };
+
+function uniqueInvoicesSelector(invoices) {
+    let stepper = 0;
+    while (stepper < invoices.length - 1) {
+        try {
+            if (invoices[stepper].orderId == invoices[stepper + 1].orderId) {
+                while (invoices[stepper].orderId == invoices[stepper + 1].orderId) {
+                    invoices.splice(stepper, 1);
+                }
+            }
+            stepper++;
+        }
+        catch (error) {
+        }
+    }
+}
 
 function ToOrderDto(order, isCaddy, currency = undefined) {
     return (order = {
@@ -200,10 +217,9 @@ module.exports.getOrderById = async (OrderId) => {
     } else {
         var user = await userService.getUserById(order.idUser);
         var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(order)), user.currency);
+        setOrderValuesFromInvoice(order, invoice);
         invoice.total = invoice.totalHT;
     }
-
-    setOrderValuesFromInvoice(order, invoice);
     return order;
 };
 module.exports.getCaddy = async function async(
@@ -246,17 +262,18 @@ function setOrderValuesFromInvoice(order, invoice) {
         ).ht;
         product.exchangefees = getExchangeFees(productsEID);
     });
-
-    function getExchangeFees(productsEID) {
-        if (productsEID && productsEID.historical_data) {
-            return productsEID.historical_data.backfill_applyfee &&
-                !productsEID.historical_data.direct_billing
-                ? productsEID.exchangefee
-                : 0;
-        }
-        return 0;
-    }
 }
+
+function getExchangeFees(productsEID) {
+    if (productsEID && productsEID.historical_data) {
+        return productsEID.historical_data.backfill_applyfee &&
+            !productsEID.historical_data.direct_billing
+            ? productsEID.exchangefee
+            : 0;
+    }
+    return 0;
+}
+
 module.exports.calculateAmountsOfOrder = async (order, currency, cube) => {
     if (!cube) {
         cube = await fluxService.getChangeRateCube();

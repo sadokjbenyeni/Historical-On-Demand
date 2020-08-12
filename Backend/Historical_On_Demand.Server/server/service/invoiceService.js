@@ -7,11 +7,11 @@ const http = require('http');
 
 module.exports = function () {
     this.updateInvoiceInformation = async function (orderId, invoiceId, status) {
-        await Invoice.updateOne({ orderId: orderId }, { $set: { state: status, invoiceId: invoiceId, path: `${invoiceDirectory}${invoiceId}.pdf` } }).exec();
+        await Invoice.updateOne({ orderId: orderId, state: { $ne: 'Aborted' } }, { $set: { state: status, invoiceId: invoiceId, path: `${invoiceDirectory}${invoiceId}.pdf` } }).exec();
     }
 
     this.updateProFormaInformation = async function (orderId, proFormaId) {
-        await Invoice.updateOne({ orderId: orderId }, { $set: { proFormaId: proFormaId, proFormaPath: `${invoiceDirectory}${proFormaId}.pdf` } }).exec();
+        await Invoice.updateOne({ orderId: orderId, state: { $ne: 'Aborted' } }, { $set: { proFormaId: proFormaId, proFormaPath: `${invoiceDirectory}${proFormaId}.pdf` } }).exec();
     }
 
     this.getInvoicePath = async function (orderId) {

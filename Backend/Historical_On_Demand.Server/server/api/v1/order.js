@@ -179,7 +179,7 @@ router.put("/updateDiscount", async (req, res) => {
   updatedInvoice.totalVat = (updatedInvoice.totalHT / 100) * 20;
   updatedInvoice.total = updatedInvoice.totalHT + updatedInvoice.totalVat;
   try {
-    await Invoice.updateOne({ orderId: req.body.orderId }, { $set: updatedInvoice }).exec();
+    await Invoice.updateOne({ orderId: req.body.orderId, state: { $ne: 'Aborted' } }, { $set: updatedInvoice }).exec();
   }
   catch (error) {
     logger.error({ message: error.message, className: "Order API" });
@@ -256,13 +256,13 @@ router.put("/state", async (req, res) => {
     req.logger.info("order canelling...");
     req.logger.debug("data order update: {" + JSON.stringify(orderUpdated) + "}");
     await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
-    await Invoice.updateOne({ orderId: req.body.id }, { $set: orderUpdated, $push: { logs: log } }).exec();
+    await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
     return res.status(201).json({ ok: true });
   }
   req.logger.info("Order Updating...");
   req.logger.debug(`Data Order Update: {${JSON.stringify(orderUpdated)}}`);
   await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
-  await Invoice.updateOne({ orderId: req.body.id }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
   return res.status(201).json({ ok: true });
 });
 
@@ -549,7 +549,10 @@ router.put("/cancelValidation", async (req, res) => {
     }).exec();
   var invoice = await Invoice.findOne({ orderId: req.body.id }).exec();
   await Invoice.updateOne(
-    { orderId: invoice.orderId },
+    {
+      orderId: invoice.orderId,
+      state: { $ne: 'Aborted' }
+    },
     {
       $set: {
         validationProduct: false,

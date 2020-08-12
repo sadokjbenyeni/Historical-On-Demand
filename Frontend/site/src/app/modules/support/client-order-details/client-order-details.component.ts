@@ -112,7 +112,8 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
       L1TRADEONLY: 'L1-Trades',
       L2: 'L2'
     };
-    this.token = JSON.parse(sessionStorage.getItem('user')).token;
+    // this.token = JSON.parse(sessionStorage.getItem('user')).token;
+    this.token = sessionStorage.token;
     this.getListStates();
   }
 

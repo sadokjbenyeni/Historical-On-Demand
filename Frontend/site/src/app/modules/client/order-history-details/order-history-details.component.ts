@@ -81,8 +81,8 @@ export class OrderHistoryDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.period = [];
+    this.getClientOrderDetails();
     this.getPeriod();
-    // this.listCurrencies();
     this.verifyOrderInCart();
 
     this.token = JSON.parse(sessionStorage.getItem('user'))?.token;
@@ -91,7 +91,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
 
     this.details = [];
     this.getListStates();
-    this.getClientOrderDetails();
     this.datasets = {
       L1: 'L1 - Full',
       L1TRADEONLY: 'L1 - Trades',
@@ -270,7 +269,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.orderAmount.totalTTC = this.totalTTC;
     this.orderAmount.totalVat = this.totalVat;
     this.listCurrencies();
-
   }
 
   public setToken(token: any) {
@@ -361,7 +359,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
       }
     }
 
-    var isReadyToAbort = await this.swalService.getSwalForConfirm('Are you sure ?', `You are going to abort order number <b> ${this.orderInfo.id} </b> back to you cart`);
+    var isReadyToAbort = await this.swalService.getSwalForConfirm(`You are about to edit your order !`, '');
     if (isReadyToAbort.value) {
       this.orderService.abortOrder(this.orderInfo.id).subscribe(result => {
         if (result) {
