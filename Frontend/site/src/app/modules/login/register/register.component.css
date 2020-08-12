@@ -62,3 +62,13 @@
 .mat-raised-button {
   margin-bottom: 3px !important;
 }
+
+.mat-stepper-vertical {
+  margin-left: 360px;
+  margin-right: 360px;
+}
+
+.col-lg-offset-6 {
+  margin-left: 22% !important;
+}
+

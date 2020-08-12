@@ -43,7 +43,7 @@
             <mat-step state="toRegister">
                 <ng-template matStepLabel>Sign Up</ng-template>
                 <div class="mat-horizontal-content">
-                    <div class="col-lg-4 col-lg-offset-4 text-center">
+                    <div class="col-lg-6 col-lg-offset-6 text-center">
                         <div class="scrollable">
                             <h2>Terms and Policies</h2>
                             <div *ngFor="let term of terms">
@@ -53,7 +53,7 @@
 
                         </div>
                         <mat-checkbox class="cvg-color" [(ngModel)]="cvg">
-                            <p class="terms-margin" (click)="showTerms($event.checked)"> agree to QH’s term & services,
+                            <p class="terms-margin"> agree to QH’s term & services,
                                 and cookie
                                 policy</p>
                         </mat-checkbox>
