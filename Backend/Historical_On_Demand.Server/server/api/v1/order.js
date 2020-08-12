@@ -9,7 +9,6 @@ const User = mongoose.model("User");
 const Currency = mongoose.model("Currency");
 const Invoice = mongoose.model("Invoice");
 
-//const config = require('../../config/config.js');
 const OrderProductLogService = require("../../service/orderProductLogService");
 
 const DOMAIN = global.environment.domain;
@@ -24,8 +23,9 @@ const OrderFilterService = require("../../service/orderFilterService");
 const OrderMailService = require("../../service/orderMailerService");
 const OrderPdfService = require("../../service/orderPdfService");
 const InvoiceService = require('../../service/invoiceService')
-const { error } = require('winston');
 const userService = require("../../service/userService");
+
+const { error } = require('winston');
 const { calculatefeesOfOrder } = require("../../service/feesService");
 
 // Client Encryption Public Key : 10001|C958CBDFC34244F25D41E5B28DA3331CA52385EE3E73B2A51FD94D302CC135DD7DC49BE19EA66CCD00BAE7D26AF00BBB39C73351D4EACC10D7D023FE0ED844BD2D53FAFA9DE26D34373DB80278FB01BD00E27F0E922A3D7AB734D0AEFC48A78CAFA8F5D92FA2CBA08509F398FF9DA8B9AB909010622C6C1DB2933F8CAAD78D6AD9FCE5C46F1D679E83224A6B4B114757B81F5F62C109A5002C4FCC7EE7DA92C2762690835EAB446F4F86D88A903241E9F1930406DC01A4FEC4ED85666D7A1C99A7A46C4ADE83F7461428E6D11E78D86005732256AA632AF34E48990366FA85C463380F424294C81D16173279EB78EDF264422BFAC487CAD9C7A6E9F363AA481B
@@ -39,7 +39,7 @@ router.post("/verify", (req, res) => {
     url: PAYMENTVERIFY,
     headers: {
       "content-type": "application/json",
-      "X-API-Key": PAYMENTKEY,
+      "X-API-Key": PAYMENTKEY
     },
     body: {
       payload: req.body.payload,
@@ -47,11 +47,11 @@ router.post("/verify", (req, res) => {
     json: true,
   };
 
-  request.post(options, async function (error, response, body) {
-    if (error) throw new Error(error);
+  request.post(options, async function (error, body) {
     let log = body;
-    log.date = new Date();
 
+    if (error) throw new Error(error);
+    log.date = new Date();
     await autoValidation(body.merchantReference, log, body, res, req.logger);
   });
 });
@@ -73,10 +73,10 @@ router.post("/logPayement", (req, res) => {
     body.date = new Date();
     Order.updateOne(
       { id_cmd: body.merchantReference },
-      { $push: { logsPayment: body } }
-    ).then((rs) => {
-      res.status(201).json(rs);
-    });
+      { $push: { logsPayment: body } })
+      .then((result) => {
+        res.status(201).json(result);
+      });
   });
 });
 
@@ -89,25 +89,20 @@ router.post("/rib", async (req, res) => {
         token: req.body.token,
         email: req.body.email,
         payment: "RIB",
-        date: new Date(),
+        date: new Date()
       },
       { ok: true },
       res,
       req.logger
     );
     return res.status(200).json({ message: "Order is submitted" });
-  } catch (error) {
+  }
+  catch (error) {
     req.logger.error({
       message: error.message + "\n" + error.stack,
-      className: "Order API",
+      className: "Order API"
     });
-    return res
-      .status(503)
-      .json(
-        "An error has been raised, please contact support with identifier error: '" +
-        req.headers.tokenLogger +
-        "'"
-      );
+    return res.status(503).json(`An error has been raised, please contact support with identifier error: '${req.headers.tokenLogger}'`);
   }
 });
 
@@ -117,71 +112,62 @@ router.post("/autovalidation", (req, res) => {
 
 router.post("/save", (req, res) => {
   let total = 0;
-
-  if (req.body.cart.currency !== "usd") {
-    total = precisionRound(
-      (req.body.cart.total / req.body.cart.currencyTxUsd) *
-      req.body.cart.currencyTx,
-      2
-    );
-  } else {
-    total = precisionRound(req.body.cart.total, 2);
+  let cart = req.body.cart;
+  if (cart.currency !== "usd") {
+    total = precisionRound((cart.total / cart.currencyTxUsd) * currencyTx, 2);
+  }
+  else {
+    total = precisionRound(cart.total, 2);
   }
 
   Order.updateOne(
-    { id_cmd: req.body.cart.idCmd },
+    { id_cmd: cart.idCmd },
     {
       $set: {
-        total: req.body.cart.total,
-        vatValue: req.body.cart.vatValue,
-        currencyTx: req.body.cart.currencyTx,
-        currencyTxUsd: req.body.cart.currencyTxUsd,
-      },
-    }
-  ).then(() => {
-    let options = {
-      url: PAYMENTSETUP,
-      headers: {
-        "content-type": "application/json",
-        "X-API-Key": PAYMENTKEY,
-      },
-      body: {
-        amount: {
-          currency: req.body.cart.currency.toUpperCase(),
-          value: total * 100,
+        total: cart.total,
+        vatValue: cart.vatValue,
+        currencyTx: cart.currencyTx,
+        currencyTxUsd: cart.currencyTxUsd,
+      }
+    })
+    .then(() => {
+      let options = {
+        url: PAYMENTSETUP,
+        headers: {
+          "content-type": "application/json",
+          "X-API-Key": PAYMENTKEY,
         },
-        reference: req.body.cart.idCmd,
-        shopperReference: req.body.user.email,
-        channel: "Web",
-        html: true,
-        origin: DOMAIN,
-        returnUrl: DOMAIN + "/order/payment",
-        countryCode: req.body.user.countryBilling,
-        shopperLocale: "en-GB",
-        merchantAccount: "QUANTHOUSECOM",
-      },
-      json: true,
-    };
+        body: {
+          amount: {
+            currency: req.body.cart.currency.toUpperCase(),
+            value: total * 100,
+          },
+          reference: req.body.cart.idCmd,
+          shopperReference: req.body.user.email,
+          channel: "Web",
+          html: true,
+          origin: DOMAIN,
+          returnUrl: DOMAIN + "/order/payment",
+          countryCode: req.body.user.countryBilling,
+          shopperLocale: "en-GB",
+          merchantAccount: "QUANTHOUSECOM",
+        },
+        json: true,
+      };
 
-    request.post(options, function (error, response, body) {
-      if (error) throw new Error(error);
-      return res.status(200).json(response);
+      request.post(options, function (error, response, body) {
+        if (error) throw new Error(error);
+        return res.status(200).json(response);
+      });
     });
-  });
 });
 
 router.put("/delProductCaddy", async (req, res) => {
   const userId = jwtService.verifyToken(req.headers.authorization).id;
   var caddy = await OrderService.getRawCaddy(userId);
-  var productdeletion = await OrderService.deleteProduct(
-    caddy,
-    req.body.id_product
-  );
-  if (productdeletion == 1) {
-    return res.status(200).json({ message: "Order deleted" });
-  } else if (productdeletion == 2) {
-    return res.status(200).json({ message: "Product deleted" });
-  }
+  var productdeletion = await OrderService.deleteProduct(caddy, req.body.id_product);
+  if (productdeletion == 1) return res.status(200).json({ message: "Order deleted" });
+  else if (productdeletion == 2) return res.status(200).json({ message: "Product deleted" });
   return res.status(200).json({ error: "Product Not found" });
 });
 
@@ -236,71 +222,47 @@ router.put("/state", async (req, res) => {
   orderUpdated.state = req.body.status;
   log.status = req.body.status;
   log.referer = req.body.referer;
-  dateref = new Date();
-  datedebref = new Date();
-  dateFinref = new Date();
-  log.date = dateref;
+  log.date = new Date();
+
   if (req.body.referer === "Compliance") {
     try {
       await UpdateStateCompliance(orderUpdated, corp, req);
-    } catch (err) {
-      req.logger.error({
-        message: err.message + "\n" + err.stack,
-        className: "Order API",
-      });
-      return res.status(503).json({
-        message:
-          "An error has been thrown, please contact support with '" +
-          req.loggerToken +
-          "'",
-      });
+    }
+    catch (err) {
+      req.logger.error({ message: err.message + "\n" + err.stack, className: "Order API" });
+      return res.status(503).json({ message: `An error has been thrown, please contact support with '${req.loggerToken}'` });
     }
   }
   if (req.body.referer === "Product") {
     try {
       await UpdateStateProduct(orderUpdated, req, corp);
-    } catch (err) {
-      req.logger.error({
-        message: err.message + "\n" + err.stack,
-        className: "Order API",
-      });
-      res.status(503).json({ message: "An error has been thrown, please contact support with '" + req.headers.loggerToken + "'" });
+    }
+    catch (err) {
+      req.logger.error({ message: `${err.message}\n${err.stack}`, className: "Order API" });
+      res.status(503).json({ message: `An error has been thrown, please contact support with '${req.loggerToken}'` });
     }
   }
-  if (
-    req.body.referer === "Finance" ||
-    req.body.referer === "ProductAutovalidateFinance"
-  ) {
+  if (req.body.referer === "Finance" || req.body.referer === "ProductAutovalidateFinance") {
     try {
       await UpdateOrderFinance(orderUpdated, req, corp, log);
       return res.status(200).json({ ok: true });
-    } catch (err) {
-      req.logger.error({
-        message: err.message + "\n" + err.stack,
-        className: "Order API",
-      });
-      return res.status(503).json({ message: "An error has been thrown, please contact support with '" + req.loggerToken + "'" });
     }
-  } else if (req.body.referer.toLowerCase() === "client" || req.body.status.toLowerCase() === "cancelled") {
+    catch (err) {
+      req.logger.error({ message: `${err.message}\n${err.stack}`, className: "Order API" });
+      res.status(503).json({ message: `An error has been thrown, please contact support with '${req.loggerToken}'` });
+    }
+  }
+  else if (req.body.referer.toLowerCase() === "client" || req.body.status.toLowerCase() === "cancelled") {
     req.logger.info("order canelling...");
     req.logger.debug("data order update: {" + JSON.stringify(orderUpdated) + "}");
-    await Order.updateOne(
-      { id_cmd: req.body.idCmd },
-      { $set: orderUpdated, $push: { logs: log } }
-    ).exec();
+    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
     await Invoice.updateOne({ orderId: req.body.id }, { $set: orderUpdated, $push: { logs: log } }).exec();
     return res.status(201).json({ ok: true });
   }
-  req.logger.info("order updating...");
-  req.logger.debug("data order update: {" + JSON.stringify(orderUpdated) + "}");
-  await Order.updateOne(
-    { id_cmd: req.body.idCmd },
-    { $set: orderUpdated, $push: { logs: log } }
-  ).exec();
-  await Invoice.updateOne(
-    { orderId: req.body.id },
-    { $set: orderUpdated, $push: { logs: log } }
-  ).exec();
+  req.logger.info("Order Updating...");
+  req.logger.debug(`Data Order Update: {${JSON.stringify(orderUpdated)}}`);
+  await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  await Invoice.updateOne({ orderId: req.body.id }, { $set: orderUpdated, $push: { logs: log } }).exec();
   return res.status(201).json({ ok: true });
 });
 
@@ -309,104 +271,93 @@ router.put("/update", async (request, res) => {
     let orderProductLogs = [];
     var currencies = [];
     var currencies = await Currency.find({}).exec();
-    var orderUpdated = await Order.findOne({
-      _id: request.body.idcmd.id_cmd,
-    }).exec();
-    orderUpdated.id_cmd =
-      orderUpdated.id +
-      "-" +
-      request.body.u.user.companyName.replace(" ", "").toLowerCase() +
-      "-" +
-      new Date().yyyymmdd().replace(/-/g, "");
+    var orderUpdated = await Order.findOne({ _id: request.body.idcmd.id_cmd }).exec();
+    orderUpdated.id_cmd = orderUpdated.id + "-" + request.body.u.user.companyName.replace(" ", "").toLowerCase() + "-" + new Date().yyyymmdd().replace(/-/g, "");
     if (request.body.state) {
       orderUpdated.state = request.body.state;
     }
     if (request.body.cart) {
-      let idx = 1;
+      let index = 1;
       if (orderUpdated.products.length > 0) {
-        idx =
-          parseInt(
-            orderUpdated.products[
-              orderUpdated.products.length - 1
-            ].id_undercmd.split("§")[1]
-          ) + 1;
+        index = parseInt(orderUpdated.products[orderUpdated.products.length - 1].id_undercmd.split("§")[1]) + 1;
       }
-      request.body.cart.forEach((elem) => {
-        if (elem.backfill_fee !== 0) {
-          let a_backfillfee = elem.backfill_fee.split(" ");
+      request.body.cart.forEach((product) => {
+        if (product.backfill_fee !== 0) {
+          let a_backfillfee = product.backfill_fee.split(" ");
           switch (a_backfillfee[1]) {
             case "USD":
-              elem.backfill_fee = parseFloat(a_backfillfee[0]);
+              product.backfill_fee = parseFloat(a_backfillfee[0]);
               break;
             default:
-              elem.backfill_fee = parseFloat(a_backfillfee[0]);
+              product.backfill_fee = parseFloat(a_backfillfee[0]);
               for (let i = 0; i < currencies.length; i++) {
                 if (currencies[i]["device"] === "USD") {
-                  elem.backfill_fee = elem.backfill_fee * currencies[i]["taux"];
+                  product.backfill_fee = product.backfill_fee * currencies[i]["taux"];
                 } else if (currencies[i]["device"] === a_backfillfee[1]) {
-                  elem.backfill_fee = elem.backfill_fee / currencies[i]["taux"];
+                  product.backfill_fee = product.backfill_fee / currencies[i]["taux"];
                 }
               }
           }
         }
-        if (elem.ongoing_fee !== 0) {
-          let a_ongoingfee = elem.ongoing_fee.split(" ");
+        if (product.ongoing_fee !== 0) {
+          let a_ongoingfee = product.ongoing_fee.split(" ");
           switch (a_ongoingfee[1]) {
             case "USD":
-              elem.ongoing_fee = parseFloat(a_ongoingfee[0]);
+              product.ongoing_fee = parseFloat(a_ongoingfee[0]);
               break;
             default:
-              elem.ongoing_fee = parseFloat(a_ongoingfee[0]);
+              product.ongoing_fee = parseFloat(a_ongoingfee[0]);
               for (let i = 0; i < currencies.length; i++) {
                 if (currencies[i]["device"] === "USD") {
-                  elem.ongoing_fee = elem.ongoing_fee * currencies[i]["taux"];
+                  product.ongoing_fee = product.ongoing_fee * currencies[i]["taux"];
                 } else if (currencies[i]["device"] === a_ongoingfee[1]) {
-                  elem.ongoing_fee = elem.ongoing_fee / currencies[i]["taux"];
+                  product.ongoing_fee = product.ongoing_fee / currencies[i]["taux"];
                 }
               }
           }
         }
-        orderUpdated.totalExchangeFees += parseFloat(elem.backfill_fee);
-        orderUpdated.totalExchangeFees += parseFloat(elem.ongoing_fee);
-        orderUpdated.totalHT += parseFloat(elem.ht);
-        var id_undercmd = orderUpdated.id + "§" + idx++;
+
+        orderUpdated.totalExchangeFees += parseFloat(product.backfill_fee);
+        orderUpdated.totalExchangeFees += parseFloat(product.ongoing_fee);
+        orderUpdated.totalHT += parseFloat(product.ht);
+        var id_undercmd = orderUpdated.id + "§" + index++;
         orderUpdated.products.push({
-          idx: elem.idx,
-          index: elem.index,
+          idx: product.idx,
+          index: product.index,
           id_undercmd: id_undercmd,
-          dataset: elem.quotation_level,
-          description: elem.description,
-          pricingTier: elem.pricingTier,
-          price: elem.price,
-          backfill_fee: parseFloat(elem.backfill_fee),
-          ongoing_fee: parseFloat(elem.ongoing_fee),
-          ht: parseFloat(elem.ht),
-          onetime: elem.onetime,
-          subscription: elem.subscription,
-          period: elem.period,
-          contractid: elem.contractid,
-          eid: elem.eid,
-          qhid: elem.qhid,
-          symbol: elem.symbol,
-          historical_data: elem.historical_data,
-          exchangeName: elem.exchange,
-          assetClass: elem.assetClass,
-          mics: elem.mics,
-          begin_date_ref: elem.begin_date,
-          end_date_ref: elem.end_date,
-          begin_date: elem.begin_date_select,
-          end_date: elem.end_date_select,
-          status: elem.status,
+          dataset: product.quotation_level,
+          description: product.description,
+          pricingTier: product.pricingTier,
+          price: product.price,
+          backfill_fee: parseFloat(product.backfill_fee),
+          ongoing_fee: parseFloat(product.ongoing_fee),
+          ht: parseFloat(product.ht),
+          onetime: product.onetime,
+          subscription: product.subscription,
+          period: product.period,
+          contractid: product.contractid,
+          eid: product.eid,
+          qhid: product.qhid,
+          symbol: product.symbol,
+          historical_data: product.historical_data,
+          exchangeName: product.exchange,
+          assetClass: product.assetClass,
+          mics: product.mics,
+          begin_date_ref: product.begin_date,
+          end_date_ref: product.end_date,
+          begin_date: product.begin_date_select,
+          end_date: product.end_date_select,
+          status: product.status,
         });
         orderProductLogs.push({
           id_undercmd: id_undercmd,
           referer: "client",
-          status: elem.status,
+          status: product.status,
           idUser: orderUpdated.IdUser,
           date: new Date(),
           log: "Cart updated",
           orderId: orderUpdated.id,
-          productId: idx,
+          productId: index,
         });
       });
     }
@@ -446,10 +397,7 @@ router.put("/update", async (request, res) => {
     if (request.body.survey) {
       orderUpdated.survey = request.body.survey;
     }
-    await Order.updateOne(
-      { _id: request.body.idcmd.id_cmd },
-      { $set: orderUpdated }
-    ).exec();
+    await Order.updateOne({ _id: request.body.idcmd.id_cmd }, { $set: orderUpdated }).exec();
     try {
       var serviceLogs = new OrderProductLogService(
         orderUpdated.id,
@@ -457,7 +405,8 @@ router.put("/update", async (request, res) => {
       );
       request.logger.info({ message: "Order updated", className: "Order API" });
       await serviceLogs.addAllLogInUpdateOrder(orderProductLogs);
-    } catch (error) {
+    }
+    catch (error) {
       request.logger.error({
         message: error.message + "\n" + error.stack,
         className: "Order API",
@@ -470,55 +419,39 @@ router.put("/update", async (request, res) => {
       });
     }
     return res.status(201).json({ ok: true });
-  } catch (err) {
-    request.logger.error({
-      message: "Unhandle exception during update cart: " + err.message,
-      className: "Order API",
-    });
-    request.logger.error(err);
-    return res.status(501).json({
-      message:
-        "Update cannot be executed please contact support with identifier '" +
-        request.headers.tokenLogger +
-        "'",
-    });
+  }
+  catch (err) {
+    req.logger.error({ message: err.message + "\n" + err.stack, className: "Order API" });
+    return res.status(503).json({ message: `An error has been thrown, please contact support with '${req.loggerToken}'` });
   }
 });
 
 router.post("/usercaddy", (req, res) => {
   const states = ["CART", "PLI", "PBI", "PSC"];
-  Order.find(
-    { idUser: req.body.id, state: { $in: states } },
-    { id_cmd: true, state: true }
-  ).then((cmd) => {
-    if (cmd.length > 0 && states.indexOf(cmd.state)) {
-      return res.status(200).json({ id_cmd: cmd[0]._id });
-    } else {
+  Order.find({ idUser: req.body.id, state: { $in: states } }, { id_cmd: true, state: true }).then((order) => {
+    if (order.length > 0 && states.indexOf(order.state)) return res.status(200).json({ id_cmd: order[0]._id });
+    else {
       let order = new Order();
-      Order.find({}, { id: 1 })
-        .sort({ id: -1 })
-        .limit(1)
-        .then((count) => {
-          if (count.length > 0) {
-            order.id = count[0].id + 1;
-          } else {
-            order.id = 1;
+      Order.find({}, { id: 1 }).sort({ id: -1 }).limit(1).then((count) => {
+        if (count.length > 0) {
+          order.id = count[0].id + 1;
+        } else {
+          order.id = 1;
+        }
+        order.idUser = req.body.id;
+        order.save((err, c) => {
+          if (err) {
+            req.logger.error({
+              message: err.message,
+              className: "Order API",
+              error: error,
+            });
+            req.logger.error(err);
+            return console.error(err);
           }
-
-          order.idUser = req.body.id;
-          order.save((err, c) => {
-            if (err) {
-              req.logger.error({
-                message: err.message,
-                className: "Order API",
-                error: error,
-              });
-              req.logger.error(err);
-              return console.error(err);
-            }
-            return res.status(200).json({ id_cmd: c._id });
-          });
+          return res.status(200).json({ id_cmd: c._id });
         });
+      });
     }
   });
 });
@@ -556,80 +489,54 @@ router.post("/submitCaddy", async (req, res) => {
   catch (error) {
     return res.status(401).json({ error: error.message })
   }
-
 });
 
 router.post("/caddies", async (req, res) => {
-  if (!req.headers.authorization) {
-    return res.sendStatus(401);
-  }
-  userId = jwtService.verifyToken(req.headers.authorization).id
-  const order = await OrderService.getCaddy(
-    userId,
-    req.body.currency
-  );
+  if (!req.headers.authorization) return res.sendStatus(401);
+  userId = jwtService.verifyToken(req.headers.authorization).id;
+  const order = await OrderService.getCaddy(userId, req.body.currency);
   return res.status(200).json(order);
 });
 
 router.get("/caddy", async (req, res) => {
-  if (!req.headers.authorization) {
-    return res.sendStatus(401);
-  }
+  if (!req.headers.authorization) return res.sendStatus(401);
   const userId = jwtService.verifyToken(req.headers.authorization).id;
   const order = await OrderService.getRawCaddy(userId);
   return res.status(200).json(order);
 });
 
-router.get("/:id", (req, res) => {
-  Order.findOne({ _id: req.params.id }).then((cmd) => {
-    return res.status(200).json({ cmd: cmd });
-  });
+router.get("/:id", async (req, res) => {
+  let order = await Order.findOne({ _id: req.params.id }).exec();
+  return res.status(200).json({ cmd: order });
 });
 
 router.get("/", async (req, res) => {
   if (!req.headers.authorization) {
-    req.logger.error({
-      message: "Access denied at this resource",
-      className: "Order API",
-    });
-    return res.status(401).json({
-      message:
-        "Access denied at this resource, please contact the support with ticket identifier: " +
-        req.headers.loggerToken,
-    });
+    req.logger.error({ message: "Access denied at this resource", className: "Order API" });
+    return res.status(401).json({ message: `Access denied at this resource, please contact the support with ticket identifier: ${req.headers.loggerToken}` });
   }
-  userId = jwtService.verifyToken(req.headers.authorization).id;
+  let userId = jwtService.verifyToken(req.headers.authorization).id;
   const orders = await OrderService.getUserOrdersHistory(userId);
   res.status(200).json({ listorders: orders });
 });
 
 router.get("/details/:id", async (req, res) => {
-  if (!req.headers.authorization) {
-    return res.status(401);
-  }
-  if (!req.params.id) {
-    return res.status(200).json({ error: "No order id provided in request" });
-  }
+  if (!req.headers.authorization) return res.status(401);
+  if (!req.params.id) return res.status(200).json({ error: "No order id provided in request" });
   try {
-    userId = jwtService.verifyToken(req.headers.authorization).id
-    const order = await OrderService.getOrderDetails(
-      req.params.id,
-      userId
-    );
+    let userId = jwtService.verifyToken(req.headers.authorization).id;
+    const order = await OrderService.getOrderDetails(req.params.id, userId);
     return res.status(200).json(order);
-  } catch (error) {
-    req.logger.error({ message: error.message + '\n' + error.stack, className: 'Order API' });
-    res.status(503).json({
-      message: "an error has been raised please contact support with this identifier [" + req.headers.loggerToken + "]",
-    });
+  }
+  catch (err) {
+    req.logger.error({ message: err.message + "\n" + err.stack, className: "Order API" });
+    return res.status(503).json({ message: `An error has been thrown, please contact support with '${req.loggerToken}'` });
   }
 });
 
 router.put("/cancelValidation", async (req, res) => {
-  if (!req.headers.authorization) {
-    return res.status(401);
-  }
-  var order = await Order.findOne({ id: req.body.id }).exec();
+  if (!req.headers.authorization) return res.status(401);
+  let order = await Order.findOne({ id: req.body.id }).exec();
   await Order.updateOne(
     { id: order.id },
     {
@@ -637,14 +544,9 @@ router.put("/cancelValidation", async (req, res) => {
         validationProduct: false,
         idProForma: null,
         state: "PVP",
-        logs: {
-          status: "PVP",
-          referer: "Compliance",
-        },
-      },
-    }
-  ).exec();
-
+        logs: { status: "PVP", referer: "Compliance" }
+      }
+    }).exec();
   var invoice = await Invoice.findOne({ orderId: req.body.id }).exec();
   await Invoice.updateOne(
     { orderId: invoice.orderId },
@@ -653,105 +555,76 @@ router.put("/cancelValidation", async (req, res) => {
         validationProduct: false,
         proFormaId: null,
         state: "PVP",
-        logs: {
-          status: "PVP",
-          referer: "Compliance",
-        },
-      },
-    }
-  ).exec();
+        logs: { status: "PVP", referer: "Compliance" }
+      }
+    }).exec();
   return res.status(200).json({ ok: true });
 });
 
-router.get("/:id", (req, res) => {
-  Order.find({ idUser: req.params.id }).then((cmd) => {
-    return res.status(200).json({ cmd: cmd });
-  });
+router.get("/:id", async (req, res) => {
+  let order = await Order.find({ idUser: req.params.id }).exec();
+  return res.status(200).json({ cmd: order });
 });
 
-router.post("/", (req, res) => {
-  Order.find({ idUser: req.body.user })
-    .sort({ id: req.body.sort })
-    .then((cmd) => {
-      return res.status(200).json({ cmd: cmd });
-    });
+
+router.post("/", async (req, res) => {
+  let order = await Order.find({ idUser: req.body.user }).exec();
+  let sortedOrder = await order.sort({ id: req.body.sort }).exec();
+  return res.status(200).json({ cmd: sortedOrder });
 });
 
 router.get("/idCmd/:id", async (req, res) => {
-  if (!req.headers.authorization) {
-    return res.status(401).json({ error: "No token provided" });
-  }
-  if (!req.params.id) {
-    return res.status(200).json({ error: "No Order id provided" });
-  }
+  if (!req.headers.authorization) return res.status(401).json({ error: "No token provided" });
+  if (!req.params.id) return res.status(200).json({ error: "No Order id provided" });
   try {
     var order = await OrderService.getOrderById(req.params.id);
     return res.status(200).json({ cmd: order });
-  } catch (error) {
+  }
+  catch (error) {
     req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
-    return res.status(503).json({ error: 'An error has been throw, please contact support with id: ' + req.headers.loggerToken });
+    return res.status(503).json({ error: `An error has been throw, please contact support with id: '${req.headers.loggerToken}` });
   }
 });
 
-router.get("/retry/:id/:export", (req, res) => {
+router.get("/retry/:id/:export", async (req, res) => {
   var currentProduct;
-  Order.findOne({
-    products: { $elemMatch: { id_undercmd: req.params.id } },
-  }).then((order) => {
-    order.products.forEach((product) => {
-      if (product.id_undercmd === req.params.id) {
-        product.id_undercmd = order.id + "§" + product.idx;
-        currentProduct = product;
-      }
-    });
-    Order.updateOne(
-      { id_cmd: order.id_cmd },
-      {
-        $set: { products: order.products },
-      }
-    ).then(() => {
-      currentProduct.begin_date = currentProduct.begin_date_select;
-      currentProduct.end_date = currentProduct.end_date_select;
-      let qhid = "";
-      if (currentProduct.qhid !== null || currentProduct.qhid !== "") {
-        qhid = currentProduct.qhid.toString();
-      }
-      let data = {
-        id: order.id,
-        id_cmd: currentProduct.id_undercmd,
-        onetime: currentProduct.onetime,
-        subscription: currentProduct.subscription,
-        eid: currentProduct.eid,
-        contractID: currentProduct.contractid,
-        qhid: qhid,
-        quotation_level: currentProduct.dataset,
-        searchdate: currentProduct.begin_date,
-        begin_date: yyyymmdd(currentProduct.begin_date),
-        end_date: yyyymmdd(currentProduct.end_date),
-        status: "validated",
-        export_mode: req.params.export,
-      };
-      Pool.updateOne(
-        { id_cmd: req.params.id },
-        { $set: data },
-        { upsert: true }
-      ).then(() => {
-        return res.status(200).json({ ok: "ok" });
-      });
-    });
+  let order = await Order.findOne({ products: { $elemMatch: { id_undercmd: req.params.id } }, }).exec();
+  order.products.forEach((product) => {
+    if (product.id_undercmd === req.params.id) {
+      product.id_undercmd = order.id + "§" + product.idx;
+      currentProduct = product;
+    }
   });
+  await Order.updateOne({ id_cmd: order.id_cmd }, { $set: { products: order.products } }).exec();
+  currentProduct.begin_date = currentProduct.begin_date_select;
+  currentProduct.end_date = currentProduct.end_date_select;
+  let qhid = "";
+  if (currentProduct.qhid !== null || currentProduct.qhid !== "") qhid = currentProduct.qhid.toString();
+  let data = {
+    id: order.id,
+    id_cmd: currentProduct.id_undercmd,
+    onetime: currentProduct.onetime,
+    subscription: currentProduct.subscription,
+    eid: currentProduct.eid,
+    contractID: currentProduct.contractid,
+    qhid: qhid,
+    quotation_level: currentProduct.dataset,
+    searchdate: currentProduct.begin_date,
+    begin_date: yyyymmdd(currentProduct.begin_date),
+    end_date: yyyymmdd(currentProduct.end_date),
+    status: "validated",
+    export_mode: req.params.export,
+  };
+  await Pool.updateOne({ id_cmd: req.params.id }, { $set: data }, { upsert: true }).exec();
+  return res.status(200).json({ ok: "ok" });
 });
 
 router.post("/listExport", async (req, res) => {
   let sort = {};
   sort.id = 1;
   var orders = await Order.find(req.body).sort(sort).exec();
-  if (!orders) {
-    return res.status(404);
-  }
-  var list = orders.map((orderItem) => {
-    convertOrderExport(orderItem);
-  });
+  if (!orders) return res.status(404);
+  var list = orders.map((orderItem) => { convertOrderExport(orderItem) });
   return res.status(200).json(list);
 });
 
@@ -767,178 +640,105 @@ router.post("/list", async (req, res) => {
       req.body.search
     );
     return res.status(200).json(records)
-
   }
   catch (error) {
-    return res.status(503).json({ error: `an error has been raised please contact support with this identifier [${req.headers.loggerToken}]` })
+    return res.status(503).json({ error: `an error has been raised please contact support with this identifier ${req.headers.loggerToken}` })
   }
-
 });
 
 router.post("/history", async (req, res) => {
-  if (!req.headers.authorization) {
-    return res.status(401).json({ error: "No token provided" });
-  }
+  if (!req.headers.authorization) return res.status(401).json({ error: "No token provided" });
   const userId = jwtService.verifyToken(req.headers.authorization).id;
   const user = await userService.getUserById(userId);
   if (user) {
     let sort = {};
     let idUser = user._id;
     for (var i = 0; i < req.body.order.length; i++) {
-      sort[req.body.columns[req.body.order[i].column].data] =
-        req.body.order[i].dir;
+      sort[req.body.columns[req.body.order[i].column].data] = req.body.order[i].dir;
     }
-    documentsCount = await Order.countDocuments({ idUser: idUser }).exec();
     let search = {};
-    if (idUser) {
-      search["idUser"] = idUser;
-    }
-    Order.countDocuments(search).then((cf) => {
-      Order.find(search)
-        .sort(sort)
-        .skip(req.body.start)
-        .limit(req.body.length)
-        .collation({ locale: "en" })
-        .then((orders) => {
-          if (!orders) {
-            return res.status(404);
-          }
-          return res.status(200).json({
-            recordsFiltered: cf,
-            recordsTotal: documentsCount,
-            draw: req.body.draw,
-            listorders: orders,
-          });
-        });
-    });
-  } else {
+    if (idUser) search["idUser"] = idUser;
+    documentsCount = await Order.countDocuments({ idUser: idUser }).exec();
+    let countedDocuments = await Order.countDocuments(search).exec();
+    let orders = await Order.find(search).sort(sort).skip(req.body.start).limit(req.body.length).collation({ locale: "en" }).exec();
+    if (!orders) return res.status(404);
+    return res.status(200).json({ recordsFiltered: countedFiles, recordsTotal: countedDocuments, draw: req.body.draw, listorders: orders });
+  }
+  else {
     return res.status(404);
   }
 });
+
 router.put("/changePresubmitState", async (req, res) => {
-  if (!req.headers.authorization) {
-    return res.status(401).json({ error: "No token provided" });
-  }
-  if (!req.body.state) {
-    return res.status(200).json({ error: "No state provided" });
-  }
-  if (["CART", "PLI", "PBI", "PSC"].indexOf(req.body.state) == -1) {
-    return res.status(200).json({ error: "Invalid State" });
-  }
+  if (!req.headers.authorization) return res.status(401).json({ error: "No token provided" });
+  if (!req.body.state) return res.status(200).json({ error: "No state provided" });
+  if (["CART", "PLI", "PBI", "PSC"].indexOf(req.body.state) == -1) return res.status(200).json({ error: "Invalid State" });
   try {
-    const idUser = jwtService.verifyToken(req.headers.authorization).id
-    var updated = await OrderService.updatePreSubmitStateCaddy(
-      idUser,
-      req.body.state
-    );
+    const idUser = jwtService.verifyToken(req.headers.authorization).id;
+    var updated = await OrderService.updatePreSubmitStateCaddy(idUser, req.body.state);
     return res.status(200).json({ udpated: updated });
-  } catch (error) {
+  }
+  catch (error) {
     return res.status(200).json({ error: error.message });
   }
 });
 
 router.put("/abortOrder", async (req, res) => {
-  if (!req.headers.authorization) {
-    return res.status(401).json({ error: "No token provided" });
-  }
+  if (!req.headers.authorization) return res.status(401).json({ error: "No token provided" });
   const orderToDelete = await OrderService.getRawCaddy(userId);
   try {
-    if (orderToDelete) {
-      await deleteOrderFromCart(orderToDelete, req);
-    }
+    if (orderToDelete) await deleteOrderFromCart(orderToDelete, req);
     await deleteInvoiceRelatedToOrder(req);
     await moveOrderToCart(req, orderToDelete);
     return res.status(200).json({ ok: true });
-  } catch (error) {
+  }
+  catch (error) {
     req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
     return res.status(503).json({ error: 'An error has been throw, please contact support with id: ' + req.headers.loggerToken });
   }
 })
 
-router.post("/sortProducts", (req, res) => {
-  Order.findOne({ id_cmd: req.body.idCmd }).then((cmd) => {
-    let idx = 1;
-    let listProducts = [];
-
-    cmd.products.forEach((p) => {
-      p.id_undercmd = cmd.id + "§" + idx++;
-      listProducts.push(p);
-    });
-
-    Order.updateOne(
-      { id_cmd: cmd.id_cmd },
-      {
-        $set: {
-          products: listProducts,
-        },
-      }
-    ).then((u) => {
-      return true;
-    });
-
-    return res.status(200).json({ ok: true });
+router.post("/sortProducts", async (req, res) => {
+  let index = 1;
+  let listProducts = [];
+  let order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
+  order.products.forEach((product) => {
+    product.id_undercmd = order.id + "§" + index++;
+    listProducts.push(product);
   });
+  await Order.updateOne({ id_cmd: order.id_cmd }, { $set: { products: listProducts } }).exec();
+  return res.status(200).json({ ok: true });
 });
 
 router.put("/updatemetadata", (req, res) => {
-  if (!req.body.id) {
-    return res.sendStatus(400);
-  }
-  return res.status(200).json({
-    ok: OrderService.updateOrderMetaData(
-      req.body.id,
-      req.body.note,
-      req.body.sales,
-      req.body.type
-    ),
-  });
+  if (!req.body.id) return res.sendStatus(400);
+  return res.status(200).json({ ok: OrderService.updateOrderMetaData(req.body.id, req.body.note, req.body.sales, req.body.type) });
 });
+
 router.put("/updateProductDate", async (req, res) => {
-  if (!req.headers.authorization) {
-    res.statusCode(401).json("authorization token is not provided in header");
-  }
-  if (!req.body.idproduct) {
-    return res.status(200).json({ error: "No id product provided" });
-  }
-  if (!req.body.dateToChange) {
-    return res.status(200).json({ error: "Unknown date field to change" });
-  }
-  if (!req.body.date) {
-    return res.status(200).json({ error: "No date value provided" });
-  }
-  const idUser = jwtService.verifyToken(req.headers.authorization).id
+  if (!req.headers.authorization) res.statusCode(401).json("authorization token is not provided in header");
+  if (!req.body.idproduct) return res.status(200).json({ error: "No id product provided" });
+  if (!req.body.dateToChange) return res.status(200).json({ error: "Unknown date field to change" });
+  if (!req.body.date) return res.status(200).json({ error: "No date value provided" });
+  const idUser = jwtService.verifyToken(req.headers.authorization).id;
   let caddy = await OrderService.getRawCaddy(idUser);
-  if (!caddy) {
-    return res.status.json({
-      error: "Caddy not found with the provided token",
-    });
-  }
-  var result = OrderService.UpdateProductDate(
-    caddy,
-    req.body.idproduct,
-    req.body.dateToChange,
-    new Date(req.body.date)
-  );
+  if (!caddy) return res.status.json({ error: "Caddy not found with the provided token" });
+  var result = OrderService.UpdateProductDate(caddy, req.body.idproduct, req.body.dateToChange, new Date(req.body.date));
   if (result) return res.status(200).json({ message: "Ok" });
   else return res.status(200).json({ error: "Product not found in the caddy" });
 });
 
-
-
 pdfpost = async function (id, logger, invoiceId, invoiceType) {
   try {
     var invoice = await Invoice.findOne({ orderId: id }).exec();
-    await new OrderPdfService(invoice).createInvoicePdf(
-      logger,
-      invoiceId,
-      invoiceType
-    );
-  } catch (error) {
-    logger.error({ message: error.message, className: "Order API" });
-    logger.error({ message: error.stack, className: "Order API" });
+    await new OrderPdfService(invoice).createInvoicePdf(logger, invoiceId, invoiceType);
+    return true
+
+  }
+  catch (error) {
+    req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
     return false;
   }
-  return true;
 };
 
 Date.prototype.previousDay = function () {
@@ -956,20 +756,20 @@ Date.prototype.nextMonth = function (period) {
   return this;
 };
 
-verifWeek = function (dt) {
-  dt.previousDay();
-  while (dt.getDay() === 0 || dt.getDay() === 6) {
-    dt.previousDay();
+verifWeek = function (date) {
+  date.previousDay();
+  while (date.getDay() === 0 || date.getDay() === 6) {
+    date.previousDay();
   }
-  return dt;
+  return date;
 };
 
-verifWeekNext = function (dt) {
-  dt.nextDay();
-  while (dt.getDay() === 0 || dt.getDay() === 6) {
-    dt.nextDay();
+verifWeekNext = function (date) {
+  date.nextDay();
+  while (date.getDay() === 0 || date.getDay() === 6) {
+    date.nextDay();
   }
-  return dt;
+  return date;
 };
 
 Date.prototype.yyyymmdd = function () {
@@ -1001,9 +801,9 @@ setInvoiceId = async function (prefix) {
   return prefix + invoiceId;
 };
 
-endperiod = function (data, periode) {
-  let dateclone = new Date(clone(data));
-  return dateclone.setMonth(dateclone.getMonth() + periode);
+endPeriod = function (data, period) {
+  let clonedDate = new Date(clone(data));
+  return clonedDate.setMonth(clonedDate.getMonth() + period);
 };
 
 precisionRound = function (number, precision) {
@@ -1011,70 +811,53 @@ precisionRound = function (number, precision) {
   return Math.round(number * factor) / factor;
 };
 
-totalttc = function (order) {
-  if (order.currency !== "usd") {
-    return computeTotalTtcInLocalCurrency(order);
-  }
+totalTTC = function (order) {
+  if (order.currency !== "usd") return computeTotalTtcInLocalCurrency(order);
   return ComputeTotalTtcUsd(order);
 };
 
-addPool = function (data) {
-  Pool.findOne({ id_cmd: data.id_cmd, begin_date: data.begin_date }).then(
-    (p) => {
-      if (!p) {
-        Pool.create(data).then((p) => {
-          return true;
-        });
-      }
-    }
-  );
-};
+addPool = async function (data) {
+  let pool = await Pool.findOne({ id_cmd: data.id_cmd, begin_date: data.begin_date }).exec();
+  if (!pool) await Pool.create(data).exec();
+  return true;
+}
 
-clone = function (obj) {
+clone = function (object) {
   try {
-    var copy = JSON.parse(JSON.stringify(obj));
-  } catch (ex) {
+    return copy = JSON.parse(JSON.stringify(object));
+  }
+  catch (exception) {
     alert("variable cloning error");
   }
-  return copy;
 };
 
 convertOrderExport = function (orderItem) {
   let orderValues = {};
   orderValues["Invoice_ID"] = orderItem.id;
   orderValues["Client_ID"] = orderItem.idUser;
-  orderValues["Client_Name"] =
-    orderItem.companyName +
-    ": " +
-    orderItem.firstname +
-    " " +
-    orderItem.lastname;
+  orderValues["Client_Name"] = `${orderItem.companyName} ${orderItem.firstname} ${orderItem.lastname}`;
   orderValues["Client_Country"] = orderItem.country;
   orderValues["Order_Date"] = orderItem.submissionDate;
   orderValues["type"] = orderItem.type;
   if (orderItem.validationFinance) {
-    orderItem.logs.forEach((lo) => {
-      if (lo.referer === "Finance") {
-        orderValues["Payment_Date"] = lo.date;
-      }
+    orderItem.logs.forEach((log) => {
+      if (log.referer === "Finance") orderValues["Payment_Date"] = log.date;
     });
   }
   orderValues["Order_Currency"] = orderItem.currency;
   orderValues["Order_Amount_Before_Taxes"] = orderItem.totalHT;
   orderValues["Exchange_Fees"] = orderItem.totalExchangeFees;
   orderValues["VAT"] = orderItem.vatValue;
-  var pay = "";
+  var paymentType = "";
   if (orderItem.payment === "creditcard") {
     if (orderItem.logsPayment) {
-      orderItem.logsPayment.forEach((ord) => {
-        if (ord && ord.authResponse === "Authorised") {
-          pay = ord.pspReference;
-        }
+      orderItem.logsPayment.forEach((order) => {
+        if (order && order.authResponse === "Authorised") paymentType = order.pspReference;
       });
     }
   }
   orderValues["Payment_Method"] = orderItem.payment;
-  orderValues["Payment_Reference"] = pay;
+  orderValues["Payment_Reference"] = paymentType;
   orderValues["TOTAL_Order_Amount"] = orderItem.total;
   orderValues["Internal_Note"] = orderItem.internalNote;
   orderValues["sales"] = orderItem.sales;
@@ -1083,15 +866,10 @@ convertOrderExport = function (orderItem) {
 computeTotalTtcInLocalCurrency = function (order) {
   var discount = 0;
   var totalHT = 0;
-  totalExchangeFees =
-    (order.totalExchangeFees / order.currencyTxUsd) * order.currencyTx;
+  totalExchangeFees = (order.totalExchangeFees / order.currencyTxUsd) * order.currencyTx;
   discount = order.discount;
-  totalHT =
-    ((order.totalHT + order.totalExchangeFees) / order.currencyTxUsd) *
-    order.currencyTx;
-  if (discount > 0) {
-    totalHT = totalHT - totalHT * (discount / 100);
-  }
+  totalHT = ((order.totalHT + order.totalExchangeFees) / order.currencyTxUsd) * order.currencyTx;
+  if (discount > 0) totalHT = totalHT - totalHT * (discount / 100);
   totalVat = totalHT * order.vatValue;
   return precisionRound(totalHT * (1 + order.vatValue), 2);
 };
@@ -1102,9 +880,7 @@ ComputeTotalTtcUsd = function (order) {
   totalExchangeFees = order.totalExchangeFees;
   discount = order.discount;
   totalHT = order.totalHT + order.totalExchangeFees;
-  if (discount > 0) {
-    totalHT = totalHT - totalHT * (discount / 100);
-  }
+  if (discount > 0) totalHT = totalHT - totalHT * (discount / 100);
   totalVat = totalHT * order.vatValue;
   return precisionRound(totalHT * (1 + order.vatValue), 2);
 };
@@ -1125,34 +901,17 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
   order.eid = eids;
   if (order.state === "PVC") {
     logger.info("PVC autovalidation");
-    await autovalidationOrderStateIsPendingValidationByCompliance(
-      corp,
-      order,
-      logsPayment,
-      logger
-    );
+    await autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment, logger);
   }
   if (order.state === "PVP") {
     logger.info("PVP autovalidation");
-    await autoValidationOrderStateIsPendingValidationbyProduct(
-      corp,
-      order,
-      logsPayment,
-      logger
-    );
+    await autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger);
   }
   if (order.state === "PVF") {
     logger.info("PVF autovalidation");
-    await autoValidationOrderStatePendingValidationByFinance(
-      corp,
-      order,
-      logsPayment,
-      logger
-    );
+    await autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment, logger);
   }
-
-  await Order.updateOne(
-    { id_cmd: idCmd },
+  await Order.updateOne({ id_cmd: idCmd },
     {
       $push: {
         logsPayment: logsPayment,
@@ -1169,9 +928,7 @@ autoValidation = async function (idCmd, logsPayment, r, res, logger) {
 
 async function moveOrderToCart(req, replacedOrder) {
   let comment = 'No replaced Order';
-  if (replacedOrder) {
-    comment = `Order ${req.body.id} replaced order ${replacedOrder.id}`;
-  }
+  if (replacedOrder) comment = `Order ${req.body.id} replaced order ${replacedOrder.id}`;
   await Order.updateOne(
     { id: req.body.id },
     {
@@ -1183,11 +940,7 @@ async function moveOrderToCart(req, replacedOrder) {
         payment: null,
         logs: null,
         state: "CART",
-        logs: {
-          status: comment,
-          referer: "Client",
-          date: Date.now()
-        }
+        logs: { status: comment, referer: "Client", date: Date.now() }
       },
       $unset: {
         idProForma: "",
@@ -1203,11 +956,7 @@ async function deleteInvoiceRelatedToOrder(req) {
     {
       $set: {
         state: "Aborted",
-        logs: {
-          status: `Invoice deleted after returning order ${req.body.id} to cart`,
-          referer: "Client",
-          date: Date.now()
-        }
+        logs: { status: `Invoice deleted after returning order ${req.body.id} to cart`, referer: "Client", date: Date.now() }
       }
     }
   ).exec();
@@ -1219,11 +968,7 @@ async function deleteOrderFromCart(orderToDelete, req) {
     {
       $set: {
         state: "Deleted",
-        logs: {
-          status: `Order ${orderToDelete.id} is replaced by ${req.body.id} by the client`,
-          referer: "Client",
-          date: Date.now()
-        },
+        logs: { status: `Order ${orderToDelete.id} is replaced by ${req.body.id} by the client`, referer: "Client", date: Date.now() }
       }
     }
   ).exec();
@@ -1233,114 +978,84 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
   let corp = {};
   orderUpdated.validationFinance = true;
   orderUpdated.reason = req.body.reason;
-  let deb = verifWeek(new Date());
-  let debut = new Date(clone(deb));
-  let end = new Date();
+  let startDate = verifWeek(new Date());
+  let stateDateClone = new Date(clone(startDate));
+  let endDate = new Date();
   let cart = [];
-  req.body.product.forEach((p) => {
-    if (!p.print) {
-      p.dataset = p.quotation_level;
-      p.exchangeName = p.exchange;
-      if (p.subscription === 1) {
-        end = new Date(endperiod(deb, p.period));
-
-        end = verifWeekNext(end);
-        p.begin_date = deb;
-        p.end_date = end;
+  req.body.product.forEach((product) => {
+    if (!product.print) {
+      product.dataset = product.quotation_level;
+      product.exchangeName = product.exchange;
+      if (product.subscription === 1) {
+        endDate = new Date(endPeriod(startDate, product.period));
+        endDate = verifWeekNext(endDate);
+        product.begin_date = startDate;
+        product.end_date = endDate;
         let qhid = "";
-        if (p.qhid !== null || p.qhid !== "") {
-          qhid = p.qhid.toString();
-        }
-
-        let c = 0;
-        for (let d = debut; d <= end; d.setDate(d.getDate() + 1)) {
-          id = p.id_undercmd.split("-")[0];
-
-          suffixe = p.id_undercmd.split("§")[1];
-
+        if (product.qhid !== null || product.qhid !== "") qhid = product.qhid.toString();
+        for (let d = stateDateClone; d <= endDate; d.setDate(d.getDate() + 1)) {
+          id = product.id_undercmd.split("-")[0];
+          suffixe = product.id_undercmd.split("§")[1];
           addPool({
-            index: p.index,
+            index: product.index,
             id: req.body.id,
-            id_cmd: p.id_undercmd,
-            onetime: p.onetime,
-            subscription: p.subscription,
-            eid: p.eid,
-            contractID: p.contractid,
+            id_cmd: product.id_undercmd,
+            onetime: product.onetime,
+            subscription: product.subscription,
+            eid: product.eid,
+            contractID: product.contractid,
             qhid: qhid,
-            quotation_level: p.dataset,
-
+            quotation_level: product.dataset,
             searchdate: new Date(d.yyyymmdd()),
-
             begin_date: d.yyyymmdd(),
-
             end_date: d.yyyymmdd(),
             status: req.body.status,
           });
         }
-
-        debut = new Date(clone(deb));
-      } else {
-        p.begin_date = p.begin_date_select;
-        p.end_date = p.end_date_select;
+        stateDateClone = new Date(clone(startDate));
+      }
+      else {
+        product.begin_date = product.begin_date_select;
+        product.end_date = product.end_date_select;
         let qhid = "";
-        if (p.qhid !== null || p.qhid !== "") {
-          qhid = p.qhid.toString();
-        }
-
+        if (product.qhid !== null || product.qhid !== "") qhid = product.qhid.toString();
         addPool({
-          index: p.index,
+          index: product.index,
           id: req.body.id,
-          id_cmd: p.id_undercmd,
-          onetime: p.onetime,
-          subscription: p.subscription,
-          eid: p.eid,
-          contractID: p.contractid,
+          id_cmd: product.id_undercmd,
+          onetime: product.onetime,
+          subscription: product.subscription,
+          eid: product.eid,
+          contractID: product.contractid,
           qhid: qhid,
-          quotation_level: p.dataset,
-          searchdate: p.begin_date,
-
-          begin_date: yyyymmdd(p.begin_date),
-
-          end_date: yyyymmdd(p.end_date),
+          quotation_level: product.dataset,
+          searchdate: product.begin_date,
+          begin_date: yyyymmdd(product.begin_date),
+          end_date: yyyymmdd(product.end_date),
           status: req.body.status
         });
       }
-      cart.push(p);
+      cart.push(product);
       orderUpdated.products = cart;
     }
   });
-  corp = {
-    email: req.body.email,
-    idCmd: req.body.id,
-  };
+  corp = { email: req.body.email, idCmd: req.body.id };
   try {
     var mailer = new OrderMailService(req.logger, { id: req.body.id });
     await mailer.orderValidated(corp);
-  } catch (error) {
+  }
+  catch (error) {
     logger.error({ message: error.message, className: "Order API" });
     logger.error({ message: error.stack, className: "Order API" });
   }
-  req.logger.info("validating order...");
+  req.logger.info("Validating order...");
   orderUpdated.idCommande = await setInvoiceId("QH_HISTO_");
   req.logger.info("id commande: " + orderUpdated.idcommande);
   await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec();
-  await Order.updateOne(
-    { id_cmd: req.body.idCmd },
-    { $set: orderUpdated, $push: { logs: log } }
-  ).exec();
+  await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
   req.logger.info("Order updated");
-  await pdfpost(
-    req.body.id,
-    req.logger,
-    orderUpdated.idCommande,
-    "Invoice Nbr"
-  );
-  await new InvoiceService().updateInvoiceInformation(
-    req.body.id,
-    orderUpdated.idCommande,
-    orderUpdated.state,
-
-  );
+  await pdfpost(req.body.id, req.logger, orderUpdated.idCommande, "Invoice Nbr");
+  await new InvoiceService().updateInvoiceInformation(req.body.id, orderUpdated.idCommande, orderUpdated.state);
   return corp;
 }
 
@@ -1365,7 +1080,8 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
     try {
       var mailer = new OrderMailService(req.logger, order);
       await mailer.orderCancelled(corp);
-    } catch (error) {
+    }
+    catch (error) {
       req.logger.error({ message: error.message, className: "Order API" });
       req.logger.error({ message: error.stack, className: "Order API" });
     }
@@ -1375,36 +1091,27 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
     try {
       var mailer = new OrderMailService(req.logger, order);
       corp.reason = "Order was rejected by the system";
-      if (req.body.reason) {
-        corp.reason = req.body.reason;
-      }
+      if (req.body.reason) corp.reason = req.body.reason;
       await mailer.orderRejected(corp);
-    } catch (error) {
+    }
+    catch (error) {
       req.logger.error({ message: error.message, className: "Order API" });
       req.logger.error({ message: error.stack, className: "Order API" });
     }
     return true;
   }
-  order.products.forEach((p) => {
-    eids.push(p.eid);
-  });
+  order.products.forEach((product) => { eids.push(product.eid); });
   req.logger.info({ message: "sending email...", className: "Order API" });
   if (req.body.status !== "cancelled" && req.body.status !== "Aborted") {
     var users = await User.find({ roleName: "Product" }).exec();
     var mailer = new OrderMailService(req.logger, order);
-    await new OrderPdfService(invoice).createInvoicePdf(
-      req.logger,
-      orderUpdated.idProForma,
-      "Pro Forma Invoice Nbr"
-    );
-    await new InvoiceService().updateProFormaInformation(
-      order.id,
-      orderUpdated.idProForma
-    );
+    await new OrderPdfService(invoice).createInvoicePdf(req.logger, orderUpdated.idProForma, "Pro Forma Invoice Nbr");
+    await new InvoiceService().updateProFormaInformation(order.id, orderUpdated.idProForma);
     users.forEach(async (user) => {
       try {
         await mailer.newOrderHod(user.email, "Finance", invoice.total);
-      } catch (error) {
+      }
+      catch (error) {
         req.logger.error({ message: error.message, className: "Order API" });
         req.logger.error({ message: error.stack, className: "Order API" });
       }
@@ -1430,104 +1137,84 @@ async function UpdateStateCompliance(updt, corp, req) {
   };
   var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
   let eids = [];
-  order.products.forEach((p) => {
-    eids.push(p.eid);
-  });
+  order.products.forEach((product) => { eids.push(product.eid) });
   var users = await User.find({ roleName: "Product" }).exec();
   users.forEach(async (user) => {
     try {
-      await mailer.newOrderHod(user.email, "Product", totalttc(order));
-    } catch (error) {
+      await mailer.newOrderHod(user.email, "Product", totalTTC(order));
+    }
+    catch (error) {
       req.logger.error({ message: error.message, className: "Order API" });
       req.logger.error({ message: error.stack, className: "Order API" });
     }
   });
 }
 
-async function autoValidationOrderStatePendingValidationByFinance(
-  corp,
-  order,
-  logsPayment,
-  logger
-) {
-  User.find({ roleName: "Finance" }).then((users) => {
-    var mailer = new OrderMailService(logger, order);
-    users.forEach(async (user) => {
-      try {
-        await mailer.newOrderHod(user.email, "Finance", totalttc(order));
-      } catch (error) {
-        logger.error({ message: error.message, className: "Order API" });
-        logger.error({ message: error.stack, className: "Order API" });
-      }
-    });
-    req.logger.info({ message: "new order hod email sent" });
+async function autoValidationOrderStatePendingValidationByFinance(corp, order, logsPayment, logger) {
+  let users = await User.find({ roleName: "Finance" }).exec();
+  var mailer = new OrderMailService(logger, order);
+  users.forEach(async (user) => {
+    try {
+      await mailer.newOrderHod(user.email, "Finance", totalTTC(order));
+    }
+    catch (error) {
+      logger.error({ message: error.message, className: "Order API" });
+      logger.error({ message: error.stack, className: "Order API" });
+    }
+  });
+  req.logger.info({ message: "new order hod email sent" });
+}
+
+async function autoValidationOrderStateIsPendingValidationbyProduct(corp, order, logsPayment, logger) {
+  let users = await User.find({ roleName: "Product" }).exec();
+  var mailer = new OrderMailService(logger, order);
+  users.forEach(async (user) => {
+    try {
+      await mailer.newOrderHod(user.email, "Product", totalTTC(order));
+    }
+    catch (error) {
+      logger.error({ message: error.message, className: "Order API" });
+      logger.error({ message: error.stack, className: "Order API" });
+    }
   });
 }
 
-async function autoValidationOrderStateIsPendingValidationbyProduct(
-  corp,
-  order,
-  logsPayment,
-  logger
-) {
-  User.find({ roleName: "Product" }).then((users) => {
-    var mailer = new OrderMailService(logger, order);
-    users.forEach(async (user) => {
-      try {
-        await mailer.newOrderHod(user.email, "Product", totalttc(order));
-      } catch (error) {
-        logger.error({ message: error.message, className: "Order API" });
-        logger.error({ message: error.stack, className: "Order API" });
-      }
-    });
-  });
-}
-
-async function autovalidationOrderStateIsPendingValidationByCompliance(
-  corp,
-  order,
-  logsPayment,
-  logger
-) {
-  User.find({ roleName: "Compliance" }).then((users) => {
-    var mailer = new OrderMailService(logger, order);
-    users.forEach(async (user) => {
-      try {
-        await mailer.newOrderHod(user.email, "Compliance", totalttc(order));
-      } catch (error) {
-        logger.error({ message: error.message, className: "Order API" });
-        logger.error({ message: error.stack, className: "Order API" });
-      }
-    });
+async function autovalidationOrderStateIsPendingValidationByCompliance(corp, order, logsPayment, logger) {
+  let users = User.find({ roleName: "Compliance" }).exec();
+  var mailer = new OrderMailService(logger, order);
+  users.forEach(async (user) => {
+    try {
+      await mailer.newOrderHod(user.email, "Compliance", totalTTC(order));
+    }
+    catch (error) {
+      logger.error({ message: error.message, className: "Order API" });
+      logger.error({ message: error.stack, className: "Order API" });
+    }
   });
 }
 
 async function autoValidationOrderStateIsPSC(order, log, logger) {
-  try {
-    var mailer = new OrderMailService(logger, order);
-    await mailer.newOrder(order.email);
-  } catch (error) {
-    logger.error({ message: error.message, className: "Order API" });
-    logger.error({ message: error.stack, className: "Order API" });
-  }
   order.products.forEach((product) => {
-    if (
-      ((product.historical_data &&
-        (product.historical_data.backfill_agreement ||
-          product.historical_data.backfill_applyfee)) ||
-        order.survey[0].dd === "1") &&
-      product.onetime === 1
-    ) {
+    if (((product.historical_data && (product.historical_data.backfill_agreement || product.historical_data.backfill_applyfee)) || order.survey[0].dd === "1") && produt.onetime === 1) {
       order.state = "PVC";
       log.status = "PVC";
       log.referer = "Client";
-    } else {
+    }
+    else {
       order.validationCompliance = true;
       log.referer = "Autovalidation";
       order.state = "PVP";
       log.status = "PVP";
     }
   });
+  try {
+    var mailer = new OrderMailService(logger, order);
+    await mailer.newOrder(order.email);
+  }
+  catch (error) {
+    logger.error({ message: error.message, className: "Order API" });
+    logger.error({ message: error.stack, className: "Order API" });
+  }
 }
 
 module.exports = router;
