@@ -49,6 +49,16 @@
   height: 80px;
 }
 
-.margin-bottom{
+.margin-bottom {
   margin-bottom: 102px !important ;
+}
+
+.scrollable {
+  height: 171px;
+  overflow: auto;
+  scrollbar-color: #ea663b rgb(246, 246, 246) !important;
+}
+
+.mat-raised-button {
+  margin-bottom: 3px !important;
 }
