@@ -1,6 +1,6 @@
 <app-menu></app-menu>
-<div class="row page-header">
-    <div class="col-lg-12">
+<div class="row page-header margin-left-breadcrumb">
+    <div class="col-lg-12 ">
         <ol class="breadcrumb custom-breadcrumb">
             <li class="active">Sign Up</li>
         </ol>
@@ -49,22 +49,21 @@
                             <div *ngFor="let term of terms">
                                 {{term}} <br><br>
                             </div>
-                            
-
                         </div>
                         <mat-checkbox class="cvg-color" [(ngModel)]="cvg">
                             <p class="terms-margin"> agree to QH’s term & services,
                                 and cookie
                                 policy</p>
                         </mat-checkbox>
+                        <br>
                         <mat-checkbox [(ngModel)]="commercial">Subscribe to commercial emails</mat-checkbox>
                         <br><br>
-                        <!-- <div class="col-lg-4 col-lg-offset-4" *ngIf="page === '/register' ">
-                            <re-captcha (resolved)="resolved($event)" [siteKey]="key"></re-captcha>
-                        </div> -->
+                        <!-- <div class="col-lg-4 col-lg-offset-4"> -->
+                            <re-captcha (resolved)="resolved($event)" [siteKey]="captchaKey"></re-captcha>
+                        <!-- </div> -->
                         <br><br>
                         <button mat-raised-button matStepperPrevious>Back</button> &nbsp;&nbsp;&nbsp;
-                        <button mat-raised-button color="warn" (click)="register()" [disabled]="!cvg">Sign Up</button>
+                        <button mat-raised-button color="warn" (click)="register()" [disabled]="!cvg || !checkrobot">Sign Up</button>
                     </div>
                 </div>
             </mat-step>
@@ -91,7 +90,7 @@
     </div>
 
 </div>
-<div class="footer">
+<!-- <div class="footer">
     <img src="assets/img/lower_banner.jpg">
     <div class="copyright">
         <p>All Material © QuantHouse; Latest Update 2019</p>
@@ -99,4 +98,4 @@
     <div class="col-md-12 text-center">
         <img src="assets/img/lower_logo.jpg" alt="Quanthouse">
     </div>
-</div>
+</div> -->

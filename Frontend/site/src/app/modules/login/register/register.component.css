@@ -69,6 +69,70 @@
 }
 
 .col-lg-offset-6 {
-  margin-left: 22% !important;
+  margin-left: 10% !important;
 }
 
+.margin-left-breadcrumb {
+  margin-left: 18% !important;
+}
+
+.col-lg-6 {
+  width: 73% !important;
+}
+
+/* scrollbar styling */
+
+/* width */
+::-webkit-scrollbar {
+  width: 12px !important;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 10px rgb(224, 216, 216) !important;
+  border-radius: 12px !important;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #ea663b !important;
+  border-radius: 12px !important;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #f1480f !important;
+}
+
+/* Buttons */
+::-webkit-scrollbar-button {
+  border-style: solid;
+  height: 16px;
+  width: 16px;
+}
+
+/* Up */
+::-webkit-scrollbar-button:vertical:decrement {
+  border-width: 0 7px 14px 7px;
+  border-color: transparent transparent #ea663b transparent;
+}
+
+/* Down */
+::-webkit-scrollbar-button:vertical:increment {
+  border-width: 14px 7px 0 7px;
+  border-color: #ea663b transparent transparent transparent;
+}
+
+/* Left */
+::-webkit-scrollbar-button:horizontal:decrement {
+  border-width: 7px 14px 7px 0;
+  border-color: transparent #ea663b transparent transparent;
+}
+
+/* Right */
+::-webkit-scrollbar-button:horizontal:increment {
+  border-width: 7px 0 7px 14px;
+  border-color: transparent transparent transparent #ea663b;
+}
+
+/* end scrollbar styling */

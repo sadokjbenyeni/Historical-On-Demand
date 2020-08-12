@@ -159,13 +159,11 @@
   margin-left: 1328px !important;
 }
 
-.left-element{
-
-}
-.center-element{
-
+.padding-navbar {
+  padding-left: 18% !important;
 }
 
-.right-element{
-
+.padding-nav-item {
+  padding-left: 183px;
+  padding-right: 183px;
 }

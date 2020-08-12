@@ -31,6 +31,7 @@ export class RegisterComponent implements OnInit, AfterViewInit {
   commercial: boolean = false
   checkrobot: boolean;
   password: string;
+  captchaKey: string = '6LcQ80cUAAAAANfU8xFYxntN36rEdS5X5H7bjv3_';;
   terms = [
     "1. Under these Market Data Feed Products Terms and Conditions (“MDFP TC”), QUANTHOUSE grants the Customer the right to use certain market data feed products (“FEED PRODUCTS”) developed by QUANTHOUSE and its affiliates. In the event of a conflict between the terms of this MDFP TC and the terms of a client order form, the terms of the order form with respect to the FEED PRODUCTS shall prevail.",
     "2. The Customer acknowledges and understands that the FEED PRODUCTS include market data and information provided by third parties, including but not limited to exchanges (“DATASOURCES”). Each DATASOURCE shall be identified in the client order form. The Customer acknowledges that any and all intellectual property rights subsisting in the data provided by DATASOURCES are and shall remain vested in the DATASOURCES. The Customer further acknowledges that such data constitutes valuable information, copyrighted materials, and proprietary rights of the DATASOURCES, not within the public domain.",
@@ -117,7 +118,7 @@ export class RegisterComponent implements OnInit, AfterViewInit {
     };
   }
 
-  
+
 
   register() {
     this.setUserInformations();
@@ -155,11 +156,5 @@ export class RegisterComponent implements OnInit, AfterViewInit {
       this.checkrobot = true;
     }
   }
-  // onStepChange(stepChanges) {
-  //   debugger
-  //   if (this.myStepper.selectedIndex != stepChanges.selectedIndex)
-  //     this.myStepper.selectedIndex = stepChanges.selectedIndex
-  //   //this.myStepper.selectedIndex = stepChanges.selectedIndex;
-  // }
 
 }
