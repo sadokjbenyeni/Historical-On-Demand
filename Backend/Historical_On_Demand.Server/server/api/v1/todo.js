@@ -168,13 +168,19 @@ router.put('/finish', async (req, res) => {
   }
   req.logger.info({ message: "updating order " + id_cmd + "....", className: 'Todo API' });
   await Order.updateMany({ 'products.id_undercmd': id_cmd },
-    { $set: updateValues, 
-      $push: { "products.$.links": 
-                { createLinkDate: new Date(), 
-                  status: req.body.status, 
-                  links: req.body.link, 
-                  path: req.body.id_cmd, 
-                  nbDownload: 0 } } })
+    {
+      $set: updateValues,
+      $push: {
+        "products.$.links":
+        {
+          createLinkDate: new Date(),
+          status: req.body.status,
+          links: req.body.link,
+          path: req.body.id_cmd,
+          nbDownload: 0
+        }
+      }
+    })
     .exec();
   let identifiers = id_cmd.split('§');
   try {
@@ -191,17 +197,17 @@ router.put('/finish', async (req, res) => {
     }
     if (req.body.status === 'active') {
       // if(req.body.subscription === 1) {        
-        removePool(req.body.id_cmd, lks, recup.onetime, recup.subscription, req.logger);
-      } else {
-        removePool(req.body.id_cmd, lks, recup.onetime, recup.subscription, req.logger);
+      removePool(req.body.id_cmd, lks, recup.onetime, recup.subscription, req.logger);
+    } else {
+      removePool(req.body.id_cmd, lks, recup.onetime, recup.subscription, req.logger);
       // } else {
       // removePool(req.body.id_cmd, lks, order.onetime, order.subscription, req.logger);
       // }
     }
-    if(req.body.status === 'failed') {
-      if(recup.onetime === 1) {
+    if (req.body.status === 'failed') {
+      if (recup.onetime === 1) {
         updatePool(req.body.id_cmd, req.body.status, req.body.begin_date);
-        var users = await User.find({roleName:"Product"},{email:true, _id:false}).exec();
+        var users = await User.find({ roleName: "Product" }, { email: true, _id: false }).exec();
         users.forEach(user => {
           var mailer = new OrderMailService(req.logger, { id: req.body.id_cmd });
           mailer.orderFailedJob({
@@ -211,18 +217,17 @@ router.put('/finish', async (req, res) => {
             date: new Date(),
             logs: req.body.log
           });
-        });    
-        return res.status(200).json({"ok":"[Export Failed] one-off '" + req.body.id_cmd + "' updated"});
+        });
+        return res.status(200).json({ "ok": "[Export Failed] one-off '" + req.body.id_cmd + "' updated" });
       }
       else {
         //removePool(req.body.id_cmd, lks, recup.onetime, recup.subscription, req.logger);
-        return res.status(200).json({"ok":"[Export Failed] subscription '" + req.body.id_cmd + "' removed on the pool"});
+        return res.status(200).json({ "ok": "[Export Failed] subscription '" + req.body.id_cmd + "' removed on the pool" });
       }
-    if(req.body.status === 'failed' && order.onetime === 0) {
-      removePool(req.body.id_cmd, lks, order.onetime, order.subscription, req.logger);
     }
     return res.status(200).json({ "ok": "ok" });
   }
+
   catch (err) {
     req.logger.error({ message: err.message, className: 'Todo API' });
     req.logger.error({ message: JSON.stringify(error), className: 'Todo API' });
