@@ -25,6 +25,8 @@ import { Product } from '../../../core/models/product.model';
 import { SwalAlertService } from '../../../../app/shared/swal-alert/swal-alert.service';
 import { result } from 'lodash';
 import { TestBed } from '@angular/core/testing';
+import Swal from 'sweetalert2';
+import { BurgerMenuService } from '../../../../app/shared/burger-menu/burger-menu.service';
 
 @Component({
   selector: 'app-order-history-details',
@@ -63,6 +65,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
   orderInfo: OrderInformation;
   userId: string;
   isCartFull: boolean = false;
+
   @Input() isSupport: boolean;
 
   constructor(
@@ -73,7 +76,8 @@ export class OrderHistoryDetailsComponent implements OnInit {
     private currencyService: CurrencyService,
     private configService: ConfigService,
     private deliverablesService: DeliverablesService,
-    private swalService: SwalAlertService
+    private swalService: SwalAlertService,
+    private burgerMenuService: BurgerMenuService
   ) {
     this.route.params.subscribe(_ => { this.id = _.id; });
   }
@@ -81,6 +85,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.period = [];
+    this.getListStates();
     this.getClientOrderDetails();
     this.getPeriod();
     this.verifyOrderInCart();
@@ -90,7 +95,6 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.today = new Date();
 
     this.details = [];
-    this.getListStates();
     this.datasets = {
       L1: 'L1 - Full',
       L1TRADEONLY: 'L1 - Trades',
@@ -353,13 +357,11 @@ export class OrderHistoryDetailsComponent implements OnInit {
 
   async abortOrder() {
     if (this.isCartFull) {
-      var isReadyToLooseCartItems = await this.swalService.getSwalForConfirm('Are you sure?', `This action will delete all your cart items <b>Permanently</b>`, 'error');
-      if (!isReadyToLooseCartItems.value) {
-        return false;
-      }
+      var isReadyToAbort = await this.swalService.getSwalCheckboxNotification(`You are about to edit your order !`, '', 'warning', 'Delete current cart items', 'Check the box to confirm');
     }
-
-    var isReadyToAbort = await this.swalService.getSwalForConfirm(`You are about to edit your order !`, '');
+    else {
+      var isReadyToAbort = await this.swalService.getSwalForConfirm(`You are about to edit your order !`, '');
+    }
     if (isReadyToAbort.value) {
       this.orderService.abortOrder(this.orderInfo.id).subscribe(result => {
         if (result) {
@@ -387,6 +389,15 @@ export class OrderHistoryDetailsComponent implements OnInit {
         })
     }
     this.router.navigate(['/order/history']);
+  }
+
+  expandMenu() {
+    let element = <HTMLElement>document.getElementById('toggle');
+    this.burgerMenuService.toggleClass(element, 'on');
+    let menuTitle = <HTMLElement>document.getElementById('menu-title');
+    if (menuTitle.textContent == "CLOSE") menuTitle.textContent = "ACTIONS";
+    else menuTitle.textContent = "CLOSE";
+    return false;
   }
 }
 

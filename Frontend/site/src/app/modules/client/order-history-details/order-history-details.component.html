@@ -1,35 +1,35 @@
 <app-menu></app-menu>
 <div class="row page-header" *ngIf="!isSupport">
-    <div class="col-lg-10">
+    <div class="col-lg-8">
         <ol class="breadcrumb">
             <li class="bread-crumb" [routerLink]="['/order']">Home</li>
             <li class="bread-crumb" [routerLink]="['/order/history']">Order History</li>
             <li *ngIf="orderInfo" class="current-bread-crumb">Order Details {{orderInfo.id}}</li>
         </ol>
     </div>
-    <div class="col-lg-2">
-        <div class="table-responsive text-center" *ngIf="orderInfo">
-            <div class="btn-group">
-                <button class="bottom-button orange-color dropdown-toggle button-adjusment" type="button"
-                    id="updateButton" *ngIf="verifState()" data-toggle="dropdown" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-refresh"></i> Action
-                </button>
-                <div class="dropdown-menu" aria-labelledby="updateButton">
 
-                    <button mat-button class="bottom-button green-color" (click)="abortOrder()" *ngIf="verifState()"><i
-                            class="fa fa-shopping-cart"></i>
-                        Edit Order
-                    </button>
-                    <button mat-button class="bottom-button red-color" (click)="cancelOrder()" *ngIf="verifState()"><i
-                            class="fa fa-trash-o"></i>
-                        Delete Order
-                    </button>
+    <div class="col-lg-4">
+        <div class="table-responsive text-center" *ngIf="orderInfo && verifState()">
+            <div class="btn-group">
+                <a href="#menu" id="toggle" (click)="expandMenu()"><span></span></a>
+                <div id="menu">
+                    <ul>
+                        <li>
+                            <p (click)="abortOrder()"><i class="fa fa-shopping-cart align-icons"></i>Edit Order</p>
+                        </li>
+                        <li>
+                            <p (click)="cancelOrder()"><i class="fa fa-trash-o align-icons"></i>Delete Order</p>
+                        </li>
+                        <li>
+                            <p mat-button *ngIf="getState(state)=='Active'" (click)="downloadLinks()">
+                                <i class="fa fa-cloud-download align-icons"></i>Download Links
+                            </p>
+                        </li>
+                    </ul>
                 </div>
             </div>
+            <span id="menu-title" class="action-button">ACTIONS</span>
         </div>
-        <button mat-button class="bottom-button orange-color button-adjusment" *ngIf="getState(state)=='Active'"
-            (click)="downloadLinks()"><i class="fa fa-cloud-download"></i>Download Links</button>
     </div>
 </div>
 <div [ngClass]="{'page-content': !isSupport}">

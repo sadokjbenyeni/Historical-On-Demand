@@ -51,4 +51,23 @@ export class SwalAlertService {
       title: title
     })
   }
+
+  getSwalCheckboxNotification(title: string, text: string, icon: SweetAlertIcon = 'warning', checkboxCondition, checkboxReminderMessage, showCancelButton: boolean = true, confirmButtonColor: string = '#3085d6', cancelButtonColor: string = '#d33', confirmButtonText: string = 'Confirm', allowOutsideClick = false, allowEscapeKey = false) {
+    return Swal.fire({
+      title: title,
+      html: text,
+      icon: icon,
+      confirmButtonText: confirmButtonText,
+      confirmButtonColor: confirmButtonColor,
+      showCancelButton: showCancelButton,
+      cancelButtonColor: cancelButtonColor,
+      allowOutsideClick: allowOutsideClick,
+      allowEscapeKey: allowEscapeKey,
+      input: 'checkbox',
+      inputPlaceholder: checkboxCondition,
+      inputValidator: (result) => {
+        return !result && checkboxReminderMessage
+      }
+    })
+  }
 }

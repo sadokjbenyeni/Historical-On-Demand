@@ -643,3 +643,114 @@ a {
 .swal2-content {
   font-size: 1.3em !important;
 }
+
+#toggle {
+  width: 2em;
+  height: 2em;
+  display: block;
+  margin: 10% auto 10%;
+  left: 30em;
+  bottom: 65px;
+  position: absolute
+}
+
+#toggle span:after,
+#toggle span:before {
+  content: "";
+  position: absolute;
+  left: 0em;
+  top: -9px;
+}
+#toggle span:after{
+  top: 9px;
+}
+#toggle span {
+  position: relative;
+  display: block;
+}
+
+#toggle span,
+#toggle span:after,
+#toggle span:before {
+  width: 100%;
+  height: 5px;
+  background-color: #EA663B;
+  transition: all 0.3s;
+  backface-visibility: hidden;
+  border-radius: 2px;
+}
+
+#toggle.on span {
+  background-color: transparent;
+}
+#toggle.on span:before {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+#toggle.on span:after {
+  transform: rotate(-45deg) translate(7px, -8px);
+}
+#toggle.on + #menu {
+  opacity: 1;
+  visibility: visible;
+}
+
+#menu {
+  position: relative;
+  color: #999;
+  width: 308px;
+  padding: 10px;
+  margin: auto;
+  font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+  text-align: center;
+  border-radius: 4px;
+  background: rgb(250, 250, 250);
+  box-shadow: 2px 2px 7px rgba(0,0,0,0.25);  left: 15em;
+  top: 3em;
+  left: 11em;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1s;
+}
+#menu:after {
+  position: absolute;
+  bottom: 135px;
+  left: 265px;
+  content: "";
+  display: block;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 20px solid rgb(250, 250, 250);
+}
+ul, li, li p {
+  list-style: none;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+li p {
+  padding: 15px;
+  color: rgb(160, 160, 160);
+  text-decoration: none;
+  transition: all .01s;
+  
+}
+li p:hover,
+li p:focus {
+  background: rgba(255, 94, 0, 0.1);
+  color: #EA663B;
+  cursor: pointer;
+}
+
+.action-button{
+  right: 60px;
+  position: absolute;
+  top: 12px;
+  color: rgb(160, 160, 160);
+  font-weight: 400;
+  font-size: larger;
+}
+
+.align-icons{
+  position: relative;
+  right: 7%;
+}
