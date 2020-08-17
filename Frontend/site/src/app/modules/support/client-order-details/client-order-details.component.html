@@ -1,16 +1,28 @@
 <app-menu></app-menu>
 <div class="row page-header">
-  <div class="col-lg-10">
+  <div class="col-lg-8">
     <ol class="breadcrumb">
       <li class="bread-crumb" [routerLink]="['/support']">Home</li>
       <li class="bread-crumb" [routerLink]="['/support/clientorder']">Support</li>
       <li class="current-bread-crumb">Order Details {{idOrder}}</li>
     </ol>
   </div>
-  <div class="col-lg-2">
-    <button mat-button class="bottom-button green-color" *ngIf="invoice!=undefined" (click)="generateInvoice()">
-      <i class="fa fa-file-pdf-o"></i>Generate Invoice
-    </button>
+  <div class="col-lg-4">
+    <div class="table-responsive text-center" *ngIf="invoice!=undefined">
+      <div class="btn-group">
+        <a href="#menu" id="toggle" (click)="expandMenu()"><span></span></a>
+        <div id="menu">
+          <ul>
+            <li>
+              <p class="action" (click)="generateInvoice()"><i class="fa fa-file-pdf-o align-icons"></i> Generate
+                Invoice
+              </p>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <span id="menu-title" (click)="expandMenu()" class="action-button">{{actionButton}}</span>
+    </div>
   </div>
 </div>
 <div class="container page-content">

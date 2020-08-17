@@ -12,6 +12,7 @@ import { OrderDetails } from '../../../core/models/order-details.model';
 import { OrderHistoryDetailsComponent } from '../../client/order-history-details/order-history-details.component';
 import { DownloadInvoiceService } from '../../../services/Intern/download-invoice.service';
 import { InvoiceService } from '../../../services/invoice.service';
+import { BurgerMenuService } from '../../../../app/shared/burger-menu/burger-menu.service';
 
 @Component({
   selector: 'app-client-order-details',
@@ -69,6 +70,8 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
   proForma: string;
   internalNote: string;
   productsLogs: Array<any>;
+  actionButton: string = "ACTIONS";
+  closeActionButton: string = "CLOSE";
 
   constructor(
     private route: ActivatedRoute,
@@ -77,7 +80,8 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
     private currencyService: CurrencyService,
     private orderService: OrderService,
     private downloadInvoiceService: DownloadInvoiceService,
-    private invoiceService: InvoiceService
+    private invoiceService: InvoiceService,
+    private burgerMenuService: BurgerMenuService
   ) {
     route.params.subscribe(_ => { this.idCmd = _.id; });
   }
@@ -316,4 +320,12 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
     return orderDetails;
   }
 
+  expandMenu() {
+    let element = <HTMLElement>document.getElementById('toggle');
+    this.burgerMenuService.toggleClass(element, 'on');
+    let menuTitle = <HTMLElement>document.getElementById('menu-title');
+    if (menuTitle.textContent == this.closeActionButton) menuTitle.textContent = this.actionButton;
+    else menuTitle.textContent = this.closeActionButton;
+    return false;
+  }
 }

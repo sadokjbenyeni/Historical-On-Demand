@@ -10,6 +10,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SalesService } from '../../../services/sales.service';
 import { DownloadInvoiceService } from '../../../services/Intern/download-invoice.service';
 import { SwalAlertService } from '../../../../app/shared/swal-alert/swal-alert.service';
+import { BurgerMenuService } from '../../../../app/shared/burger-menu/burger-menu.service';
+import { forEach } from 'lodash';
 
 @Component({
   selector: 'app-ordersp-view',
@@ -62,6 +64,8 @@ export class OrderspViewComponent implements OnInit {
     autoClose: true,
     keepAfterRouteChange: false
   };
+  actionButton: string = "ACTIONS";
+  closeActionButton: string = "CLOSE";
 
   constructor(
     private route: ActivatedRoute,
@@ -72,7 +76,8 @@ export class OrderspViewComponent implements OnInit {
     private salesService: SalesService,
     protected alertService: AlertService,
     private downloadInvoiceService: DownloadInvoiceService,
-    private swalService: SwalAlertService
+    private swalService: SwalAlertService,
+    private burgerMenuService: BurgerMenuService
   ) {
     route.params.subscribe(_ => this.idCmd = _.id);
   }
@@ -254,8 +259,6 @@ export class OrderspViewComponent implements OnInit {
 
   toggleEdit() {
     this.editOff = !this.editOff;
-    var element = <HTMLInputElement>document.getElementById("updateButton");
-    element.disabled = this.editOff;
   }
 
   async validateOrder() {
@@ -330,6 +333,15 @@ export class OrderspViewComponent implements OnInit {
 
   async getSwalToastNotification() {
     this.swalService.getSwalToastNotification(false, 4000, true, 'Changes Saved');
+  }
+
+  expandMenu() {
+    let element = <HTMLElement>document.getElementById('toggle');
+    this.burgerMenuService.toggleClass(element, 'on');
+    let menuTitle = <HTMLElement>document.getElementById('menu-title');
+    if (menuTitle.textContent == this.closeActionButton) menuTitle.textContent = this.actionButton;
+    else menuTitle.textContent = this.closeActionButton;
+    return false;
   }
 }
 

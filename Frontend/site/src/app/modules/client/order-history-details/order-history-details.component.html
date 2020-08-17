@@ -7,7 +7,6 @@
             <li *ngIf="orderInfo" class="current-bread-crumb">Order Details {{orderInfo.id}}</li>
         </ol>
     </div>
-
     <div class="col-lg-4">
         <div class="table-responsive text-center" *ngIf="orderInfo && verifState()">
             <div class="btn-group">
@@ -15,20 +14,22 @@
                 <div id="menu">
                     <ul>
                         <li>
-                            <p (click)="abortOrder()"><i class="fa fa-shopping-cart align-icons"></i>Edit Order</p>
+                            <p class="action" (click)="abortOrder()"><i class="fa fa-shopping-cart align-icons"></i>Edit
+                                Order</p>
                         </li>
                         <li>
-                            <p (click)="cancelOrder()"><i class="fa fa-trash-o align-icons"></i>Delete Order</p>
+                            <p class="action" (click)="cancelOrder()"><i class="fa fa-trash-o align-icons"></i>Delete
+                                Order</p>
                         </li>
                         <li>
-                            <p mat-button *ngIf="getState(state)=='Active'" (click)="downloadLinks()">
+                            <p class="action" mat-button *ngIf="getState(state)=='Active'" (click)="downloadLinks()">
                                 <i class="fa fa-cloud-download align-icons"></i>Download Links
                             </p>
                         </li>
                     </ul>
                 </div>
             </div>
-            <span id="menu-title" class="action-button">ACTIONS</span>
+            <span id="menu-title" (click)="expandMenu()" class="action-button">{{actionButton}}</span>
         </div>
     </div>
 </div>

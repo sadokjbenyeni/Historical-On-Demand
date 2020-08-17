@@ -65,7 +65,8 @@ export class OrderHistoryDetailsComponent implements OnInit {
   orderInfo: OrderInformation;
   userId: string;
   isCartFull: boolean = false;
-
+  actionButton: string = "ACTIONS";
+  closeActionButton: string = "CLOSE";
   @Input() isSupport: boolean;
 
   constructor(
@@ -395,8 +396,8 @@ export class OrderHistoryDetailsComponent implements OnInit {
     let element = <HTMLElement>document.getElementById('toggle');
     this.burgerMenuService.toggleClass(element, 'on');
     let menuTitle = <HTMLElement>document.getElementById('menu-title');
-    if (menuTitle.textContent == "CLOSE") menuTitle.textContent = "ACTIONS";
-    else menuTitle.textContent = "CLOSE";
+    if (menuTitle.textContent == this.closeActionButton) menuTitle.textContent = this.actionButton;
+    else menuTitle.textContent = this.closeActionButton;
     return false;
   }
 }

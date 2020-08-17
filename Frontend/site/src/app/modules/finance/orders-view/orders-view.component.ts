@@ -7,6 +7,7 @@ import { CurrencyService } from '../../../services/currency.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { DownloadInvoiceService } from '../../../services/Intern/download-invoice.service';
 import { SwalAlertService } from '../../../../app/shared/swal-alert/swal-alert.service';
+import { BurgerMenuService } from '../../../../app/shared/burger-menu/burger-menu.service';
 
 @Component({
   selector: 'app-orders-view',
@@ -51,6 +52,8 @@ export class OrdersViewComponent implements OnInit {
   internalNote: string;
   sale: string;
   ordertype: string;
+  actionButton: string = "ACTIONS";
+  closeActionButton: string = "CLOSE";
 
   constructor(
     private route: ActivatedRoute,
@@ -59,7 +62,8 @@ export class OrdersViewComponent implements OnInit {
     private currencyService: CurrencyService,
     private orderService: OrderService,
     private downloadInvoiceService: DownloadInvoiceService,
-    private swalService: SwalAlertService
+    private swalService: SwalAlertService,
+    private burgerMenuService: BurgerMenuService
 
   ) {
     route.params.subscribe(_ => this.idCmd = _.id);
@@ -237,5 +241,13 @@ export class OrdersViewComponent implements OnInit {
     }
     this.router.navigate(['/finance/orders']);
   }
-
+  
+  expandMenu() {
+    let element = <HTMLElement>document.getElementById('toggle');
+    this.burgerMenuService.toggleClass(element, 'on');
+    let menuTitle = <HTMLElement>document.getElementById('menu-title');
+    if (menuTitle.textContent == this.closeActionButton) menuTitle.textContent = this.actionButton;
+    else menuTitle.textContent = this.closeActionButton;
+    return false;
+  }
 }

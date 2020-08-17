@@ -8,3 +8,11 @@
 .margin-left-zero {
     padding-left: 0px;
 }
+
+#toggle {
+    bottom: 17px;
+  }
+
+  #menu::after{
+    bottom: 75px;
+}

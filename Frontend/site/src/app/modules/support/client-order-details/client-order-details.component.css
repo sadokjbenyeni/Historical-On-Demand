@@ -59,4 +59,10 @@
     padding-bottom: 2px;
   }
 
-  
+  #toggle{
+    bottom: 18px;
+  }
+
+  #menu::after{
+    bottom: 75px;
+}

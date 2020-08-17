@@ -643,14 +643,13 @@ a {
 .swal2-content {
   font-size: 1.3em !important;
 }
-
+/**********************Actions Menu***********************/
 #toggle {
   width: 2em;
   height: 2em;
   display: block;
   margin: 10% auto 10%;
-  left: 30em;
-  bottom: 65px;
+  bottom: 79px;
   position: absolute
 }
 
@@ -675,7 +674,7 @@ a {
   width: 100%;
   height: 5px;
   background-color: #EA663B;
-  transition: all 0.3s;
+  transition: all 0.4s;
   backface-visibility: hidden;
   border-radius: 2px;
 }
@@ -697,60 +696,63 @@ a {
 #menu {
   position: relative;
   color: #999;
-  width: 308px;
+  width: 200px;
   padding: 10px;
   margin: auto;
   font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
   text-align: center;
   border-radius: 4px;
   background: rgb(250, 250, 250);
-  box-shadow: 2px 2px 7px rgba(0,0,0,0.25);  left: 15em;
+  box-shadow: 0px 0px 20px rgba(0,0,0,0.2);  
+  right: 6em;
   top: 3em;
-  left: 11em;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 1s;
+  transition: opacity 0.5s;
 }
 #menu:after {
   position: absolute;
   bottom: 135px;
-  left: 265px;
+  left: 83px;
   content: "";
   display: block;
   border-left: 15px solid transparent;
   border-right: 15px solid transparent;
   border-bottom: 20px solid rgb(250, 250, 250);
 }
-ul, li, li p {
+ul, li, .action {
   list-style: none;
   display: block;
   margin: 0;
   padding: 0;
 }
-li p {
+.action {
   padding: 15px;
   color: rgb(160, 160, 160);
   text-decoration: none;
   transition: all .01s;
-  
+  font-size: 16px;
 }
-li p:hover,
-li p:focus {
+.action:hover,
+.action:focus {
   background: rgba(255, 94, 0, 0.1);
   color: #EA663B;
   cursor: pointer;
 }
 
 .action-button{
-  right: 60px;
+  left: 255px;
   position: absolute;
-  top: 12px;
+  top: 8px;
   color: rgb(160, 160, 160);
   font-weight: 400;
   font-size: larger;
+  cursor: pointer;
 }
 
 .align-icons{
-  position: relative;
-  right: 7%;
+  position: absolute;
+  right: 78%;
+  font-size: 21px;
 }
+/*************************************************/

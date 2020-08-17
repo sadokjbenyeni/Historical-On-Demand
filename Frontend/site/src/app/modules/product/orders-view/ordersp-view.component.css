@@ -72,3 +72,11 @@
     left: 1.2em;
     width:90%
 }
+
+#toggle {
+    bottom: 203px;
+}
+
+#menu::after{
+    bottom: 260px;
+}

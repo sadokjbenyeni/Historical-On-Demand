@@ -1,6 +1,6 @@
 <app-menu></app-menu>
 <div class="row page-header">
-  <div class="col-lg-9">
+  <div class="col-lg-8">
     <ol class="breadcrumb">
       <li class="bread-crumb" [routerLink]="['/product']">Home</li>
       <li class="bread-crumb" [routerLink]="['/product/orders']">Product</li>
@@ -11,7 +11,7 @@
       <router-outlet></router-outlet>
     </div>
   </div>
-  <div class="col-lg-">
+  <!-- <div class="col-lg-">
     <div class="table-responsive text-center">
       <div class="btn-group">
         <button class="bottom-button orange-color dropdown-toggle button-adjusment" type="button" id="updateButton"
@@ -41,6 +41,45 @@
 
       <button class="bottom-button grey-color button-adjusment" *ngIf="state == 'PVP' && !editOff"
         (click)="toggleEdit()"><i class="fa fa-pencil"></i> Edit</button>
+    </div>
+  </div> -->
+  <div class="col-lg-4">
+    <div class="table-responsive text-center">
+      <div class="btn-group">
+        <a href="#menu" id="toggle" (click)="expandMenu()"><span></span></a>
+        <div id="menu">
+          <ul>
+            <li *ngIf="verifStatePVP() && state == 'PVP'">
+              <p class="action" (click)="cancelOrder()"><i class="fa fa-trash-o align-icons"></i>
+                CancelOrder
+              </p>
+            </li>
+            <li *ngIf="verifStatePVP() && state == 'PVP'">
+              <p class="action" (click)="rejectOrder()"><i class="fa fa-times align-icons"></i>
+                Reject Order</p>
+            </li>
+            <li *ngIf="verifStatePVP() && state == 'PVP'">
+              <p class="action" (click)="validateOrder()"><i class="fa fa-check align-icons"></i>
+                Validate Order</p>
+            </li>
+            <li *ngIf="state == 'PVF'">
+              <p class="action" (click)="cancelValidation()"><i class="fa fa-ban align-icons"></i>
+                Cancel Order Validation</p>
+            </li>
+            <li *ngIf="state =='PVP' && editOff">
+              <p class="action"
+                (click)="updateChanges(); applyDiscount(); updateEngagementPeriod(); getSwalToastNotification(); toggleEdit()">
+                <i class="fa fa-pencil align-icons"></i>Save Changes
+              </p>
+            </li>
+            <li *ngIf="state=='PVP' && !editOff">
+              <p class="action" (click)="toggleEdit()"><i class="fa fa-pencil align-icons"></i>
+                Edit Order</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <span id="menu-title" (click)="expandMenu()" class="action-button">{{actionButton}}</span>
     </div>
   </div>
 </div>
