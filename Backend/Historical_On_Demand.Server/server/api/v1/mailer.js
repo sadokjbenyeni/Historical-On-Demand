@@ -7,9 +7,7 @@ const OrderMailService = require('../../service/orderMailerService');
 
 router.post('/inscription', async (req, res, next) => {
   var user = await User.findOne({ token: req.body.token }).exec();
-  if (!user) {
-    return res.status(403).json({ error: "User not found" });
-  }
+  if (!user) return res.status(403).json({ error: "User not found" });
   try {
     var mailer = new UserMailService(req.logger, user);
     mailer.SendMailForInscription();
@@ -24,9 +22,7 @@ router.post('/inscription', async (req, res, next) => {
 
 router.post('/activation', async (req, res, next) => {
   var user = await User.findOne({ token: req.body.token }).exec();
-  if (!user) {
-    return res.status(403).json({ error: "User not found" });
-  }
+  if (!user) return res.status(403).json({ error: "User not found" });
   try {
     var mailer = new UserMailService(req.logger, user);
     mailer.activated();
@@ -41,9 +37,7 @@ router.post('/activation', async (req, res, next) => {
 
 router.post('/activated', async (req, res, next) => {
   var user = await User.findOne({ token: req.body.token }).exec();
-  if (!user) {
-    return res.status(403).json({ error: "User not found" });
-  }
+  if (!user) return res.status(403).json({ error: "User not found" });
   try {
     var mailer = new UserMailService(req.logger, user);
     mailer.activated();
@@ -58,9 +52,7 @@ router.post('/activated', async (req, res, next) => {
 
 router.post('/mdp', async (req, res, next) => {
   var user = await User.findOne({ email: req.body.email }).exec();
-  if (!user) {
-    return res.status(403).json({ error: "User not found, please contact support with '" + req.headers.loggerToken + "'" });
-  }
+  if (!user) return res.status(403).json({ error: "User not found, please contact support with '" + req.headers.loggerToken + "'" });
   try {
     var mailer = new UserMailService(req.logger, user);
     mailer.RenewPassword();
@@ -75,9 +67,7 @@ router.post('/mdp', async (req, res, next) => {
 
 router.post('/newOrder', async (req, res, next) => {
   var order = await Order.findOne({ _id: req.body._id }).exec();
-  if (!order) {
-    return res.status(403).json({ error: "Order not found" });
-  }
+  if (!order) return res.status(403).json({ error: "Order not found" });
   try {
     var mailer = new OrderMailService(req.logger, order);
     mailer.newOrder();
@@ -92,9 +82,7 @@ router.post('/newOrder', async (req, res, next) => {
 
 router.post('/newOrderHoD', async (req, res, next) => {
   var order = await Order.findOne({ _id: req.body._id }).exec();
-  if (!order) {
-    return res.status(403).json({ error: "Order not found" });
-  }
+  if (!order) return res.status(403).json({ error: "Order not found" });
   try {
     var mailer = new OrderMailService(req.logger, order);
     mailer.newOrderHod(req.body.email, req.body.firstname, req.body.lastname, req.body.service, req.body.eid, req.body.total, req.body.date);

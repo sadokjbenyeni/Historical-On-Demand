@@ -1,6 +1,7 @@
 const app = require('express')();
 const router = require('express').Router();
-const vatService= require('../../service/vatService');
+const vatService = require('../../service/vatService');
+
 router.get('/:vat', async (req, res) => {
     let vat = req.params.vat.split('|');
     try {

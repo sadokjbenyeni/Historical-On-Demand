@@ -70,9 +70,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
     private deliverablesService: DeliverablesService,
     private swalService: SwalAlertService,
     private burgerMenuService: BurgerMenuService
-  ) {
-    this.route.params.subscribe(_ => { this.id = _.id; });
-  }
+  ) { this.route.params.subscribe(_ => { this.id = _.id; }); }
 
 
   ngOnInit() {
@@ -114,65 +112,39 @@ export class OrderHistoryDetailsComponent implements OnInit {
     return diff;
   }
 
-  limitDownLoad(datelk) {
-    let expired = new Date(datelk);
-    if (this.onetime === 1 || this.subscription === 1) {
-      return expired.setDate(expired.getDate() + this.period[0].periodOneOff);
-    }
+  limitDownLoad(linkDate) {
+    let expirationDate = new Date(linkDate);
+    if (this.onetime === 1 || this.subscription === 1) return expirationDate.setDate(expirationDate.getDate() + this.period[0].periodOneOff);
   }
 
   getPeriod() {
-    this.configService.getDownloadSetting().subscribe(period => {
-      return this.period = period;
-    })
+    this.configService.getDownloadSetting().subscribe(period => { return this.period = period })
   }
 
-  setting = {
-    element: {
-      dynamicDownload: null as HTMLElement
-    }
-  }
+  setting = { element: { dynamicDownload: null as HTMLElement } }
 
   dynamicDownloadByHtmlTag(orderId: number, dataset: string, eid: string, symbol: string, asset: string, type: string, debut: string, fin: string, text: Array<any>, path: string) {
     let fileName = "";
     fileName += orderId;
     fileName += "_" + this.datasets[dataset];
     fileName += "_" + eid;
-    if (symbol !== "") {
-      fileName += "_" + symbol;
-    }
-    if (asset !== "") {
-      fileName += "_" + asset;
-    }
+    if (symbol !== "") fileName += "_" + symbol;
+    if (asset !== "") fileName += "_" + asset;
     fileName += "_" + type;
     fileName += "_" + this.yyyymmdd(debut.split('T')[0]);
     fileName += "_" + this.yyyymmdd(fin.split('T')[0]);
 
-
-    if (!this.setting.element.dynamicDownload) {
-      this.setting.element.dynamicDownload = document.createElement('a');
-    }
+    if (!this.setting.element.dynamicDownload) this.setting.element.dynamicDownload = document.createElement('a');
     let links = [];
-    text.forEach(ll => {
-      ll.link.split('|').forEach(lien => {
-        links.push(environment.gateway + '/api/v1/user/download/' + this.token + '/' + path + '/' + lien);
-      });
-    });
+    text.forEach(ll => { ll.link.split('|').forEach(lien => { links.push(environment.gateway + '/api/v1/user/download/' + this.token + '/' + path + '/' + lien) }) });
 
     const downloadeLinksString = links.join('\n');
     var textFileAsBlob = new Blob([downloadeLinksString], { type: 'text/plain', endings: 'native' });
-
     var downloadLink = document.createElement("a");
     downloadLink.download = fileName;
     downloadLink.innerHTML = "Download File";
-    if (window.webkitURL != null) {
-      // Chrome allows the link to be clicked
-      // without actually adding it to the DOM.
-      downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-    }
+    if (window.webkitURL != null) downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
     else {
-      // Firefox requires the link to be added to the DOM
-      // before it can be clicked.
       downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
       downloadLink.onclick = ((mouseEvent) => document.body.removeChild(downloadLink));
       downloadLink.style.display = "none";
@@ -181,31 +153,26 @@ export class OrderHistoryDetailsComponent implements OnInit {
     downloadLink.click();
   }
 
-  yyyymmdd = function (date) {
-    let dat = date.split('-');
-    let mm = parseInt(dat[1]);
-    let dd = parseInt(dat[2]);
+  yyyymmdd(date) {
+    let splittedDate = date.split('-');
+    let month = parseInt(splittedDate[1]);
+    let day = parseInt(splittedDate[2]);
 
     return [
-      dat[0],
-      (mm > 9 ? '-' : '-0') + mm,
-      (dd > 9 ? '-' : '-0') + dd
+      splittedDate[0],
+      (month > 9 ? '-' : '-0') + month,
+      (day > 9 ? '-' : '-0') + day
     ].join('');
   };
 
-  countLink(lks) {
-    let countlk = 0;
-    lks.forEach(el => {
-      countlk += el.link.split("|").length;
-    });
-
-    return countlk;
+  countLink(links) {
+    let linkCounter = 0;
+    links.forEach(element => { linkCounter += element.link.split("|").length });
+    return linkCounter;
   }
 
   getListStates() {
-    this.orderService.getListStates({}).subscribe(res => {
-      this.states = res['states'];
-    });
+    this.orderService.getListStates({}).subscribe(res => { this.states = res['states'] });
   }
 
   getClientOrderDetails() {
@@ -267,9 +234,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
     this.listCurrencies();
   }
 
-  public setToken(token: any) {
-    this.token = token;
-  }
+  public setToken(token: any) { this.token = token }
 
   precisionRound(number, precision) {
     var factor = Math.pow(10, precision);
@@ -277,53 +242,32 @@ export class OrderHistoryDetailsComponent implements OnInit {
   }
 
   listCurrencies() {
-
-    this.currencyService.getCurrencies().subscribe(list => {
-      this.symbol = list.currencies.find(item => item.id == this.orderAmount.currency).symbol;
-    });
+    this.currencyService.getCurrencies().subscribe(list => { this.symbol = list.currencies.find(item => item.id == this.orderAmount.currency).symbol });
   }
 
   downloadLinks() {
     let fileName = this.orderInfo.id + "_Manifest";
     let downloadablelinks = [];
-    this.deliverablesService.getLinks(this.orderInfo.id)
-      .subscribe(productslinks => {
-        productslinks.forEach(links => {
-          links.forEach(link => {
-            downloadablelinks.push(link);
-          });
-        });
-        //if (!this.setting.element.dynamicDownload) {
-        //this.setting.element.dynamicDownload = document.createElement('a');
-        const downloadeLinksString = downloadablelinks.join('\n');
-        var textFileAsBlob = new Blob([downloadeLinksString], { type: 'text/plain', endings: 'native' });
-
-        var downloadLink = document.createElement("a");
-        downloadLink.download = fileName;
-        downloadLink.innerHTML = "Download File";
-        if (window.webkitURL != null) {
-          // Chrome allows the link to be clicked
-          if (!this.setting.element.dynamicDownload) {
-            this.setting.element.dynamicDownload = document.createElement('a');  // without actually adding it to the DOM.
-            downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-            //}
-            //const element = this.setting.element.dynamicDownload;
-            //const fileType = 'text/plain';
-            //element.setAttribute('href', `data:${fileType};charset=utf-8,` + downloadablelinks.join('\n'));
-            //element.setAttribute('download', fileName + '.txt');
-            //var event = new MouseEvent("click");
-            //element.dispatchEvent(event);
-            document.body.appendChild(downloadLink);
-          }
-
-          downloadLink.click();
+    this.deliverablesService.getLinks(this.orderInfo.id).subscribe(productslinks => {
+      productslinks.forEach(links => { links.forEach(link => { downloadablelinks.push(link) }) });
+      const downloadeLinksString = downloadablelinks.join('\n');
+      var textFileAsBlob = new Blob([downloadeLinksString], { type: 'text/plain', endings: 'native' });
+      var downloadLink = document.createElement("a");
+      downloadLink.download = fileName;
+      downloadLink.innerHTML = "Download File";
+      if (window.webkitURL != null) {
+        if (!this.setting.element.dynamicDownload) {
+          this.setting.element.dynamicDownload = document.createElement('a');  // without actually adding it to the DOM.
+          downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+          document.body.appendChild(downloadLink);
         }
-      })
+        downloadLink.click();
+      }
+    })
   }
 
   handleError(error): ObservableInput<any> {
-    console.log(error);
-    return Promise.all(new Array<any>());
+    console.log(error); return Promise.all(new Array<any>());
   }
 
   verifState() {
@@ -338,22 +282,16 @@ export class OrderHistoryDetailsComponent implements OnInit {
   verifyOrderInCart() {
     return new Promise((resolve, reject) => {
       this.orderService.getCaddy().subscribe(caddy => {
-        if (caddy) this.isCartFull = true
+        if (caddy) this.isCartFull = true;
         resolve(caddy)
-      }, error => {
-        reject(error);
-      })
+      }, error => { reject(error); })
     })
   }
 
 
   async abortOrder() {
-    if (this.isCartFull) {
-      var isReadyToAbort = await this.swalService.getSwalCheckboxNotification(`You are about to edit your order !`, '', 'warning', 'Delete current cart items', 'Check the box to confirm');
-    }
-    else {
-      var isReadyToAbort = await this.swalService.getSwalForConfirm(`You are about to edit your order !`, '');
-    }
+    if (this.isCartFull) var isReadyToAbort = await this.swalService.getSwalCheckboxNotification(`You are about to edit your order !`, '', 'warning', 'Delete current cart items', 'Check the box to confirm');
+    else var isReadyToAbort = await this.swalService.getSwalForConfirm(`You are about to edit your order !`, '');
     if (isReadyToAbort.value) {
       this.orderService.abortOrder(this.orderInfo.id).subscribe(result => {
         if (result) {
