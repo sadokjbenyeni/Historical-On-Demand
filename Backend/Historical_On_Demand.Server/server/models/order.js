@@ -1,14 +1,12 @@
-//Configuration MODEL
 const mongoose = require('mongoose');
 let OrderSchema = new mongoose.Schema({
-  id: { type: Number }, //id incrementer dès le début du panier
+  id: { type: Number },
   idCommande: { type: String, maxlength: 200 },
   idProForma: { type: String, maxlength: 200 },
   id_cmd: { type: String, maxlength: 200 },
   submissionDate: { type: Date },
   validatedDate: { type: Date },
   idFacture: { type: String, maxlength: 200 },
-  //Begin Information User
   idUser: { type: String, maxlength: 200 },
   email: { type: String, maxlength: 200 },
   companyName: { type: String, maxlength: 200 },
@@ -29,7 +27,6 @@ let OrderSchema = new mongoose.Schema({
   postalCodeBilling: { type: String, maxlength: 10 },
   vat: { type: String, maxlength: 15 },
   vatValide: { type: Boolean, default: null },
-  //End Information User
   payment: { type: String, maxlength: 200 },
   paymentDate: { type: Date },
   vatValue: { type: Number, default: null },

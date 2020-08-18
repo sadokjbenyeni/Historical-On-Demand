@@ -11,69 +11,42 @@
       <router-outlet></router-outlet>
     </div>
   </div>
-  <!-- <div class="col-lg-">
-    <div class="table-responsive text-center">
-      <div class="btn-group">
-        <button class="bottom-button orange-color dropdown-toggle button-adjusment" type="button" id="updateButton"
-          *ngIf="verifStatePVP() && state == 'PVP'" data-toggle="dropdown" data-toggle="dropdown" aria-haspopup="true"
-          aria-expanded="false">
-          <i class="fa fa-refresh"></i> Update Status
-        </button>
-        <div class="dropdown-menu" aria-labelledby="updateButton">
-          <button class="bottom-button yellow-color space-between-buttons button-list" (click)="cancelOrder()">
-            <i class=" fa fa-trash-o"></i> Cancel
-          </button>
-          <button class="bottom-button red-color space-between-buttons button-list" (click)="rejectOrder()">
-            <i class=" fa fa-times"></i> Reject
-          </button>
-          <button class="bottom-button green-color space-between-buttons button-list" (click)="validateOrder()"><i
-              class=" fa fa-check"></i> Validate
-          </button>
-        </div>
-      </div>
-
-      <button class="bottom-button yellow-color button-adjusment" *ngIf="state == 'PVF'" (click)="cancelValidation()"><i
-          class=" fa fa-ban"></i> Cancel Validation</button>
-
-      <button class="bottom-button green-color button-adjusment" *ngIf="state=='PVP' && editOff"
-        (click)="updateChanges(); applyDiscount(); updateEngagementPeriod(); getSwalToastNotification(); toggleEdit()"><i
-          class="fa fa-floppy-o"></i> Save Changes</button>
-
-      <button class="bottom-button grey-color button-adjusment" *ngIf="state == 'PVP' && !editOff"
-        (click)="toggleEdit()"><i class="fa fa-pencil"></i> Edit</button>
-    </div>
-  </div> -->
   <div class="col-lg-4">
-    <div class="table-responsive text-center">
+    <div class="table-responsive text-center" *ngIf="state == 'PVF' || state == 'PVP'">
       <div class="btn-group">
         <a href="#menu" id="toggle" (click)="expandMenu()"><span></span></a>
         <div id="menu">
           <ul>
             <li *ngIf="verifStatePVP() && state == 'PVP'">
-              <p class="action" (click)="cancelOrder()"><i class="fa fa-trash-o align-icons"></i>
+              <p class="action" (click)="cancelOrder()">
+                <i class="fa fa-trash-o align-icons"></i>
                 CancelOrder
               </p>
             </li>
             <li *ngIf="verifStatePVP() && state == 'PVP'">
-              <p class="action" (click)="rejectOrder()"><i class="fa fa-times align-icons"></i>
+              <p class="action" (click)="rejectOrder()">
+                <i class="fa fa-times align-icons"></i>
                 Reject Order</p>
             </li>
             <li *ngIf="verifStatePVP() && state == 'PVP'">
-              <p class="action" (click)="validateOrder()"><i class="fa fa-check align-icons"></i>
+              <p class="action" (click)="validateOrder()">
+                <i class="fa fa-check align-icons"></i>
                 Validate Order</p>
             </li>
             <li *ngIf="state == 'PVF'">
-              <p class="action" (click)="cancelValidation()"><i class="fa fa-ban align-icons"></i>
+              <p class="action" (click)="cancelValidation()">
+                <i class="fa fa-ban align-icons"></i>
                 Cancel Order Validation</p>
             </li>
             <li *ngIf="state =='PVP' && editOff">
               <p class="action"
                 (click)="updateChanges(); applyDiscount(); updateEngagementPeriod(); getSwalToastNotification(); toggleEdit()">
-                <i class="fa fa-pencil align-icons"></i>Save Changes
+                <i class="fa fa-save align-icons"></i>Save Changes
               </p>
             </li>
             <li *ngIf="state=='PVP' && !editOff">
-              <p class="action" (click)="toggleEdit()"><i class="fa fa-pencil align-icons"></i>
+              <p class="action" (click)="toggleEdit()">
+                <i class="fa fa-pencil align-icons"></i>
                 Edit Order</p>
             </li>
           </ul>
@@ -96,68 +69,42 @@
         <div class="panel panel-info">
           <div class="table-responsive container row">
             <div class="col-md-6">
-              <p>
-                Order ID : <b> {{ idOrder }}</b>
-              </p>
-              <p>
-                Submission Date and Time :
-                <b> {{ submissionDate | date: "medium" }}</b>
-              </p>
-              <p>
-                Payment method : <b>{{ payment }}</b>
-              </p>
-              <p>
-                Invoice :
-                <b><a target="_blank" *ngIf="proForma" (click)="downloadInvoice(proForma, 'pro forma invoice')">
-                    Pro-Forma</a>
+              <p>Order ID : <b> {{ idOrder }}</b></p>
+              <p>Submission Date and Time :<b>{{ submissionDate | date: "medium" }}</b></p>
+              <p>Payment method : <b>{{ payment }}</b></p>
+              <p>Invoice :
+                <b><a target="_blank" *ngIf="proForma"
+                    (click)="downloadInvoice(proForma, 'pro forma invoice')">Pro-Forma</a>
                   <p style="display: inline;" *ngIf="invoice"> | </p>
                   <a target="_blank" *ngIf="invoice" (click)="downloadInvoice(invoice, 'invoice')">Invoice</a>
                 </b>
               </p>
-              <p>
-                Order Status :
-                <b><span [class]="textcolor">{{ getStateName(state) }}</span></b>
-              </p>
-              <p>
-                Order Type:
+              <p>Order Status :<b><span [class]="textcolor">{{ getStateName(state) }}</span></b></p>
+              <p>Order Type:
                 <select name="search" class="input-border-color" [(ngModel)]="choosedOrderType"
                   *ngIf="state == 'PVP' && editOff">
                   <option value="NA">NA</option>
                   <option value="Client order">Client order </option>
-                  <option value="Free sample order for client">Free sample order for client
-                  </option>
+                  <option value="Free sample order for client">Free sample order for client </option>
                   <option value="Internal order">Internal order </option>
                 </select>
                 <b *ngIf="state != 'PVP' || !editOff"><span [class]="textcolor">{{ choosedOrderType }}</span></b>
               </p>
-              <p>
-                Sales:
+              <p>Sales:
                 <select name="search" class="input-border-color" [(ngModel)]="choosenSale"
                   *ngIf="state == 'PVP' && editOff">
                   <option value="no sales">no sales</option>
-                  <option *ngFor="let s of listSales" [value]="s.name">{{
-                    s.name
-                  }}</option>
+                  <option *ngFor="let s of listSales" [value]="s.name">{{s.name}}</option>
                 </select>
                 <b *ngIf="state != 'PVP' || !editOff"><span [class]="textcolor">{{ choosenSale }}</span></b>
               </p>
             </div>
             <div class="col-md-6">
-              <p>
-                Company Name: <b>{{ company }}</b>
-              </p>
-              <p>
-                First name : <b>{{ firstname }}</b>
-              </p>
-              <p>
-                Last name : <b>{{ lastname }}</b>
-              </p>
-              <p>
-                Job role : <b>{{ job }}</b>
-              </p>
-              <p>
-                Country : <b>{{ countryBilling }}</b>
-              </p>
+              <p>Company Name: <b>{{ company }}</b></p>
+              <p>First name : <b>{{ firstname }}</b></p>
+              <p>Last name : <b>{{ lastname }}</b></p>
+              <p>Job role : <b>{{ job }}</b></p>
+              <p>Country : <b>{{ countryBilling }}</b></p>
             </div>
           </div>
         </div>
@@ -192,31 +139,16 @@
                     [(ngModel)]="c.period" min="1" (ngModelChange)="setPeriod(c)" />
                   <span *ngIf="state != 'PVP' || !editOff">{{c.period}}</span>
                 </td>
-
-                <td *ngIf="c.subscription === 1 && !verifState() && !c.print">
-                  {{ c.period }}
-                </td>
+                <td *ngIf="c.subscription === 1 && !verifState() && !c.print">{{ c.period }}</td>
                 <td *ngIf="c.subscription === 0 && !c.print"></td>
-                <td *ngIf="!c.print">
-                  {{ c.begin_date_select | date: "yyyy-MM-dd" }}
-                </td>
-                <td *ngIf="!c.print">
-                  {{ c.end_date_select | date: "yyyy-MM-dd" }}
-                </td>
+                <td *ngIf="!c.print"> {{ c.begin_date_select | date: "yyyy-MM-dd" }}</td>
+                <td *ngIf="!c.print">{{ c.end_date_select | date: "yyyy-MM-dd" }}</td>
                 <td *ngIf="!c.print">{{ c.pricingTier }}</td>
-                <td *ngIf="!c.print">
-                  {{ c.ht | number: "1.2-2" }} {{ symbols[currency] }}
-                </td>
+                <td *ngIf="!c.print">{{ c.ht | number: "1.2-2" }} {{ symbols[currency] }}</td>
                 <td class="bg-grey" colspan="8" *ngIf="c.print"></td>
+                <td *ngIf="c.backfill_fee || c.ongoing_fee"><b>Exchange Fees</b></td>
                 <td *ngIf="c.backfill_fee || c.ongoing_fee">
-                  <b>Exchange Fees</b>
-                </td>
-                <td *ngIf="c.backfill_fee || c.ongoing_fee">
-                  {{
-                    (c.backfill_fee ? c.backfill_fee : c.ongoing_fee)
-                      | number: "1.2-2"
-                  }}
-                  {{ symbols[currency] }}
+                  {{(c.backfill_fee ? c.backfill_fee : c.ongoing_fee) | number: "1.2-2"}} {{ symbols[currency] }}
                 </td>
               </tr>
               <tr *ngIf="cart?.length === 0">
@@ -238,9 +170,7 @@
             <table class="border-color-sum">
               <tr>
                 <td>Exchange Fees</td>
-                <td>
-                  {{ totalFees | number: "1.2-2" }} {{ symbols[currency] }}
-                </td>
+                <td>{{ totalFees | number: "1.2-2" }} {{ symbols[currency] }}</td>
               </tr>
               <tr>
                 <td>Order Amount</td>
@@ -256,15 +186,11 @@
               </tr>
               <tr>
                 <td>VAT ({{ vat }}%)</td>
-                <td>
-                  {{ totalVat | number: "1.2-2" }} {{ symbols[currency] }}
-                </td>
+                <td>{{ totalVat | number: "1.2-2" }} {{ symbols[currency] }}</td>
               </tr>
               <tr>
                 <td>TOTAL Order Amount</td>
-                <td>
-                  {{ totalTTC | number: "1.2-2" }} {{ symbols[currency] }}
-                </td>
+                <td>{{ totalTTC | number: "1.2-2" }} {{ symbols[currency] }}</td>
               </tr>
             </table>
           </div>

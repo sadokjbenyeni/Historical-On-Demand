@@ -207,7 +207,6 @@ module.exports.getLinks = async (user, order, logger) => {
                 );
         })
         .map((master) => master.reduce((left, right) => left.concat(right)));
-    // logger.debug({message: 'result: '+ JSON.stringify(result), className: 'Order Service'});
     return result;
 };
 module.exports.getOrderById = async (OrderId) => {
@@ -217,9 +216,9 @@ module.exports.getOrderById = async (OrderId) => {
     } else {
         var user = await userService.getUserById(order.idUser);
         var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(order)), user.currency);
-        setOrderValuesFromInvoice(order, invoice);
-        invoice.total = invoice.totalHT;
     }
+    setOrderValuesFromInvoice(order, invoice);
+    invoice.total = invoice.totalHT;
     return order;
 };
 module.exports.getCaddy = async function async(
@@ -494,6 +493,7 @@ module.exports.submitCaddy = async (userId, survey, currency, billingInfo) => {
                 total: caddy.total,
                 currency: caddy.currency,
                 totalHT: caddy.totalHT,
+                totalHTDiscountFree: caddy.totalHT,
                 vatval: caddy.vatValue,
                 survey: survey,
                 validationCompliance: caddy.validationCompliance,

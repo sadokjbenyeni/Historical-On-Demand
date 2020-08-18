@@ -11,7 +11,6 @@ let InvoiceSchema = new mongoose.Schema({
     proFormaPath: { type: String, maxlength: 200 },
     submissionDate: { type: Date },
     validatedDate: { type: Date },
-    //Begin Information User
     email: { type: String, maxlength: 200 },
     companyName: { type: String, maxlength: 200 },
     addressBilling: { type: String, maxlength: 200 },
@@ -19,7 +18,6 @@ let InvoiceSchema = new mongoose.Schema({
     countryBilling: { type: String, maxlength: 3 },
     postalCodeBilling: { type: String, maxlength: 10 },
     vat: { type: String, maxlength: 15 },
-    //End Information User
     payment: { type: String, maxlength: 200 },
     paymentDate: { type: Date },
     vatValue: { type: Number, default: null },

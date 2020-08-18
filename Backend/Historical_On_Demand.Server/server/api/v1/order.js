@@ -360,6 +360,7 @@ router.put("/update", async (request, res) => {
           productId: index,
         });
       });
+      orderUpdated.totalHTDiscountFree = orderUpdated.totalHT;
     }
 
     if (request.body.u.user && orderUpdated.vatValide === null) {

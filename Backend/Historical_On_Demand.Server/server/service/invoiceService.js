@@ -15,24 +15,14 @@ module.exports = function () {
     }
 
     this.getInvoicePath = async function (orderId) {
-        var invoice = await Invoice.findOne({ orderId: orderId }).exec();
-        if (!invoice) {
-            return orderId;
-        }
-        else {
-            invoicePath = invoice.path;
-            return invoicePath;
-        }
+        var invoice = await Invoice.findOne({ orderId: orderId, state: { $in: ['validated', 'active'] } }).exec();
+        if (!invoice) return orderId;
+        else return invoice.path;
     }
 
     this.getProFormaPath = async function (orderId) {
-        var invoice = await Invoice.findOne({ orderId: orderId }).exec();
-        if (!invoice) {
-            return orderId;
-        }
-        else {
-            proFormaPath = invoice.proFormaPath;
-            return proFormaPath;
-        }
+        var invoice = await Invoice.findOne({ orderId: orderId, state: { $in: ['validated', 'active', 'PVF'] } }).exec();
+        if (!invoice) return orderId;
+        else return invoice.proFormaPath;
     }
 }

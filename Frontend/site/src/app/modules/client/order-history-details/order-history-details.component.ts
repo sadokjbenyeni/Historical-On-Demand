@@ -1,8 +1,5 @@
 import { Component, OnInit, Inject, Input } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable, ObservableInput } from 'rxjs';
 import { OrderService } from '../../../services/order.service';
 import { CurrencyService } from '../../../services/currency.service';
 import { ConfigService } from '../../../services/config.service';
@@ -13,20 +10,14 @@ import 'rxjs/add/operator/map';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { MatDialog } from '@angular/material/dialog';
-import { CancelOrderDialogComponent } from '../cancel-order-dialog/cancel-order-dialog.component';
-import { HttpHeaders } from '@angular/common/http';
 import { DeliverablesService } from '../../../services/deliverables.service';
-import { InvoiceService } from '../../../services/invoice.service';
 import { ClientInformation } from '../models/client-information.model';
-import { DownloadInvoiceService } from '../../../services/Intern/download-invoice.service';
 import { OrderAmount } from '../../order/models/order-amount.model';
 import { OrderInformation } from '../../order/models/order-information.model';
 import { Product } from '../../../core/models/product.model';
 import { SwalAlertService } from '../../../../app/shared/swal-alert/swal-alert.service';
-import { result } from 'lodash';
-import { TestBed } from '@angular/core/testing';
-import Swal from 'sweetalert2';
 import { BurgerMenuService } from '../../../../app/shared/burger-menu/burger-menu.service';
+import { ObservableInput } from 'rxjs/Observable';
 
 @Component({
   selector: 'app-order-history-details',
