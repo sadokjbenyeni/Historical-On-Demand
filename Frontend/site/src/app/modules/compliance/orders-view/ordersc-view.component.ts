@@ -236,8 +236,8 @@ export class OrderscViewComponent implements OnInit {
               }
           }
         })
+      this.router.navigate(['/compliance/orders']);
     }
-    this.router.navigate(['/compliance/orders']);
   }
 
   expandMenu() {

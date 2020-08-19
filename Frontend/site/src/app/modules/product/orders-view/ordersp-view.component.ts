@@ -279,8 +279,8 @@ export class OrderspViewComponent implements OnInit {
               }
           }
         })
+      this.router.navigate(['/product/orders']);
     }
-    this.router.navigate(['/product/orders']);
   }
 
   async rejectOrder() {
@@ -295,8 +295,8 @@ export class OrderspViewComponent implements OnInit {
               }
           }
         })
+      this.router.navigate(['/product/orders']);
     }
-    this.router.navigate(['/product/orders']);
   }
 
   async cancelOrder() {
@@ -311,8 +311,8 @@ export class OrderspViewComponent implements OnInit {
               }
           }
         })
+      this.router.navigate(['/product/orders']);
     }
-    this.router.navigate(['/product/orders']);
   }
 
   async cancelValidation() {
@@ -327,8 +327,8 @@ export class OrderspViewComponent implements OnInit {
               }
           }
         })
+      this.router.navigate(['/product/orders']);
     }
-    this.router.navigate(['/product/orders']);
   }
 
   async getSwalToastNotification() {

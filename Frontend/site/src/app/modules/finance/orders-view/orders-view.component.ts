@@ -238,10 +238,10 @@ export class OrdersViewComponent implements OnInit {
               }
           }
         })
+      this.router.navigate(['/finance/orders']);
     }
-    this.router.navigate(['/finance/orders']);
   }
-  
+
   expandMenu() {
     let element = <HTMLElement>document.getElementById('toggle');
     this.burgerMenuService.toggleClass(element, 'on');

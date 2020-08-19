@@ -301,8 +301,8 @@ export class OrderHistoryDetailsComponent implements OnInit {
           this.swalService.getSwalForNotification('Abortion Failed !', error.message, 'error')
         }
       })
+      this.router.navigate(['/order/history']);
     }
-    this.router.navigate(['/order/history']);
   }
 
   async cancelOrder() {
@@ -317,8 +317,8 @@ export class OrderHistoryDetailsComponent implements OnInit {
               }
           }
         })
+      this.router.navigate(['/order/history']);
     }
-    this.router.navigate(['/order/history']);
   }
 
   expandMenu() {
