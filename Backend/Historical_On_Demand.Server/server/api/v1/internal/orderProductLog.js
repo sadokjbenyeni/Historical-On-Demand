@@ -5,17 +5,13 @@ const mongoose = require('mongoose');
 const OrderProductLog = mongoose.model('OrderProductLog');
 // const OrderProductLogService = require('../../../service/orderProductLogService');
 
-router.put('/', async (req, res) => {    
+router.put('/', async (req, res) => {
     req.logger.info({ message: 'pushing the information in logs product for order...', className: 'orderProductLog API' });
-    if (!req.headers.internal) {
-        return res.status(401);
-    }
+    if (!req.headers.internal) return res.status(401);
     var logs = req.body;
     try {
         var logsDbo = await OrderProductLog.findOne({ id_undercmd: req.body.id_undercmd }).exec();
-        if (!logsDbo) {
-            logsDbo = new OrderProductLog();
-        }
+        if (!logsDbo) logsDbo = new OrderProductLog();
         logsDbo.status = logs.status;
         logsDbo.extract = logs.extract;
         logsDbo.referer = logs.referer;
@@ -26,13 +22,13 @@ router.put('/', async (req, res) => {
         logsDbo.idUser = logs.idUser;
         logsDbo.status = logs.status;
         logsDbo.state_description = logs.state_description;
-        logsDbo.log = logs.log;    
+        logsDbo.log = logs.log;
         await logsDbo.save();
     }
     catch (err) {
         req.logger.error({ message: err.message, error: error, className: 'orderProductLog internal API' });
         req.logger.error(err);
-        return res.status(503).json({ message: "Unhandle exception, please contact support with '" + req.headers.loggerToken + "' identifier"});
+        return res.status(503).json({ message: `Unhandle exception, please contact support with '${req.headers.loggerToken}' identifier` });
     }
     return res.status(200).json({ logs: logs });
 });
