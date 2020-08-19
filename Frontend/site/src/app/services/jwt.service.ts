@@ -9,7 +9,5 @@ export class JwtService {
 
   constructor(private http: HttpClient) { }
 
-  verifyTokenValidity(token) {
-    return this.http.post<any>(environment.api + "/jwt/checkTokenValidity", { token: token });
-  }
+  verifyTokenValidity(token) { return this.http.post<any>(environment.api + "/jwt/checkTokenValidity", { token: token }) }
 }

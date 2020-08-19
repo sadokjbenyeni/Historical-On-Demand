@@ -11,11 +11,7 @@ export class DeliverablesService {
   constructor(private http: HttpClient) { }
 
   getLinks(orderId: String): Observable<any> {
-    return this.http.get<any>(environment.api + "/deliverables/links/" + orderId, {
-      headers: {
-        authorization: JSON.parse(sessionStorage.getItem('user')).token
-      }
-    })
+    return this.http.get<any>(environment.api + "/deliverables/links/" + orderId, { headers: { authorization: JSON.parse(sessionStorage.getItem('user')).token } })
   }
 }
 

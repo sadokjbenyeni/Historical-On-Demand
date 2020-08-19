@@ -13,19 +13,15 @@ const { invoice, order } = require("paypal-rest-sdk");
 
 module.exports.getOrderDetails = async (orderId, userId) => {
     var RawOrder = await Orders.findOne({ idUser: userId, _id: orderId }).exec();
-    if (!RawOrder) {
-        throw new error("Order not found");
-    }
+    if (!RawOrder) throw new error("Order not found");
     if (isInvoice(RawOrder.state)) {
-        var invoice = await Invoices.findOne({
-            orderIdReference: RawOrder._id,
-            state: { $ne: 'Aborted' }
-        }).exec();
+        var invoice = await Invoices.findOne({ orderIdReference: RawOrder._id, state: { $ne: 'Aborted' } }).exec();
         RawOrder.idCommande = invoice.invoiceId;
         RawOrder.idProForma = invoice.proFormaId
         RawOrder.discount = invoice.discount;
 
-    } else {
+    }
+    else {
         var user = await userService.getUserById(userId);
         var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(RawOrder)), user.currency, undefined)
         invoice.total = invoice.totalHT;
@@ -33,19 +29,15 @@ module.exports.getOrderDetails = async (orderId, userId) => {
     }
     try {
         return clientOrderDetails(RawOrder);
-    } catch (error) {
-        req.logger.error({
-            message: error.message + "\n" + error.stack,
-            className: "Order API",
-        });
+    }
+    catch (error) {
+        req.logger.error({ message: error.message + "\n" + error.stack, className: "Order API" });
         throw new error(error.message);
     }
 }
 
 clientOrderDetails = function (order) {
-    if (!order) {
-        return {};
-    }
+    if (!order) return {};
     const container = {};
     container._id = order._id;
     container.id = order.id;
@@ -81,6 +73,7 @@ clientOrderDetails = function (order) {
 function checkifSubscription(product) {
     return product.subscription == 1 ? "subscription" : "onetime";
 }
+
 module.exports.getUserOrdersHistory = async (userId) => {
     user = await userService.getUserById(userId, { currency: true });
     var caddy = await this.getCaddy(undefined, undefined, user);
@@ -125,95 +118,35 @@ function ToOrderDto(order, isCaddy, currency = undefined) {
 
 module.exports.updateOrderMetaData = async (id, note, sales, type) => {
     var orderToUpdate = await Orders.findOne({ id: id }).exec();
-    if (!orderToUpdate) {
-        throw new Error("Order with Id " + id + " not found");
-    }
+    if (!orderToUpdate) throw new Error("Order with Id " + id + " not found");
     orderToUpdate.internalNote = note;
     orderToUpdate.sales = sales;
     orderToUpdate.type = type;
-    await Orders.update(
-        { _id: orderToUpdate._id },
-        { $set: orderToUpdate }
-    ).exec();
+    await Orders.update({ _id: orderToUpdate._id }, { $set: orderToUpdate }).exec();
 };
 module.exports.getLinks = async (user, order, logger) => {
-    if (!user) {
-        throw Error("User is undefined");
-    }
-    if (!order) {
-        throw Error("Order is undefined");
-    }
-    logger.info({
-        message: order.id + ": getting links... ",
-        className: "Order Service",
-    });
-    // var products = order.products.filter(product => product !== undefined);
-    var products = order.products.filter(
-        (product) => product.links !== undefined && product.links.length > 0
-    );
+    if (!user) throw Error("User is undefined");
+    if (!order) throw Error("Order is undefined");
+    logger.info({ message: order.id + ": getting links... ", className: "Order Service" });
+    var products = order.products.filter((product) => product.links !== undefined && product.links.length > 0);
     var result = products
         .map((product) => {
-            logger.debug({
-                message:
-                    "product: " +
-                    product.id_undercmd +
-                    " => links: " +
-                    JSON.stringify(product.links),
-                className: "Order Service",
-            });
+            logger.debug({ message: "product: " + product.id_undercmd + " => links: " + JSON.stringify(product.links), className: "Order Service" });
             if (product.subscription === 1) {
-                product.links = [
-                    product.links
-                        .filter(
-                            (link) =>
-                                link !== undefined &&
-                                link.status === "active" &&
-                                link.links !== undefined &&
-                                link.links.length > 0
-                        )
-                        .pop(),
-                ];
-                //link.links = [link.links[0]];
+                product.links = [product.links.filter((link) => link !== undefined && link.status === "active" && link.links !== undefined && link.links.length > 0).pop()];
             }
             return product.links
-                .filter(
-                    (linkContainer) =>
-                        linkContainer &&
-                        linkContainer !== undefined &&
-                        linkContainer.status === "active" &&
-                        linkContainer.links !== undefined &&
-                        linkContainer.links &&
-                        linkContainer.links.length > 0
-                )
-                .map((linkObj) =>
-                    linkObj.links.filter(
-                        (element) => element && element.link !== undefined
-                    )
-                )
+                .filter((linkContainer) => linkContainer && linkContainer !== undefined && linkContainer.status === "active" && linkContainer.links !== undefined && linkContainer.links && linkContainer.links.length > 0)
+                .map((linkObj) => linkObj.links.filter((element) => element && element.link !== undefined))
                 .reduce((left, right) => left.concat(right))
-                .map((links) =>
-                    links.link
-                        .split("|")
-                        .map(
-                            (elem) =>
-                                dnwfile +
-                                "/api/v1/user/download/" +
-                                user.token +
-                                "/" +
-                                product.id_undercmd +
-                                "/" +
-                                elem
-                        )
-                );
-        })
-        .map((master) => master.reduce((left, right) => left.concat(right)));
+                .map((links) => links.link.split("|").map((elem) => dnwfile + "/api/v1/user/download/" + user.token + "/" + product.id_undercmd + "/" + elem));
+        }).map((master) => master.reduce((left, right) => left.concat(right)));
     return result;
 };
 module.exports.getOrderById = async (OrderId) => {
     var order = await Orders.findOne({ _id: OrderId }).exec();
-    if (isInvoice(order.state)) {
-        var invoice = await Invoices.findOne({ orderId: order.id, state: { $ne: 'Aborted' } });
-    } else {
+    if (isInvoice(order.state)) var invoice = await Invoices.findOne({ orderId: order.id, state: { $ne: 'Aborted' } });
+    else {
         var user = await userService.getUserById(order.idUser);
         var invoice = await this.calculateAmountsOfOrder(JSON.parse(JSON.stringify(order)), user.currency);
     }
@@ -221,30 +154,18 @@ module.exports.getOrderById = async (OrderId) => {
     invoice.total = invoice.totalHT;
     return order;
 };
-module.exports.getCaddy = async function async(
-    userId = undefined,
-    currency = undefined,
-    user = undefined
-) {
-    if (!user) {
-        user = await userService.getUserById(userId, { currency: true });
-    }
+module.exports.getCaddy = async function async(userId = undefined, currency = undefined, user = undefined) {
+    if (!user) user = await userService.getUserById(userId, { currency: true });
     var caddy = await getOrderByUserId(user._id);
-
     if (caddy) {
-        if (!currency) {
-            currency = user.currency;
-        }
+        if (!currency) currency = user.currency;
         await this.calculateAmountsOfOrder(caddy, currency, undefined)
         return caddy;
     }
     return undefined;
 };
 async function getOrderByUserId(userId) {
-    return await Orders.findOne({
-        idUser: userId,
-        state: { $in: ["CART", "PLI", "PBI", "PSC"] },
-    }).exec();
+    return await Orders.findOne({ idUser: userId, state: { $in: ["CART", "PLI", "PBI", "PSC"] }, }).exec();
 }
 function setOrderValuesFromInvoice(order, invoice) {
     order.totalExchangeFees = invoice.totalExchangeFees;
@@ -256,27 +177,18 @@ function setOrderValuesFromInvoice(order, invoice) {
     order.discount = invoice.discount;
     order.products.forEach((product) => {
         productsEID = invoice.products.find((item) => item.eid == product.eid);
-        product.ht = productsEID[checkifSubscription(product)].find(
-            (item) => item.idcmd == product.idcmd
-        ).ht;
+        product.ht = productsEID[checkifSubscription(product)].find((item) => item.idcmd == product.idcmd).ht;
         product.exchangefees = getExchangeFees(productsEID);
     });
 }
 
 function getExchangeFees(productsEID) {
-    if (productsEID && productsEID.historical_data) {
-        return productsEID.historical_data.backfill_applyfee &&
-            !productsEID.historical_data.direct_billing
-            ? productsEID.exchangefee
-            : 0;
-    }
+    if (productsEID && productsEID.historical_data) return productsEID.historical_data.backfill_applyfee && !productsEID.historical_data.direct_billing ? productsEID.exchangefee : 0;
     return 0;
 }
 
 module.exports.calculateAmountsOfOrder = async (order, currency, cube) => {
-    if (!cube) {
-        cube = await fluxService.getChangeRateCube();
-    }
+    if (!cube) cube = await fluxService.getChangeRateCube();
     feesService.calculatefeesOfOrder(order, currency, cube);
     currencyService.convertproductstoCurrency(order, currency, cube);
     return order;
@@ -285,28 +197,8 @@ function isInvoice(state) {
     return ["PSC", "PBI", "CART", "PLI"].indexOf(state) == -1;
 }
 
-// module.exports.getOrder = async (id) => {
-
-//     var caddy = await Orders.findOne({ idUser: user._id, state: { $in: ['CART', 'PLI', 'PBI', 'PSC'] } }).exec();
-//     if (caddy) {
-//         if (!currency) {
-//             currency = user.currency;
-//         }
-//         const cube = await fluxService.getChangeRateCube();
-//         const exchangefees = await feesService.calculatefeesOfOrder(caddy, currency, cube)
-//         caddy.totalExchangeFees = exchangefees
-//         currencyService.convertproductstoCurrency(caddy, currency, cube)
-//     }
-
-//     return caddy
-// }
-//this method is going to be removed after search rework
 module.exports.getRawCaddy = async (userId) => {
-    var caddy = await Orders.findOne({
-        idUser: userId,
-        state: { $in: ["CART", "PLI", "PBI", "PSC"] },
-    }).exec();
-    return caddy;
+    return await Orders.findOne({ idUser: userId, state: { $in: ["CART", "PLI", "PBI", "PSC"] } }).exec();
 };
 module.exports.deleteProduct = async (caddy, id_product) => {
     index = 0;
@@ -318,10 +210,7 @@ module.exports.deleteProduct = async (caddy, id_product) => {
             } else {
                 caddy.totalHT -= caddy.products[index].ht;
                 caddy.products.splice([index], 1);
-                await Orders.updateOne(
-                    { id: caddy.id },
-                    { $set: { products: caddy.products } }
-                ).exec();
+                await Orders.updateOne({ id: caddy.id }, { $set: { products: caddy.products } }).exec();
                 return 2;
             }
         }
@@ -329,32 +218,18 @@ module.exports.deleteProduct = async (caddy, id_product) => {
     }
     return 3;
 };
-module.exports.UpdateProductDate = async (
-    caddy,
-    id_product,
-    dateToChange,
-    date
-) => {
+module.exports.UpdateProductDate = async (caddy, id_product, dateToChange, date) => {
     index = 0;
     modified = false;
     while (index <= caddy.products.length - 1) {
         if (caddy.products[index].id_undercmd == id_product) {
             if (dateToChange == "begin_date") {
-                if (
-                    date.setHours(0, 0, 0, 0) >=
-                    new Date(caddy.products[index].begin_date_ref).setHours(
-                        0,
-                        0,
-                        0,
-                        0
-                    ) &&
-                    date.setHours(0, 0, 0, 0) <=
-                    new Date(caddy.products[index].end_date).setHours(0, 0, 0, 0)
-                ) {
+                if (date.setHours(0, 0, 0, 0) >= new Date(caddy.products[index].begin_date_ref).setHours(0, 0, 0, 0) && date.setHours(0, 0, 0, 0) <= new Date(caddy.products[index].end_date).setHours(0, 0, 0, 0)) {
                     caddy.products[index].begin_date = date;
                     modified = true;
                 }
-            } else {
+            }
+            else {
                 if (
                     date.setHours(0, 0, 0, 0) <=
                     new Date(caddy.products[index].end_date_ref).setHours(0, 0, 0, 0) &&
@@ -370,20 +245,11 @@ module.exports.UpdateProductDate = async (
         index++;
     }
     if (modified) {
-        const diff = (caddy.products[index].period = daysDiff(
-            new Date(caddy.products[index].begin_date),
-            new Date(caddy.products[index].end_date)
-        ));
+        const diff = (caddy.products[index].period = daysDiff(new Date(caddy.products[index].begin_date), new Date(caddy.products[index].end_date)));
         caddy.products[index].period = diff < 20 ? 20 : diff;
-        caddy.products[index].ht =
-            caddy.products[index].period * parseFloat(caddy.products[index].price);
-        totalht =
-            Math.ceil(caddy.products.reduce((sum, obj) => sum + obj.ht, 0) * 100) /
-            100;
-        await Orders.updateOne(
-            { id: caddy.id },
-            { $set: { products: caddy.products, totalHT: totalht } }
-        ).exec();
+        caddy.products[index].ht = caddy.products[index].period * parseFloat(caddy.products[index].price);
+        totalht = Math.ceil(caddy.products.reduce((sum, obj) => sum + obj.ht, 0) * 100) / 100;
+        await Orders.updateOne({ id: caddy.id }, { $set: { products: caddy.products, totalHT: totalht } }).exec();
         return true;
     }
     return false;
@@ -393,43 +259,14 @@ function daysDiff(start, end) {
 }
 
 module.exports.getLink = async (user, order, productId, logger) => {
-    if (!user || user === undefined) {
-        throw Error("User is undefined");
-    }
-    if (!order || order === undefined) {
-        throw Error("Order is undefined");
-    }
-    logger.info({
-        message: order.id + ": getting links... ",
-        className: "Order Service",
-    });
+    if (!user || user === undefined) throw Error("User is undefined");
+    if (!order || order === undefined) throw Error("Order is undefined");
+    logger.info({ message: order.id + ": getting links... ", className: "Order Service" });
     return order.products[productId].links
-        .filter(
-            (linkContainer) =>
-                linkContainer &&
-                linkContainer !== undefined &&
-                linkContainer.status === "active" &&
-                linkContainer.links !== undefined &&
-                linkContainer.links &&
-                linkContainer.links.length > 0
-        )
-        .map((linkObj) =>
-            linkObj.links.filter((element) => element && element.link !== undefined)
-        )
+        .filter((linkContainer) => linkContainer && linkContainer !== undefined && linkContainer.status === "active" && linkContainer.links !== undefined && linkContainer.links && linkContainer.links.length > 0)
+        .map((linkObj) => linkObj.links.filter((element) => element && element.link !== undefined))
         .reduce((left, right) => left.concat(right))
-        .map((links) =>
-            links.link
-                .split("|")
-                .map(
-                    (elem) =>
-                        dnwfile +
-                        "/api/v1/user/download/" +
-                        user.token +
-                        "/" +
-                        product.id_undercmd +
-                        "/" +
-                        elem
-                )
+        .map((links) => links.link.split("|").map((elem) => dnwfile + "/api/v1/user/download/" + user.token + "/" + product.id_undercmd + "/" + elem)
         );
 };
 
@@ -437,34 +274,16 @@ module.exports.submitCaddy = async (userId, survey, currency, billingInfo) => {
     let log = {};
     let url = "/api/mail/newOrder";
     caddy = await this.getRawCaddy(userId);
-    // Autovalidation Compliance
     log.date = new Date();
     let eids = [];
-    //set final billing adress
     caddy.cityBilling = billingInfo.cityBilling;
     caddy.countryBilling = billingInfo.countryBilling;
     caddy.postalCodeBilling = billingInfo.postalCode;
     caddy.vat = billingInfo.vatNumber;
     caddy.addressBilling = billingInfo.addressBilling;
-    //
     eids = caddy.products.map((item) => item.eid);
-    let corp = {
-        email: caddy.email,
-        idCmd: caddy.id,
-        paymentdate: new Date(),
-        // token: token,
-        service: "Compliance",
-    };
-    //ezjfruizehfuezifhzeuifhzeufizehfuzeifhzeufoehfgyuferçohg_àerghu_zeghazeryugh enleve le commentaire du sendmail avant de push !!!!!!!
-    // sendMail(url, corp);
-    let index = caddy.products.indexOf(
-        (product) =>
-            product.onetime === 1 &&
-            product.historical_data &&
-            (product.historical_data.backfill_agreement ||
-                product.historical_data.backfill_applyfee)
-    );
-
+    let corp = { email: caddy.email, idCmd: caddy.id, paymentdate: new Date(), service: "Compliance" };
+    let index = caddy.products.indexOf((product) => product.onetime === 1 && product.historical_data && (product.historical_data.backfill_agreement || product.historical_data.backfill_applyfee));
     if (index != -1 || survey.dd === "1") {
         caddy.state = "PVC";
         log.referer = "Client";
@@ -474,7 +293,6 @@ module.exports.submitCaddy = async (userId, survey, currency, billingInfo) => {
         caddy.state = "PVP";
     }
     log.status = caddy.state;
-    //preparing core mail
 
     await this.calculateAmountsOfOrder(caddy, currency, undefined)
     caddy.currency = currency;
@@ -499,17 +317,12 @@ module.exports.submitCaddy = async (userId, survey, currency, billingInfo) => {
                 validationCompliance: caddy.validationCompliance,
                 submissionDate: new Date(),
                 state: caddy.state,
-            },
+            }
         }
     ).exec();
-    //delete useless products fields
     caddy.products.forEach((item) => {
-        item.subscription.forEach((item) => {
-            deleteuselessfields(item);
-        });
-        item.onetime.forEach((item) => {
-            deleteuselessfields(item);
-        });
+        item.subscription.forEach((item) => { deleteuselessfields(item) });
+        item.onetime.forEach((item) => { deleteuselessfields(item) });
     });
     var invoice = new Invoices({
         orderIdReference: caddy._id,
@@ -539,42 +352,18 @@ module.exports.submitCaddy = async (userId, survey, currency, billingInfo) => {
         payment: caddy.payment,
     });
     invoice.save((error) => {
-        if (error) {
-            console.log(error);
-        }
+        if (error) console.log(error);
     });
-    var internalMail = {
-        idCmd: caddy.id,
-        lastname: caddy.lastname,
-        firstname: caddy.firstname,
-        eid: eids.join(),
-        date: new Date(),
-        total: caddy.total,
-    };
+    var internalMail = { idCmd: caddy.id, lastname: caddy.lastname, firstname: caddy.firstname, eid: eids.join(), date: new Date(), total: caddy.total };
     if (caddy.state === "PVC") {
-        // Envoi email aux compliances
         internalMail.service = "Compliance";
-        const compliances = await Users.find(
-            { roleName: "Compliance" },
-            { email: true, _id: false }
-        ).exec();
-        compliances.forEach((compliance) => {
-            internalMail.email = compliance.email;
-            // sendMail('/api/mail/newOrderHoD', internalMail)
-        });
+        const compliances = await Users.find({ roleName: "Compliance" }, { email: true, _id: false }).exec();
+        compliances.forEach((compliance) => { internalMail.email = compliance.email; });
     }
-
     if (caddy.state === "PVP") {
-        // Envoi email aux products
         internalMail.service = "Product";
-        const products = await Users.find(
-            { roleName: "Product" },
-            { email: true, _id: false }
-        ).exec();
-        products.forEach((prod) => {
-            internalMail.email = prod.email;
-            // sendMail('/api/mail/newOrderHoD', internalMail);
-        });
+        const products = await Users.find({ roleName: "Product" }, { email: true, _id: false }).exec();
+        products.forEach((prod) => { internalMail.email = prod.email; });
     }
     return true;
 };
@@ -585,7 +374,8 @@ async function setprices(order) {
         order.vatValue = vatDetails.valueVat / 100;
         order.totalVat = order.totalHT * order.vatValue;
         order.total = order.totalHT + order.totalVat;
-    } else {
+    }
+    else {
         order.vatValue = 0;
         order.totalVat = 0;
         order.total = order.totalHT;

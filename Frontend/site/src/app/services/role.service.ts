@@ -12,14 +12,8 @@ export class RoleService {
 
   constructor(private http: HttpClient) { }
 
-  getRoles() {
-    return this.http.get<any>( environment.api + '/role' );
-    // .map( res => res.json() );
-  }
+  getRoles() { return this.http.get<any>(environment.api + '/role') }
 
-  getPages() {
-    return this.http.get<any>( environment.api + '/role/page' );
-    // .map( res => res.json() );
-  }
+  getPages() { return this.http.get<any>(environment.api + '/role/page') }
 
 }

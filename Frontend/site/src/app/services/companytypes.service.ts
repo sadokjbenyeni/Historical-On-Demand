@@ -8,9 +8,9 @@ import { environment } from '../../environments/environment';
 export class CompanytypesService {
 
   constructor(private http: HttpClient) { }
+  
   getCompanytypes() {
-    return this.http.get<any>( environment.api + '/companytype' );
-    // .map( res => res.json() );
+    return this.http.get<any>(environment.api + '/companytype');
   }
 
 }

@@ -92,84 +92,84 @@ export class OrdersViewComponent implements OnInit {
     return this.states.filter(state => state.id === stateId)[0] ? this.states.filter(state => state.id === stateId)[0].name : stateId;
   }
   getCmd() {
-    this.currencyService.getCurrencies().subscribe(r => {
+    this.currencyService.getCurrencies().subscribe(listOf => {
       this.symbols = [];
-      r.currencies.forEach(s => {
-        this.symbols[s.id] = s.symbol;
+      listOf.currencies.forEach(listOfSymbols => {
+        this.symbols[listOfSymbols.id] = listOfSymbols.symbol;
       });
-      this.orderService.getIdOrder(this.idCmd).subscribe((c) => {
+      this.orderService.getIdOrder(this.idCmd).subscribe((listOfCommands) => {
 
-        this.list = c;
-        this.sale = c.cmd.sales
-        this.idCmd = c.cmd.id_cmd;
-        this.invoice = c.cmd.idCommande;
-        this.proForma = c.cmd.idProForma;
-        this.idOrder = c.cmd.id;
-        this.cmd = c.cmd;
-        this.companyName = c.cmd.companyName;
-        this.payment = c.cmd.payment;
-        this.firstname = c.cmd.firstname;
-        this.lastname = c.cmd.lastname;
-        this.job = c.cmd.job;
-        this.country = c.cmd.countryBilling;
-        this.discount = c.cmd.discount;
-        this.currency = c.cmd.currency;
-        this.currencyTx = c.cmd.currencyTx;
-        this.currencyTxUsd = c.cmd.currencyTxUsd;
-        this.totalFees = c.cmd.totalExchangeFees;
-        this.totalHT = c.cmd.totalHT;
-        this.totalHTOld = this.getHt(c.cmd.totalHT) + this.totalFees;
-        this.vat = c.cmd.vatValue;
+        this.list = listOfCommands;
+        this.sale = listOfCommands.cmd.sales
+        this.idCmd = listOfCommands.cmd.id_cmd;
+        this.invoice = listOfCommands.cmd.idCommande;
+        this.proForma = listOfCommands.cmd.idProForma;
+        this.idOrder = listOfCommands.cmd.id;
+        this.cmd = listOfCommands.cmd;
+        this.companyName = listOfCommands.cmd.companyName;
+        this.payment = listOfCommands.cmd.payment;
+        this.firstname = listOfCommands.cmd.firstname;
+        this.lastname = listOfCommands.cmd.lastname;
+        this.job = listOfCommands.cmd.job;
+        this.country = listOfCommands.cmd.countryBilling;
+        this.discount = listOfCommands.cmd.discount;
+        this.currency = listOfCommands.cmd.currency;
+        this.currencyTx = listOfCommands.cmd.currencyTx;
+        this.currencyTxUsd = listOfCommands.cmd.currencyTxUsd;
+        this.totalFees = listOfCommands.cmd.totalExchangeFees;
+        this.totalHT = listOfCommands.cmd.totalHT;
+        this.totalHTOld = this.getHt(listOfCommands.cmd.totalHT) + this.totalFees;
+        this.vat = listOfCommands.cmd.vatValue;
         this.totalVat = this.totalHT * (this.vat / 100);
-        this.totalTTC = c.cmd.total;
-        this.submissionDate = c.cmd.submissionDate;
-        this.internalNote = c.cmd.internalNote;
-        this.state = c.cmd.state;
-        this.ordertype = c.cmd.type;
+        this.totalTTC = listOfCommands.cmd.total;
+        this.submissionDate = listOfCommands.cmd.submissionDate;
+        this.internalNote = listOfCommands.cmd.internalNote;
+        this.state = listOfCommands.cmd.state;
+        this.ordertype = listOfCommands.cmd.type;
         let index = 0;
-        if (c.cmd.products.length > 0) {
+        if (listOfCommands.cmd.products.length > 0) {
           this.existSubscribe = false;
-          this.list['cmd'].products.forEach((p) => {
-            if (p.subscription === 1) { this.existSubscribe = true; }
-            let diff = this.dateDiff(new Date(p.begin_date), new Date(p.end_date));
-            if (p.onetime === 1) {
-              p.price = (diff.day + 1) * p.price;
-            } else if (p.subscription === 1) {
-              p.price = p.period * p.price;
+          this.list['cmd'].products.forEach((product) => {
+            if (product.subscription === 1) { this.existSubscribe = true; }
+            let diff = this.dateDiff(new Date(product.begin_date), new Date(product.end_date));
+            if (product.onetime === 1) {
+              product.price = (diff.day + 1) * product.price;
+            } else if (product.subscription === 1) {
+              product.price = product.period * product.price;
             }
             index++;
             let prod = {
               idx: index,
               print: false,
-              idCmd: c.cmd.id_cmd,
-              id_undercmd: p.id_undercmd,
+              idCmd: listOfCommands.cmd.id_cmd,
+              id_undercmd: product.id_undercmd,
               status: 'validated',
-              quotation_level: p.dataset,
-              symbol: p.symbol,
-              exchange: p.exchangeName,
-              assetClass: p.assetClass,
-              mics: p.mics,
-              eid: p.eid,
-              qhid: p.qhid,
-              contractid: p.contractid,
-              description: p.description,
-              onetime: p.onetime,
-              subscription: p.subscription,
-              pricingTier: p.pricingTier,
-              period: p.period,
-              price: p.price,
-              ht: p.ht,
-              begin_date_select: p.begin_date,
-              begin_date_ref: p.begin_date_ref,
-              end_date_select: p.end_date,
-              end_date_ref: p.end_date_ref,
-              backfill_fee: p.backfill_fee,
-              ongoing_fee: p.ongoing_fee
+              quotation_level: product.dataset,
+              symbol: product.symbol,
+              exchange: product.exchangeName,
+              assetClass: product.assetClass,
+              mics: product.mics,
+              eid: product.eid,
+              qhid: product.qhid,
+              contractid: product.contractid,
+              description: product.description,
+              onetime: product.onetime,
+              subscription: product.subscription,
+              pricingTier: product.pricingTier,
+              period: product.period,
+              price: product.price,
+              ht: product.ht,
+              begin_date_select: product.begin_date,
+              begin_date_ref: product.begin_date_ref,
+              end_date_select: product.end_date,
+              end_date_ref: product.end_date_ref,
+              backfill_fee: product.backfill_fee,
+              ongoing_fee: product.ongoing_fee
             };
-            this.ht += p.price;
+            this.ht += product.price;
             this.cart.push(prod);
-            if (p.backfill_fee > 0 || p.ongoing_fee > 0) {
-              this.cart.push({ print: true, backfill_fee: p.backfill_fee, ongoing_fee: p.ongoing_fee });
+            if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
+              this.cart.push({ print: true, backfill_fee: product.backfill_fee, ongoing_fee: product.ongoing_fee });
             }
           });
         }
@@ -178,33 +178,27 @@ export class OrdersViewComponent implements OnInit {
   }
 
   verifState() {
-    if (this.state === 'PVF') {
-      return true;
-    } else {
-      return false;
-    }
+    if (this.state === 'PVF') return true;
+    else return false;
   }
 
-  dateDiff(date1, date2) {
-    let diff = { sec: 0, min: 0, hour: 0, day: 0 };  // Initialisation du retour
-    let tmp = date2 - date1;
-    tmp = Math.floor(tmp / 1000);                     // Nombre de secondes entre les 2 dates
-    diff.sec = tmp % 60;                            // Extraction du nombre de secondes
-    tmp = Math.floor((tmp - diff.sec) / 60);            // Nombre de minutes (partie entière)
-    diff.min = tmp % 60;                            // Extraction du nombre de minutes
-    tmp = Math.floor((tmp - diff.min) / 60);            // Nombre d'heures (entières)
-    diff.hour = tmp % 24;                           // Extraction du nombre d'heures
-    tmp = Math.floor((tmp - diff.hour) / 24);           // Nombre de jours restants
-    diff.day = tmp;
-    return diff;
+  dateDiff(firstDate, secondDate) {
+    let calculatedDate = { sec: 0, min: 0, hour: 0, day: 0 };
+    let dateDifference = secondDate - firstDate;
+    dateDifference = Math.floor(dateDifference / 1000);
+    calculatedDate.sec = dateDifference % 60;
+    dateDifference = Math.floor((dateDifference - calculatedDate.sec) / 60);
+    calculatedDate.min = dateDifference % 60;
+    dateDifference = Math.floor((dateDifference - calculatedDate.min) / 60);
+    calculatedDate.hour = dateDifference % 24;
+    dateDifference = Math.floor((dateDifference - calculatedDate.hour) / 24);
+    calculatedDate.day = dateDifference;
+    return calculatedDate;
   }
 
   getHt(val) {
-    if (this.currency !== 'usd') {
-      return ((val / this.currencyTxUsd) * this.currencyTx);
-    } else {
-      return val;
-    }
+    if (this.currency !== 'usd') return ((val / this.currencyTxUsd) * this.currencyTx);
+    else return val;
   }
 
   precisionRound(number, precision) {
@@ -213,15 +207,15 @@ export class OrdersViewComponent implements OnInit {
   }
 
   getListStates() {
-    this.orderService.getListStates({}).subscribe(res => {
-      this.states = res['states'];
-    });
+    this.orderService.getListStates({}).subscribe(order => { this.states = order['states'] });
   }
+
   getStateName(stateId) {
-    if (!this.states)
-      return stateId;
-    return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
+    let specificState = this.states.filter(state => state.id === stateId)[0]
+    if (!this.states) return stateId;
+    return specificState ? specificState.name : stateId;
   }
+
   downloadInvoice(invoice, pdfType) {
     this.downloadInvoiceService.getInvoice(this.idOrder, invoice, pdfType);
   }

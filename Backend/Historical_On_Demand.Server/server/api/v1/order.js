@@ -30,26 +30,19 @@ const { calculatefeesOfOrder } = require("../../service/feesService");
 
 // Client Encryption Public Key : 10001|C958CBDFC34244F25D41E5B28DA3331CA52385EE3E73B2A51FD94D302CC135DD7DC49BE19EA66CCD00BAE7D26AF00BBB39C73351D4EACC10D7D023FE0ED844BD2D53FAFA9DE26D34373DB80278FB01BD00E27F0E922A3D7AB734D0AEFC48A78CAFA8F5D92FA2CBA08509F398FF9DA8B9AB909010622C6C1DB2933F8CAAD78D6AD9FCE5C46F1D679E83224A6B4B114757B81F5F62C109A5002C4FCC7EE7DA92C2762690835EAB446F4F86D88A903241E9F1930406DC01A4FEC4ED85666D7A1C99A7A46C4ADE83F7461428E6D11E78D86005732256AA632AF34E48990366FA85C463380F424294C81D16173279EB78EDF264422BFAC487CAD9C7A6E9F363AA481B
 // test : https://test.adyen.com/hpp/cse/js/8215198215590909.shtml
-
 // Library token (aka "PublicKeyToken") : 8215198215590909
 
 
 router.post("/verify", (req, res) => {
   let options = {
     url: PAYMENTVERIFY,
-    headers: {
-      "content-type": "application/json",
-      "X-API-Key": PAYMENTKEY
-    },
-    body: {
-      payload: req.body.payload,
-    },
+    headers: { "content-type": "application/json", "X-API-Key": PAYMENTKEY },
+    body: { payload: req.body.payload },
     json: true,
   };
 
   request.post(options, async function (error, body) {
     let log = body;
-
     if (error) throw new Error(error);
     log.date = new Date();
     await autoValidation(body.merchantReference, log, body, res, req.logger);
@@ -59,49 +52,26 @@ router.post("/verify", (req, res) => {
 router.post("/logPayement", (req, res) => {
   let options = {
     url: PAYMENTVERIFY,
-    headers: {
-      "content-type": "application/json",
-      "X-API-Key": PAYMENTKEY,
-    },
-    body: {
-      payload: req.body.payload,
-    },
+    headers: { "content-type": "application/json", "X-API-Key": PAYMENTKEY },
+    body: { payload: req.body.payload },
     json: true,
   };
 
   request.post(options, function (error, response, body) {
     body.date = new Date();
-    Order.updateOne(
-      { id_cmd: body.merchantReference },
-      { $push: { logsPayment: body } })
-      .then((result) => {
-        res.status(201).json(result);
-      });
+    Order.updateOne({ id_cmd: body.merchantReference }, { $push: { logsPayment: body } })
+      .then((result) => { res.status(201).json(result) });
   });
 });
 
 router.post("/rib", async (req, res) => {
   req.logger.info({ message: "rib is calling...", className: "Order API" });
   try {
-    await autoValidation(
-      req.body.idCmd,
-      {
-        token: req.body.token,
-        email: req.body.email,
-        payment: "RIB",
-        date: new Date()
-      },
-      { ok: true },
-      res,
-      req.logger
-    );
+    await autoValidation(req.body.idCmd, { token: req.body.token, email: req.body.email, payment: "RIB", date: new Date() }, { ok: true }, res, req.logger);
     return res.status(200).json({ message: "Order is submitted" });
   }
   catch (error) {
-    req.logger.error({
-      message: error.message + "\n" + error.stack,
-      className: "Order API"
-    });
+    req.logger.error({ message: error.message + "\n" + error.stack, className: "Order API" });
     return res.status(503).json(`An error has been raised, please contact support with identifier error: '${req.headers.tokenLogger}'`);
   }
 });
@@ -110,7 +80,7 @@ router.post("/autovalidation", (req, res) => {
   Order.findOne({ state: "PVF" });
 });
 
-router.post("/save", (req, res) => {
+router.post("/save", async (req, res) => {
   let total = 0;
   let cart = req.body.cart;
   if (cart.currency !== "usd") {
@@ -120,46 +90,32 @@ router.post("/save", (req, res) => {
     total = precisionRound(cart.total, 2);
   }
 
-  Order.updateOne(
+  await Order.updateOne(
     { id_cmd: cart.idCmd },
-    {
-      $set: {
-        total: cart.total,
-        vatValue: cart.vatValue,
-        currencyTx: cart.currencyTx,
-        currencyTxUsd: cart.currencyTxUsd,
-      }
-    })
-    .then(() => {
-      let options = {
-        url: PAYMENTSETUP,
-        headers: {
-          "content-type": "application/json",
-          "X-API-Key": PAYMENTKEY,
-        },
-        body: {
-          amount: {
-            currency: req.body.cart.currency.toUpperCase(),
-            value: total * 100,
-          },
-          reference: req.body.cart.idCmd,
-          shopperReference: req.body.user.email,
-          channel: "Web",
-          html: true,
-          origin: DOMAIN,
-          returnUrl: DOMAIN + "/order/payment",
-          countryCode: req.body.user.countryBilling,
-          shopperLocale: "en-GB",
-          merchantAccount: "QUANTHOUSECOM",
-        },
-        json: true,
-      };
+    { $set: { total: cart.total, vatValue: cart.vatValue, currencyTx: cart.currencyTx, currencyTxUsd: cart.currencyTxUsd } }).exec();
 
-      request.post(options, function (error, response, body) {
-        if (error) throw new Error(error);
-        return res.status(200).json(response);
-      });
-    });
+  let options = {
+    url: PAYMENTSETUP,
+    headers: { "content-type": "application/json", "X-API-Key": PAYMENTKEY },
+    body: {
+      amount: { currency: req.body.cart.currency.toUpperCase(), value: total * 100 },
+      reference: req.body.cart.idCmd,
+      shopperReference: req.body.user.email,
+      channel: "Web",
+      html: true,
+      origin: DOMAIN,
+      returnUrl: DOMAIN + "/order/payment",
+      countryCode: req.body.user.countryBilling,
+      shopperLocale: "en-GB",
+      merchantAccount: "QUANTHOUSECOM",
+    },
+    json: true,
+  };
+
+  request.post(options, function (error, response, body) {
+    if (error) throw new Error(error);
+    return res.status(200).json(response);
+  });
 });
 
 router.put("/delProductCaddy", async (req, res) => {
@@ -201,10 +157,7 @@ router.put("/updateEngagementPeriod", (req, res) => {
     updatedInvoice["products.$.period"] = product.period;
     updatedInvoice["products.$.ht"] = product.ht;
     try {
-      Order.updateOne(
-        { id_cmd: req.body.idCmd, "products.id_undercmd": product.idElem },
-        { $set: updatedInvoice }
-      ).exec();
+      Order.updateOne({ id_cmd: req.body.idCmd, "products.id_undercmd": product.idElem }, { $set: updatedInvoice });
     }
     catch (error) {
       logger.error({ message: error.message, className: "Order API" });
@@ -273,9 +226,7 @@ router.put("/update", async (request, res) => {
     var currencies = await Currency.find({}).exec();
     var orderUpdated = await Order.findOne({ _id: request.body.idcmd.id_cmd }).exec();
     orderUpdated.id_cmd = orderUpdated.id + "-" + request.body.u.user.companyName.replace(" ", "").toLowerCase() + "-" + new Date().yyyymmdd().replace(/-/g, "");
-    if (request.body.state) {
-      orderUpdated.state = request.body.state;
-    }
+    if (request.body.state) orderUpdated.state = request.body.state;
     if (request.body.cart) {
       let index = 1;
       if (orderUpdated.products.length > 0) {
@@ -427,34 +378,25 @@ router.put("/update", async (request, res) => {
   }
 });
 
-router.post("/usercaddy", (req, res) => {
+router.post("/usercaddy", async (req, res) => {
   const states = ["CART", "PLI", "PBI", "PSC"];
-  Order.find({ idUser: req.body.id, state: { $in: states } }, { id_cmd: true, state: true }).then((order) => {
-    if (order.length > 0 && states.indexOf(order.state)) return res.status(200).json({ id_cmd: order[0]._id });
-    else {
-      let order = new Order();
-      Order.find({}, { id: 1 }).sort({ id: -1 }).limit(1).then((count) => {
-        if (count.length > 0) {
-          order.id = count[0].id + 1;
-        } else {
-          order.id = 1;
-        }
-        order.idUser = req.body.id;
-        order.save((err, c) => {
-          if (err) {
-            req.logger.error({
-              message: err.message,
-              className: "Order API",
-              error: error,
-            });
-            req.logger.error(err);
-            return console.error(err);
-          }
-          return res.status(200).json({ id_cmd: c._id });
-        });
-      });
-    }
-  });
+  let orders = await Order.find({ idUser: req.body.id, state: { $in: states } }, { id_cmd: true, state: true }).exec();
+  if (orders.length > 0 && states.indexOf(orders.state)) return res.status(200).json({ id_cmd: orders[0]._id });
+  else {
+    let order = new Order();
+    let count = await Order.find({}, { id: 1 }).sort({ id: -1 }).limit(1).exec();
+    if (count.length > 0) order.id = count[0].id + 1;
+    else order.id = 1;
+    order.idUser = req.body.id;
+    order.save((err, c) => {
+      if (err) {
+        req.logger.error({ message: err.message, className: "Order API", error: error });
+        req.logger.error(err);
+        return console.error(err);
+      }
+      return res.status(200).json({ id_cmd: c._id });
+    });
+  }
 });
 
 router.get("/listStates", (req, res) => {
@@ -479,12 +421,7 @@ router.get("/listStates", (req, res) => {
 router.post("/submitCaddy", async (req, res) => {
   try {
     userId = jwtService.verifyToken(req.headers.authorization).id
-    await OrderService.submitCaddy(
-      userId,
-      req.body.survey,
-      req.body.currency,
-      req.body.billingInfo
-    );
+    await OrderService.submitCaddy(userId, req.body.survey, req.body.currency, req.body.billingInfo);
     res.status(200).json({ ok: "true" });
   }
   catch (error) {
@@ -538,30 +475,9 @@ router.get("/details/:id", async (req, res) => {
 router.put("/cancelValidation", async (req, res) => {
   if (!req.headers.authorization) return res.status(401);
   let order = await Order.findOne({ id: req.body.id }).exec();
-  await Order.updateOne(
-    { id: order.id },
-    {
-      $set: {
-        validationProduct: false,
-        idProForma: null,
-        state: "PVP",
-        logs: { status: "PVP", referer: "Compliance" }
-      }
-    }).exec();
+  await Order.updateOne({ id: order.id }, { $set: { validationProduct: false, idProForma: null, state: "PVP", logs: { status: "PVP", referer: "Compliance" } } }).exec();
   var invoice = await Invoice.findOne({ orderId: req.body.id }).exec();
-  await Invoice.updateOne(
-    {
-      orderId: invoice.orderId,
-      state: { $ne: 'Aborted' }
-    },
-    {
-      $set: {
-        validationProduct: false,
-        proFormaId: null,
-        state: "PVP",
-        logs: { status: "PVP", referer: "Compliance" }
-      }
-    }).exec();
+  await Invoice.updateOne({ orderId: invoice.orderId, state: { $ne: 'Aborted' } }, { $set: { validationProduct: false, proFormaId: null, state: "PVP", logs: { status: "PVP", referer: "Compliance" } } }).exec();
   return res.status(200).json({ ok: true });
 });
 
@@ -634,15 +550,7 @@ router.post("/listExport", async (req, res) => {
 
 router.post("/list", async (req, res) => {
   try {
-    const records = await OrderFilterService.getListOrders(
-      req.body.columns[req.body.order[0].column].data,
-      req.body.order[0].dir,
-      req.body.start,
-      req.body.length,
-      req.body.state,
-      req.body.columns,
-      req.body.search
-    );
+    const records = await OrderFilterService.getListOrders(req.body.columns[req.body.order[0].column].data, req.body.order[0].dir, req.body.start, req.body.length, req.body.state, req.body.columns, req.body.search);
     return res.status(200).json(records)
   }
   catch (error) {

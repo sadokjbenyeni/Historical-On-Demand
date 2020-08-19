@@ -7,11 +7,6 @@
       <li class="current-bread-crumb">Order Details {{idOrder}}</li>
     </ol>
   </div>
-  <!-- <div class="col-lg-">
-    <button class="bottom-button green-color" *ngIf="verifState()" (click)="validateOrder()"><i class="fa fa-check"></i>
-      Validate
-    </button>
-  </div> -->
   <div class="col-lg-4">
     <div class="table-responsive text-center" *ngIf="verifState()">
       <div class="btn-group">
@@ -19,7 +14,7 @@
         <div id="menu">
           <ul>
             <li>
-              <p class="action"(click)="validateOrder()"><i class="fa fa-check align-icons"></i>Validate Order</p>
+              <p class="action" (click)="validateOrder()"><i class="fa fa-check align-icons"></i>Validate Order</p>
             </li>
           </ul>
         </div>

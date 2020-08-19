@@ -13,9 +13,5 @@ export class ElasticService {
 
   constructor(private http: HttpClient) { }
 
-  getSearch(search) {
-    return this.http.post<any>( environment.api + '/search', search )
-    // .map( res => res.json() );
-  }
-
+  getSearch(search) { return this.http.post<any>(environment.api + '/search', search) }
 }

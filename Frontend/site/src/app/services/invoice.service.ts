@@ -15,9 +15,7 @@ export class InvoiceService {
     return this.http.get(environment.api + "/invoice/download/" + orderId + '/' + pdfType, options).map((resObj: Blob) => resObj).catch((errorObj: any) => Observable.throw(errorObj || 'Server error'));
   }
 
-  generateInvoice(orderId: any): Observable<any> {
-    return this.http.get<any>(environment.api + "/invoice/generate/" + orderId);
-  }
+  generateInvoice(orderId: any): Observable<any> { return this.http.get<any>(environment.api + "/invoice/generate/" + orderId) }
 }
 
 

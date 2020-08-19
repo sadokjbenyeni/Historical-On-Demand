@@ -1,9 +1,7 @@
 const flux = require('./fluxService')
 module.exports.convertproductsFeestoCurrency = (products, userCurrency, cube) => {
     products.forEach(item => {
-        if (!item.historical_data.backfill_applyfee) {
-            item.TotalFees = 0;
-        }
+        if (!item.historical_data.backfill_applyfee) item.TotalFees = 0;
         else if (item.TotalFees != 0 && userCurrency != item.feesCurrency) {
             var ratio = getRatio(item.feesCurrency, userCurrency, cube)
             item.currencyTx = ratio;
@@ -35,12 +33,8 @@ module.exports.convertproductstoCurrency = (order, currency, cube) => {
 }
 function getRatio(currencyfrom, currencyTo, cube) {
     var ratio = 1;
-    if (currencyfrom.toUpperCase() != 'EUR') {
-        ratio /= flux.search(currencyfrom.toUpperCase(), cube)
-    }
-    if (currencyTo.toUpperCase() != 'EUR') {
-        ratio *= flux.search(currencyTo.toUpperCase(), cube)
-    }
+    if (currencyfrom.toUpperCase() != 'EUR') ratio /= flux.search(currencyfrom.toUpperCase(), cube);
+    if (currencyTo.toUpperCase() != 'EUR') ratio *= flux.search(currencyTo.toUpperCase(), cube);
     return ratio;
 }
 

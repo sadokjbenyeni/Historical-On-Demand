@@ -4,7 +4,6 @@ moment().format();
 module.exports = function () {
 
     this.calenderFormat = function (dateToFormat, format = 'DD/MM/YYYY') {
-        var formattedDate = moment(dateToFormat).format(format);
-        return formattedDate;
+        return moment(dateToFormat).format(format);
     }
 }

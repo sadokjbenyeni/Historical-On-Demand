@@ -13,19 +13,10 @@ export class PaymentService {
 
   constructor(private http: HttpClient) { }
 
-  getPayments(){
-    return this.http.get<any>( environment.api + '/payment' );
-    // .map( res => res.json() );
-  }
+  getPayments() { return this.http.get<any>(environment.api + '/payment') }
 
-  getPaymentsActive(){
-    return this.http.get<any>( environment.api + '/payment/active' );
-    // .map( res => res.json() );
-  }
+  getPaymentsActive() { return this.http.get<any>(environment.api + '/payment/active') }
 
-  save(p){
-    return this.http.put<any>( environment.api + '/payment', p );
-    // .map( res => res.json() );
-  }
+  save(p) { return this.http.put<any>(environment.api + '/payment', p) }
 
 }

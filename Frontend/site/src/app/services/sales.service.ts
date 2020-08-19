@@ -9,7 +9,6 @@ import { environment } from '../../environments/environment';
 export class SalesService {
 
   constructor(private Http: HttpClient) { }
-  public getSales(): Observable<any> {
-    return this.Http.get<any>(environment.api + '/sales')
-  }
+
+  public getSales(): Observable<any> { return this.Http.get<any>(environment.api + '/sales') }
 }
