@@ -1,5 +1,3 @@
-//Configuration MODEL
- 
 const mongoose = require('mongoose');
 
 let ConfigSchema = new mongoose.Schema({

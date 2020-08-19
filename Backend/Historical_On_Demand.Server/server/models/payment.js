@@ -1,5 +1,3 @@
-//Configuration MODEL
- 
 const mongoose = require('mongoose');
 
 let PaymentSchema = new mongoose.Schema({

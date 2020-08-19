@@ -1,5 +1,4 @@
-//Configuration MODEL
- 
+
 const mongoose = require('mongoose');
 
 let RoleSchema = new mongoose.Schema({
@@ -10,15 +9,11 @@ let RoleSchema = new mongoose.Schema({
 
 
 RoleSchema.methods.AllRole = function () {
-  return {
-    name: this.name,
-    slug: this.slug,
-    pages: this.pages
-  }
+  return { name: this.name, slug: this.slug, pages: this.pages }
 };
 
-RoleSchema.methods.findById = function(id, cb) {
- return this.find({ _id: Object(id) }, cb);
+RoleSchema.methods.findById = function (id, cb) {
+  return this.find({ _id: Object(id) }, cb);
 };
 
 mongoose.model('Role', RoleSchema);

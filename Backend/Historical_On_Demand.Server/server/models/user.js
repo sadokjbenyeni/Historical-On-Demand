@@ -1,4 +1,3 @@
-//Configuration MODEL
 const mongoose = require('mongoose');
 const bcrypt   = require('bcrypt-nodejs');
 
@@ -37,10 +36,10 @@ let UserSchema = new mongoose.Schema({
   islogin: { type: Boolean, default: false },
   token: { type: String },
   nbSession: { type: Number, default: 0 },
-  roleName: { type: [String], default:["Client"] }, // Client, Administrator, Product, Compliance, Finance
+  roleName: { type: [String], default:["Client"] },
   role: { type: String, maxlength: 24 }, 
   salt: { type: String },
-  state: { type: Number, default: 0 }, // 0 : non actif, 1 : actif, -1 : suspendu. Active after email validation
+  state: { type: Number, default: 0 },
 }, { timestamps: true });
 
 

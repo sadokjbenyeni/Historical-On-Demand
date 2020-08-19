@@ -1,4 +1,3 @@
-//Configuration MODEL
 const mongoose = require('mongoose');
 
 let CurrencySchema = new mongoose.Schema({

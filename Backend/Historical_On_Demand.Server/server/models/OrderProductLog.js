@@ -1,5 +1,3 @@
-//Configuration MODEL
-
 const mongoose = require('mongoose');
 
 let OrderProductLogSchema = new mongoose.Schema({
