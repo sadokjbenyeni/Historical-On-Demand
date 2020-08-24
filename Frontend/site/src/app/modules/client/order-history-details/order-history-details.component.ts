@@ -308,7 +308,7 @@ export class OrderHistoryDetailsComponent implements OnInit {
   async cancelOrder() {
     var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to cancel order number <b> ${this.orderInfo.id}</b>`)
     if (result.value) {
-      this.orderService.state({ idCmd: this.id, status: 'cancelled', referer: 'Client' })
+      this.orderService.clientStatusUpdate({ idCmd: this.id, status: 'cancelled', referer: 'Client' })
         .subscribe(result => {
           if (result) {
             this.swalService.getSwalForNotification(`Order ${this.orderInfo.id} cancelled`, ` <b> Order ${this.orderInfo.id} cancelled`),

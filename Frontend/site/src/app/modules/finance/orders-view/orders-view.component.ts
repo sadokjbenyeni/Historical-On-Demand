@@ -223,7 +223,7 @@ export class OrdersViewComponent implements OnInit {
   async validateOrder() {
     var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to validate order number <b> ${this.idOrder}</b>`)
     if (result.value) {
-      this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'validated', referer: 'Finance', product: this.cart, email: this.cmd['email'] })
+      this.orderService.financeStatusUpdate({ idCmd: this.idCmd, id: this.idOrder, status: 'validated', referer: 'Finance', product: this.cart, email: this.cmd['email'] })
         .subscribe(result => {
           if (result) {
             this.swalService.getSwalForNotification(`Order ${this.idOrder} validatd`, ` <b> Order ${this.idOrder} validatd`),

@@ -270,7 +270,7 @@ export class OrderspViewComponent implements OnInit {
     }
     var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to validate order number <b> ${this.idOrder}</b>`)
     if (result.value) {
-      this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: statusAfterValidation, referer: referer, product: this.cart, email: this.cmd['email'] })
+      this.orderService.productStatusUpdate({ idCmd: this.idCmd, id: this.idOrder, status: statusAfterValidation, referer: referer, product: this.cart, email: this.cmd['email'] })
         .subscribe(result => {
           if (result) {
             this.swalService.getSwalForNotification(`Order ${this.idOrder} validatd`, ` <b> Order ${this.idOrder} validatd`),
@@ -286,7 +286,7 @@ export class OrderspViewComponent implements OnInit {
   async rejectOrder() {
     var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to reject order number <b> ${this.idOrder}</b>`)
     if (result.value) {
-      this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'rejected', referer: 'Product', reason: this.reason })
+      this.orderService.productStatusUpdate({ idCmd: this.idCmd, id: this.idOrder, status: 'rejected', referer: 'Product', reason: this.reason })
         .subscribe(result => {
           if (result) {
             this.swalService.getSwalForNotification(`Order ${this.idOrder} rejected`, ` <b> Order ${this.idOrder} rejected`),
@@ -302,7 +302,7 @@ export class OrderspViewComponent implements OnInit {
   async cancelOrder() {
     var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to cancel order number <b> ${this.idOrder}</b>`)
     if (result.value) {
-      this.orderService.state({ idCmd: this.idCmd, id: this.idOrder, status: 'cancelled', referer: 'Product' })
+      this.orderService.productStatusUpdate({ idCmd: this.idCmd, id: this.idOrder, status: 'cancelled', referer: 'Product' })
         .subscribe(result => {
           if (result) {
             this.swalService.getSwalForNotification(`Order ${this.idOrder} cancelled`, ` <b> Order ${this.idOrder} cancelled`),

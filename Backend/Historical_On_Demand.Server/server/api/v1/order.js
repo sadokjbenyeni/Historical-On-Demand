@@ -167,7 +167,29 @@ router.put("/updateEngagementPeriod", (req, res) => {
   return res.status(201).json({ ok: true });
 })
 
-router.put("/state", async (req, res) => {
+router.put("/clientStatusUpdate", async (req, res) => {
+  let orderUpdated = {};
+  let log = {};
+  let corp = {};
+  orderUpdated.state = req.body.status;
+  log.status = req.body.status;
+  log.referer = req.body.referer;
+  log.date = new Date();
+  if (req.body.referer.toLowerCase() === "client" || req.body.status.toLowerCase() === "cancelled") {
+    req.logger.info("order canelling...");
+    req.logger.debug("data order update: {" + JSON.stringify(orderUpdated) + "}");
+    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+    await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
+    return res.status(201).json({ ok: true });
+  }
+  req.logger.info("Order Updating...");
+  req.logger.debug(`Data Order Update: {${JSON.stringify(orderUpdated)}}`);
+  await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  return res.status(201).json({ ok: true });
+});
+
+router.put("/complianceStatusUpdate", async (req, res) => {
   let orderUpdated = {};
   let log = {};
   let corp = {};
@@ -185,7 +207,23 @@ router.put("/state", async (req, res) => {
       return res.status(503).json({ message: `An error has been thrown, please contact support with '${req.loggerToken}'` });
     }
   }
-  if (req.body.referer === "Product") {
+  req.logger.info("Order Updating...");
+  req.logger.debug(`Data Order Update: {${JSON.stringify(orderUpdated)}}`);
+  await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  return res.status(201).json({ ok: true });
+})
+
+router.put("/productStatusUpdate", async (req, res) => {
+  let orderUpdated = {};
+  let log = {};
+  let corp = {};
+  orderUpdated.state = req.body.order.status;
+  log.status = req.body.order.status;
+  log.referer = req.body.order.referer;
+  log.date = new Date();
+
+  if (req.body.order.referer === "Product") {
     try {
       await UpdateStateProduct(orderUpdated, req, corp);
     }
@@ -194,6 +232,22 @@ router.put("/state", async (req, res) => {
       res.status(503).json({ message: `An error has been thrown, please contact support with '${req.loggerToken}'` });
     }
   }
+  req.logger.info("Order Updating...");
+  req.logger.debug(`Data Order Update: {${JSON.stringify(orderUpdated)}}`);
+  await Order.updateOne({ id_cmd: req.body.order.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  await Invoice.updateOne({ orderId: req.body.order.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  return res.status(201).json({ ok: true });
+})
+
+router.put("/financeStatusUpdate", async (req, res) => {
+  let orderUpdated = {};
+  let log = {};
+  let corp = {};
+  orderUpdated.state = req.body.order.status;
+  log.status = req.body.order.status;
+  log.referer = req.body.order.referer;
+  log.date = new Date();
+
   if (req.body.referer === "Finance" || req.body.referer === "ProductAutovalidateFinance") {
     try {
       await UpdateOrderFinance(orderUpdated, req, corp, log);
@@ -204,19 +258,12 @@ router.put("/state", async (req, res) => {
       res.status(503).json({ message: `An error has been thrown, please contact support with '${req.loggerToken}'` });
     }
   }
-  else if (req.body.referer.toLowerCase() === "client" || req.body.status.toLowerCase() === "cancelled") {
-    req.logger.info("order canelling...");
-    req.logger.debug("data order update: {" + JSON.stringify(orderUpdated) + "}");
-    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
-    await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
-    return res.status(201).json({ ok: true });
-  }
   req.logger.info("Order Updating...");
   req.logger.debug(`Data Order Update: {${JSON.stringify(orderUpdated)}}`);
-  await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
-  await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  await Order.updateOne({ id_cmd: req.body.order.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  await Invoice.updateOne({ orderId: req.body.order.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
   return res.status(201).json({ ok: true });
-});
+})
 
 router.put("/update", async (request, res) => {
   try {
@@ -973,21 +1020,21 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
 async function UpdateStateProduct(orderUpdated, req, corp) {
   req.logger.info({ message: "updating state product..." });
   orderUpdated.validationProduct = true;
-  orderUpdated.reason = req.body.reason;
+  orderUpdated.reason = req.body.order.reason;
   corp = {
-    email: req.body.email,
-    reason: req.body.reason,
-    idCmd: req.body.id,
+    email: req.body.order.email,
+    reason: req.body.order.reason,
+    idCmd: req.body.order.id,
     paymentdate: new Date(),
     service: "Finance",
   };
-  var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
+  var order = await Order.findOne({ id_cmd: req.body.order.idCmd }).exec();
   var invoice = await Invoice.findOne({ orderId: order.id }).exec();
   let idProForma = await setInvoiceId("QH_ProFormaInvoice_");
   orderUpdated.idProForma = idProForma + "_" + currentDateReversed();
   let eids = [];
-  if (req.body.status === "cancelled") {
-    await Pool.remove({ id: req.body.idCmd.split("-")[0] }).exec();
+  if (req.body.order.status === "cancelled") {
+    await Pool.remove({ id: req.body.order.idCmd.split("-")[0] }).exec();
     try {
       var mailer = new OrderMailService(req.logger, order);
       await mailer.orderCancelled(corp);
@@ -998,11 +1045,11 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
     }
     return true;
   }
-  if (req.body.status === "rejected") {
+  if (req.body.order.status === "rejected") {
     try {
       var mailer = new OrderMailService(req.logger, order);
       corp.reason = "Order was rejected by the system";
-      if (req.body.reason) corp.reason = req.body.reason;
+      if (req.body.order.reason) corp.reason = req.body.order.reason;
       await mailer.orderRejected(corp);
     }
     catch (error) {
@@ -1013,7 +1060,7 @@ async function UpdateStateProduct(orderUpdated, req, corp) {
   }
   order.products.forEach((product) => { eids.push(product.eid); });
   req.logger.info({ message: "sending email...", className: "Order API" });
-  if (req.body.status !== "cancelled" && req.body.status !== "Aborted") {
+  if (req.body.order.status !== "cancelled" && req.body.order.status !== "Aborted") {
     var users = await User.find({ roleName: "Product" }).exec();
     var mailer = new OrderMailService(req.logger, order);
     await new OrderPdfService(invoice).createInvoicePdf(req.logger, orderUpdated.idProForma, "Pro Forma Invoice Nbr");

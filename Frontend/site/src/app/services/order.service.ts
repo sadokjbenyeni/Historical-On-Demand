@@ -80,5 +80,13 @@ export class OrderService {
   cancelProductValidation(orderId) { return this.http.put<any>(environment.api + '/order/cancelValidation', { id: orderId }) }
 
   abortOrder(orderId) { return this.http.put<any>(environment.api + '/order/abortOrder', { id: orderId }) }
+
+  complianceStatusUpdate(idCmd, status, referer, email) { return this.http.put<any>(environment.api + '/order/complianceStatusUpdate', { idCmd: idCmd, status: status, referer: referer, email: email }) }
+
+  productStatusUpdate(order) { return this.http.put<any>(environment.api + '/order/productStatusUpdate', { order }) }
+
+  financeStatusUpdate(order) { return this.http.put<any>(environment.api + '/order/financeStatusUpdate', { order }) }
+
+  clientStatusUpdate(order) { return this.http.put<any>(environment.api + '/order/clientStatusUpdate', { order }) }
 }
 
