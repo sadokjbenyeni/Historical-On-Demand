@@ -233,21 +233,6 @@ export class ClientOrderDetailsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  confirm() {
-    console.dir(this.cmd['email']);
-    this.orderService.state({ idCmd: this.id_cmd, status: 'PVP', referer: 'Compliance', email: this.cmd['email'] }).subscribe(() => {
-      this.router.navigate(['/compliance/orders']);
-    });
-  }
-
-  actions(action) {
-    this.action = action;
-  }
-
-  openModal(content) {
-    this.modalService.open(content);
-  }
-
   precisionRound(number, precision) {
     var factor = Math.pow(10, precision);
     return Math.round(number * factor) / factor;

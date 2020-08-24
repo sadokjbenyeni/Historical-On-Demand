@@ -23,8 +23,6 @@ export class OrderService {
 
   rib(order) { return this.http.post<any>(environment.api + '/order/rib', order) }
 
-  state(order) { return this.http.put<any>(environment.api + '/order/state', order) }
-
   payment(order) { return this.http.post<any>(environment.api + '/order/save', order) }
 
   verify(order) { return this.http.post<any>(environment.api + '/order/verify', order) }
