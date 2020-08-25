@@ -167,28 +167,6 @@ router.put("/updateEngagementPeriod", (req, res) => {
   return res.status(201).json({ ok: true });
 })
 
-// router.put("/clientStatusUpdate", async (req, res) => {
-//   let orderUpdated = {};
-//   let log = {};
-//   let corp = {};
-//   orderUpdated.state = req.body.status;
-//   log.status = req.body.status;
-//   log.referer = req.body.referer;
-//   log.date = new Date();
-//   if (req.body.referer.toLowerCase() === "client" || req.body.status.toLowerCase() === "cancelled") {
-//     req.logger.info("order canelling...");
-//     req.logger.debug("data order update: {" + JSON.stringify(orderUpdated) + "}");
-//     await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
-//     await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
-//     return res.status(201).json({ ok: true });
-//   }
-//   req.logger.info("Order Updating...");
-//   req.logger.debug(`Data Order Update: {${JSON.stringify(orderUpdated)}}`);
-//   await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
-//   await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
-//   return res.status(201).json({ ok: true });
-// });
-
 router.put("/complianceStatusUpdate", async (req, res) => {
   let orderUpdated = {};
   let log = {};
