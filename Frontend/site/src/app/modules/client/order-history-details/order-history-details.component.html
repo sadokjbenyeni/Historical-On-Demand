@@ -14,12 +14,8 @@
                 <div id="menu">
                     <ul>
                         <li>
-                            <p class="action" (click)="abortOrder()">
+                            <p class="action" (click)="editOrder()">
                                 <i class="fa fa-shopping-cart align-icons"></i>Edit Order</p>
-                        </li>
-                        <li>
-                            <p class="action" (click)="cancelOrder()">
-                                <i class="fa fa-trash-o align-icons"></i>Delete Order</p>
                         </li>
                         <li>
                             <p class="action" mat-button *ngIf="getState(state)=='Active'" (click)="downloadLinks()">

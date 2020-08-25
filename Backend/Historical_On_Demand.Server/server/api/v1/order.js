@@ -167,27 +167,27 @@ router.put("/updateEngagementPeriod", (req, res) => {
   return res.status(201).json({ ok: true });
 })
 
-router.put("/clientStatusUpdate", async (req, res) => {
-  let orderUpdated = {};
-  let log = {};
-  let corp = {};
-  orderUpdated.state = req.body.status;
-  log.status = req.body.status;
-  log.referer = req.body.referer;
-  log.date = new Date();
-  if (req.body.referer.toLowerCase() === "client" || req.body.status.toLowerCase() === "cancelled") {
-    req.logger.info("order canelling...");
-    req.logger.debug("data order update: {" + JSON.stringify(orderUpdated) + "}");
-    await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
-    await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
-    return res.status(201).json({ ok: true });
-  }
-  req.logger.info("Order Updating...");
-  req.logger.debug(`Data Order Update: {${JSON.stringify(orderUpdated)}}`);
-  await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
-  await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
-  return res.status(201).json({ ok: true });
-});
+// router.put("/clientStatusUpdate", async (req, res) => {
+//   let orderUpdated = {};
+//   let log = {};
+//   let corp = {};
+//   orderUpdated.state = req.body.status;
+//   log.status = req.body.status;
+//   log.referer = req.body.referer;
+//   log.date = new Date();
+//   if (req.body.referer.toLowerCase() === "client" || req.body.status.toLowerCase() === "cancelled") {
+//     req.logger.info("order canelling...");
+//     req.logger.debug("data order update: {" + JSON.stringify(orderUpdated) + "}");
+//     await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+//     await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
+//     return res.status(201).json({ ok: true });
+//   }
+//   req.logger.info("Order Updating...");
+//   req.logger.debug(`Data Order Update: {${JSON.stringify(orderUpdated)}}`);
+//   await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+//   await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
+//   return res.status(201).json({ ok: true });
+// });
 
 router.put("/complianceStatusUpdate", async (req, res) => {
   let orderUpdated = {};
@@ -248,7 +248,7 @@ router.put("/financeStatusUpdate", async (req, res) => {
   log.referer = req.body.order.referer;
   log.date = new Date();
 
-  if (req.body.referer === "Finance" || req.body.referer === "ProductAutovalidateFinance") {
+  if (req.body.order.referer === "Finance" || req.body.order.referer === "ProductAutovalidateFinance") {
     try {
       await UpdateOrderFinance(orderUpdated, req, corp, log);
       return res.status(200).json({ ok: true });
@@ -641,7 +641,7 @@ router.put("/changePresubmitState", async (req, res) => {
   }
 });
 
-router.put("/abortOrder", async (req, res) => {
+router.put("/editOrder", async (req, res) => {
   if (!req.headers.authorization) return res.status(401).json({ error: "No token provided" });
   const orderToDelete = await OrderService.getRawCaddy(userId);
   try {
@@ -935,12 +935,12 @@ async function deleteOrderFromCart(orderToDelete, req) {
 async function UpdateOrderFinance(orderUpdated, req, log) {
   let corp = {};
   orderUpdated.validationFinance = true;
-  orderUpdated.reason = req.body.reason;
+  orderUpdated.reason = req.body.order.reason;
   let startDate = verifWeek(new Date());
   let stateDateClone = new Date(clone(startDate));
   let endDate = new Date();
   let cart = [];
-  req.body.product.forEach((product) => {
+  req.body.order.product.forEach((product) => {
     if (!product.print) {
       product.dataset = product.quotation_level;
       product.exchangeName = product.exchange;
@@ -956,7 +956,7 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
           suffixe = product.id_undercmd.split("§")[1];
           addPool({
             index: product.index,
-            id: req.body.id,
+            id: req.body.order.id,
             id_cmd: product.id_undercmd,
             onetime: product.onetime,
             subscription: product.subscription,
@@ -967,7 +967,7 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
             searchdate: new Date(d.yyyymmdd()),
             begin_date: d.yyyymmdd(),
             end_date: d.yyyymmdd(),
-            status: req.body.status,
+            status: req.body.order.status,
           });
         }
         stateDateClone = new Date(clone(startDate));
@@ -979,7 +979,7 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
         if (product.qhid !== null || product.qhid !== "") qhid = product.qhid.toString();
         addPool({
           index: product.index,
-          id: req.body.id,
+          id: req.body.order.id,
           id_cmd: product.id_undercmd,
           onetime: product.onetime,
           subscription: product.subscription,
@@ -990,16 +990,16 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
           searchdate: product.begin_date,
           begin_date: yyyymmdd(product.begin_date),
           end_date: yyyymmdd(product.end_date),
-          status: req.body.status
+          status: req.body.order.status
         });
       }
       cart.push(product);
       orderUpdated.products = cart;
     }
   });
-  corp = { email: req.body.email, idCmd: req.body.id };
+  corp = { email: req.body.order.email, idCmd: req.body.order.id };
   try {
-    var mailer = new OrderMailService(req.logger, { id: req.body.id });
+    var mailer = new OrderMailService(req.logger, { id: req.body.order.id });
     await mailer.orderValidated(corp);
   }
   catch (error) {
@@ -1010,10 +1010,10 @@ async function UpdateOrderFinance(orderUpdated, req, log) {
   orderUpdated.idCommande = await setInvoiceId("QH_HISTO_");
   req.logger.info("id commande: " + orderUpdated.idcommande);
   await Config.updateOne({ id: "counter" }, { $inc: { value: 1 } }).exec();
-  await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  await Order.updateOne({ id_cmd: req.body.order.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
   req.logger.info("Order updated");
-  await pdfpost(req.body.id, req.logger, orderUpdated.idCommande, "Invoice Nbr");
-  await new InvoiceService().updateInvoiceInformation(req.body.id, orderUpdated.idCommande, orderUpdated.state);
+  await pdfpost(req.body.order.id, req.logger, orderUpdated.idCommande, "Invoice Nbr");
+  await new InvoiceService().updateInvoiceInformation(req.body.order.id, orderUpdated.idCommande, orderUpdated.state);
   return corp;
 }
 

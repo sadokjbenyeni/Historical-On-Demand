@@ -289,11 +289,11 @@ export class OrderHistoryDetailsComponent implements OnInit {
   }
 
 
-  async abortOrder() {
+  async editOrder() {
     if (this.isCartFull) var isReadyToAbort = await this.swalService.getSwalCheckboxNotification(`You are about to edit your order !`, '', 'warning', 'Delete current cart items', 'Check the box to confirm');
     else var isReadyToAbort = await this.swalService.getSwalForConfirm(`You are about to edit your order !`, '');
     if (isReadyToAbort.value) {
-      this.orderService.abortOrder(this.orderInfo.id).subscribe(result => {
+      this.orderService.editOrder(this.orderInfo.id).subscribe(result => {
         if (result) {
           this.swalService.getSwalForNotification(`Order ${this.orderInfo.id} aborted`, ` <b> Order ${this.orderInfo.id} aborted`)
         }
@@ -305,21 +305,21 @@ export class OrderHistoryDetailsComponent implements OnInit {
     }
   }
 
-  async cancelOrder() {
-    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to cancel order number <b> ${this.orderInfo.id}</b>`)
-    if (result.value) {
-      this.orderService.clientStatusUpdate({ idCmd: this.id, status: 'cancelled', referer: 'Client' })
-        .subscribe(result => {
-          if (result) {
-            this.swalService.getSwalForNotification(`Order ${this.orderInfo.id} cancelled`, ` <b> Order ${this.orderInfo.id} cancelled`),
-              error => {
-                this.swalService.getSwalForNotification('Cancellation Failed !', error.message, 'error')
-              }
-          }
-        })
-      this.router.navigate(['/order/history']);
-    }
-  }
+  // async cancelOrder() {
+  //   var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to cancel order number <b> ${this.orderInfo.id}</b>`)
+  //   if (result.value) {
+  //     this.orderService.clientStatusUpdate({ idCmd: this.id, status: 'cancelled', referer: 'Client' })
+  //       .subscribe(result => {
+  //         if (result) {
+  //           this.swalService.getSwalForNotification(`Order ${this.orderInfo.id} cancelled`, ` <b> Order ${this.orderInfo.id} cancelled`),
+  //             error => {
+  //               this.swalService.getSwalForNotification('Cancellation Failed !', error.message, 'error')
+  //             }
+  //         }
+  //       })
+  //     this.router.navigate(['/order/history']);
+  //   }
+  // }
 
   expandMenu() {
     let element = <HTMLElement>document.getElementById('toggle');
