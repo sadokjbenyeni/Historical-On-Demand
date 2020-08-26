@@ -94,13 +94,9 @@ export class OrderscComponent implements OnInit {
 
   filter(f) {
     this.search = f;
-    // this.dtOptions.draw();
   }
 
   getList() {
-    // this.orderService.getList({},{}).subscribe(res=>{
-    //   this.listorders = res;
-    // });
   }
 
   changeState(col) {

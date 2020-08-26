@@ -10,10 +10,7 @@ export class ClientInformationComponent implements OnInit {
 
   @Input() clientInfo: ClientInformation;
 
-
   constructor() { }
-
-  ngOnInit(): void {
-  }
+  ngOnInit() { }
 
 }

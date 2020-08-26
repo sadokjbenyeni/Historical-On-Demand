@@ -10,11 +10,9 @@ import { DownloadInvoiceService } from '../../../services/Intern/download-invoic
 export class OrderInformationComponent implements OnInit {
 
   @Input() orderInfo: OrderInformation;
-  constructor(
-    private downloadInvoiceService: DownloadInvoiceService) { }
+  constructor(private downloadInvoiceService: DownloadInvoiceService) { }
 
-  ngOnInit(): void {
-  }
+  ngOnInit() { }
 
   downloadInvoice(invoice, pdfType) {
     this.downloadInvoiceService.getInvoice(this.orderInfo.id, invoice, pdfType);

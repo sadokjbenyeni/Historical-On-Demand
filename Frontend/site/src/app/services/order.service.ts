@@ -84,7 +84,5 @@ export class OrderService {
   productStatusUpdate(order) { return this.http.put<any>(environment.api + '/order/productStatusUpdate', { order }) }
 
   financeStatusUpdate(order) { return this.http.put<any>(environment.api + '/order/financeStatusUpdate', { order }) }
-
-  // clientStatusUpdate(order) { return this.http.put<any>(environment.api + '/order/clientStatusUpdate', { order }) }
 }
 

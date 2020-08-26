@@ -18,7 +18,6 @@ import { OrderPreview } from '../../../core/models/order-preview.model';
 })
 export class OrderHistoryComponent implements OnInit {
   pageSizeOptions: number[] = [5, 10, 25, 100];
-
   symbols: any[];
   statusList: Array<any>;
   clientOrderTableColumns: string[] = ['orderId', 'submissionDateTime', 'orderStatus', 'totalOrderAmount', 'invoice', 'details'];
@@ -32,6 +31,7 @@ export class OrderHistoryComponent implements OnInit {
 
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+
   ngOnInit() {
     this.symbols = [];
     this.listCurrencies();
@@ -46,22 +46,17 @@ export class OrderHistoryComponent implements OnInit {
       .subscribe(result => {
         this.dataSource = new MatTableDataSource(result);
         this.dataSource.paginator = this.paginator;
-         this.dataSource.sort = this.sort;
+        this.dataSource.sort = this.sort;
       }, error => console.log(error));
   }
 
   getStatusName(statusId) {
-    if (!this.statusList)
-      return statusId;
+    if (!this.statusList) return statusId;
     return this.statusList.filter(status => status.id === statusId)[0] ? this.statusList.filter(status => status.id === statusId)[0].name : statusId;
   }
 
   listCurrencies() {
-    this.currencyService.getCurrencies().subscribe(list => {
-      list.currencies.forEach(item => {
-        this.symbols[item.id] = item.symbol;
-      });
-    });
+    this.currencyService.getCurrencies().subscribe(list => { list.currencies.forEach(item => { this.symbols[item.id] = item.symbol }) });
   }
 
   getCurrency(currency) {

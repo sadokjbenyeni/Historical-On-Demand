@@ -58,6 +58,7 @@ const after = (one: NgbDateStruct, two: NgbDateStruct) =>
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.css']
 })
+
 export class SearchComponent implements OnInit, AfterViewInit {
   caddies: Array<object>;
   tabPrice: any;
@@ -106,7 +107,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
   toDate: NgbDateStruct;
   minDate: { year: number, month: number, day: number };
   maxDate: { year: number, month: number, day: number };
-  // dtOptions: DataTables.Settings = {};
   hits: Array<any>;
   avaibility: boolean;
   addCart: {
@@ -118,7 +118,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     products: Array<Product>
   };
 
-  // fields search
   all: string;
   symbol: string;
   isin: string;
@@ -138,12 +137,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
     private calenda: NgbCalendar,
     private config: NgbDatepickerConfig
   ) {
-    // this.inputEl;
-    // customize default values of datepickers used by this component tree
+
     config.minDate = { year: 2000, month: 1, day: 1 };
     config.maxDate = { year: 2050, month: 12, day: 31 };
 
-    // days that don't belong to current month are not visible
     config.outsideDays = 'hidden';
 
     this.avaibility = false;
@@ -172,7 +169,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    // this.inputEl;
     this.dataset = JSON.parse(sessionStorage.getItem('dataset'));
     if (!this.dataset || !this.dataset.hasOwnProperty('dataset')) {
       this.router.navigateByUrl('/');
@@ -186,7 +182,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.assets = [];
     this.tabsearch = 'instrument';
     this.formatfile = 'csv';
-    // this.getCaddie();
     this.getShowEntries();
     this.getPeriod();
     this.getPricingTier();
@@ -196,7 +191,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
       { id: 'L1', name: 'L1 - Full', search: 'Find Top of Book' },
       { id: 'L2', name: 'L2', search: 'Find L2-MBL' }
     ];
-    // this.data.currentSearch.subscribe(search => this.search = search);
   }
   resetSelect() {
     this.hits.forEach(hit => {
@@ -298,13 +292,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       }
     });
   }
-
-  // getCaddie(){
-  //   this.orderService.getIdOrder(this.user['_id']).subscribe(p=>{
-  //     this.caddy = p;
-  //   });
-  // }
-
+  
   getPrice() {
     this.fluxService.pricingTier().subscribe(res => {
       this.tabPrice = res;

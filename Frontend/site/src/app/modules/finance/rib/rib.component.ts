@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 
 import { CurrencyService } from '../../../services/currency.service';
 
-export class Rib{
+export class Rib {
   maxrib: number;
   rib: {
     cb: string,
@@ -43,19 +43,15 @@ export class RibComponent implements OnInit {
     this.getListCurrency();
   }
 
-  getListCurrency(){
-    this.currencyService.getCurrencies().subscribe(res=>{
-      this.currencies = res.currencies;
-    });
+  getListCurrency() {
+    this.currencyService.getCurrencies().subscribe(listOfCurrencies => { this.currencies = listOfCurrencies.currencies });
   }
 
-  saveRib(c) {
-    this.currencyService.saveRib(c).subscribe(res=>{
-      this.message = res.message;
-    });
+  saveRib(currency) {
+    this.currencyService.saveRib(currency).subscribe(result => { this.message = result.message });
   }
 
-  resetMessage(){
+  resetMessage() {
     this.message = '';
   }
 }

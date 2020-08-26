@@ -22,20 +22,14 @@ export class AccountComponent implements OnInit {
 
   @ViewChild(ContactInformationsComponent) contactInformationsComponents: ContactInformationsComponent;
   @ViewChild(BillingInformationsComponent) billingInformationsComponents: BillingInformationsComponent;
+
   sectionName: string;
   user: any;
   contactInformations: ContactInformations;
   billigInformations: BillingInformation;
   changedValues = new Map<any, any>();
-  constructor(
-    private userService: UserService,
-    private swalService: SwalAlertService
-  ) { }
 
-
-
-
-
+  constructor(private userService: UserService, private swalService: SwalAlertService) { }
 
   ngOnInit(): void {
     this.contactInformations = <ContactInformations>{};
@@ -44,37 +38,25 @@ export class AccountComponent implements OnInit {
   }
 
   getSection(section) {
-    debugger
-    if (this.sectionName == undefined) {
-      this.sectionName = section;
-    }
+    if (this.sectionName == undefined) this.sectionName = section;
     else {
       this.updateUserBySection(this.sectionName);
       this.sectionName = section;
       this.setContactInformations(this.user);
     }
-
   }
 
   getUser() {
-    this.userService.getCompte().subscribe(res => {
-      this.user = res.user;
+    this.userService.getCompte().subscribe(account => {
+      this.user = account.user;
       this.setContactInformations(this.user);
       this.setBillingInformations(this.user);
-
     });
   }
 
   updateUserBySection(section) {
     switch (section) {
       case "Contact Informations": {
-        // debugger
-        // this.getChangedValues(this.contactInformationsComponents.form);
-        // debugger
-        // this.changedValues.forEach((value: any, key: any) => {
-        //   this.user[key] = value;
-        // })
-
         this.user.address = this.contactInformationsComponents.form.controls.address.value;
         this.user.city = this.contactInformationsComponents.form.controls.city.value;
         this.user.companyName = this.contactInformationsComponents.form.controls.companyName.value;
@@ -153,20 +135,15 @@ export class AccountComponent implements OnInit {
     Object.keys(form.controls)
       .forEach(key => {
         let currentControl = form.controls[key];
-
         if (currentControl.dirty) {
-          if (currentControl.controls)
-            this.getChangedValues(currentControl);
-          else
-            this.changedValues.set(key, currentControl.value)
+          if (currentControl.controls) this.getChangedValues(currentControl);
+          else this.changedValues.set(key, currentControl.value)
         }
       });
-
     return this.changedValues;
   }
 
   getNewUser(user) {
     this.user = user
   }
-
 }

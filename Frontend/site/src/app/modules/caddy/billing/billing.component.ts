@@ -29,10 +29,7 @@ export class BillingComponent implements OnInit {
   symbol: any;
   taux = [];
 
-
-  constructor(private formBuilder: FormBuilder, private vatService: VatService, private countriesService: CountriesService, private paymentService: PaymentService) {
-
-  }
+  constructor(private formBuilder: FormBuilder, private vatService: VatService, private countriesService: CountriesService, private paymentService: PaymentService) {}
 
   ngOnInit(): void {
     this.initFields();
@@ -40,6 +37,7 @@ export class BillingComponent implements OnInit {
     this.getPayments();
     this.checkVat();
   }
+
   initFields() {
     this.form = this.formBuilder.group({
       vatctl: [this.user.vat, []],
@@ -50,14 +48,10 @@ export class BillingComponent implements OnInit {
     });
   }
   getCountry() {
-    this.countriesService.getCountries().subscribe(res => {
-      this.country = res.countries;
-    });
+    this.countriesService.getCountries().subscribe(listOfCountries => {this.country = listOfCountries.countries});
   }
   getPayments() {
-    this.paymentService.getPaymentsActive().subscribe(res => {
-      this.payments = res.filter(item => item.id != "creditcard");
-    });
+    this.paymentService.getPaymentsActive().subscribe(activePayments => {this.payments = activePayments.filter(item => item.id != "creditcard")});
   }
 
   checkVat() {
@@ -84,7 +78,6 @@ export class BillingComponent implements OnInit {
   changecountry(event) {
     this.countryChanged.emit(event.value)
   }
-
   defaultBilling(event) {
     this.ChangeDefaultAdress.emit(event.checked);
   }
@@ -108,6 +101,5 @@ export class BillingComponent implements OnInit {
       this.form.controls['postalCodeBillingctl'].setValue(this.user.postalCodeBilling);
       this.form.controls['countryBillingctl'].setValue(this.user.countryBilling);
     }
-
   }
 }

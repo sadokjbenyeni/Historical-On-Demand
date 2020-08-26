@@ -23,11 +23,7 @@ export class ResetPasswordComponent implements OnInit {
   ngOnInit(): void {
     this.token = this.activatedRoute.snapshot.params.token;
     if (this.token) {
-      this.jwtService.verifyTokenValidity(this.token).subscribe(result => {
-        if (result.valid) {
-          this.tokenValidity = true
-        }
-      },
+      this.jwtService.verifyTokenValidity(this.token).subscribe(result => { if (result.valid) this.tokenValidity = true },
         error => {
           if (error.error.error == "jwt expired") {
             this.swalService.getSwalForNotification("Reset password failed !", "<b>The link is expired, please try again or contact the support team </b>!", "error", 2000);
@@ -43,19 +39,15 @@ export class ResetPasswordComponent implements OnInit {
 
   getPassword(password) {
     this.newPassword = password;
-    if (this.newPassword) {
-      this.resetPassword();
-    }
+    if (this.newPassword) this.resetPassword();
   }
   resetPassword() {
     let title = "Confirm your new password!"
     let text = "Do you confirm to save your new password ?"
     this.swalService.getSwalForConfirm(title, text).then(result => {
       if (result.value) {
-        debugger
         this.userService.resetPassword(this.token, this.newPassword).subscribe(res => {
           if (res.updated) {
-            debugger
             this.swalService.getSwalForNotification("New password saved !", "Your new password has been saved with success");
             this.router.navigate(['/login'])
           }

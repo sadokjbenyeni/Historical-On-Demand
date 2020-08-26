@@ -8,7 +8,7 @@ class itemsClone {
   name: string;
   max: number;
   delay: number;
-  constructor(r){
+  constructor(r) {
     this._id = r._id;
     this.id = r.id;
     this.name = r.name;
@@ -29,32 +29,30 @@ export class PaymentsComponent implements OnInit {
   message: string;
   items: Object;
 
-  constructor(
-    private paymentService: PaymentService
-  ) { }
+  constructor(private paymentService: PaymentService) { }
 
   ngOnInit() {
     this.getPayments();
   }
 
-  getPayments(){
-    this.paymentService.getPayments().subscribe(res=>{
-      this.payments = res;
-      this.items = new itemsClone(res);
+  getPayments() {
+    this.paymentService.getPayments().subscribe(listOfPayments => {
+      this.payments = listOfPayments;
+      this.items = new itemsClone(listOfPayments);
     });
   }
 
-  detail(p){
-    this.row = p._id;
+  detail(product) {
+    this.row = product._id;
   }
 
-  cancel(p){
+  cancel() {
     this.row = '';
   }
 
-  save(c){
-    this.paymentService.save(c).subscribe(res=>{
-      this.message = res.message;
+  save(changes) {
+    this.paymentService.save(changes).subscribe(result => {
+      this.message = result.message;
       this.row = '';
       setTimeout(() => { this.message = ''; }, 5000);
     });

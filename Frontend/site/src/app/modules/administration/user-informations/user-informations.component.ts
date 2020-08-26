@@ -16,15 +16,8 @@ export class UserInformationsComponent implements OnInit, OnChanges {
   @Input() user: any;
   billigInformations: BillingInformation;
   contactInformations: ContactInformations;
-  //id: any;
-  constructor(
-    //private route: ActivatedRoute,
-   // private userService: UserService
-  ) {
-    //route.params.subscribe(params => this.id = params.id);
-  }
-  ngOnInit(): void {
-  }
+  constructor() { }
+  ngOnInit() { }
 
   ngOnChanges(userchanged: any): void {
     this.user = userchanged.user.currentValue;

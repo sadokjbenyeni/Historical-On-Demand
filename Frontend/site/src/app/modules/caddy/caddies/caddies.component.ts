@@ -94,6 +94,7 @@ export class CaddiesComponent implements OnInit, OnDestroy {
   noCaddy: boolean;
   orderAmountModel: OrderAmount;
   observerRoute: any;
+
   constructor(
     private configService: ConfigService,
     private userService: UserService,
@@ -103,18 +104,18 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     private modalService: NgbModal,
     private router: Router,
   ) { }
-  ngOnDestroy(): void {
-    if (this.caddy) {
-      this.observerRoute.unsubscribe();
-    }
 
+  ngOnDestroy(): void {
+    if (this.caddy) this.observerRoute.unsubscribe();
   }
+
   get form() {
     return this.billingComponent ? this.billingComponent.form : null;
   }
+  
   ngOnInit() {
-    this.observerRoute = this.router.events.subscribe(rout => {
-      if (rout instanceof NavigationStart)
+    this.observerRoute = this.router.events.subscribe(route => {
+      if (route instanceof NavigationStart)
         this.orderService.updateCaddyState(this.getStepKey(this.stepper.selectedIndex)).subscribe();
     })
     this.pages = 1;
@@ -123,7 +124,6 @@ export class CaddiesComponent implements OnInit, OnDestroy {
 
 
   getInfoUser() {
-
     let field = [
       'addressBilling',
       'postalCodeBilling',
@@ -141,13 +141,8 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     ];
     this.userService.info({ field: field }).subscribe(res => {
       this.user = res.user;
-      //checkinitialVat
-
-      // a retirer lors de l'implementation CB
       this.user.payment = 'banktransfer';
-      // fin a retirer
       this.user.payment = res.user.payment ? res.user.payment : ''
-      //à retirer lors de l'implémentation du paiement par CB
       if (this.user.currency) {
         this.currency = res.user.currency;
       }
@@ -246,8 +241,6 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Function Licensing
-
   termsOpen() {
     this.viewterms = false;
   }
@@ -255,7 +248,6 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     this.pages = 1;
     this.viewterms = true;
   }
-
   updtSurvey(event) {
     if (event == "Previous") { this.stepper.previous() }
     else if (this.term) {
@@ -263,9 +255,7 @@ export class CaddiesComponent implements OnInit, OnDestroy {
       this.stepper.selected.completed = true;
       this.stepper.next()
     }
-
   }
-
   submitRib() {
     this.orderService.submitCaddy(this.currency, this.survey,
       {
@@ -290,7 +280,6 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     if (this.IsChangeDefaultCurrency) {
       this.userService.changeDefaultCurrency(this.currency).subscribe();
     }
-    // this.orderService.sortProducts({ idCmd: this.caddy.id_cmd }).subscribe(res => { });
   }
 
   open() {
@@ -300,14 +289,12 @@ export class CaddiesComponent implements OnInit, OnDestroy {
       'Your order has been submitted successfully and it is now pending validation.',
       'You will be notified by email once your order has been validated and when you can access your data. You could as well follow the progress of all your orders via your personal profile / order history section.'
     ];
-
     const modalRef = this.modalService.open(NgbdModalContent, { backdrop: "static", keyboard: false })
     modalRef.componentInstance.title = 'Order Submitted';
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.link = '/';
   }
 
-  //Function ALL
   getCurrency() {
     this.currencyService.getCurrencies().subscribe(res => {
       this.currencies = res.currencies;
@@ -315,11 +302,9 @@ export class CaddiesComponent implements OnInit, OnDestroy {
     });
   }
 
-
   searchCurrency(nameKey, myArray) {
     return myArray.find(item => item.id == nameKey);
   }
-
 
   precisionRound(number, precision) {
     var factor = Math.pow(10, precision);

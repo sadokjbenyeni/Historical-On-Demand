@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AlertModule } from '../_alert';
 import { MaterialModule } from '../material/material.module';
 import { PipesModule } from '../../pipes/pipes.module';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -35,7 +34,6 @@ import { productRoutes } from './product.routing';
   ],
   imports: [
     CommonModule,
-    AlertModule,
     TemplatesModule,
     RouterModule.forRoot(productRoutes),
     DataTablesModule,

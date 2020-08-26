@@ -198,9 +198,7 @@ export class OrderscViewComponent implements OnInit {
   }
 
   getListStates() {
-    this.orderService.getListStates({}).subscribe(order => {
-      this.states = order['states'];
-    });
+    this.orderService.getListStates({}).subscribe(order => {this.states = order['states']});
   }
   getStateName(stateId) {
     let specificState = this.states.filter(state => state.id === stateId)[0]

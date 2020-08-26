@@ -2,16 +2,10 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-
 import { Subject } from 'rxjs';
-
-
-
 import { OrderService } from '../../../services/order.service';
 import { CurrencyService } from '../../../services/currency.service';
-
 import { DataTableDirective } from 'angular-datatables';
-
 import { environment } from '../../../../environments/environment';
 
 class DataTablesResponse {
@@ -44,12 +38,7 @@ export class OrderspComponent implements OnInit {
   listorders: Orders[] = [];
   symbols: any[];
 
-  constructor(
-    private router: Router,
-    private http: HttpClient,
-    private orderService: OrderService,
-    private currencyService: CurrencyService
-  ) { }
+  constructor(private router: Router, private http: HttpClient, private orderService: OrderService, private currencyService: CurrencyService) { }
 
   @ViewChild(DataTableDirective, { static: false })
   datatableElement: DataTableDirective;
@@ -74,13 +63,9 @@ export class OrderspComponent implements OnInit {
         dataTablesParameters.state = this.state;
         that.http
           .post<DataTablesResponse>(environment.api + '/order/list', dataTablesParameters, {})
-          .subscribe(res => {
-            that.listorders = res.listorders;
-            callback({
-              recordsTotal: res.recordsTotal,
-              recordsFiltered: res.recordsFiltered,
-              data: [],
-            });
+          .subscribe(result => {
+            that.listorders = result.listorders;
+            callback({ recordsTotal: result.recordsTotal, recordsFiltered: result.recordsFiltered, data: [] });
           });
       },
       columns: [
@@ -101,7 +86,6 @@ export class OrderspComponent implements OnInit {
 
   filter(f) {
     this.search = f;
-    // this.dtOptions.draw();
   }
 
   changeState(col) {
@@ -110,7 +94,7 @@ export class OrderspComponent implements OnInit {
     })
   }
 
-    changeType(col) {
+  changeType(col) {
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
       dtInstance.columns(col).search(this.purchasetype).draw();
     })
@@ -123,14 +107,12 @@ export class OrderspComponent implements OnInit {
       val += '|';
       val += this.dateSubmission['year'] + "-" + this.dateSubmission['month'] + '-' + (this.dateSubmission['day'] + 1);
     }
-    this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      dtInstance.columns(col).search(val).draw();
-    })
+    this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => { dtInstance.columns(col).search(val).draw() })
   }
 
   onKey(event: any, col: number) {
     this.datatableElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      var columns = dtInstance.columns(col)
+      var columns = dtInstance.columns(col);
       columns.search(event.target.value).draw();
     })
   }
@@ -149,26 +131,19 @@ export class OrderspComponent implements OnInit {
     return Math.round(number * factor) / factor;
   }
 
-
-
   getListStates() {
-    this.orderService.getListStates({}).subscribe(res => {
-      this.states = res['states'];
-    });
+    this.orderService.getListStates({}).subscribe(order => { this.states = order['states'] });
   }
 
   getStateName(stateId) {
-    if (!this.states)
-      return stateId;
-    return this.states.filter(e => e.id === stateId)[0] ? this.states.filter(e => e.id === stateId)[0].name : stateId;
+    if (!this.states) return stateId;
+    return this.states.filter(state => state.id === stateId)[0] ? this.states.filter(state => state.id === stateId)[0].name : stateId;
   }
 
   getCurrencies() {
-    this.currencyService.getCurrencies().subscribe(r => {
+    this.currencyService.getCurrencies().subscribe(listOfCurrencies => {
       this.symbols = [];
-      r.currencies.forEach(s => {
-        this.symbols[s.id] = s.symbol;
-      });
+      listOfCurrencies.currencies.forEach(currency => { this.symbols[currency.id] = currency.symbol });
     });
   }
 

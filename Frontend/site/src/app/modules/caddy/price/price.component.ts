@@ -10,8 +10,6 @@ export class PriceComponent implements OnInit {
   @Input() symbol;
   @Input() vatValueApply;
   constructor() { }
-
-  ngOnInit(): void {
-  }
+  ngOnInit() { }
 
 }

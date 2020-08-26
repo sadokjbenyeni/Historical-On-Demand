@@ -59,32 +59,25 @@ export class RegisterComponent implements OnInit, AfterViewInit {
     this.billigInformations = <BillingInformation>{};
   }
 
-
-
-
-  getBillingInformations(informations) {
+  getBillingInformations() {
     this.myStepper.selected.completed = true;
     this.myStepper.selectedIndex = 1;
     this.myStepper.next();
     this.myStepper.selected.completed = false;
   }
 
-  getContactInformations(informations) {
-    // if (informations.contactInformationsIsCompleted) {
+  getContactInformations() {
     this.myStepper.selected.completed = true;
     this.myStepper.selectedIndex = 0;
     this.myStepper.next();
-    //}
     this.myStepper.selected.completed = false;
   }
 
   getPassword(password) {
     this.password = password;
-
     this.myStepper.selected.completed = true;
     this.myStepper.selectedIndex = 2;
     this.myStepper.next();
-
     this.myStepper.selected.completed = false;
   }
 
@@ -118,12 +111,9 @@ export class RegisterComponent implements OnInit, AfterViewInit {
     };
   }
 
-
-
   register() {
     this.setUserInformations();
     console.log(this.billingInformationsComponents.form);
-
     if (!this.contactInformationsComponent.form.valid || !this.billingInformationsComponents.form.valid || !this.passwordInformationsComponent.loginForm.valid) {
       this.swalService
         .getSwalForNotification(

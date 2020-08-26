@@ -4,7 +4,6 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { OrderService } from '../../../services/order.service';
 import { ConfigService } from '../../../services/config.service';
 import { CurrencyService } from '../../../services/currency.service';
-import { AlertService } from '../../_alert';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SalesService } from '../../../services/sales.service';
@@ -74,7 +73,6 @@ export class OrderspViewComponent implements OnInit {
     private currencyService: CurrencyService,
     private orderService: OrderService,
     private salesService: SalesService,
-    protected alertService: AlertService,
     private downloadInvoiceService: DownloadInvoiceService,
     private swalService: SwalAlertService,
     private burgerMenuService: BurgerMenuService
@@ -104,12 +102,12 @@ export class OrderspViewComponent implements OnInit {
     })
   }
 
-  setPeriod(p) {
+  setPeriod(product) {
     this.ht = 0;
     this.list['cmd'].products.forEach((prd, i) => {
-      if (prd.id_undercmd === p.idElem) {
-        p.ht = p.period * parseInt(p.price, 10);
-        prd.ht = p.ht;
+      if (prd.id_undercmd === product.idElem) {
+        product.ht = product.period * parseInt(product.price, 10);
+        prd.ht = product.ht;
       }
       this.ht += prd.ht;
     });

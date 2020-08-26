@@ -26,19 +26,13 @@ export class UserRolesComponent implements OnInit, OnChanges {
   }
 
   getRoles() {
-    this.userService.getRoles().subscribe(res => {
-      this.roles = res.roles;
-    });
+    this.userService.getRoles().subscribe(res => { this.roles = res.roles });
   }
 
 
   toggleRole = (role: any) => {
-    const addChip = () => {
-      this.userRoles.push(role);
-    };
-    const removeChip = () => {
-      this.userRoles.splice(this.userRoles.findIndex(item => item == role), 1)
-    };
+    const addChip = () => { this.userRoles.push(role) };
+    const removeChip = () => { this.userRoles.splice(this.userRoles.findIndex(item => item == role), 1) };
     this.hasRole(role) ? removeChip() : addChip();
   }
 

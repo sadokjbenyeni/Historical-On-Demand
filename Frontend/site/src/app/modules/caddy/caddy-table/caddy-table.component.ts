@@ -14,6 +14,7 @@ export class CaddyTableComponent implements OnInit {
   @Input() page;
   @Output() DateChanged: EventEmitter<any> = new EventEmitter();
   @Output() DeleteProduct: EventEmitter<any> = new EventEmitter();
+  
   ngOnInit(): void {
     this.dataset = { L1TRADEONLY: 'L1 - Trades', L1: 'L1 - Full', L2: 'L2 - MBL' };
   }

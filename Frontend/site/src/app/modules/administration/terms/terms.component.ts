@@ -9,9 +9,6 @@ import { OrderService } from '../../../services/order.service';
 })
 
 export class TermsComponent implements OnInit {
-  constructor(
-    private orderService: OrderService
-  ) { }
-
+  constructor() { }
   ngOnInit() { }
 }

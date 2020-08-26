@@ -66,7 +66,6 @@ export class OrdersComponent implements OnInit {
   symbols: any[];
 
   constructor(
-
     private httpc: HttpClient,
     private orderService: OrderService,
     private currencyService: CurrencyService
@@ -113,11 +112,7 @@ export class OrdersComponent implements OnInit {
           .post<DataTablesResponse>(environment.api + '/order/list', dataTablesParameters, {})
           .subscribe(res => {
             that.listorders = res.listorders;
-            callback({
-              recordsTotal: res.recordsTotal,
-              recordsFiltered: res.recordsFiltered,
-              data: [],
-            });
+            callback({ recordsTotal: res.recordsTotal, recordsFiltered: res.recordsFiltered, data: [] });
           });
       },
       columns: [
@@ -137,13 +132,9 @@ export class OrdersComponent implements OnInit {
 
   filter(f) {
     this.search = f;
-    // this.dtOptions.draw();
   }
 
   getList() {
-    // this.orderService.getList({},{}).subscribe(res=>{
-    //   this.listorders = res;
-    // });
   }
 
   changeState(col) {
@@ -258,11 +249,6 @@ export class OrdersComponent implements OnInit {
     XLSX.writeFile(workbook, this.toExportFileName(excelFileName));
   }
 
-  // saveAsExcelFile(buffer: any, fileName: string): void {
-  //   const data: Blob = new Blob(['\ufeff' + buffer], { type: 'text/csv;charset=utf-8;' });
-  //   FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + ".csv");
-  // }
-
   delCol(a) {
     this.columnsSelect.splice(this.columnsSelect.indexOf(a), 1);
   }
@@ -283,9 +269,6 @@ export class OrdersComponent implements OnInit {
     var factor = Math.pow(10, precision);
     return Math.round(number * factor) / factor;
   }
-
-
-
 
   getListStates() {
     this.orderService.getListStates({}).subscribe(res => {

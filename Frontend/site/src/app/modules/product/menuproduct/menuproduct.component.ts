@@ -11,10 +11,7 @@ export class MenuproductComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    this.pageConfig = [
-      {page: 'Client Orders', active: false, link: '/product/orders'},
-      {page: 'Settings', active: false, link: '/product/config'}
-    ];
+    this.pageConfig = [{ page: 'Client Orders', active: false, link: '/product/orders' }, { page: 'Settings', active: false, link: '/product/config' }];
   }
 
 }

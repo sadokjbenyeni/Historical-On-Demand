@@ -17,33 +17,31 @@ export class DownloadSettingComponent implements OnInit {
   periodSubscription: number;
   downloadSubscription: number;
 
-  constructor(
-    private configService: ConfigService
-  ) { }
+  constructor(private configService: ConfigService) { }
 
   ngOnInit() {
     this.getDownloadSetting();
   }
 
-  getDownloadSetting(){
-    this.configService.getDownloadSetting().subscribe(res => {
-      this.periodOneOff = res[0].periodOneOff;
-      this.downloadOneOff = res[0].downloadOneOff;
-      this.linkPerFile = res[0].linkPerFile;
-      this.periodSubscription = res[0].periodSubscription;
-      this.downloadSubscription = res[0].downloadSubscription;
+  getDownloadSetting() {
+    this.configService.getDownloadSetting().subscribe(setting => {
+      this.periodOneOff = setting[0].periodOneOff;
+      this.downloadOneOff = setting[0].downloadOneOff;
+      this.linkPerFile = setting[0].linkPerFile;
+      this.periodSubscription = setting[0].periodSubscription;
+      this.downloadSubscription = setting[0].downloadSubscription;
     });
   }
 
-  saveOneOff(){
-    this.configService.setDownloadSetting({periodOneOff: this.periodOneOff,linkPerFile: this.linkPerFile, downloadOneOff: this.downloadOneOff}).subscribe(res => {
-      this.message = res.message;
+  saveOneOff() {
+    this.configService.setDownloadSetting({ periodOneOff: this.periodOneOff, linkPerFile: this.linkPerFile, downloadOneOff: this.downloadOneOff }).subscribe(result => {
+      this.message = result.message;
     });
   }
 
-  saveSubscription(){
-    this.configService.setDownloadSetting({periodSubscription: this.periodSubscription, downloadSubscription: this.downloadSubscription}).subscribe(res => {
-      this.message = res.message;
+  saveSubscription() {
+    this.configService.setDownloadSetting({ periodSubscription: this.periodSubscription, downloadSubscription: this.downloadSubscription }).subscribe(result => {
+      this.message = result.message;
     });
   }
 

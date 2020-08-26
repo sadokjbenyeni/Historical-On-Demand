@@ -11,10 +11,7 @@ export class MenucomplianceComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    this.pageConfig = [
-      {page: 'Client Orders', active: false, link: '/compliance/orders'},
-      // {page: 'Configuration', active: false, link: '/compliance/config'}
-    ];
+    this.pageConfig = [{page: 'Client Orders', active: false, link: '/compliance/orders'}];
   }
 
 }

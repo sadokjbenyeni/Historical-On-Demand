@@ -9,7 +9,6 @@ export class PaymentComponent implements OnInit {
   @Input() rib:any;
   constructor() { }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void { }
 
 }

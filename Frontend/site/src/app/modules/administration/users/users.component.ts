@@ -22,21 +22,17 @@ export class UsersComponent implements OnInit {
   page: number = 0;
   offset: number = 0;
   order: any[] = [{ column: 'lastname', dir: "asc" }];
+  selectedUser: any;
+
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild("search") search: ElementRef;
-  selectedUser: any;
 
-  constructor(
-    private adminsitratorService: AdministratorServiceService
-  ) { }
-
+  constructor(private adminsitratorService: AdministratorServiceService) { }
 
   @ViewChild('utilisateurForm', { static: false })
 
-  ngOnInit() {
-    this.getUsers(this.displayedColumns, this.order, "", this.offset, this.limit, this.page);
-  }
+  ngOnInit() { this.getUsers(this.displayedColumns, this.order, "", this.offset, this.limit, this.page) }
   getUser(id) {
     if (this.user._id != id) {
 
@@ -56,12 +52,9 @@ export class UsersComponent implements OnInit {
       this.page = event.pageIndex;
       this.offset = this.limit * (event.pageIndex);
     }
-    if (this.sort.active != undefined) {
-      this.order = [{ column: this.sort.active, dir: this.sort.direction }];
-    }
+    if (this.sort.active != undefined) this.order = [{ column: this.sort.active, dir: this.sort.direction }];
     this.getUsers(this.displayedColumns, this.order, this.search.nativeElement.value, this.offset, this.limit, this.page);
   }
-
 
   getUsers(columns, order, search, offset, limit, page) {
     this.adminsitratorService.getUsers(columns, order, search, offset, limit, page).subscribe(res => {
@@ -70,9 +63,7 @@ export class UsersComponent implements OnInit {
       this.selectedUser = this.user?._id;
       this.dataSource = new MatTableDataSource(this.users);
       this.totalCount = res.totalRows;
-      if (parseInt(res.totalRows) != parseInt(res.recordsFiltered)) {
-        this.totalCount = res.recordsFiltered;
-      }
+      if (parseInt(res.totalRows) != parseInt(res.recordsFiltered)) this.totalCount = res.recordsFiltered;
     })
   }
 }

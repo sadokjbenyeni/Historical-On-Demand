@@ -36,20 +36,12 @@ export class LoginInformationsComponent implements OnInit {
   }
 
   initFields() {
-    this.emailForm = this.formBuilder.group({
-      emailAdress: [this.emailAdress, [Validators.email]]
-    });
-
-    this.passwordForm = this.formBuilder.group({
-      oldPassword: ["", []],
-      newPassword: ["", []],
-      confirmPassword: ["", []],
-    });
+    this.emailForm = this.formBuilder.group({ emailAdress: [this.emailAdress, [Validators.email]] });
+    this.passwordForm = this.formBuilder.group({ oldPassword: ["", []], newPassword: ["", []], confirmPassword: ["", []] });
   }
 
   sendEmailVerificationForUpdateEmailAdress() {
     this.userService.requestUpdateEmailAdress(this.emailForm.controls.emailAdress.value).subscribe(res => {
-
       if (res.mail) {
         const swalTitle = "Email for update sent";
         const swalText = "Please check your email, <b>you have 30 minutes</b> to confirm the email adress update !"
@@ -60,7 +52,6 @@ export class LoginInformationsComponent implements OnInit {
         const swalText = "Some error occured !"
         this.swalService.getSwalForNotification(swalTitle, swalText, 'error', 1700);
       }
-
     },
       error => {
         console.log(error);
@@ -70,7 +61,6 @@ export class LoginInformationsComponent implements OnInit {
 
   updateUserPassword() {
     this.userService.updateUserPassword(this.passwordForm.controls.oldPassword.value, this.passwordForm.controls.newPassword.value).subscribe(res => {
-
       if (res.updated) {
         const swalTitle = "Password updated !";
         const swalText = "Your password has been updated with success"
@@ -96,18 +86,14 @@ export class LoginInformationsComponent implements OnInit {
       if (email != this.emailAdress) {
         this.userService.checkEmailIfExist(email).subscribe(result => {
           this.emailExist = result.exist;
-          if (result.exist) {
-            this.updateMail = true;
-          }
+          if (result.exist) this.updateMail = true;
         });
       }
     }
   }
 
   disableViewOld() {
-    if (this.passwordForm.controls.newPassword.value === '') {
-      this.disableOld = false;
-    }
+    if (this.passwordForm.controls.newPassword.value === '') this.disableOld = false;
     else {
       this.disableOld = true;
       this.hideOld = true;
@@ -116,9 +102,7 @@ export class LoginInformationsComponent implements OnInit {
 
 
   disableViewNew() {
-    if (this.passwordForm.controls.confirmPassword.value === '') {
-      this.disableNew = false;
-    }
+    if (this.passwordForm.controls.confirmPassword.value === '') this.disableNew = false;
     else {
       this.disableNew = true;
       this.hideNew = true;

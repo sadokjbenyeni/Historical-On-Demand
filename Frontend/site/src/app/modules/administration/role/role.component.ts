@@ -2,9 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-
-
-
 import { RoleService } from '../../../services/role.service';
 
 @Component({
@@ -16,8 +13,7 @@ import { RoleService } from '../../../services/role.service';
 export class RoleComponent implements OnInit {
   roles: Array<object>;
   pages: Array<string>;
-  // dtOptions: DataTables.Settings = {};
-  
+
   constructor(
     private http: HttpClient,
     private roleService: RoleService,
@@ -29,30 +25,13 @@ export class RoleComponent implements OnInit {
   ngOnInit() {
     this.getRoles();
     this.getPages();
-    
-    /*
-    this.dtOptions = {
-      searching: false,
-      info: false,
-      ordering: false,
-      processing: false,
-      paging: false,
-      lengthChange: false
-    }; */
   }
 
   getRoles() {
-    this.roleService.getRoles()
-    .subscribe(res => {
-      this.roles = res.roles;
-    });
+    this.roleService.getRoles().subscribe(res => { this.roles = res.roles });
   }
 
   getPages() {
-    this.roleService.getPages()
-    .subscribe(res => {
-      this.pages = res.pages;
-    });
+    this.roleService.getPages().subscribe(res => { this.pages = res.pages });
   }
-
 }

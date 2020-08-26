@@ -8,7 +8,6 @@ import { DataTablesModule } from 'angular-datatables';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { RecaptchaModule } from 'ng-recaptcha';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
-import { AlertModule } from '../_alert';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from '../material/material.module';
 import { RouterModule } from '@angular/router';
@@ -38,7 +37,6 @@ import { ConfirmEmailUpdateComponent } from './confirm-email-update/confirm-emai
     RouterModule.forRoot(accountRoutes),
     RecaptchaModule.forRoot(),
     PdfViewerModule,
-    AlertModule,
     CommonModule,
     BrowserAnimationsModule,
     TemplatesModule,

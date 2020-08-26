@@ -3,15 +3,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-
 import { Subject } from 'rxjs';
-
-
-
 import { DataTableDirective } from 'angular-datatables';
-
 import { CountriesService } from '../../../services/countries.service';
-
 import { environment } from '../../../../environments/environment';
 
 
@@ -81,23 +75,23 @@ export class ComCountriesComponent implements OnInit {
     };
   }
 
-  detail(c) {
+  detail(country) {
     if (this.clickable) {
       this.clickable = false;
-      this.copyCountry = JSON.parse(JSON.stringify(c));
-      this.row = c._id;
+      this.copyCountry = JSON.parse(JSON.stringify(country));
+      this.row = country._id;
     }
   }
 
-  cancel(i) {
+  cancel(id) {
     this.clickable = true;
-    this.countries[i] = this.copyCountry;
+    this.countries[id] = this.copyCountry;
     this.row = '';
   }
 
-  save(c) {
+  save(country) {
     this.clickable = true;
-    this.countriesService.saveUE(c).subscribe(res => {
+    this.countriesService.saveUE(country).subscribe(res => {
       this.message = res.message;
       this.row = '';
       setTimeout(() => { this.message = ''; }, 5000);
@@ -109,7 +103,4 @@ export class ComCountriesComponent implements OnInit {
       dtInstance.columns(col).search(event.target.value).draw();
     })
   }
-
-
-
 }

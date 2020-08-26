@@ -23,11 +23,7 @@ export class ConfirmEmailUpdateComponent implements OnInit {
   ngOnInit(): void {
     this.token = this.activatedRoute.snapshot.params.token;
     if (this.token) {
-      this.jwtService.verifyTokenValidity(this.token).subscribe(result => {
-        if (result.valid) {
-          this.openDialogForUpdateEmailAdress();
-        }
-      },
+      this.jwtService.verifyTokenValidity(this.token).subscribe(result => { if (result.valid) this.openDialogForUpdateEmailAdress() },
         error => {
           if (error.error.error == "jwt expired") {
             this.swalService.getSwalForNotification("Updating email adress Failed!", "<b>The link is expired, please try again or contact the support team </b>!", "error", 2000);
@@ -48,23 +44,15 @@ export class ConfirmEmailUpdateComponent implements OnInit {
         if (result.value) {
           this.userService.updateEmailAdress(this.token)
             .subscribe(res => {
-              if (res) {
-                this.swalService.getSwalForNotification('Email updated', 'Your email adress have been updated!');
-              }
-              else {
-                this.swalService.getSwalForNotification('Updating email adress Failed !', "An error has occured !", 'error')
-              }
+              if (res) this.swalService.getSwalForNotification('Email updated', 'Your email adress have been updated!');
+              else this.swalService.getSwalForNotification('Updating email adress Failed !', "An error has occured !", 'error')
               this.router.navigate(['/login']);
             },
               error => {
-
-
                 this.swalService.getSwalForNotification('Updating email adress Failed!', `<b>` + error.error.error + `! </b>`, 'error', 2000);
-
                 this.router.navigate(['/login']);
               })
         }
       })
   }
-
 }

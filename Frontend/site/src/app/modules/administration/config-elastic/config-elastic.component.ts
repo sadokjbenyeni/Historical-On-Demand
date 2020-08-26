@@ -9,7 +9,5 @@ export class ConfigElasticComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit() {
-  }
-
+  ngOnInit() { }
 }

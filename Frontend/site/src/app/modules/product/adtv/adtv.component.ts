@@ -9,7 +9,7 @@ import { ConfigService } from '../../../services/config.service';
 })
 export class AdtvComponent implements OnInit {
 
-  adtv: [ {tab: Array<any>} ];
+  adtv: [{ tab: Array<any> }];
   cell: string;
   cellval: string;
   message: string;
@@ -17,21 +17,17 @@ export class AdtvComponent implements OnInit {
   constructor(private configService: ConfigService) { }
 
   ngOnInit() {
-    this.adtv = [{tab:[]}];
+    this.adtv = [{ tab: [] }];
     this.message = '';
     this.cell = '';
     this.cellval = '';
     this.getPricingTier();
   }
 
-  getPricingTier(){
-    this.configService.getPricingTier().subscribe(res=>{
-      this.adtv = res;
-    });
+  getPricingTier() {
+    this.configService.getPricingTier().subscribe(pricingTier => { this.adtv = pricingTier });
   }
   save() {
-    this.configService.setPricingTier(this.adtv).subscribe(res=>{
-      this.message = res.message;
-    });
+    this.configService.setPricingTier(this.adtv).subscribe(result => { this.message = result.message });
   }
 }

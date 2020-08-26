@@ -13,9 +13,7 @@ export class ConfigpComponent implements OnInit {
   currencies: any;
   dtOptions: DataTables.Settings = {};
 
-  constructor(
-    private currencyService: CurrencyService
-  ) { }
+  constructor(private currencyService: CurrencyService) { }
 
   ngOnInit() {
     this.getListCurrency();

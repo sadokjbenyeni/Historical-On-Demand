@@ -11,8 +11,5 @@ export class OrderAmountComponent implements OnInit {
   @Input() symbol: any[];
 
   constructor() { }
-
-  ngOnInit(): void {
-  }
-
+  ngOnInit() { }
 }
