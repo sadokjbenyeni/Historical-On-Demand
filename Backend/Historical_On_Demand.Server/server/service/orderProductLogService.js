@@ -43,7 +43,7 @@ module.exports = function (id, logger) {
 
             var result = await OrderProductLog.create(logDbo);
 
-            this.logger.info({ message: 'Saved ' + logDbo.id_undercmd + '(_id: ' + result._id + ') logs', className: 'OrderProductLog Service' });
+            this.logger.info({ message: `Saved ${logDbo.id_undercmd} (_id: ${result._id}) logs`, className: 'OrderProductLog Service' });
         }
         catch (error) {
             this.logger.error({ message: error.message, className: 'orderProductLog internal API' });

@@ -573,7 +573,7 @@ router.post("/list", async (req, res) => {
     return res.status(200).json(records)
   }
   catch (error) {
-    return res.status(503).json({ error: `an error has been raised please contact support with this identifier ${req.headers.loggerToken}` })
+    return res.status(503).json({ error: `An error has been raised please contact support with this identifier ${req.headers.loggerToken}` })
   }
 });
 
@@ -667,7 +667,7 @@ pdfpost = async function (id, logger, invoiceId, invoiceType) {
 
   }
   catch (error) {
-    req.logger.error({ message: error.message + '\n' + error.stack, className: "Order API" });
+    req.logger.error({ message: `${error.message}\n${error.stack}`, className: "Order API" });
     return false;
   }
 };
