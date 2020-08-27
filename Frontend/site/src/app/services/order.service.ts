@@ -79,7 +79,7 @@ export class OrderService {
 
   editOrder(orderId) { return this.http.put<any>(environment.api + '/order/editOrder', { id: orderId }) }
 
-  complianceStatusUpdate(idCmd, status, referer, email) { return this.http.put<any>(environment.api + '/order/complianceStatusUpdate', { idCmd: idCmd, status: status, referer: referer, email: email }) }
+  complianceStatusUpdate(order) { return this.http.put<any>(environment.api + '/order/complianceStatusUpdate', { order }) }
 
   productStatusUpdate(order) { return this.http.put<any>(environment.api + '/order/productStatusUpdate', { order }) }
 

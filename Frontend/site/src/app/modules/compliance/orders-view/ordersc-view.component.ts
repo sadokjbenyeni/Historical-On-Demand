@@ -198,7 +198,7 @@ export class OrderscViewComponent implements OnInit {
   }
 
   getListStates() {
-    this.orderService.getListStates({}).subscribe(order => {this.states = order['states']});
+    this.orderService.getListStates({}).subscribe(order => { this.states = order['states'] });
   }
   getStateName(stateId) {
     let specificState = this.states.filter(state => state.id === stateId)[0]
@@ -213,7 +213,7 @@ export class OrderscViewComponent implements OnInit {
   async validateOrder() {
     var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to validate order number <b> ${this.idOrder}</b>`)
     if (result.value) {
-      this.orderService.complianceStatusUpdate(this.idCmd, 'PVP', 'Compliance', this.cmd['email'])
+      this.orderService.complianceStatusUpdate({ idCmd: this.idCmd, id: this.idOrder, status: 'PVP', referer: 'Compliance', email: this.cmd['email'] })
         .subscribe(result => {
           if (result) {
             this.swalService.getSwalForNotification(`Order ${this.idOrder} validatd`, ` <b> Order ${this.idOrder} validatd`),

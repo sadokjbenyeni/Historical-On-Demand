@@ -10,6 +10,7 @@ const LogoService = require('./logoService');
 const { table, count } = require('console');
 const { text } = require('body-parser');
 const { tree } = require('gulp');
+const { currency } = require('../config/config');
 const invoiceDirectory = global.environment.InvoiceDirectory;
 
 module.exports = function (order) {
@@ -50,7 +51,7 @@ module.exports = function (order) {
       headerWithLogo(invoiceInformation, client, company, payment),
       orderListHeader(),
       drawLine(0, 555, 0, 0, 3, 'line', '#EA663B'),
-      getOrders(this.order.products),
+      getOrders(this.order.products, currency),
       marginBottom(10),
       amountTable(this.order.totalHTDiscountFree, this.order.totalVat, this.order.vatValue, this.order.total, this.order.discount, currency, this.order.totalHT),
       drawLine(342, 560, -3, -3, 1, 'line', '#EA663B'),
@@ -87,7 +88,7 @@ orderListHeader = function () {
   return {
     table: {
       headerRows: 1,
-      widths: [240, 40, 65, 65, 100],
+      widths: [250, 40, 70, 70, 80],
       margin: [0, 5, 0, 5],
       body: [
         [
@@ -103,7 +104,7 @@ orderListHeader = function () {
   }
 }
 
-function getOrders(orders) {
+function getOrders(orders, currency) {
   let listOrders = [];
   let border = [false, false, false, true];
   orders.forEach(
@@ -114,7 +115,7 @@ function getOrders(orders) {
   if (orders.length > 0) {
     orders.forEach(eid => {
       eid.allproducts.forEach(product => {
-        addProduct(listOrders, product, eid.exchangefee, border, colorCounter);
+        addProduct(listOrders, product, eid.exchangefee, border, colorCounter, currency);
         colorCounter++;
       });
     })
@@ -122,7 +123,7 @@ function getOrders(orders) {
   return {
     table: {
       headerRows: 0,
-      widths: [240, 40, 65, 65, 100],
+      widths: [250, 40, 70, 70, 80],
       margin: [0, 5, 0, 5],
       body: listOrders
     },
@@ -130,18 +131,19 @@ function getOrders(orders) {
   }
 };
 
-function addProduct(listOrders, product, exchangefee, border, colorCounter) {
+function addProduct(listOrders, product, exchangefee, border, colorCounter, currency) {
   var typeOrder = product.onetime === 1 ? "One-Off" : "Subscription";
   var dateDebut = product.onetime === 1 ? toCalendarFormat(product.begin_date) : toCalendarFormat(product.begin_date_ref);
   var dateFin = product.onetime === 1 ? toCalendarFormat(product.end_date) : toCalendarFormat(product.end_date_ref);
-  var dataset = product.dataset === "L1TRADEONLY" ? "L1 - Trades" : product.dataset
+  var dataset = product.dataset === "L1TRADEONLY" ? "L1 - Trades" : product.dataset;
   let backgroundColor = colorCounter % 2 == 0 ? "#F6F6F6" : "#ffffff";
+  let currencySymbol = currency.symbol;
   listOrders.push([
     { border: border, text: product.idx + '\t' + typeOrder + "  " + dataset, margin: [0, 5, 0, 5], fontSize: 10, fillColor: backgroundColor, color: '#6C6C6C' },
     { border: border, text: "1", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor, color: '#6C6C6C' },
     { border: border, text: dateDebut, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor, color: '#6C6C6C' },
     { border: border, text: dateFin, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor, color: '#6C6C6C' },
-    { border: border, text: product.ht.toFixed(2), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor, color: '#6C6C6C' },
+    { border: border, text: `${currencySymbol} ${product.ht.toFixed(2)}`, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, fillColor: backgroundColor, color: '#6C6C6C' },
   ]);
   if (product.backfill_fee > 0 || product.ongoing_fee > 0) {
     listOrders.push([
@@ -149,7 +151,7 @@ function addProduct(listOrders, product, exchangefee, border, colorCounter) {
       { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C', fillColor: '#FFFCF9' },
       { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C', fillColor: '#FFFCF9' },
       { border: border, text: "", margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C', fillColor: '#FFFCF9' },
-      { border: border, text: exchangefee.toFixed(2), margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C', fillColor: '#FFFCF9' }
+      { border: border, text: `${currencySymbol} ${exchangefee.toFixed(2)}`, margin: [0, 5, 0, 5], alignment: 'center', fontSize: 10, color: '#6C6C6C', fillColor: '#FFFCF9' }
     ]);
   }
 
@@ -360,7 +362,7 @@ amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount
               body: [
                 [
                   { border: border, text: 'SUBTOTAL', fontSize: 10, color: '#6C6C6C' },
-                  { border: border, text: currencySymbol + serviceTotal.toFixed(2), fontSize: 10, alignment: 'right', color: '#6C6C6C' },
+                  { border: border, text: `${currencySymbol} ${serviceTotal.toFixed(2)}`, fontSize: 10, alignment: 'right', color: '#6C6C6C' },
                   { border: border, text: currency.device, fontSize: 10, color: '#6C6C6C' }
                 ],
                 [
@@ -370,7 +372,7 @@ amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount
                 ],
                 [
                   { border: border, text: 'TOTAL', fontSize: 10, color: '#6C6C6C' },
-                  { border: border, text: currencySymbol + totalLessDiscount.toFixed(2), fontSize: 10, alignment: 'right', color: '#6C6C6C' },
+                  { border: border, text: `${currencySymbol} ${totalLessDiscount.toFixed(2)}`, fontSize: 10, alignment: 'right', color: '#6C6C6C' },
                   { border: border, text: currency.device, fontSize: 10, color: '#6C6C6C' }
                 ],
                 [
@@ -380,12 +382,12 @@ amountTable = function (serviceTotal, vatTotal, vatValue, invoiceTotal, discount
                 ],
                 [
                   { border: border, text: 'TOTAL TAX', fontSize: 10, color: '#6C6C6C' },
-                  { border: border, text: currencySymbol + vatTotal.toFixed(2), fontSize: 10, alignment: 'right', color: '#6C6C6C' },
+                  { border: border, text: `${currencySymbol} ${vatTotal.toFixed(2)}`, fontSize: 10, alignment: 'right', color: '#6C6C6C' },
                   { border: border, text: currency.device, fontSize: 10, color: '#6C6C6C' }
                 ],
                 [
                   { border: [false, false, false, false], text: 'BALANCE DUE', fontSize: 10, bold: true, color: '#EA663B' },
-                  { border: [false, false, false, false], text: currencySymbol + invoiceTotal.toFixed(2), fontSize: 10, bold: true, alignment: 'right', color: '#ffffff', fillColor: '#EA663B' },
+                  { border: [false, false, false, false], text: `${currencySymbol} ${invoiceTotal.toFixed(2)}`, fontSize: 10, bold: true, alignment: 'right', color: '#ffffff', fillColor: '#EA663B' },
                   { border: [false, false, false, false], text: currency.device, fontSize: 10, color: '#ffffff', fillColor: '#EA663B' }
                 ],
               ]

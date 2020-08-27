@@ -171,12 +171,12 @@ router.put("/complianceStatusUpdate", async (req, res) => {
   let orderUpdated = {};
   let log = {};
   let corp = {};
-  orderUpdated.state = req.body.status;
-  log.status = req.body.status;
-  log.referer = req.body.referer;
+  orderUpdated.state = req.body.order.status;
+  log.status = req.body.order.status;
+  log.referer = req.body.order.referer;
   log.date = new Date();
 
-  if (req.body.referer === "Compliance") {
+  if (req.body.order.referer === "Compliance") {
     try {
       await UpdateStateCompliance(orderUpdated, corp, req);
     }
@@ -187,8 +187,8 @@ router.put("/complianceStatusUpdate", async (req, res) => {
   }
   req.logger.info("Order Updating...");
   req.logger.debug(`Data Order Update: {${JSON.stringify(orderUpdated)}}`);
-  await Order.updateOne({ id_cmd: req.body.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
-  await Invoice.updateOne({ orderId: req.body.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  await Order.updateOne({ id_cmd: req.body.order.idCmd }, { $set: orderUpdated, $push: { logs: log } }).exec();
+  await Invoice.updateOne({ orderId: req.body.order.id, state: { $ne: 'Aborted' } }, { $set: orderUpdated, $push: { logs: log } }).exec();
   return res.status(201).json({ ok: true });
 })
 
@@ -1066,12 +1066,12 @@ function currentDateReversed() {
 async function UpdateStateCompliance(updt, corp, req) {
   updt.validationCompliance = true;
   corp = {
-    email: req.body.email,
-    idCmd: req.body.idCmd,
+    email: req.body.order.email,
+    idCmd: req.body.order.idCmd,
     paymentdate: new Date(),
     service: "Product",
   };
-  var order = await Order.findOne({ id_cmd: req.body.idCmd }).exec();
+  var order = await Order.findOne({ id_cmd: req.body.order.idCmd }).exec();
   let eids = [];
   order.products.forEach((product) => { eids.push(product.eid) });
   var users = await User.find({ roleName: "Product" }).exec();
