@@ -282,9 +282,10 @@ export class OrderspViewComponent implements OnInit {
   }
 
   async rejectOrder() {
-    var result = await this.swalService.getSwalForConfirm('Are you sure?', `You are going to reject order number <b> ${this.idOrder}</b>`)
-    if (result.value) {
-      this.orderService.productStatusUpdate({ idCmd: this.idCmd, id: this.idOrder, status: 'rejected', referer: 'Product', reason: this.reason })
+    var result = await this.swalService.getSwalForConfirmWithMessage('Are you sure?', `You are going to reject order number <b> ${this.idOrder}</b>`)
+    debugger;
+    if (result.isConfirmed) {
+      this.orderService.productStatusUpdate({ idCmd: this.idCmd, id: this.idOrder, status: 'rejected', referer: 'Product', reason: result.value })
         .subscribe(result => {
           if (result) {
             this.swalService.getSwalForNotification(`Order ${this.idOrder} rejected`, ` <b> Order ${this.idOrder} rejected`),

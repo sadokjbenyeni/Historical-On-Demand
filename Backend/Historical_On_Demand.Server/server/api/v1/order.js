@@ -58,8 +58,7 @@ router.post("/logPayement", (req, res) => {
 
   request.post(options, function (error, response, body) {
     body.date = new Date();
-    Order.updateOne({ id_cmd: body.merchantReference }, { $push: { logsPayment: body } })
-      .then((result) => { res.status(201).json(result) });
+    Order.updateOne({ id_cmd: body.merchantReference }, { $push: { logsPayment: body } }).then((result) => { res.status(201).json(result) });
   });
 });
 
@@ -82,12 +81,8 @@ router.post("/autovalidation", (req, res) => {
 router.post("/save", async (req, res) => {
   let total = 0;
   let cart = req.body.cart;
-  if (cart.currency !== "usd") {
-    total = precisionRound((cart.total / cart.currencyTxUsd) * currencyTx, 2);
-  }
-  else {
-    total = precisionRound(cart.total, 2);
-  }
+  if (cart.currency !== "usd") total = precisionRound((cart.total / cart.currencyTxUsd) * currencyTx, 2);
+  else total = precisionRound(cart.total, 2);
 
   await Order.updateOne(
     { id_cmd: cart.idCmd },

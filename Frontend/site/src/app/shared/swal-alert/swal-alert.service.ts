@@ -70,4 +70,23 @@ export class SwalAlertService {
       }
     })
   }
+
+  getSwalForConfirmWithMessage(title: string, text: string, icon: SweetAlertIcon = 'warning', showCancelButton: boolean = true, confirmButtonColor: string = '#3085d6', cancelButtonColor: string = '#d33', confirmButtonText: string = 'Confirm', allowOutsideClick = false, allowEscapeKey = false) {
+    return Swal.fire({
+      title: title,
+      html: text,
+      icon: icon,
+      confirmButtonText: confirmButtonText,
+      confirmButtonColor: confirmButtonColor,
+      showCancelButton: showCancelButton,
+      cancelButtonColor: cancelButtonColor,
+      allowOutsideClick: allowOutsideClick,
+      allowEscapeKey: allowEscapeKey,
+      input: 'textarea',
+      inputPlaceholder: 'Type your reason here...',
+      inputAttributes: {
+        'aria-label': 'Type your reason here'
+      }
+    })
+  }
 }
